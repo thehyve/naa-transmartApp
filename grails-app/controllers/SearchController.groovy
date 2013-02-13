@@ -853,11 +853,11 @@ public class SearchController{
 		
 		session['filterTableView'] = filter
 		
-		if (analysisIds.size() >= 100) {
+/*		if (analysisIds.size() >= 100) {
 			render(text: "<p>The table view cannot be used with more than 100 analyses (${analysisIds.size()} analyses in current search results). Narrow down your results by adding filters.</p>")
 			return
 		}
-		else if (analysisIds.size() == 0) {
+		else*/ if (analysisIds.size() == 0) {
 			render(text: "<p>No analyses were found for the current filter!</p>")
 			return
 		}
