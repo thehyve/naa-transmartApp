@@ -90,7 +90,39 @@ class UploadDataController {
 		response.outputStream << template
 		response.outputStream.flush()
 	}
-	
+	def skipp ={
+		def paramMap=params
+		def upload=null;
+		def result = new DataUploadResult(success: true)
+		if(params.id){
+			upload=AnalysisMetadata.get(params.id)
+		}
+		else{
+			upload=new AnalysisMetadata(params)
+			result.success=false
+			result.error="Could not find id for the analysis, something is wrong..."
+			render(view: "complete",model: [result: result, uploadDataInstance: upload]);
+		}
+		bindData(upload, params)
+		upload.status="PENDING";
+		upload.save(flush: true)
+		try {
+			dataUploadService.runStaging(upload.id);
+		}
+		catch (Exception e) {
+			log.error(e.getMessage(), e)
+		}
+		if (upload.hasErrors()) {
+			flash.message = "The metadata could not be saved - please correct the highlighted errors."
+			def errors = upload.errors
+			def model = [uploadDataInstance: upload]
+			addFieldData(model, upload)
+			render(view: "uploadData", model: model)
+		}
+		else {
+			render(view: "complete", model: [result: result, uploadDataInstance: upload]);
+		}
+	}
 	def upload = {
 		def paramMap = params
 		def upload = null;
@@ -170,8 +202,16 @@ class UploadDataController {
 			catch (Exception e) {
 				upload.status = "ERROR"
 				upload.save(flush: true)
-				result = new DataUploadResult(success:false, error: "Could not verify file: " + e.getMessage());
-				render(view: "complete", model: [result: result, uploadDataInstance: upload]);
+				if(e.getMessage()!=null){
+				flash.message2=e.getMessage()+". If you wish to skip those SNPs, please click 'Continue'. If you wish to reload, click 'Cancel'."
+				def model = [uploadDataInstance: upload]
+				addFieldData(model, upload)
+				render(view: "uploadData2", model: model)
+				}
+				else{
+					result = new DataUploadResult(success:false, error: "Could not verify file: unexpected exception occured." + e.getMessage());
+					render(view: "complete", model: [result: result, uploadDataInstance: upload]);
+				}
 				return
 			}
 			

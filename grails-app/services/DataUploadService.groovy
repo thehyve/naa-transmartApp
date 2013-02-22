@@ -67,6 +67,7 @@ public class DataUploadService{
 		
 		def pValueIndex = -1;
 		def logpValueIndex = -1;
+		def rsIdIndex=-1;
 		def numberOfColumns = headerList.size();
 		for (int i = 0; i < headerList.size(); i++) {
 			def column = headerList[i];
@@ -75,6 +76,9 @@ public class DataUploadService{
 			}
 			else if (column.trim().toLowerCase().equals("log_p_value")) {
 				logpValueIndex = i;
+			}
+			else if(column.trim().toLowerCase().equals("rs_id")){
+				rsIdIndex=i;
 			}
 		}
 		
@@ -97,15 +101,22 @@ public class DataUploadService{
 			
 			//For each line, check the value and p-value - if we have one but not the other, calculate and fill it
 			String[] nextLine
+			def pflag=false;
+			String linenos="";
+			int lineno=1;
 			while ((nextLine = csvRead.readNext()) != null) {
 				def columns = nextLine.toList()
 				def currentpValue = columns[pValueIndex]
 				def currentlogpValue = columns[logpValueIndex]
-				
+				lineno++;
+				int flag=1;
 				if (!currentpValue && !currentlogpValue) {
-					throw new Exception("No p_value or log_p_value was provided for a row.")
+					linenos += columns[rsIdIndex]+",";
+					pflag=true; flag=0;
+				  //  throw new Exception("No p_value or log_p_value was provided for a row."+ linenos);
+					
 				}
-				if (!currentpValue) {
+				else if (!currentpValue) {
 					columns[pValueIndex] = 0 - Math.power(10.0, Double.parseDouble(currentlogpValue))
 				}
 				else if (!currentlogpValue) {
@@ -113,7 +124,14 @@ public class DataUploadService{
 				}
 				
 				//This row is now complete - write it!
-				csv.writeNext(columns as String[])
+				if(flag==1){
+				   csv.writeNext(columns as String[])
+				}
+			}
+			if(pflag){
+				//result.success=false;
+				//result.error="No p_value or log_p_value was provided for snps "+linenos;
+			    throw new Exception ("No p_value or log_p_value was provided for SNPs "+linenos);
 			}
 			
 			return result;
