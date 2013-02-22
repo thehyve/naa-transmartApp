@@ -155,7 +155,9 @@
 								</g:eachError>
 							</div>
 							<g:select name="dataType" name="dataType" noSelection="${['null':'Select...']}" from="${['GWAS':'GWAS','Metabolic GWAS':'GWAS Metabolomics','EQTL':'eQTL']}" optionKey="${{it.key}}" optionValue="${{it.value}}" value="${uploadDataInstance?.dataType}"/>
+							<a class="upload" href="#" onclick="downloadTemplate();">Download Template</a>
 						</td>
+						
 					</tr>
 				
 					<tr>
