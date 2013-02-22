@@ -254,7 +254,12 @@ function generateBrowseWindow(nodeClicked)
 
 function downloadTemplate() {
 	var type = $j('#dataType').val();
-	window.location = templateDownloadUrl + "?type=" + type;
+	if ($j('#dataType').val() == null || $j('#dataType').val() == "null" || $j('#dataType').val() == '') {
+		$j('#dataTypeErrors').html('<div class="fieldError">Please select an analysis type</div>');
+		//alert("Select data type!");
+		}
+	else
+		window.location = templateDownloadUrl + "?type=" + type;
 }
 
 function loadPlatformTypes(field, type) {
