@@ -1283,13 +1283,26 @@ public class SearchController{
 				def largeTextField = it[3].split(";", -1)
 				
 				//This will be the array that is reordered according to the meta-data index table.
-				String[] newLargeTextField = new String[largeTextField.size()]
-				
+				//String[] newLargeTextField = new String[largeTextField.size()]
+				String[] newLargeTextField = new String[indexMap.size()]
+				def counter=0;
 				//Loop over the elements in the index map.
 				indexMap.each()
 				{
 					//Reorder the array based on the index table.
-					newLargeTextField[it.value-1] = largeTextField[it.key-1]
+					//if (it.key-1<newLargeTextField.size())
+					if (it.key-1<largeTextField.size())
+					{
+						log.warn("Key: "+it.key+ "size "+newLargeTextField.size());
+						newLargeTextField[it.value-1] = largeTextField[it.key-1]
+						counter++;
+					}
+					else
+					{
+						log.warn("Else clause Key: "+it.key+ "size "+newLargeTextField.size());
+						newLargeTextField[counter]="";
+						counter++;
+					}
 				}
 				
 				//Swap around the data types for easy array addition.
