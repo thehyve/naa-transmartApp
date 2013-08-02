@@ -62,7 +62,7 @@ BEGIN
       concept_cd IN (SELECT C_BASECODE FROM I2B2 WHERE C_FULLNAME = PATH);
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Deleted any concepts for path from I2B2DEMODATA observation_fact',SQL%ROWCOUNT,stepCt,'Done');
-    COMMIT;
+ --   COMMIT;
 
       --CONCEPT DIMENSION
     DELETE 
@@ -71,7 +71,7 @@ BEGIN
       CONCEPT_PATH = path;
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Deleted any concepts for path from I2B2DEMODATA concept_dimension',SQL%ROWCOUNT,stepCt,'Done');
-    COMMIT;
+  --  COMMIT;
     
       --I2B2
       DELETE
@@ -80,7 +80,7 @@ BEGIN
         C_FULLNAME = PATH;
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Deleted path from I2B2METADATA i2b2',SQL%ROWCOUNT,stepCt,'Done');
-    COMMIT;
+   -- COMMIT;
     
       --CONCEPT DIMENSION
     INSERT INTO CONCEPT_DIMENSION
@@ -96,7 +96,7 @@ BEGIN
       'CONCEPT_DIMENSION');
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Inserted concept for path into I2B2DEMODATA concept_dimension',SQL%ROWCOUNT,stepCt,'Done');
-    COMMIT;
+    --COMMIT;
     
     --I2B2
     INSERT
