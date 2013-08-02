@@ -301,6 +301,31 @@ AS
 
     end if;
     
+    --Insert data_count to bio_assay_analysis table. added by Haiyan Zhang 01/22/2013
+    for i in stage_array.first .. stage_array.last
+    loop
+        v_bio_assay_analysis_id := stage_array(i).bio_assay_analysis_id;
+        v_data_type := stage_array(i).data_type;
+        if v_data_type = 'EQTL' then
+          
+            update biomart.bio_assay_analysis set data_count=(select count(*) from biomart.bio_assay_analysis_eqtl 
+            where bio_assay_analysis_eqtl.bio_assay_analysis_id=v_bio_assay_analysis_id) 
+            where bio_assay_analysis.bio_assay_analysis_id=v_bio_assay_analysis_id;
+            stepCt := stepCt +1;
+            cz_write_audit(jobId,databaseName,procedureName,'Update data_count for analysis ' || v_data_type,SQL%ROWCOUNT,stepCt,'Done');
+            commit;
+        else
+          
+            update biomart.bio_assay_analysis set data_count=(select count(*) from biomart.bio_assay_analysis_gwas 
+            where bio_assay_analysis_gwas.bio_assay_analysis_id=v_bio_assay_analysis_id) 
+            where bio_assay_analysis.bio_assay_analysis_id=v_bio_assay_analysis_id;
+            stepCt := stepCt +1;
+            cz_write_audit(jobId,databaseName,procedureName,'Update data_count for analysis ' || v_data_type,SQL%ROWCOUNT,stepCt,'Done');
+            commit;
+        end if;
+    end loop; 
+    ---end added by Haiyan Zhang
+    
     cz_write_audit(jobId,databaseName,procedureName,'End i2b2_move_analysis_to_prod',0,stepCt,'Done');
     stepCt := stepCt + 1;
     
