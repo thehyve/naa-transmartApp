@@ -143,8 +143,10 @@ BEGIN
 	--execute immediate('truncate table tmp_concept_counts');
 	
 	--SET ANY NODE WITH MISSING OR ZERO COUNTS TO HIDDEN
+    execute immediate('create index cc_path_count_idx on CONCEPT_COUNTS(CONCEPT_PATH, PATIENT_COUNT) tablespace "INDX"');
+    execute immediate('create index cc_path_idx on CONCEPT_COUNTS(CONCEPT_PATH) tablespace "INDX"');
 
-	update i2b2
+	updat i2b2
 	set c_visualattributes = substr(c_visualattributes,1,1) || 'H' || substr(c_visualattributes,3,1)
 	where c_fullname like path || '%'
 	  and (not exists
@@ -161,6 +163,8 @@ BEGIN
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Nodes hidden with missing/zero counts for trial into I2B2DEMODATA concept_counts',SQL%ROWCOUNT,stepCt,'Done');
 		
+        execute immediate('drop index cc_path_count_idx');
+        execute immediate('drop index cc_path_idx');
 	  commit;
     
     ---Cleanup OVERALL JOB if this proc is being run standalone
