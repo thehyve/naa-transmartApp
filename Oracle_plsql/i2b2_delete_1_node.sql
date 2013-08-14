@@ -17,28 +17,28 @@ BEGIN
       FROM OBSERVATION_FACT 
     WHERE 
       concept_cd IN (SELECT C_BASECODE FROM I2B2 WHERE C_FULLNAME = PATH);
-    COMMIT;
+   -- COMMIT;
 
       --CONCEPT DIMENSION
     DELETE 
       FROM CONCEPT_DIMENSION
     WHERE 
       CONCEPT_PATH = path;
-    COMMIT;
+    --COMMIT;
     
       --I2B2
       DELETE
         FROM i2b2
       WHERE 
         C_FULLNAME = PATH;
-    COMMIT;
+    --COMMIT;
 
   --i2b2_secure
       DELETE
         FROM i2b2_secure
       WHERE 
         C_FULLNAME = PATH;
-    COMMIT;
+    --COMMIT;
 
   --i2b2_secure
       DELETE
