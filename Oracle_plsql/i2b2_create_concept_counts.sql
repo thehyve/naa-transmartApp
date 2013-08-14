@@ -118,7 +118,7 @@ BEGIN
 	,parent_concept_path
 	,patient_count
 	)
-	select fa.c_fullname
+	select /*+ INDEX(I2B2 I2B2_IDX1)*/ fa.c_fullname
 		  ,ltrim(SUBSTR(fa.c_fullname, 1,instr(fa.c_fullname, '\',-1,2)))
 		  ,count(distinct tpm.patient_num)
 	from i2b2 fa
