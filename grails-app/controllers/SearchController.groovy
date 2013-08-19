@@ -1183,6 +1183,7 @@ public class SearchController{
 	
 	
 	def runRegionQuery(analysisIds, regions, max, offset, cutoff, sortField, order, search, type, geneNames) throws Exception {
+		log.warn("Start execution of query")
 		
 		//This will hold the index lookups for deciphering the large text meta-data field.
 		def indexMap = [:]
@@ -1293,13 +1294,13 @@ public class SearchController{
 					//if (it.key-1<newLargeTextField.size())
 					if (it.key-1<largeTextField.size())
 					{
-						log.warn("Key: "+it.key+ "size "+newLargeTextField.size());
+						//log.warn("Key: "+it.key+ "size "+newLargeTextField.size());
 						newLargeTextField[it.value-1] = largeTextField[it.key-1]
 						counter++;
 					}
 					else
 					{
-						log.warn("Else clause Key: "+it.key+ "size "+newLargeTextField.size());
+						//log.warn("Else clause Key: "+it.key+ "size "+newLargeTextField.size());
 						newLargeTextField[counter]="";
 						counter++;
 					}
@@ -1326,6 +1327,8 @@ public class SearchController{
 				returnedAnalysisData.add(temporaryList)
 			}
 		}
+		
+		log.warn("Results processed")
 		println("Results processed OK")
 		return [analysisData: returnedAnalysisData, columnNames: columnNames, max: max, offset: offset, cutoff: cutoff, totalCount: totalCount, wasRegionFiltered: wasRegionFiltered]
 		
