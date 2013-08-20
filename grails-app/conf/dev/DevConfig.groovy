@@ -1,3 +1,8 @@
+/************************
+ * configuration for data upload
+ *************************/
+
+com.recomdata.dataUpload.appTitle="Upload Data"
 
 /************************
  * configuration for search
