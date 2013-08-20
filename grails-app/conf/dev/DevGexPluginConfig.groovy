@@ -1,6 +1,6 @@
 package dev
 
-TmartGex {
+Gex {
 
     // working area for exported files
     tempDirectory = "C:\\Users\\sfaria\\AppData\\Local\\Temp\\jobs\\"
