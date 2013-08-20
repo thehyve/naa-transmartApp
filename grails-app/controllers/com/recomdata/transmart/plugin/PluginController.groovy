@@ -35,10 +35,17 @@ class PluginController {
         [ pluginInstanceList: Plugin.list( params ), pluginInstanceTotal: Plugin.count() ]
     }
 	
+	def plugins = {
+		def result = pluginService.getPluginsAsJSON()
+		
+		response.setContentType("text/json")
+		response.outputStream << result?.toString()
+	}
+
 	def modules = {
 		params.pluginName = params.pluginName?.trim() ? params.pluginName?.trim() : 'R-Modules'
 		def result = pluginService.getPluginModulesAsJSON(params.pluginName)
-		
+
 		response.setContentType("text/json")
 		response.outputStream << result?.toString()
 	}
