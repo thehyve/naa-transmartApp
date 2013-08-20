@@ -66,36 +66,26 @@ function dataSelectionCheckboxChanged(ctl)
 }
 
 function setDataAssociationAvailableFlag(el, success, response, options) {
-	
 	if (!success) {
 		var dataAssociationPanel = Ext.getCmp('dataAssociationPanel');
 		var resultsTabPanel = Ext.getCmp('resultsTabPanel');
 		resultsTabPanel.remove(dataAssociationPanel);
 		resultsTabPanel.doLayout();
 	} else {
-		Ext.Ajax.request(
-		{
-			url : pageInfo.basePath+"/dataAssociation/loadScripts",
-				method : 'GET',
-				timeout: '600000',
-				params :  Ext.urlEncode({}),
-				success : function(result, request)
-				{
-					var exp = result.responseText.evalJSON();
-					if (exp.success && exp.files.length > 0)	{
-						/*for (var i = 0; i < exp.files.length; i++) {
-							var file = exp.files[i]
-							if (file.type == 'script') {
-								
-							}
-						}*/
-						loadScripts(exp.files);
-					}
-				},
-				failure : function(result, request)
-				{
-					alert("Unable to process the export: " + result.responseText);
+		Ext.Ajax.request({
+			url: pageInfo.basePath + "/dataAssociation/loadScripts",
+			method: 'GET',
+			timeout: '600000',
+			params: Ext.urlEncode({}),
+			success: function (result, request) {
+				var exp = result.responseText.evalJSON();
+				if (exp.success && exp.files.length > 0) {
+					loadScripts(exp.files);
 				}
+			},
+			failure: function (result, request) {
+				alert("Unable to process the export: " + result.responseText);
+			}
 		});
 	}
 }
@@ -779,56 +769,29 @@ Ext.onReady(function()
 					collapsible : true						
 				}
 		);
-		
-		dataAssociationPanel = new Ext.Panel(
-				{
-					id : 'dataAssociationPanel',
-					title : 'Advanced Workflow',
-					region : 'center',
-					split : true,
-					height : 90,
-					layout : 'fit',
-					tbar : new Ext.Toolbar({
-						id : 'advancedWorkflowToolbar',
-						title : 'Advanced Workflow actions',
-						items : []
-						}),
-					autoScroll : true,
-					autoLoad:
-			        {
-			        	url : pageInfo.basePath+'/dataAssociation/defaultPage',
-			           	method:'POST',
-			           	callback: setDataAssociationAvailableFlag,
-			           	evalScripts:true
-			        },
-			        /*buttons: [{
-						text:'Run Job',
-						handler: function()	{
-							var analysis = Ext.get('analysis');
-							if (analysis != undefined) {
-								var selectedAnalysis = analysis.dom.value;
-								if (selectedAnalysis != '') {
-									selectedAnalysis = selectedAnalysis.charAt(0).toUpperCase()+selectedAnalysis.substring(1);
-									eval("submit"+selectedAnalysis+"Job(this.form)");
-								} else {
-									Ext.Msg.alert('Analysis required!!!', 'Please select an Analysis from the \'Analysis\' menu.')
-								}
-							}
-						}      	
-			        }],
-			        buttonAlign:'center',*/
-			        listeners :
-					{
-			        	activate : function() {
-							GLOBAL.Analysis="dataAssociation";
-							renderCohortSummary();
-							//Ext.getCmp('dataAssociationBodyPanel').focus()
-						}
-					},
-					collapsible : true
+
+		dataAssociationPanel = new Ext.Panel({
+			id: 'dataAssociationPanel',
+			title: 'Advanced Workflow',
+			region: 'center',
+			split: true,
+			height: 90,
+			layout: 'fit',
+			tbar: new Ext.Toolbar({
+				id: 'advancedWorkflowToolbar',
+				title: 'Advanced Workflow actions',
+				items: []
+			}),
+			autoScroll: true,
+			listeners: {
+				activate: function () {
+					GLOBAL.Analysis = "dataAssociation";
+					renderCohortSummary();
 				}
-		);
-		
+			},
+			collapsible: true
+		});
+
 		analysisExportJobsPanel = new Ext.Panel(
 				{
 					id : 'analysisExportJobsPanel',
@@ -858,7 +821,8 @@ Ext.onReady(function()
 		//resultsTabPanel.add(analysisJobsPanel);
 		resultsTabPanel.add(analysisDataExportPanel);
 		resultsTabPanel.add(analysisExportJobsPanel);
-		
+		loadDataAssociationPanel(dataAssociationPanel);
+
 		southCenterPanel = new Ext.Panel(
 				{
 					id : 'southCenterPanel',
@@ -1168,6 +1132,50 @@ function exportDataSets()
 function hasMultipleTimeSeries()
 {
 	return true;
+}
+
+function loadDataAssociationPanel(dataAssociationPanel) {
+	function loadPluginScripts(plugins) {
+		for (var i = 0; i < plugins.length; i++) {
+			Ext.Ajax.request({
+				url: pageInfo.basePath + plugins[i].defaultLink + "/loadScripts",
+				method: 'GET',
+				timeout: '600000',
+				params: Ext.urlEncode({}),
+				success: function (result, request) {
+					var exp = result.responseText.evalJSON();
+					if (exp.success && exp.files.length > 0) {
+						loadScripts(exp.files);
+					}
+				},
+				failure: function (result, request) {
+					alert("Failed to retrieve scripts from plugin: " + plugins[i].name + " responded with: " + result.responseText);
+				}
+			});
+		}
+	}
+
+	Ext.Ajax.request({
+		url: pageInfo.basePath + "/plugin/plugins",
+		method: 'GET',
+		success: function (result, request) {
+			var plugins = result.responseText.evalJSON().plugins;
+			if (plugins.size() > 0) {
+				dataAssociationPanel.load({
+					url: pageInfo.basePath + plugins[0].defaultLink + '/defaultPage',
+					method: 'POST',
+					callback: loadPluginScripts(plugins),
+					evalScripts: true
+				});
+			}
+		},
+		failure: function (result, request) {
+			var resultsTabPanel = Ext.getCmp('resultsTabPanel');
+			resultsTabPanel.remove(dataAssociationPanel);
+			resultsTabPanel.doLayout();
+			Ext.Msg.alert('Status', 'Unable to retrieve data association plugins.');
+		}
+	});
 }
 
 function createOntPanel()
