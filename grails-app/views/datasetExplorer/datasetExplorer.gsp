@@ -80,17 +80,15 @@
 	
 	<script type="text/javascript" src="${resource(dir:'js', file:'browserDetect.js')}"></script>
 	
-
- 
 	<link rel="stylesheet" type="text/css" href="${resource(dir:'css', file:'datasetExplorer.css')}">
-	
+    <link rel="stylesheet" type="text/css" href="${resource(dir:'css', file:'dataAssociation.css')}">
 	<script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'datasetExplorer.js')}"></script>
 	<script type="text/javascript" src="${resource(dir:'js', file:'advancedWorkflowFunctions.js')}"></script>
-	
 	<script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'highDimensionData.js')}"></script>
-		<script type="text/javascript" src="${resource(dir:'js', file:'utilitiesMenu.js')}"></script>
-		
-	<!-- Combo-handled YUI JS files: --> 
+    <script type="text/javascript" src="${resource(dir:'js', file:'utilitiesMenu.js')}"></script>
+	<script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'dataAssociation.js')}"></script>
+
+	<!-- Combo-handled YUI JS files: -->
 	<script type="text/javascript" src="http://yui.yahooapis.com/combo?2.9.0/build/yahoo/yahoo-min.js&2.9.0/build/get/get-min.js"></script> 
 	<style>
 		.ui-progressbar-value { background-image: url(images/pbar-ani.gif); }
