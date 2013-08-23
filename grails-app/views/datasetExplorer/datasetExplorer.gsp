@@ -52,7 +52,7 @@
 <script type="text/javascript"
 	src="${resource(dir:'js/ext-ux', file:'miframe.js')}"></script>
 <script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'i2b2common.js')}"></script>
-<!-- <script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'dataAssociation.js')}"></script> -->
+<!-- <script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'dataAnalysisTools.js')}"></script> -->
 <script type="text/javascript"
 	src="${resource(dir:'js/datasetExplorer', file: 'requests.js')}"></script>
 <script type="text/javascript"
@@ -86,7 +86,7 @@
 	<script type="text/javascript" src="${resource(dir:'js', file:'advancedWorkflowFunctions.js')}"></script>
 	<script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'highDimensionData.js')}"></script>
     <script type="text/javascript" src="${resource(dir:'js', file:'utilitiesMenu.js')}"></script>
-	<script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'dataAssociation.js')}"></script>
+	<script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'dataAnalysisTools.js')}"></script>
 
 	<!-- Combo-handled YUI JS files: -->
 	<script type="text/javascript" src="http://yui.yahooapis.com/combo?2.9.0/build/yahoo/yahoo-min.js&2.9.0/build/get/get-min.js"></script> 
