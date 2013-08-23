@@ -65,53 +65,6 @@ function dataSelectionCheckboxChanged(ctl)
 	}
 }
 
-function setDataAssociationAvailableFlag(el, success, response, options) {
-	if (!success) {
-		var dataAssociationPanel = Ext.getCmp('dataAssociationPanel');
-		var resultsTabPanel = Ext.getCmp('resultsTabPanel');
-		resultsTabPanel.remove(dataAssociationPanel);
-		resultsTabPanel.doLayout();
-	} else {
-		Ext.Ajax.request({
-			url: pageInfo.basePath + "/dataAssociation/loadScripts",
-			method: 'GET',
-			timeout: '600000',
-			params: Ext.urlEncode({}),
-			success: function (result, request) {
-				var exp = result.responseText.evalJSON();
-				if (exp.success && exp.files.length > 0) {
-					loadScripts(exp.files);
-				}
-			},
-			failure: function (result, request) {
-				alert("Unable to process the export: " + result.responseText);
-			}
-		});
-	}
-}
-
-function loadScripts(scripts) {
-	var handlerData = {
-	//data you wish to pass to your success or failure
-	//handlers.
-	};
-	 
-	var filesArr = []
-	for (var i = 0; i < scripts.length; i++) {
-		var file = scripts[i];
-		filesArr.push(file.path);
-	}
-	YAHOO.util.Get.script(filesArr, {
-		onSuccess: function(o) {
-			//alert("JavaScripts loaded");
-		},
-		onFailure: function(o) {
-			alert("Failed to load Javascript files");
-		},
-		data:      handlerData
-	});
-}
-
 Ext.Panel.prototype.setBody = function(html)
 {
 	var el = this.getEl();
@@ -1132,6 +1085,53 @@ function exportDataSets()
 function hasMultipleTimeSeries()
 {
 	return true;
+}
+
+function setDataAssociationAvailableFlag(el, success, response, options) {
+	if (!success) {
+		var dataAssociationPanel = Ext.getCmp('dataAssociationPanel');
+		var resultsTabPanel = Ext.getCmp('resultsTabPanel');
+		resultsTabPanel.remove(dataAssociationPanel);
+		resultsTabPanel.doLayout();
+	} else {
+		Ext.Ajax.request({
+			url: pageInfo.basePath + "/dataAssociation/loadScripts",
+			method: 'GET',
+			timeout: '600000',
+			params: Ext.urlEncode({}),
+			success: function (result, request) {
+				var exp = result.responseText.evalJSON();
+				if (exp.success && exp.files.length > 0) {
+					loadScripts(exp.files);
+				}
+			},
+			failure: function (result, request) {
+				alert("Unable to process the export: " + result.responseText);
+			}
+		});
+	}
+}
+
+function loadScripts(scripts) {
+	var handlerData = {
+		//data you wish to pass to your success or failure
+		//handlers.
+	};
+
+	var filesArr = []
+	for (var i = 0; i < scripts.length; i++) {
+		var file = scripts[i];
+		filesArr.push(file.path);
+	}
+	YAHOO.util.Get.script(filesArr, {
+		onSuccess: function(o) {
+			//alert("JavaScripts loaded");
+		},
+		onFailure: function(o) {
+			alert("Failed to load Javascript files");
+		},
+		data:      handlerData
+	});
 }
 
 function loadDataAssociationPanel(dataAssociationPanel) {
