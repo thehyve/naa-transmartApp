@@ -1087,69 +1087,41 @@ function hasMultipleTimeSeries()
 	return true;
 }
 
-function setDataAssociationAvailableFlag(el, success, response, options) {
-	if (!success) {
-		var dataAssociationPanel = Ext.getCmp('dataAssociationPanel');
-		var resultsTabPanel = Ext.getCmp('resultsTabPanel');
-		resultsTabPanel.remove(dataAssociationPanel);
-		resultsTabPanel.doLayout();
-	} else {
-		Ext.Ajax.request({
-			url: pageInfo.basePath + "/dataAssociation/loadScripts",
-			method: 'GET',
-			timeout: '600000',
-			params: Ext.urlEncode({}),
-			success: function (result, request) {
-				var exp = result.responseText.evalJSON();
-				if (exp.success && exp.files.length > 0) {
-					loadScripts(exp.files);
-				}
-			},
-			failure: function (result, request) {
-				alert("Unable to process the export: " + result.responseText);
-			}
-		});
-	}
-}
-
-function loadScripts(scripts) {
-	var handlerData = {
-		//data you wish to pass to your success or failure
-		//handlers.
-	};
-
-	var filesArr = []
-	for (var i = 0; i < scripts.length; i++) {
-		var file = scripts[i];
-		filesArr.push(file.path);
-	}
-	YAHOO.util.Get.script(filesArr, {
-		onSuccess: function(o) {
-			//alert("JavaScripts loaded");
-		},
-		onFailure: function(o) {
-			alert("Failed to load Javascript files");
-		},
-		data:      handlerData
-	});
-}
-
 function loadDataAssociationPanel(dataAssociationPanel) {
-	function loadPluginScripts(plugins) {
-		for (var i = 0; i < plugins.length; i++) {
+	function loadPluginScripts(plugins, index) {
+		if (index < plugins.length) {
 			Ext.Ajax.request({
-				url: pageInfo.basePath + plugins[i].defaultLink + "/loadScripts",
+				url: pageInfo.basePath + plugins[index].defaultLink + "/loadScripts",
 				method: 'GET',
 				timeout: '600000',
 				params: Ext.urlEncode({}),
 				success: function (result, request) {
 					var exp = result.responseText.evalJSON();
 					if (exp.success && exp.files.length > 0) {
-						loadScripts(exp.files);
+						var handlerData = {
+							//data you wish to pass to your success or failure
+							//handlers.
+						};
+						var filesArr = []
+						for (var i = 0; i < exp.files.length; i++) {
+							var file = exp.files[i];
+							filesArr.push(file.path);
+						}
+						YAHOO.util.Get.script(filesArr, {
+							onSuccess: function (o) {
+								loadPluginScripts(plugins, index + 1)
+							},
+							onFailure: function (o) {
+								alert("Failed to load Javascript files");
+								loadPluginScripts(plugins, index + 1) // Continue loading the other plugins if the current one fails
+							},
+							data: handlerData
+						});
 					}
 				},
 				failure: function (result, request) {
 					alert("Failed to retrieve scripts from plugin: " + plugins[i].name + " responded with: " + result.responseText);
+					loadPluginScripts(plugins, index + 1) // Continue loading the other plugins if the current one fails
 				}
 			});
 		}
@@ -1164,7 +1136,7 @@ function loadDataAssociationPanel(dataAssociationPanel) {
 				dataAssociationPanel.load({
 					url: pageInfo.basePath + plugins[0].defaultLink + '/defaultPage',
 					method: 'POST',
-					callback: loadPluginScripts(plugins),
+					callback: loadPluginScripts(plugins, 0),
 					evalScripts: true
 				});
 			}
