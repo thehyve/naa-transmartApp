@@ -1180,15 +1180,6 @@ function createOntPanel()
 			}
 	);
 
-	/* ontSearchTermsPanel = new Ext.TabPanel({
-   id : 'searchTermsPanel',
-   title : 'Find Terms',
-   region : 'center',
-   deferredRender : false,
-   border : true}); */
-
-
-
 	ontSearchByCodePanel = new Ext.Panel(
 			{
 				id : 'searchByCodePanel',
