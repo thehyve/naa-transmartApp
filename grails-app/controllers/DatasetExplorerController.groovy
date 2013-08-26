@@ -26,7 +26,11 @@ class DatasetExplorerController {
 	def i2b2HelperService
 	
 	def defaultAction = "index"
-	
+
+    def pluginLanding = {
+        render(view: "pluginSkeleton", model:[])
+    }
+
 	def index = {
 			log.trace("in index");
 			//code for retrieving a saved comparison

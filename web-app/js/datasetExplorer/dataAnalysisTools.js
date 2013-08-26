@@ -420,20 +420,14 @@ function setupCategoricalItemsList(strDivSource,strDivTarget) {
 }
 
 function clearDataAssociation() {
-	//Remove the output screen.
-	document.getElementById("analysisOutput").innerHTML = "";
-	//Remove the variable selection screen.
-	document.getElementById("variableSelection").innerHTML = "";
+    document.getElementById("dataAssociationBody").innerHTML = "";
 	
 	//Whenever we switch views, make the binning toggle false. All the analysis pages default to this state.
 	GLOBAL.Binning = false
 	GLOBAL.ManualBinning = false
 	GLOBAL.NumberOfBins = 4
 	GLOBAL.AnalysisRun = false
-	
-	//Set the message below the cohort summary that lets the user know they need to select a cohort.
-	renderCohortSummary();
-	
+
 }
 
 function registerDragNDrop() {

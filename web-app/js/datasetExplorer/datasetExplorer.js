@@ -451,9 +451,17 @@ Ext.onReady(function()
 									{
 										clearAnalysisPanel();
 										resetQuery();
-										clearDataAssociation();									
+										clearDataAssociation();
+
+                                        dataAssociationPanel.load({
+                                            url: pageInfo.basePath + '/datasetExplorer/pluginLanding',
+                                            evalScripts: true,
+                                            method: 'POST',
+                                            callback: function () {
+                                                renderCohortSummary();
+                                            }
+                                        });
 									}
-								// clearGrid(); blah
 								}
 							}
 					),
@@ -739,7 +747,7 @@ Ext.onReady(function()
 			listeners: {
 				activate: function () {
 					GLOBAL.Analysis = "dataAssociation";
-//					renderCohortSummary();
+					renderCohortSummary();
 				}
 			},
 			collapsible: true
@@ -1134,7 +1142,8 @@ function loadDataAssociationPanel(dataAssociationPanel) {
 			var plugins = result.responseText.evalJSON().plugins;
 			if (plugins.size() > 0) {
 				dataAssociationPanel.load({
-					url: pageInfo.basePath + plugins[0].defaultLink + '/defaultPage',
+//					url: pageInfo.basePath + plugins[0].defaultLink + '/defaultPage',
+					url: pageInfo.basePath + '/datasetExplorer/pluginLanding',
 					method: 'POST',
 					callback: loadPluginScripts(plugins, 0),
 					evalScripts: true
