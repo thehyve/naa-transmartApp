@@ -1096,36 +1096,61 @@ function hasMultipleTimeSeries()
 }
 
 function loadDataAssociationPanel(dataAssociationPanel) {
-	function loadPluginScripts(plugins, index) {
-		if (index < plugins.length) {
-			Ext.Ajax.request({
-				url: pageInfo.basePath + plugins[index].defaultLink + "/loadScripts",
-				method: 'GET',
+    function loadJavascript(exp, plugins, index) {
+        var handlerData = {
+            //data you wish to pass to your success or failure
+            //handlers.
+        };
+        var filesArr = []
+        for (var i = 0; i < exp.files.length; i++) {
+            var file = exp.files[i];
+            filesArr.push(file.path);
+        }
+        YAHOO.util.Get.script(filesArr, {
+            onSuccess: function (o) {
+                loadPluginScripts(plugins, index + 1);
+            },
+            onFailure: function (o) {
+                alert("Failed to load Javascript files");
+                loadPluginScripts(plugins, index + 1); // Continue loading the other plugins if the current one fails
+            },
+            data: handlerData
+        });
+    }
+
+    function loadResources(resources) {
+        for (var i = 0; i < resources.length; i++) {
+            var type = resources[i].type;
+            if (type == 'text/css') {
+                var cssPath = resources[i].path;
+                var cssLink = document.createElement("link");
+                cssLink.setAttribute("rel", "stylesheet");
+                cssLink.setAttribute("type", type);
+                cssLink.setAttribute("href", cssPath);
+                document.getElementsByTagName("head")[0].appendChild(cssLink);
+            }
+        }
+    }
+
+    function loadPluginScripts(plugins, index) {
+        if (index < plugins.length) {
+            Ext.Ajax.request({
+                url: pageInfo.basePath + plugins[index].defaultLink + "/loadScripts",
+                method: 'GET',
 				timeout: '600000',
 				params: Ext.urlEncode({}),
 				success: function (result, request) {
 					var exp = result.responseText.evalJSON();
-					if (exp.success && exp.files.length > 0) {
-						var handlerData = {
-							//data you wish to pass to your success or failure
-							//handlers.
-						};
-						var filesArr = []
-						for (var i = 0; i < exp.files.length; i++) {
-							var file = exp.files[i];
-							filesArr.push(file.path);
-						}
-						YAHOO.util.Get.script(filesArr, {
-							onSuccess: function (o) {
-								loadPluginScripts(plugins, index + 1)
-							},
-							onFailure: function (o) {
-								alert("Failed to load Javascript files");
-								loadPluginScripts(plugins, index + 1) // Continue loading the other plugins if the current one fails
-							},
-							data: handlerData
-						});
-					}
+					if (exp.success) {
+                        var resources = exp.resources;
+                        if (resources != null && resources.length > 0) {
+                            loadResources(resources);
+                        }
+
+                        if (exp.files.length > 0) {
+                            loadJavascript(exp, plugins, index);
+                        }
+                    }
 				},
 				failure: function (result, request) {
 					alert("Failed to retrieve scripts from plugin: " + plugins[i].name + " responded with: " + result.responseText);
@@ -1142,7 +1167,6 @@ function loadDataAssociationPanel(dataAssociationPanel) {
 			var plugins = result.responseText.evalJSON().plugins;
 			if (plugins.size() > 0) {
 				dataAssociationPanel.load({
-//					url: pageInfo.basePath + plugins[0].defaultLink + '/defaultPage',
 					url: pageInfo.basePath + '/datasetExplorer/pluginLanding',
 					method: 'POST',
 					callback: loadPluginScripts(plugins, 0),

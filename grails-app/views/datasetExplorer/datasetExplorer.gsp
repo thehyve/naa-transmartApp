@@ -52,7 +52,7 @@
 <script type="text/javascript"
 	src="${resource(dir:'js/ext-ux', file:'miframe.js')}"></script>
 <script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'i2b2common.js')}"></script>
-<!-- <script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'dataAnalysisTools.js')}"></script> -->
+<script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'dataAnalysisTools.js')}"></script>
 <script type="text/javascript"
 	src="${resource(dir:'js/datasetExplorer', file: 'requests.js')}"></script>
 <script type="text/javascript"
@@ -81,7 +81,6 @@
 	<script type="text/javascript" src="${resource(dir:'js', file:'browserDetect.js')}"></script>
 	
 	<link rel="stylesheet" type="text/css" href="${resource(dir:'css', file:'datasetExplorer.css')}">
-    <link rel="stylesheet" type="text/css" href="${resource(dir:'css', file:'dataAssociation.css')}">
 	<script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'datasetExplorer.js')}"></script>
 	<script type="text/javascript" src="${resource(dir:'js', file:'advancedWorkflowFunctions.js')}"></script>
 	<script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'highDimensionData.js')}"></script>
