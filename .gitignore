@@ -8,7 +8,7 @@ System.out
 null.log
 transmart.log
 target-eclipse
-.idea/
+.idea/*
 *.iml
 out/*
 transmart.log.*
