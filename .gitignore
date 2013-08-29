@@ -6,10 +6,10 @@ System.out
 .classpath
 .project
 null.log
-transmart.log
 target-eclipse
-.idea/*
+stacktrace.log
+.idea/
 *.iml
 out/*
+transmart.log
 transmart.log.*
-stacktrace.log
