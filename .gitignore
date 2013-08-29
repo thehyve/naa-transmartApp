@@ -12,3 +12,4 @@ target-eclipse
 *.iml
 out/*
 transmart.log.*
+stacktrace.log
