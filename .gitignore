@@ -10,3 +10,5 @@ transmart.log
 target-eclipse
 .idea
 *.iml
+out/*
+transmart.log.*
