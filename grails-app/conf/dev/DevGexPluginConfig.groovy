@@ -3,7 +3,7 @@ package dev
 Gex {
 
     // working area for exported files
-    tempDirectory = "C:\\Users\\sfaria\\AppData\\Local\\Temp\\jobs\\"
+	tempFolderDirectory = "C:\\Users\\" + System.getProperty("user.name") + "\\AppData\\Local\\Temp\\jobs\\"
 
     // status messages for quartz
     statusList = [

@@ -30,7 +30,7 @@ RModules
 	   
 	   //Configuration for plugins.
         // insert username
-	   tempFolderDirectory = "C:\\Users\\sfaria\\AppData\\Local\\Temp\\jobs\\"
+	   tempFolderDirectory = "C:\\Users\\" + System.getProperty("user.name") + "\\AppData\\Local\\Temp\\jobs\\"
 	   //I use this to do local development. It causes the analysis controller
 	   transferImageFile = true
 	   //This is the system path where we move the image file to so we can serve it.
