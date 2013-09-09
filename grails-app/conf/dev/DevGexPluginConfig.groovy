@@ -2,9 +2,6 @@ package dev
 
 Gex {
 
-    // working area for exported files
-	tempFolderDirectory = "C:\\Users\\" + System.getProperty("user.name") + "\\AppData\\Local\\Temp\\jobs\\"
-
     // parameters for invoking Genedata Analyst
     analystServerHostname = ""
     analystServerPort = -1
