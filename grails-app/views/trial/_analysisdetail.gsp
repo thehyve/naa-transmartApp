@@ -59,6 +59,9 @@
 								</g:each>
 							</ul>
 						</g:elseif>
+						<g:elseif test="${layoutRow.column.equals('shortDescription')}">
+									${analysis.shortDescription}
+						</g:elseif>
 						
 						<g:elseif test="${layoutRow.dataType == 'date'}">
 							<g:fieldDate bean="${analysis}" field="${layoutRow.column}" format="yyyy-MM-dd"/>

@@ -79,6 +79,10 @@ class WebserviceService {
 		WHERE baa.bio_assay_data_type = ?
 	"""
 	
+	def final getGeneStrand = """
+		select STRAND from DEAPP.de_gene_info where gene_source_id=1 and entrez_id=?
+	"""
+	
 	def computeGeneBounds(String geneSymbol, String geneSourceId, String snpSource) {
 		def query = geneLimitsSqlQueryByKeyword;
 			
@@ -115,7 +119,7 @@ class WebserviceService {
 			
 		//Create objects we use to form JDBC connection.
 		def con, stmt, rs = null;
-		def geneStmt, geneRs = null;
+		def geneStmt, geneInfoStmt,geneRs, geneInfoRs = null;
 		
 		//Grab the connection from the grails object.
 		con = dataSource.getConnection()
@@ -131,12 +135,15 @@ class WebserviceService {
 		def results = []
 		
 		geneStmt = con.prepareStatement(geneQuery)
+		geneInfoStmt = con.prepareStatement(getGeneStrand)
 		
 		try {
 			while(rs.next()) {
 				
 				def entrezGeneId = rs.getLong("ENTREZ_GENE_ID")
-				
+				geneInfoStmt..setString(1, entrezGeneId.toString())
+				geneInfoRs=geneInfoStmt.executeQuery();
+				def strand = geneInfoRs.getString("STRAND")
 				geneStmt.setString(1, entrezGeneId.toString())
 				geneStmt.setString(2, snpSource)
 				geneRs = geneStmt.executeQuery();
@@ -150,7 +157,7 @@ class WebserviceService {
 							geneRs.getString("CHROM"),
 							geneRs.getLong("LOW"),
 							geneRs.getLong("HIGH"),
-							0,
+							strand,
 							0,
 							rs.getLong("ENTREZ_GENE_ID")
 						])
