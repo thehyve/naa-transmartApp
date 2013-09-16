@@ -19,21 +19,14 @@
   
 
 package com.recomdata.transmart.data.export
-
-import java.io.File
-import java.sql.ResultSetMetaData
-import java.util.List;
-import java.util.Map
-
+import com.recomdata.transmart.data.export.util.FileWriterUtil
 import org.apache.commons.lang.StringUtils
-import org.apache.commons.lang.math.NumberUtils;
 import org.codehaus.groovy.grails.commons.ConfigurationHolder
 import org.rosuda.REngine.REXP
 import org.rosuda.REngine.Rserve.RConnection
-
 import search.SearchKeyword
 
-import com.recomdata.transmart.data.export.util.FileWriterUtil
+import java.sql.ResultSetMetaData
 
 class GeneExpressionDataService {
 		
@@ -78,7 +71,7 @@ class GeneExpressionDataService {
 			//Set a flag based on the presence of the pathway.			
 			if (pathway != null && pathway.length() > 0) includePathwayInfo = true
 			
-			studyList.each { study ->
+			studyList.each { String study ->
 				def sqlQuery, sampleQuery = null;
 				
 				//Create a query for the Subset.
@@ -88,8 +81,8 @@ class GeneExpressionDataService {
 					def concepts = i2b2HelperService.getConcepts(resultInstanceId)
 		
 					//Add the subquery to the main query.
-					 sqlQuery = createMRNAHeatmapPathwayQuery(study, resultInstanceId, gplIds, pathway, timepoint, sampleTypes, tissueTypes)
-					 sampleQuery = createStudySampleAssayQuery(study,resultInstanceId, gplIds, timepoint, sampleTypes, tissueTypes )
+					 sqlQuery = createMRNAHeatmapPathwayQuery(study, gplIds, pathway, timepoint, sampleTypes, tissueTypes)
+					 sampleQuery = createStudySampleAssayQuery(study, gplIds, timepoint, sampleTypes, tissueTypes)
 					
 				}
 				def filename = (studyList?.size() > 1) ? study+'_'+fileName : fileName
@@ -109,7 +102,7 @@ class GeneExpressionDataService {
 		return dataFound
 	}
 	
-	def String createStudySampleAssayQuery(String study, String resultInstanceId,List gplIds, String timepoint, String sampleTypes, String tissueTypes){
+	def String createStudySampleAssayQuery(String study, List gplIds, String timepoint, String sampleTypes, String tissueTypes){
 		StringBuilder sQuery = new StringBuilder();
 		sQuery.append("""SELECT DISTINCT
 			ssm.assay_id,
@@ -160,7 +153,7 @@ class GeneExpressionDataService {
 	* @return
 	* @throws Exception
 	*/
-   def String createMRNAHeatmapPathwayQuery(String study, String resultInstanceId, List gplIds, String pathwayName, String timepoint, String sampleTypes,String tissueTypes) throws Exception
+   def String createMRNAHeatmapPathwayQuery(String study, List gplIds, String pathwayName, String timepoint, String sampleTypes, String tissueTypes) throws Exception
    {
 
 	   //This is the base SQL Statement for getting the mRNA data.
