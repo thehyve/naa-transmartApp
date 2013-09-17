@@ -70,15 +70,15 @@ class WebserviceService {
 		INNER JOIN BIO_MARKER bm ON bm.primary_external_id = to_char(gmap.entrez_gene_id)
 		WHERE chrom = ? AND pos >= ? AND pos <= ? AND HG_VERSION = ?
 	"""
-	
+	// changed study_name to accession because GWAVA needs short name.
 	def final modelInfoSqlQuery = """
-		SELECT baa.bio_assay_analysis_id as id, ext.model_name as modelName, baa.analysis_name as analysisName, be.title as studyName
+		SELECT baa.bio_assay_analysis_id as id, ext.model_name as modelName, baa.analysis_name as analysisName, be.accession as studyName
 		FROM bio_assay_analysis baa
 		LEFT JOIN bio_assay_analysis_ext ext ON baa.bio_assay_analysis_id = ext.bio_assay_analysis_id
 		LEFT JOIN bio_experiment be ON baa.etl_id = be.accession
 		WHERE baa.bio_assay_data_type = ?
 	"""
-	
+	//added additional query to pull gene strand information from the annotation.
 	def final getGeneStrand = """
 		select STRAND from DEAPP.de_gene_info where gene_source_id=1 and entrez_id=?
 	"""
@@ -141,9 +141,16 @@ class WebserviceService {
 			while(rs.next()) {
 				
 				def entrezGeneId = rs.getLong("ENTREZ_GENE_ID")
-				geneInfoStmt..setString(1, entrezGeneId.toString())
+				geneInfoStmt.setString(1, entrezGeneId.toString())
 				geneInfoRs=geneInfoStmt.executeQuery();
-				def strand = geneInfoRs.getString("STRAND")
+				def strand = 0
+				try
+				{if (geneInfoRs.next())
+					 strand=geneInfoRs.getString("STRAND")
+				} finally {
+				geneInfoRs.close();
+				}
+				log.debug("Gene strand query:" +geneInfoRs)
 				geneStmt.setString(1, entrezGeneId.toString())
 				geneStmt.setString(2, snpSource)
 				geneRs = geneStmt.executeQuery();
