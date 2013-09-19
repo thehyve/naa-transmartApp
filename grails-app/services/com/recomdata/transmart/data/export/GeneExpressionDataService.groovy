@@ -153,8 +153,11 @@ class GeneExpressionDataService {
 	* @return
 	* @throws Exception
 	*/
-   def String createMRNAHeatmapPathwayQuery(String study, List gplIds, String pathwayName, String timepoint, String sampleTypes, String tissueTypes) throws Exception
-   {
+   def String createMRNAHeatmapPathwayQuery(String study, List gplIds, String pathwayName, String timepoint, String sampleTypes, String tissueTypes) throws Exception {
+	   return createMRNAHeatmapPathwayQuery(study, gplIds, pathwayName, timepoint, sampleTypes, tissueTypes, " ORDER BY patient_id, probe_id, gpl_id")
+   }
+
+   def String createMRNAHeatmapPathwayQuery(String study, List gplIds, String pathwayName, String timepoint, String sampleTypes, String tissueTypes, String orderBy) throws Exception {
 
 	   //This is the base SQL Statement for getting the mRNA data.
 	   StringBuilder sSelect = new StringBuilder()
@@ -248,7 +251,7 @@ class GeneExpressionDataService {
 		   sTables.append(" AND ssm.GPL_ID IN (").append(utilService.toListString(gplIds)).append(")");
 	   }
 	   
-	   sTables.append(" ORDER BY probe_id, patient_id, gpl_id")
+	   sTables.append(orderBy)
 	   
 	   sSelect.append(sTables.toString())
 	   
