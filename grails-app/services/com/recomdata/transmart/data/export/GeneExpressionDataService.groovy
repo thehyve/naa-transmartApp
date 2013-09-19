@@ -154,7 +154,7 @@ class GeneExpressionDataService {
 	* @throws Exception
 	*/
    def String createMRNAHeatmapPathwayQuery(String study, List gplIds, String pathwayName, String timepoint, String sampleTypes, String tissueTypes) throws Exception {
-	   return createMRNAHeatmapPathwayQuery(study, gplIds, pathwayName, timepoint, sampleTypes, tissueTypes, " ORDER BY patient_id, probe_id, gpl_id")
+	   return createMRNAHeatmapPathwayQuery(study, gplIds, pathwayName, timepoint, sampleTypes, tissueTypes, " ORDER BY probe_id, patient_id, gpl_id")
    }
 
    def String createMRNAHeatmapPathwayQuery(String study, List gplIds, String pathwayName, String timepoint, String sampleTypes, String tissueTypes, String orderBy) throws Exception {
