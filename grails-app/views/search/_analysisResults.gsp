@@ -9,7 +9,7 @@
 	</div>
 	<div class="dataTables_filter">
 		<label>P-value cutoff: 
-			<input value="${cutoff}" type="text" style="width: 50px" id="analysis_results_table_${analysisId}_cutoff">
+			<input type="text" style="width: 50px" id="analysis_results_table_${analysisId}_cutoff"> <%-- removed value="${cutoff}" --%>
 		</label>
 		<label>Search: 
 			<input value="${search}" type="text" style="width: 50px" id="analysis_results_table_${analysisId}_search">
