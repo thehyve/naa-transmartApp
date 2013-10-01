@@ -42,7 +42,7 @@ class AnalysisMetadata {
 	Date processDate
 	String filename
 	String status = "NEW"
-	String sensitiveFlag
+	String sensitiveFlag = 0
 	String sensitiveDesc
 
 	static mapping = {
@@ -99,7 +99,7 @@ class AnalysisMetadata {
 		processDate(nullable:true)
 		modelName(nullable:true)
 		modelDescription(nullable:true)
-		sensitiveFlag(nullable:true)
+		sensitiveFlag(nullable:false)
 		sensitiveDesc(nullable:true)
 	}
 }
