@@ -175,7 +175,8 @@
 				<div class='toolbar-item' onclick='openPlotOptions();'>Manhattan Plot</div>
 				<div class='toolbar-item' onclick="jQuery('.analysesopen .analysischeckbox').attr('checked', 'checked'); updateSelectedAnalyses();">Select All Visible Analyses</div>
 				<div class='toolbar-item' onclick="jQuery('.analysesopen .analysischeckbox').removeAttr('checked'); updateSelectedAnalyses();">Unselect All Visible Analyses</div>
-	  			<%-- <div id="searchResultOptions_holder">
+	  			<div class='toolbar-item' onclick="filterSelectedAnalyses();">Add Selected to Filter</div>
+				<%-- <div id="searchResultOptions_holder">
 					<div id="searchResultOptions_btn" class='toolbar-item'>
 						 Options <img alt="" style='vertical-align:middle;' src="${resource(dir:'images',file:'tiny_down_arrow.png')}" />
 					</div>

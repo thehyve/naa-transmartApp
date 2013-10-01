@@ -25,6 +25,7 @@ import bio.BioAssayPlatform;
 import bio.Disease;
 import bio.Experiment;
 import bio.Observation;
+import bio.ConceptCode;
 
 import com.recomdata.upload.DataUploadResult;
 
@@ -52,6 +53,7 @@ class UploadDataController {
 		al.save();
 		
 		def model = [uploadDataInstance: new AnalysisMetadata()]
+		
 		addFieldData(model, null)
 		render(view: "uploadData", model:model)
 	}
@@ -67,8 +69,10 @@ class UploadDataController {
 		}
 		def model = [uploadDataInstance: uploadDataInstance];
 		
-		addFieldData(model, uploadDataInstance);
 		
+		
+		uploadDataInstance.setSensitiveFlag("0");
+		addFieldData(model, uploadDataInstance)
 		render(view: "uploadData", model:model)
 	}
 	
@@ -312,6 +316,16 @@ class UploadDataController {
 		}
 		model.put('expVendors', expVendorlist)
 		model.put('snpVendors', snpVendorlist)
+		
+		def ResearchUnitlist = []
+		def ResearchUnits = ConceptCode.executeQuery("SELECT DISTINCT codeName FROM ConceptCode as p WHERE p.codeTypeName='RESEARCH_UNIT' ORDER BY p.codeName")
+		
+		for (ResearchUnit in ResearchUnits) {
+			//println(ResearchUnit)
+			if (ResearchUnit) {
+				ResearchUnitlist.add(ResearchUnit);
+			}
+		}
+		model.put('ResearchUnits', ResearchUnitlist)
 	}
-	
 }

@@ -31,7 +31,7 @@ $.widget("ui.multiselect", {
   options: {
 		sortable: true,
 		searchable: true,
-		doubleClickable: true,
+		singleClickable: true, //change from doubleClickable: true
 		animated: 'fast',
 		show: 'slideDown',
 		hide: 'slideUp',
@@ -228,7 +228,7 @@ $.widget("ui.multiselect", {
 			this._registerAddEvents(item.find('a.action'));
 		}
 		
-		this._registerDoubleClickEvents(item);
+		this._registerSingleClickEvents(item); //changed from this._registerDoubleClickEvents(item);
 		this._registerHoverEvents(item);
 	},
 	// taken from John Resig's liveUpdate script
@@ -256,12 +256,19 @@ $.widget("ui.multiselect", {
 			});
 		}
 	},
+	_registerSingleClickEvents: function(elements) {
+		if (!this.options.singleClickable) return;
+		elements.click(function() {
+			elements.find('a.action').click();
+		});
+	},
+	/* Above code is changed from:
 	_registerDoubleClickEvents: function(elements) {
 		if (!this.options.doubleClickable) return;
 		elements.dblclick(function() {
 			elements.find('a.action').click();
 		});
-	},
+	},*/
 	_registerHoverEvents: function(elements) {
 		elements.removeClass('ui-state-hover');
 		elements.mouseover(function() {

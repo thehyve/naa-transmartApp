@@ -535,7 +535,6 @@ function addSearchTerm(searchTerm, noUpdate)	{
 	
 	// find all nodes in tree with this key, and select them
 	var tree = jQuery("#filter-div").dynatree("getTree");
-
 	tree.visit(  function selectNode(node) {
 		             if (node.data.key == key)  {
 		            	 node.select(true);
@@ -1425,7 +1424,7 @@ function setProbesDropdown(analysisID, selectedProbeID, divId)	{
 	for (var i=0; i<probeIds.length; i++) {
 		
 		if (probeIds[i] == selectedProbeID)	{
-			jQuery(divId).append(jQuery("<option id></option>").attr("selected", "selected").attr("id", probeIds[i]).attr("value", selectList[i]).text(selectList[i]));
+			jQuery(divId).append(jQuery("<option id></option>").attr("", "selected").attr("id", probeIds[i]).attr("value", selectList[i]).text(selectList[i]));
 		} else	{
 			jQuery(divId).append(jQuery("<option></option>").attr("id", probeIds[i]).attr("value", selectList[i]).text(selectList[i]));
 		}
@@ -3281,3 +3280,21 @@ function openPlotOptions() {
 jQuery.ajaxSetup({
 	cache: false
 });
+
+
+//Add selected analyses to active filters
+function filterSelectedAnalyses() {
+	var selectedboxes = jQuery(".analysischeckbox:checked");
+	if (selectedboxes.length == 0) {
+		jQuery('#selectedAnalyses').html("<b>" + selectedboxes.length + "</b> analyses selected.Please select analyses to be filtered!");
+	}
+	jQuery(".analysischeckbox:checked").each(function(i, selected){
+	var searchParam={id:selected.name,
+		        display:'Analyses',
+		        keyword:selected.value,
+		        category:'ANALYSIS_ID'};
+		addSearchTerm(searchParam);
+		
+		
+	})
+}

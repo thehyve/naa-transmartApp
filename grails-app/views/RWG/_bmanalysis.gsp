@@ -9,7 +9,7 @@
         <table class="analysis-table">
             <tr>
             	<td style="width:20px;">
-					<input type="checkbox" name="${analysisId}" class="analysischeckbox" id="analysis_checkbox_${analysisId}" onclick="updateSelectedAnalyses();"/>
+					  <input type="checkbox" name="${analysisId}" class="analysischeckbox" value="${analysis.name}" onclick="updateSelectedAnalyses();" style="zoom:1.5;"/>
             	</td>
                 <td style="width:20px;">
 		          <g:form controller="RWG" name="AnalysisDetail_${analysisId}" id="AnalysisDetail_${analysisId}" action="doComparison">
@@ -19,7 +19,7 @@
 	                   <img alt="Analysis" src="${resource(dir:'images',file:'analysis.png')}" style="vertical-align: top;margin-top: -2px;" /></a>                          
 	              </g:form>
                 </td>
-                <td onclick="showVisualization('${analysisId}', false);" class="td-link">${analysis.name}</td>                
+                <td onclick="showVisualization('${analysisId}', false);" class="td-link" >${analysis.name}</td>                
                 <td onclick="showVisualization('${analysisId}', false);" style="text-align:right; vertical-align:middle"  class="td-link">
 	                  <img alt="expand/collapse" id="imgExpand_${analysisId}" src="${resource(dir:'images',file:'down_arrow_small2.png')}" style="vertical-align: middle; padding-left:10px; padding-right:10px;"/>      
                 </td>

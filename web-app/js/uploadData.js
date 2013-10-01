@@ -287,3 +287,16 @@ function applyStudyBrowse() {
 
 //For all tags - when clicked, call the remove tag function (remove them from the DOM and underlying select list)
 $j('.tag').live('click', function(e) { removeTag($j(this).parent().attr('name'), $j(this).attr('name')); });
+
+
+//on check
+function isDataSensitive() {
+	if (jQuery('#sensitiveFlag').is(':checked')) {
+	    jQuery("#sensitiveDesc").show();
+		jQuery("#sensitiveFlag").val('1');
+		} 
+	else {
+		jQuery("#sensitiveDesc").hide();
+		jQuery("#sensitiveFlag").val('0');
+		}
+}

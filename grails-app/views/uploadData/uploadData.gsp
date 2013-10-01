@@ -55,6 +55,10 @@
 
 		var IS_EDIT = ${uploadDataInstance?.id ? true : false};
 		var ANALYSIS_TYPE = null;
+		jQuery(document).ready(function() {
+		jQuery("#sensitiveDesc").hide();
+		jQuery("#sensitiveFlag").val('1');
+		});
 		
 		Ext.BLANK_IMAGE_URL = "${resource(dir:'js', file:'ext/resources/images/default/s.gif')}";
 
@@ -356,8 +360,15 @@
 						<td>
 							Research Unit:
 						</td>
-						<td colspan="3">
-							<g:textField name="researchUnit" value="${uploadDataInstance.researchUnit}"/>
+						<td>
+							<g:select style="width: 300px" name="researchUnit" noSelection="${['null':'Select...']}" from="${ResearchUnits}" value="${uploadDataInstance.researchUnit}"/>
+						</td>
+						<td style="width:190px;">
+							<input type="checkbox" style="width:20px;" name="sensitiveFlag" value="${uploadDataInstance.sensitiveFlag}" id="sensitiveFlag"  onclick="isDataSensitive();">Is Data Sensitive?
+							</input>
+						</td>
+						<td>
+							<g:textField name="sensitiveDesc" value="${uploadDataInstance.sensitiveDesc}"/>
 						</td>
 					</tr>
 				</table>
