@@ -230,10 +230,13 @@ function clearDataAssociation() {
 }
 
 function registerDragNDrop() {
-	var independentDiv = Ext.get("divIndependentVariable");
-	drop_target = new Ext.dd.DropTarget(independentDiv, {ddGroup: 'makeQuery'});
-	drop_target.notifyDrop = dropOntoCategorySelection;
+	registerDragNDropOnDiv('divIndependentVariable', dropOntoCategorySelection);
+}
 
+function registerDragNDropOnDiv(targetDiv, notifyDropCallback) {
+    var div = Ext.get(targetDiv);
+    drop_target = new Ext.dd.DropTarget(div, {ddGroup: 'makeQuery'});
+    drop_target.notifyDrop = notifyDropCallback;
 }
 
 function clearAnalysisData(divName) {
