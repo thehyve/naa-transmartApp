@@ -1407,8 +1407,48 @@ function AlertSpecialKey(event, field){
 		return true;
 	}
 	
-function showCompareStepPathwaySelection()
+function showCompareStepPathwaySelection(dialogShowingCallback)
 {
+    var callback = dialogShowingCallback;
+    if (dialogShowingCallback == undefined || dialogShowingCallback == null) {
+        callback = function () {
+            // toggle display of "k" selector for k-means clustering
+            if (document.getElementById("divnclusters") != null) {
+                if (GLOBAL.HeatmapType == 'KMeans') {
+                    document.getElementById("divnclusters").style.display = "";
+                } else {
+                    document.getElementById("divnclusters").style.display = "none";
+                }
+            } else if (document.getElementById("divnclusters1") != null) {
+                if (GLOBAL.HeatmapType == 'KMeans') {
+                    document.getElementById("divnclusters1").style.display = "";
+                } else {
+                    document.getElementById("divnclusters1").style.display = "none";
+                }
+            }
+
+            // toggle display of Gene/Pathway selector
+            if (document.getElementById("divpathway") != null) {
+                if (GLOBAL.HeatmapType == 'Select' || GLOBAL.HeatmapType=='PCA')
+                {
+                    //Clear the pathway variable so we don't submit a value.
+                    GLOBAL.CurrentPathway = '';
+
+                    //Hide the pathway box.
+                    document.getElementById("divpathway").style.display = "none";
+                } else {
+                    document.getElementById("divpathway").style.display = "";
+                }
+            } else if (document.getElementById("divpathway1") != null) {
+                if (GLOBAL.HeatmapType == 'Select' || GLOBAL.HeatmapType=='PCA') {
+                    document.getElementById("divpathway1").style.display = "none";
+                } else {
+                    document.getElementById("divpathway1").style.display = "";
+                }
+            }
+        };
+    }
+
 	if(!this.compareStepPathwaySelection)
 	{
 		compareStepPathwaySelection = new Ext.Window({
@@ -1461,7 +1501,10 @@ function showCompareStepPathwaySelection()
 	               	nocache:true, 
 	               	discardUrl:true,
 	               	method:'POST',
-	               	callback: toggleDataAssociationFields
+	               	callback: function() {
+                        toggleDataAssociationFields();
+                        callback();
+                    }
 	            },
 		        tools:[{
 					id:'help',
@@ -1474,44 +1517,10 @@ function showCompareStepPathwaySelection()
         }else{
         	resetCohortInfoValues();
         	toggleDataAssociationFields();
+            callback();
         }
 
-		compareStepPathwaySelection.show(viewport); 
-
-		// toggle display of "k" selector for k-means clustering
-		if (document.getElementById("divnclusters") != null) {
-			if (GLOBAL.HeatmapType == 'KMeans') {
-				document.getElementById("divnclusters").style.display = "";
-			} else {
-				document.getElementById("divnclusters").style.display = "none";
-			}
-		} else if (document.getElementById("divnclusters1") != null) {
-			if (GLOBAL.HeatmapType == 'KMeans') {
-				document.getElementById("divnclusters1").style.display = "";
-			} else {
-				document.getElementById("divnclusters1").style.display = "none";
-			}
-		}
-		
-		// toggle display of Gene/Pathway selector
-		if (document.getElementById("divpathway") != null) {
-			if (GLOBAL.HeatmapType == 'Select' || GLOBAL.HeatmapType=='PCA') 
-			{
-				//Clear the pathway variable so we don't submit a value.
-				GLOBAL.CurrentPathway = '';
-				
-				//Hide the pathway box.
-				document.getElementById("divpathway").style.display = "none";
-			} else {
-				document.getElementById("divpathway").style.display = "";
-			}
-		} else if (document.getElementById("divpathway1") != null) {
-			if (GLOBAL.HeatmapType == 'Select' || GLOBAL.HeatmapType=='PCA') {
-				document.getElementById("divpathway1").style.display = "none";
-			} else {
-				document.getElementById("divpathway1").style.display = "";
-			}
-		}
+		compareStepPathwaySelection.show(viewport);
 }
 
 //this function has been modified to accomodate the fields in the new panel for data-export

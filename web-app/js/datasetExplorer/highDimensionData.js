@@ -111,7 +111,7 @@ function determineHighDimVariableType(result){
  * @param result
  * @param completedFunction
  */
-function readCohortData(result, divId)
+function readCohortData(result, divId, dialogVisibleCallback)
 {
 	//Get the JSON string we got from the server into a real JSON object.
 	var mobj=result.responseText.evalJSON();
@@ -138,7 +138,7 @@ function readCohortData(result, divId)
 	}
 
 	//render the pathway selection popup
-	showCompareStepPathwaySelection();
+	showCompareStepPathwaySelection(dialogVisibleCallback);
 }
 
 /**
