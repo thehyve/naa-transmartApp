@@ -586,6 +586,8 @@ public class SearchController{
 		def href = grailsApplication.config.com.recomdata.rwg.webstart.href
 		def jar = grailsApplication.config.com.recomdata.rwg.webstart.jar
 		def mainClass = grailsApplication.config.com.recomdata.rwg.webstart.mainClass
+		def gInstance = "-services="+grailsApplication.config.com.recomdata.rwg.webstart.gwavaInstance
+		log.info("GWAVA instance"+gInstance)
 		def analysisIds = params.analysisIds
 		def geneSource = params.geneSource
 		def snpSource = params.snpSource
@@ -599,7 +601,7 @@ public class SearchController{
 		//Set defaults - JNLP does not take blank arguments
 		if (!regions) { regions = "0,0" }
 		if (!pvalueCutoff) { pvalueCutoff = 0 }
-		
+
 		def responseText = """<?xml version="1.0" encoding="utf-8"?> 
 							<jnlp 
 							  spec="1.0+" 
@@ -651,6 +653,8 @@ public class SearchController{
                                 <property name="sun.java2d.noddraw" value="true"/>
 							  </resources> 
 							  <application-desc main-class="com.pfizer.mrbt.genomics.Driver"> 
+								<argument>""" + gInstance + """</argument>
+								<argument>""" + analysisIds + """</argument>
 								<argument>""" + analysisIds + """</argument>
 								<argument>""" + regions + """</argument>
 								<argument>0</argument>
