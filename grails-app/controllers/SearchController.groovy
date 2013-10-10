@@ -586,6 +586,7 @@ public class SearchController{
 		def href = grailsApplication.config.com.recomdata.rwg.webstart.href
 		def jar = grailsApplication.config.com.recomdata.rwg.webstart.jar
 		def mainClass = grailsApplication.config.com.recomdata.rwg.webstart.mainClass
+		def gInstance = "-services="+grailsApplication.config.com.recomdata.rwg.webstart.gwavaInstance
 		def analysisIds = params.analysisIds
 		def geneSource = params.geneSource
 		def snpSource = params.snpSource
@@ -651,6 +652,7 @@ public class SearchController{
                                 <property name="sun.java2d.noddraw" value="true"/>
 							  </resources> 
 							  <application-desc main-class="com.pfizer.mrbt.genomics.Driver"> 
+								<argument>""" + gInstance + """</argument>
 								<argument>""" + analysisIds + """</argument>
 								<argument>""" + regions + """</argument>
 								<argument>0</argument>
