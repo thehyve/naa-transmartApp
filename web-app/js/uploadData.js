@@ -157,7 +157,6 @@ function addPlatform(field) {
 	//Get text and value to add
 	var valueToAdd = platformId;
 	var textToAdd = vendorField.val() + ": " + platformName;
-
 	//Now add to the hidden select
 	selectField.append($j('<option></option>').val(valueToAdd).text(textToAdd).attr('selected', 'selected'));
 	
@@ -167,6 +166,7 @@ function addPlatform(field) {
 		'class': 'tag',
 		name: valueToAdd
 	}).text(textToAdd);
+	
 	$j('#' + field + '-tags').append(newTag);
 	newTag.hide().fadeIn('slow');
 	typeField.val(null);
@@ -299,4 +299,35 @@ function isDataSensitive() {
 		jQuery("#sensitiveDesc").hide();
 		jQuery("#sensitiveFlag").val('0');
 		}
+}
+
+function addResearchUnit(field) {
+	//Gather the relevant elements
+	var typeFieldName = '#' + field + 'Name';
+	var typeField = $j(typeFieldName);
+	var selectField = $j('#' + field);
+	var tagDiv = $j('#' + field + '-tags');
+
+	//If we have a non-null platform ID, prepare to add it
+	var unitName = typeField.val();
+	if (unitName == null || unitName == "null") { return; }
+	
+	//Stop if we already have this tag
+	var existingunitName = $j('option[value="' + unitName + '"]', selectField);
+	if (existingunitName.length > 0) { typeField.val(null); return; }
+	var valueToAdd = unitName;
+	var textToAdd = unitName;
+	selectField.append($j('<option></option>').val(valueToAdd).text(textToAdd).attr('selected', 'selected'));
+	
+	//Create and add the visible tag to the page
+	var newTag = $j('<span/>', {
+		id: field + '-tag-' + valueToAdd,
+		'class': 'tag',
+		name: valueToAdd
+	}).text(textToAdd);
+	
+	$j('#' + field + '-tags').append(newTag);
+	newTag.hide().fadeIn('slow');
+	typeField.val(null);
+	
 }
