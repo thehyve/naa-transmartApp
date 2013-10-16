@@ -43,6 +43,8 @@ import com.recomdata.export.SurvivalAnalysisFiles
 import com.recomdata.genepattern.JobStatus
 import com.recomdata.genepattern.WorkflowStatus
 
+import com.recomdata.transmart.domain.searchapp.AccessLog
+
 import edu.mit.wi.haploview.HaploText
 
 class GenePatternController {

@@ -31,6 +31,8 @@ import com.recomdata.genesignature.FileSchemaException
 import com.recomdata.genesignature.WizardModelDetails
 import com.recomdata.util.DomainObjectExcelHelper
 
+import com.recomdata.transmart.domain.searchapp.AccessLog
+
 /**
  * Controller class for gene signature functionality
  * @author $Author: jliu $

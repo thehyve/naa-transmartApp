@@ -33,6 +33,9 @@ import search.GeneSignatureItem
 import groovy.time.TimeCategory;
 import groovy.time.TimeDuration;
 import groovyx.net.http.HTTPBuilder
+import org.codehaus.groovy.grails.plugins.PluginManagerHolder
+
+import com.recomdata.transmart.domain.searchapp.AccessLog
 
 class RWGController {
 	def trialQueryService
@@ -882,9 +885,10 @@ class RWGController {
 	   // capture html as a string that will be passed back in JSON object
 	   def html
 	   if (!studyWithResultsFound)	{
-		   html = g.render(template:'/search/noResult').toString()
+		   html = g.render(template:'/search/noResult', plugin: "biomartForGit").toString()
 	   } else {
-	       html = g.render(template:'/RWG/experiments',model:[experiments:exprimentAnalysis, analysisCount:total, duration:TimeCategory.minus(new Date(), startTime)]).toString()
+	       def showFiles = PluginManagerHolder.pluginManager.hasGrailsPlugin('folder-management');
+	       html = g.render(template:'/RWG/experiments', plugin: "biomartForGit", model:[showFiles: showFiles, experiments:exprimentAnalysis, analysisCount:total, duration:TimeCategory.minus(new Date(), startTime)]).toString()
 	   }
 	   
 	   return html
@@ -896,7 +900,7 @@ class RWGController {
 		   event:"Loading trial analysis", eventmessage:params.trialNumber, accesstime:new Date()).save()
 
 	   def analysisList = trialQueryService.querySOLRTrialAnalysis(params, session.solrSearchFilter)
-	   render(template:'/RWG/analysis', model:[aList:analysisList])
+	   render(template:'/RWG/analysis', model:[aList:analysisList], plugin: "biomartForGit")
    }
  
    // First iteration of the method to get the heatmap data for RWG  
@@ -1018,7 +1022,7 @@ class RWGController {
 	   
 	   
 	   
-	   render(template:'pie')
+	   render(template:'pie', plugin: "biomartForGit")
    }
    
    
@@ -1037,14 +1041,14 @@ class RWGController {
 	  
 	  def dataTypes = ["GWAS":"GWAS","EQTL":"eQTL","Metabolic GWAS":"Metabolic GWAS"]
 	  
-	  render(template:'dataTypesBrowseMulti',model:[dataTypes:dataTypes])
+	  render(template:'dataTypesBrowseMulti',model:[dataTypes:dataTypes], plugin: "biomartForGit")
   }
   
   /**
    * Renders a UI for selecting regions by gene/RSID or chromosome.
    */
   def getRegionFilter = {
-	  render(template:'regionFilter', model: [ranges:['both':'+/-','plus':'+','minus':'-']])
+	  render(template:'regionFilter', model: [ranges:['both':'+/-','plus':'+','minus':'-']], plugin: "biomartForGit")
   }
    
    

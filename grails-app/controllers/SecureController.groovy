@@ -25,6 +25,8 @@
   * @version $Revision: 10133 $
   */
 
+import com.recomdata.transmart.domain.searchapp.AccessLog
+
 class SecureController {
 
 	def springSecurityService

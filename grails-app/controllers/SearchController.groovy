@@ -40,7 +40,9 @@ import bio.BioAssayAnalysis;
 import bio.BioDataExternalCode
 
 import com.recomdata.util.*
-import static java.util.UUID.randomUUID;
+import static java.util.UUID.randomUUID
+
+import com.recomdata.transmart.domain.searchapp.AccessLog
 
 public class SearchController{
 	def sessionFactory
