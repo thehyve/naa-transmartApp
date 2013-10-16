@@ -1909,7 +1909,11 @@ function getTreeNodeFromXMLNode(concept)
  		var normalunitsnode 	= 	null;
  		var oktousevaluesnode	= 	null;
  		var oktousevalues		=	null;
- 			
+        var visualattributes    =   null;
+        var sourcesystemcdnode  =   null;
+        var sourcesystemcd      =   null;
+
+
 	    level				=	concept.selectSingleNode('level').firstChild.nodeValue;
 	    key					=	concept.selectSingleNode('key').firstChild.nodeValue;
 	    name				=	concept.selectSingleNode('name').firstChild.nodeValue; 
@@ -1924,6 +1928,8 @@ function getTreeNodeFromXMLNode(concept)
 	   	comment				=	getValue(commentnode, "");	    
 	    oktousevaluesnode	=	concept.selectSingleNode('.//metadataxml/ValueMetadata/Oktousevalues');
 	    oktousevalues		=	getValue(oktousevaluesnode, "N");
+        sourcesystemcdnode  =   concept.selectSingleNode('sourcesystem_cd');
+        sourcesystemcd      =   getValue(sourcesystemcdnode, "");
 	    
 	    //We need to replace the < signs with &lt;
 	    name = name.replace(/</gi,"&lt;");
@@ -1985,7 +1991,9 @@ function getTreeNodeFromXMLNode(concept)
    		tablename: tablename,
    		normalunits: normalunits,
    		oktousevalues: oktousevalues,
-   		expanded: autoExpand
+        visualattributes: visualattributes,
+   		expanded: autoExpand,
+        accession: sourcesystemcd
    		 });
    		 newnode.addListener('contextmenu',ontologyRightClick);
 	return newnode;

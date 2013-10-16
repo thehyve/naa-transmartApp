@@ -94,7 +94,14 @@
 	<script type="text/javascript" src="http://yui.yahooapis.com/combo?2.9.0/build/yahoo/yahoo-min.js&2.9.0/build/get/get-min.js"></script> 
 	<style>
 		.ui-progressbar-value { background-image: url(images/pbar-ani.gif); }
-	</style> 
+	</style>
+
+    <g:if test="${org.codehaus.groovy.grails.plugins.PluginManagerHolder.pluginManager.hasGrailsPlugin('folder-management')}">
+        <g:render template="/folderManagementUrls" plugin="folderManagement"/>
+        <script type="text/javascript" src="${resource(dir:'js', file:'folderManagementDE.js', plugin: 'folderManagement')}"></script>
+        <link rel="stylesheet" href="${resource(dir:'css', file:'folderManagement.css', plugin: 'folderManagement')}"></link>
+    </g:if>
+
 </head>
 
 <body>
@@ -175,7 +182,8 @@
 	  HighDimDataType: '',
 	  SNPType: '',
 	  basePath: pageInfo.basePath,
-	  hideAcrossTrialsPanel:'${grailsApplication.config.com.recomdata.datasetExplorer.hideAcrossTrialsPanel}'
+	  hideAcrossTrialsPanel:'${grailsApplication.config.com.recomdata.datasetExplorer.hideAcrossTrialsPanel}',
+      pluginFolderManagement: ${org.codehaus.groovy.grails.plugins.PluginManagerHolder.pluginManager.hasGrailsPlugin('folder-management')}
 	};
 	// initialize browser version variables; see http://www.quirksmode.org/js/detect.html
 	BrowserDetect.init();

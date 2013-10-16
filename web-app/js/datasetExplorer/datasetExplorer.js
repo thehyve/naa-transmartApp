@@ -1924,11 +1924,14 @@ function getSubCategories(id_in, title_in, ontresponse)
 
 
 	// add a tree sorter in folder mode
-	new Tree.TreeSorter(ontTree,
+	var ontTreeSorter = new Tree.TreeSorter(ontTree,
 			{
-		folderSort : true
+		        folderSort : true
 			}
 	);
+    if (GLOBAL.pluginFolderManagement) {
+        ontTreeSorter = FM.getFileTreeSorter(ontTree);
+    }
 	ontTree.setRootNode(treeRoot);
 	ontTree.add(toolbar);
 	ontTabPanel.add(ontTree);
