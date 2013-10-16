@@ -180,6 +180,8 @@
 				<div class='toolbar-item' onclick='openPlotOptions();'>Manhattan Plot</div>
 				<div class='toolbar-item' onclick="jQuery('.analysesopen .analysischeckbox').attr('checked', 'checked'); updateSelectedAnalyses();">Select All Visible Analyses</div>
 				<div class='toolbar-item' onclick="jQuery('.analysesopen .analysischeckbox').removeAttr('checked'); updateSelectedAnalyses();">Unselect All Visible Analyses</div>
+	  			<div class='toolbar-item' onclick="filterSelectedAnalyses();">Add Selected to Filter</div>
+
                 <g:if test="${org.codehaus.groovy.grails.plugins.PluginManagerHolder.pluginManager.hasGrailsPlugin('folder-management')}">
                     <div class="toolbar-item">
                         <g:render template="/fmFolder/exportCart" model="[exportCount: exportCount]" plugin="folderManagement"/>

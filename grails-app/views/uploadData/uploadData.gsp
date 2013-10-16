@@ -55,6 +55,10 @@
 
 		var IS_EDIT = ${uploadDataInstance?.id ? true : false};
 		var ANALYSIS_TYPE = null;
+		jQuery(document).ready(function() {
+		jQuery("#sensitiveDesc").hide();
+		jQuery("#sensitiveFlag").val('1');
+		});
 		
 		Ext.BLANK_IMAGE_URL = "${resource(dir:'js', file:'ext/resources/images/default/s.gif')}";
 
@@ -225,7 +229,7 @@
 							<br/>
 						</td>
 					</tr>
-					 --%>
+					 --%> 
 					
 					<tr class="borderbottom bordertop">
 						<td id="tagsLabel">
@@ -261,10 +265,13 @@
 							Platform:
 						</td>
 						<td colspan="3">
+							
 							<div style="width: 100%" id="genotypePlatform-tags" class="tagBox" name="genotypePlatform">
+								
 								<g:each in="${genotypePlatforms}" var="value">
 									<span class="tag" id="genotypePlatform-tag-${value.key}" name="${value.key}">${value.value}</span>
-								</g:each>
+								</g:each> 
+							
 							</div>
 							<div class="breaker">&nbsp;</div>
 							<div style="background-color: #E4E4E4; float:left; padding: 8px; border-radius: 8px;">
@@ -339,6 +346,7 @@
 						</td>
 					</tr>
 					<tr class="borderbottom">
+
 						<td>
 							Statistical Test:
 						</td>
@@ -356,8 +364,27 @@
 						<td>
 							Research Unit:
 						</td>
-						<td colspan="3">
-							<g:textField name="researchUnit" value="${uploadDataInstance.researchUnit}"/>
+						<td>
+							<div style="width: 100%" id="researchUnit-tags" class="tagBox" name="researchUnit">
+							<g:each in="${researchUnit}" var="value">
+									<span class="tag" id="researchUnit-tag-${value.key}" name="${value.key}">${value.value}</span>
+								</g:each> 
+							</div>
+							<g:select style="width: 300px" name="researchUnitName" noSelection="${['null':'Select...']}" from="${ResearchUnits}" onchange="addResearchUnit('researchUnit')"/>
+							<select id="researchUnit" name="researchUnit" multiple="multiple" style="display: none;">
+										<g:each in="${researchUnit}" var="value">
+											<option selected="selected" value="${value.key}">${value.value}</option>
+										</g:each>
+									</select>	
+
+									
+						</td>
+						<td style="width:190px;">
+							<input type="checkbox" style="width:20px;" name="sensitiveFlag" value="${uploadDataInstance.sensitiveFlag}" id="sensitiveFlag"  onclick="isDataSensitive();">Is Data Sensitive?
+							</input>
+						</td>
+						<td>
+							<g:textField name="sensitiveDesc" value="${uploadDataInstance.sensitiveDesc}"/>
 						</td>
 					</tr>
 				</table>

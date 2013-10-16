@@ -25,6 +25,7 @@ import bio.BioAssayPlatform;
 import bio.Disease;
 import bio.Experiment;
 import bio.Observation;
+import bio.ConceptCode;
 
 import com.recomdata.upload.DataUploadResult;
 
@@ -52,6 +53,7 @@ class UploadDataController {
 		al.save();
 		
 		def model = [uploadDataInstance: new AnalysisMetadata()]
+		
 		addFieldData(model, null)
 		render(view: "uploadData", model:model)
 	}
@@ -67,8 +69,10 @@ class UploadDataController {
 		}
 		def model = [uploadDataInstance: uploadDataInstance];
 		
-		addFieldData(model, uploadDataInstance);
 		
+		
+		uploadDataInstance.setSensitiveFlag("0");
+		addFieldData(model, uploadDataInstance)
 		render(view: "uploadData", model:model)
 	}
 	
@@ -172,6 +176,17 @@ class UploadDataController {
 			upload.expressionPlatformIds = "";
 		}
 		
+		if (params.researchUnit) {
+			if (params.researchUnit instanceof String) {
+				upload.researchUnit = params.researchUnit
+			}
+			else {
+				upload.researchUnit = params.researchUnit.join(";")
+			}
+		}
+		else {
+			upload.researchUnit = "";
+		}
 		def f = null;
 		def filename = null;
 		def uploadsDir = null;
@@ -254,6 +269,7 @@ class UploadDataController {
 		def tagMap = [:]
 		def genotypeMap = [:]
 		def expressionMap = [:]
+		def researchUnitMap= [:]
 		
 		if (upload) {
 			if (upload.phenotypeIds) {
@@ -285,10 +301,17 @@ class UploadDataController {
 				}
 			}
 			
+			if (upload.researchUnit) {
+				for (tag in upload.researchUnit.split(";")) {
+					//def platform = BioAssayPlatform.findByAccession(tag)
+					researchUnitMap.put(tag, tag)
+				}
+			}
+			
 			model.put('tags', tagMap)
 			model.put('genotypePlatforms', genotypeMap)
 			model.put('expressionPlatforms', expressionMap)
-			
+			model.put('researchUnit', researchUnitMap)
 			model.put('study', Experiment.findByAccession(upload.study))
 		}
 		
@@ -312,6 +335,16 @@ class UploadDataController {
 		}
 		model.put('expVendors', expVendorlist)
 		model.put('snpVendors', snpVendorlist)
+		
+		def ResearchUnitlist = []
+		def ResearchUnits = ConceptCode.executeQuery("SELECT DISTINCT codeName FROM ConceptCode as p WHERE p.codeTypeName='RESEARCH_UNIT' ORDER BY p.codeName")
+		
+		for (ResearchUnit in ResearchUnits) {
+			//println(ResearchUnit)
+			if (ResearchUnit) {
+				ResearchUnitlist.add(ResearchUnit);
+			}
+		}
+		model.put('ResearchUnits', ResearchUnitlist)
 	}
-	
 }
