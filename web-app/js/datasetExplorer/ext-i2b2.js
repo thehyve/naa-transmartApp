@@ -54,26 +54,38 @@ requestData : function(node, callback){
 processResponse:function (response, node, callback) {
 
     if(GLOBAL.pluginFolderManagement && node.attributes.cls == 'fileFolderNode') {
-        FM.addFileNodes(response, node);
+        FM.addFileNodes(this, response, node, callback);
     }
     else {
-        node.beginUpdate();
-        this.parseXml(response, node);
-        getChildConceptPatientCounts(node);
-        node.endUpdate();
+        this.startAppending(response, node, callback);
     }
-	if (typeof callback == "function") {
-		callback(this, node);
-	}
-}, 
+},
 
-parseXml:function (response, node) {
+
+
+startAppending:function (response, node, callback) {
  // shorthand
     var Tree = Ext.tree;
+    node.beginUpdate();
 
     if (GLOBAL.pluginFolderManagement && node.attributes.level == 1) {
-        node.appendChild(FM.getFileFolderNode(node));
+        FM.handleFolderHasFilesRequest(this, response, node, callback);
     }
+    else {
+        this.parseXml(response, node);
+        getChildConceptPatientCounts(node);
+        this.endAppending(node, callback);
+    }
+},
+
+endAppending: function(node, callback) {
+    node.endUpdate();
+    if (typeof callback == "function") {
+        callback(this, node);
+    }
+},
+
+parseXml:function (response, node) {
  var concept=null;
  var concepts=response.responseXML.selectNodes('//concept');
 	

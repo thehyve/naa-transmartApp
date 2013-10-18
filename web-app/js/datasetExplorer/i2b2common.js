@@ -425,6 +425,7 @@ function showSetValueDialog()
 {		
 		var conceptnode=selectedConcept; //not dragging so selected concept is what im updating
 		setvaluewin.setHeight(200); //set height back to old closed
+        setvaluewin.setPosition(100, 100);
 		Ext.get("setvaluechartsPanel1").update("");
 		Ext.get("setvaluechartsPanel2").update("");
         setvaluewin.show(viewport);
@@ -1951,6 +1952,14 @@ function getTreeNodeFromXMLNode(concept)
 	    	iconCls=visualattributes.substr(2,1).toLowerCase()+"leaficon";
 	    	tcls=visualattributes.substr(2,1).toLowerCase()+"leafclass";
 	    	}
+
+        if (visualattributes.indexOf('P') > '-1') {
+            iconCls="programicon";
+        }
+        if (visualattributes.indexOf('S') > '-1') {
+            iconCls="studyicon";
+        }
+
 	    if(nodetype=='F') //folder-dragable
 	    {
 	    leaf=false;
@@ -1971,6 +1980,8 @@ function getTreeNodeFromXMLNode(concept)
 	    var autoExpand=false;
 		//var pathToExpand="\\\\Clinical Trials\\Clinical Trials\\C-2006-004\\Subjects\\Demographics\\Race\\";
 	    if(GLOBAL.PathToExpand.indexOf(key)>-1) autoExpand=true;
+
+        if (visualattributes)
 		
 	    // set the root node
     	newnode = new Tree.AsyncTreeNode({

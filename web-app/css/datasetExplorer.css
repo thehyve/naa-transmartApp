@@ -85,6 +85,14 @@ a.toplink1:hover{
 .printbutton{
 	background-image:url(../images/printer.png ) !important;
 	}
+
+.x-tree-node-collapsed .x-tree-node-icon.studyicon {
+    background-image: url(../images/study.png);
+}
+
+.x-tree-node-expanded .x-tree-node-icon.studyicon {
+    background-image: url(../images/studyopen.png);
+}
 	
 .savebutton{
 	background-image:url(../images/disk.png ) !important;
