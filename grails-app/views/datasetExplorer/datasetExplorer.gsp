@@ -25,7 +25,9 @@
 
 <title>Dataset Explorer</title>
 
-<LINK REL="SHORTCUT ICON"
+    %{--<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8">--}%
+
+    <LINK REL="SHORTCUT ICON"
 	HREF="${resource(dir:'images', file:'i2b2_hive.ico')}">
 <LINK REL="ICON"
 	HREF="${resource(dir:'images', file:'i2b2_hive.ico')}">
@@ -40,19 +42,45 @@
 <g:javascript library="prototype" />
 <script type="text/javascript"
 	src="${resource(dir:'js', file:'ext/adapter/ext/ext-base.js')}"></script>
+<script type="text/javascript"
+src="${resource(dir:'js', file:'ext/ext-all.js')}"></script>
 	
-<script type="text/javascript" src="${resource(dir:'js/jQuery', file:'jquery-1.7.1.min.js')}"></script>
-<script type="text/javascript" src="${resource(dir:'js/jQuery', file:'jquery-ui-1.8.17.custom.min.js')}"></script>
+<!-- jQuery JS libraries -->
+<script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery-1.8.3.min.js')}"></script>   
+<script>jQuery.noConflict();</script> 
+
+<script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery-ui.min.js')}"></script>
+<script type="text/javascript" src="${resource(dir:'js/jQuery/validate', file:'jquery.validate.min.js')}"></script>
+<script type="text/javascript" src="${resource(dir:'js/jQuery/validate', file:'additional-methods.min.js')}"></script>
+
+<script type="text/javascript" src="${resource(dir:'js/jQuery/multiselect', file: 'jquery.multiselect.min.js')}"></script>
+
 <script type="text/javascript" src="${resource(dir:'js/jQuery', file:'jquery.tablesorter.min.js')}"></script>
-  
+<script type="text/javascript" src="${resource(dir:'js/jQuery', file:'jquery.dataTables.columnFilter.js')}"></script>
+
+
+<script type="text/javascript" src="${resource(dir:'js/jQuery', file: 'jquery.dataTables.js')}"></script>
+<script type="text/javascript" src="${resource(dir:'js/jQuery', file: 'TableTools.min.js')}"></script>
+<script type="text/javascript" src="${resource(dir:'js/jQuery', file: 'ZeroClipboard.js')}"></script>
+
+<script type="text/javascript" src="${resource(dir:'js/jQuery/custom', file: 'fnGetColumnData.js')}"></script>
+
+<script type="text/javascript" src="${resource(dir:'js/jQuery/flot', file: 'jquery.flot.js')}"></script>
+<script type="text/javascript" src="${resource(dir:'js/jQuery/flot', file: 'jquery.flot.time.js')}"></script>
+
+<script type="text/javascript" src="${resource(dir:'js/jsTree', file:'jquery.jstree.js')}"></script>
+
 <script type="text/javascript" src="${resource(dir:'js', file:'ajax_queue.js')}"></script> 
 
-<script type="text/javascript"
-	src="${resource(dir:'js', file:'ext/ext-all.js')}"></script>
+
+<script type="text/javascript" src="${resource(dir:'js', file:'myJobs.js')}"></script>
+
+
+
 <script type="text/javascript"
 	src="${resource(dir:'js/ext-ux', file:'miframe.js')}"></script>
 <script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'i2b2common.js')}"></script>
-<!-- <script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'dataAssociation.js')}"></script> -->
+<script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'i2b2common.js')}"></script>
 <script type="text/javascript"
 	src="${resource(dir:'js/datasetExplorer', file: 'requests.js')}"></script>
 <script type="text/javascript"
@@ -60,6 +88,9 @@
 <script type="text/javascript"
 	src="${resource(dir:'js/datasetExplorer', file: 'workflowStatus.js')}"></script>
 <script type="text/javascript" src="${resource(dir:'js', file:'myJobs.js')}"></script>
+<script type="text/javascript" src="${resource(dir:'js', file:'myJobs.js')}"></script>
+<script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file: 'jsTreeFunctions.js')}"></script>
+<script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file: 'reports.js')}"></script>
 
 <script type="text/javascript"
 	src="${resource(dir:'js/datasetExplorer/exportData', file: 'dataTab.js')}"></script>
@@ -71,25 +102,34 @@
 </script>
  <script type="text/javascript"
 	src="${resource(dir:'js', file:'bioheatmap.js')}"></script>-->
-	
+	src="${resource(dir:'js', file:'bioheatmap.js')}"></script>-->
+    <!--Datatable styling and scripts-->
 	<!-- Include Ext stylesheets here: -->
 	<link rel="stylesheet" type="text/css" href="${resource(dir:'js/ext/resources/css', file:'ext-all.css')}">
 	<link rel="stylesheet" type="text/css" href="${resource(dir:'js/ext/resources/css', file:'xtheme-gray.css')}">
 	<!-- Include JQuery stylesheets here: -->
 	<link rel="stylesheet" type="text/css" href="${resource(dir:'css/jQueryUI/smoothness', file:'jquery-ui-1.8.17.custom.css')}">
-	
-	<script type="text/javascript" src="${resource(dir:'js', file:'browserDetect.js')}"></script>
-	
+	<link rel="stylesheet" type="text/css" href="${resource(dir:'css/jQueryUI/smoothness', file:'jquery-ui-1.8.17.custom.css')}">
 
- 
+    <!-- jQuery Multiselect widget stylesheets -->
+    <link rel="stylesheet" type="text/css" href="${resource(dir:'css/jQueryUI/multiselect', file:'jquery.multiselect.css')}">
+	<script type="text/javascript" src="${resource(dir:'js', file:'browserDetect.js')}"></script>
+
+
+
 	<link rel="stylesheet" type="text/css" href="${resource(dir:'css', file:'datasetExplorer.css')}">
-	
 	<script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'datasetExplorer.js')}"></script>
-	<script type="text/javascript" src="${resource(dir:'js', file:'advancedWorkflowFunctions.js')}"></script>
-	
+	<script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'datasetExplorer.js')}"></script>
+    <script type="text/javascript" src="${resource(dir:'js', file:'ColVis.js')}"></script>
+    <script type="text/javascript" src="${resource(dir:'js', file:'ColReorderWithResize.js')}"></script>
+    <script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'workflowValidationFunctions.js')}"></script>
+    <script type="text/javascript" src="${resource(dir:'js', file:'advancedWorkflowFunctions.js')}"></script>
 	<script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'highDimensionData.js')}"></script>
-		<script type="text/javascript" src="${resource(dir:'js', file:'utilitiesMenu.js')}"></script>
+	<script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'highDimensionData.js')}"></script>
+	<script type="text/javascript" src="${resource(dir:'js', file:'utilitiesMenu.js')}"></script>
 		
+		
+	
 	<!-- Combo-handled YUI JS files: --> 
 	<script type="text/javascript" src="http://yui.yahooapis.com/combo?2.9.0/build/yahoo/yahoo-min.js&2.9.0/build/get/get-min.js"></script> 
 	<style>
@@ -107,7 +147,7 @@
 <body>
 
 <script type="text/javascript">
-	var $j = jQuery.noConflict();
+<script type="text/javascript">
 	Ext.BLANK_IMAGE_URL = "${resource(dir:'js', file:'ext/resources/images/default/s.gif')}";
 
 	//set ajax to 600*1000 milliseconds
@@ -115,13 +155,15 @@
 
 	// this overrides the above
 	Ext.Updater.defaults.timeout = 1800000;
+	Ext.Updater.defaults.timeout = 1800000;
+    var basicGridUrl = "${createLink(controller:'chart', action:'basicGrid')}"
 
 	var pageInfo = {
 		basePath :"${request.getContextPath()}"
 	}
-	
+	}
     var helpURL = '${grailsApplication.config.com.recomdata.searchtool.adminHelpURL}';
-	 
+    var helpURL = '${grailsApplication.config.com.recomdata.searchtool.adminHelpURL}';
 	/******************************************************************************/
 	//Global Variables
 	GLOBAL = {
@@ -140,6 +182,7 @@
 	  PMTransport: 'rest',
 	  PMproxy:${grailsApplication.config.com.recomdata.datasetExplorer.pmServiceProxy},
 	  CRCUrl: '',
+	  ONTUrl: '',
 	  ONTUrl: '',
 	  Config:'jj',
 	  CurrentQueryName:'',
@@ -207,7 +250,27 @@
 	</g:else>
 	<IFRAME src="${gplogout}" width="1" height="1" scrolling="no" frameborder="0" id="gplogin"></IFRAME>
 	<IFRAME src="${gplogout}" width="1" height="1" scrolling="no" frameborder="0" id="altgplogin"></IFRAME>
-		
+	<IFRAME src="${gplogout}" width="1" height="1" scrolling="no" frameborder="0" id="altgplogin"></IFRAME>
+
+    <div id="saveReportDialog" style="display:none;font: 11px arial,tahoma,helvetica,sans-serif;font-weight:normal;">
+        <br />
+        Report Name : <input id='txtReportName' type='text' title="Report Name" /> <br />
+        Make Report Public : <input id='chkReportPublic' type='checkbox' value='Y' title="Make Report Public" /><br /><br />
+
+        <input type="button" onclick="saveReport(true,jQuery('#txtReportName').val(),jQuery('#txtReportDescription').val(),jQuery('#chkReportPublic').is(':checked'),GLOBAL.currentReportCodes.join('|'),GLOBAL.currentReportStudy)" value="Create Report" />
+    </div>
+
+    <div id="saveSubsetsDialog" style="display:none;font: 11px arial,tahoma,helvetica,sans-serif;font-weight:normal;">
+        <form id="saveSubsetForm">
+            <br />
+            <em>*</em> Description : <input id='txtSubsetDescription' type='text' name='txtSubsetDescription' title="Subset Description"/>
+            <br />
+            <em>*</em> Make Subset Public : <input id='chkSubsetPublic' type='checkbox' value='Y' title="Subset Public" />
+            <br />
+            <br />
+            <input class="submit" type="submit" value="Save Subsets"/>
+        </form>
+    </div>
 	<span id="visualizerSpan0"></span> <!-- place applet tag here -->
 	<span id="visualizerSpan1"></span> <!-- place applet tag here -->
 <!-- ************************************** -->
@@ -218,4 +281,4 @@
 	</script>
 <!-- ************************************** --> 
 </body>
-</html>
+</body>
