@@ -58,7 +58,7 @@ class WebserviceController {
 	def resultDataForFilteredByModelIdGeneAndRangeRev = { //TODO Negotiate this name into something more reasonable
 		def snpSource = params.snpSource;
 		if (!snpSource) {snpSource = '19'}
-		def range = params.long('range')
+		def range = params.long('range') ?: 0
 		def analysisIds = params.modelId.split(",")
 		def sourceId = null
 		def geneName = params.geneName
@@ -66,7 +66,8 @@ class WebserviceController {
 		def geneBounds = webserviceService.computeGeneBounds(geneName, '0', snpSource)
 		def low = geneBounds[0]
 		def high = geneBounds[1]
-		def results = webserviceService.getAnalysisDataBetween(analysisIds, geneBounds[0]-range, geneBounds[1]+range, geneBounds[2], snpSource)
+        def chrom = geneBounds[2]
+		def results = webserviceService.getAnalysisDataBetween(analysisIds, low-range, high+range, chrom, snpSource)
 		
 		renderDataSet(results)
 	}

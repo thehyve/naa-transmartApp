@@ -224,7 +224,8 @@ class WebserviceService {
 	def final analysisDataSqlQueryGwas = """
 		SELECT gwas.rs_id as rsid, gwas.bio_asy_analysis_gwas_id as resultid, gwas.bio_assay_analysis_id as analysisid, 
     	gwas.p_value as pvalue, gwas.log_p_value as logpvalue, be.title as studyname, baa.analysis_name as analysisname, 
-    	baa.bio_assay_data_type AS datatype, info.pos as posstart, info.chrom as chromosome
+    	baa.bio_assay_data_type AS datatype, info.pos as posstart, info.chrom as chromosome,
+    	info.exon_id as exon, info.recombination_rate as recombinationrate, info.regulome_score as regulome
 		FROM biomart.Bio_Assay_Analysis_Gwas gwas
 		LEFT JOIN deapp.de_rc_snp_info info ON gwas.rs_id = info.rs_id
 		LEFT JOIN biomart.Bio_Assay_Analysis baa ON baa.bio_assay_analysis_id = gwas.bio_assay_analysis_id
@@ -237,7 +238,8 @@ class WebserviceService {
 	def final analysisDataSqlQueryEqtl = """
 		SELECT eqtl.rs_id as rsid, eqtl.bio_asy_analysis_data_id as resultid, eqtl.bio_assay_analysis_id as analysisid,
 		eqtl.p_value as pvalue, eqtl.log_p_value as logpvalue, be.title as studyname, baa.analysis_name as analysisname,
-		baa.bio_assay_data_type AS datatype, info.pos as posstart, info.chrom as chromosome
+		baa.bio_assay_data_type AS datatype, info.pos as posstart, info.chrom as chromosome,
+		info.exon_id as exon, info.recombination_rate as recombinationrate, info.regulome_score as regulome
 		FROM biomart.Bio_Assay_Analysis_eqtl eqtl
 		LEFT JOIN deapp.de_rc_snp_info info ON eqtl.rs_id = info.rs_id
 		LEFT JOIN biomart.Bio_Assay_Analysis baa ON baa.bio_assay_analysis_id = eqtl.bio_assay_analysis_id
@@ -246,6 +248,8 @@ class WebserviceService {
 		AND chrom = ? AND info.hg_version = ?
 		AND eqtl.bio_assay_analysis_id IN (
 	"""
+
+    def final intronValues = ["INTRON", "SPLICE_SITE_ACCEPTOR", "SPLICE_SITE_DONOR"]
 	
 	def getAnalysisDataBetween(analysisIds, low, high, chrom, snpSource) {
 		//Get all data for the given analysisIds that falls between the limits
@@ -273,16 +277,24 @@ class WebserviceService {
 		
 		try{
 			while(rs.next()){
-				results.push([rs.getString("rsid"),
-							  rs.getLong("resultid"),
-							  rs.getLong("analysisid"),
-							  rs.getDouble("pvalue"),
-							  rs.getDouble("logpvalue"),
-							  rs.getString("studyname"),
-							  rs.getString("analysisname"),
-							  rs.getString("datatype"),
-							  rs.getLong("posstart"),
-							  rs.getString("chromosome")])
+                def intronExon = "exon"
+                if (intronValues.contains(rs.getString("exon"))) { intronExon = "intron" }
+
+				results.push(
+                    [rs.getString("rsid"),
+                      rs.getLong("resultid"),
+                      rs.getLong("analysisid"),
+                      rs.getDouble("pvalue"),
+                      rs.getDouble("logpvalue"),
+                      rs.getString("studyname"),
+                      rs.getString("analysisname"),
+                      rs.getString("datatype"),
+                      rs.getLong("posstart"),
+                      rs.getString("chromosome"),
+                      intronExon,
+                      rs.getLong("recombinationrate"),
+                      rs.getString("regulome")
+                ])
 			}
 			return results;
 		}finally{
@@ -301,16 +313,23 @@ class WebserviceService {
 		
 		try{
 			while(rs.next()){
+
+                def intronExon = "exon"
+                if (intronValues.contains(rs.getString("exon"))) { intronExon = "intron" }
 				results.push([rs.getString("rsid"),
-							  rs.getLong("resultid"),
-							  rs.getLong("analysisid"),
-							  rs.getDouble("pvalue"),
-							  rs.getDouble("logpvalue"),
-							  rs.getString("studyname"),
-							  rs.getString("analysisname"),
-							  rs.getString("datatype"),
-							  rs.getLong("posstart"),
-							  rs.getString("chromosome")])
+                  rs.getLong("resultid"),
+                  rs.getLong("analysisid"),
+                  rs.getDouble("pvalue"),
+                  rs.getDouble("logpvalue"),
+                  rs.getString("studyname"),
+                  rs.getString("analysisname"),
+                  rs.getString("datatype"),
+                  rs.getLong("posstart"),
+                  rs.getString("chromosome"),
+                  intronExon,
+                  rs.getLong("recombinationrate"),
+                  rs.getString("regulome")
+                ])
 			}
 			return results;
 		}finally{
