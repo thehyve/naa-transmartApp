@@ -65,8 +65,8 @@ src="${resource(dir:'js', file:'ext/ext-all.js')}"></script>
 
 <script type="text/javascript" src="${resource(dir:'js/jQuery/custom', file: 'fnGetColumnData.js')}"></script>
 
-<script type="text/javascript" src="${resource(dir:'js/jQuery/flot', file: 'jquery.flot.js')}"></script>
-<script type="text/javascript" src="${resource(dir:'js/jQuery/flot', file: 'jquery.flot.time.js')}"></script>
+<%--<script type="text/javascript" src="${resource(dir:'js/jQuery/flot', file: 'jquery.flot.js')}"></script>--%>
+<%--<script type="text/javascript" src="${resource(dir:'js/jQuery/flot', file: 'jquery.flot.time.js')}"></script>--%>
 
 <script type="text/javascript" src="${resource(dir:'js/jsTree', file:'jquery.jstree.js')}"></script>
 
@@ -80,7 +80,6 @@ src="${resource(dir:'js', file:'ext/ext-all.js')}"></script>
 <script type="text/javascript"
 	src="${resource(dir:'js/ext-ux', file:'miframe.js')}"></script>
 <script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'i2b2common.js')}"></script>
-<script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'i2b2common.js')}"></script>
 <script type="text/javascript"
 	src="${resource(dir:'js/datasetExplorer', file: 'requests.js')}"></script>
 <script type="text/javascript"
@@ -88,9 +87,9 @@ src="${resource(dir:'js', file:'ext/ext-all.js')}"></script>
 <script type="text/javascript"
 	src="${resource(dir:'js/datasetExplorer', file: 'workflowStatus.js')}"></script>
 <script type="text/javascript" src="${resource(dir:'js', file:'myJobs.js')}"></script>
-<script type="text/javascript" src="${resource(dir:'js', file:'myJobs.js')}"></script>
 <script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file: 'jsTreeFunctions.js')}"></script>
 <script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file: 'reports.js')}"></script>
+<script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file: 'workspace.js')}"></script>
 
 <script type="text/javascript"
 	src="${resource(dir:'js/datasetExplorer/exportData', file: 'dataTab.js')}"></script>
@@ -101,35 +100,35 @@ src="${resource(dir:'js', file:'ext/ext-all.js')}"></script>
 	google.load("visualization", "1", {});
 </script>
  <script type="text/javascript"
-	src="${resource(dir:'js', file:'bioheatmap.js')}"></script>-->
-	src="${resource(dir:'js', file:'bioheatmap.js')}"></script>-->
+	<!--src="${resource(dir:'js', file:'bioheatmap.js')}"></script>-->
     <!--Datatable styling and scripts-->
 	<!-- Include Ext stylesheets here: -->
 	<link rel="stylesheet" type="text/css" href="${resource(dir:'js/ext/resources/css', file:'ext-all.css')}">
 	<link rel="stylesheet" type="text/css" href="${resource(dir:'js/ext/resources/css', file:'xtheme-gray.css')}">
 	<!-- Include JQuery stylesheets here: -->
 	<link rel="stylesheet" type="text/css" href="${resource(dir:'css/jQueryUI/smoothness', file:'jquery-ui-1.8.17.custom.css')}">
-	<link rel="stylesheet" type="text/css" href="${resource(dir:'css/jQueryUI/smoothness', file:'jquery-ui-1.8.17.custom.css')}">
 
     <!-- jQuery Multiselect widget stylesheets -->
     <link rel="stylesheet" type="text/css" href="${resource(dir:'css/jQueryUI/multiselect', file:'jquery.multiselect.css')}">
+
 	<script type="text/javascript" src="${resource(dir:'js', file:'browserDetect.js')}"></script>
 
 
 
 	<link rel="stylesheet" type="text/css" href="${resource(dir:'css', file:'datasetExplorer.css')}">
 	<script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'datasetExplorer.js')}"></script>
-	<script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'datasetExplorer.js')}"></script>
     <script type="text/javascript" src="${resource(dir:'js', file:'ColVis.js')}"></script>
     <script type="text/javascript" src="${resource(dir:'js', file:'ColReorderWithResize.js')}"></script>
     <script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'workflowValidationFunctions.js')}"></script>
     <script type="text/javascript" src="${resource(dir:'js', file:'advancedWorkflowFunctions.js')}"></script>
-	<script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'highDimensionData.js')}"></script>
+
 	<script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'highDimensionData.js')}"></script>
 	<script type="text/javascript" src="${resource(dir:'js', file:'utilitiesMenu.js')}"></script>
+	<!-- <script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'dataAnalysisTools.js')}"></script>  -->
 		
 		
 	
+
 	<!-- Combo-handled YUI JS files: --> 
 	<script type="text/javascript" src="http://yui.yahooapis.com/combo?2.9.0/build/yahoo/yahoo-min.js&2.9.0/build/get/get-min.js"></script> 
 	<style>
@@ -147,7 +146,7 @@ src="${resource(dir:'js', file:'ext/ext-all.js')}"></script>
 <body>
 
 <script type="text/javascript">
-<script type="text/javascript">
+	//var $j = jQuery.noConflict();
 	Ext.BLANK_IMAGE_URL = "${resource(dir:'js', file:'ext/resources/images/default/s.gif')}";
 
 	//set ajax to 600*1000 milliseconds
@@ -155,15 +154,15 @@ src="${resource(dir:'js', file:'ext/ext-all.js')}"></script>
 
 	// this overrides the above
 	Ext.Updater.defaults.timeout = 1800000;
-	Ext.Updater.defaults.timeout = 1800000;
     var basicGridUrl = "${createLink(controller:'chart', action:'basicGrid')}"
+    var analysisGridUrl = "${createLink(controller:'chart', action:'analysisGrid')}"
 
 	var pageInfo = {
 		basePath :"${request.getContextPath()}"
 	}
-	}
+
     var helpURL = '${grailsApplication.config.com.recomdata.searchtool.adminHelpURL}';
-    var helpURL = '${grailsApplication.config.com.recomdata.searchtool.adminHelpURL}';
+
 	/******************************************************************************/
 	//Global Variables
 	GLOBAL = {
@@ -183,7 +182,7 @@ src="${resource(dir:'js', file:'ext/ext-all.js')}"></script>
 	  PMproxy:${grailsApplication.config.com.recomdata.datasetExplorer.pmServiceProxy},
 	  CRCUrl: '',
 	  ONTUrl: '',
-	  ONTUrl: '',
+	  usePMHost: '${grailsApplication.config.com.recomdata.datasetExplorer.usePMHost}',
 	  Config:'jj',
 	  CurrentQueryName:'',
 	  CurrentComparisonName:' ',
@@ -250,7 +249,6 @@ src="${resource(dir:'js', file:'ext/ext-all.js')}"></script>
 	</g:else>
 	<IFRAME src="${gplogout}" width="1" height="1" scrolling="no" frameborder="0" id="gplogin"></IFRAME>
 	<IFRAME src="${gplogout}" width="1" height="1" scrolling="no" frameborder="0" id="altgplogin"></IFRAME>
-	<IFRAME src="${gplogout}" width="1" height="1" scrolling="no" frameborder="0" id="altgplogin"></IFRAME>
 
     <div id="saveReportDialog" style="display:none;font: 11px arial,tahoma,helvetica,sans-serif;font-weight:normal;">
         <br />
@@ -271,6 +269,7 @@ src="${resource(dir:'js', file:'ext/ext-all.js')}"></script>
             <input class="submit" type="submit" value="Save Subsets"/>
         </form>
     </div>
+
 	<span id="visualizerSpan0"></span> <!-- place applet tag here -->
 	<span id="visualizerSpan1"></span> <!-- place applet tag here -->
 <!-- ************************************** -->
@@ -281,4 +280,4 @@ src="${resource(dir:'js', file:'ext/ext-all.js')}"></script>
 	</script>
 <!-- ************************************** --> 
 </body>
-</body>
+</html>
