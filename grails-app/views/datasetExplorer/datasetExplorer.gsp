@@ -102,6 +102,8 @@ src="${resource(dir:'js', file:'ext/ext-all.js')}"></script>
  <script type="text/javascript"
 	<!--src="${resource(dir:'js', file:'bioheatmap.js')}"></script>-->
     <!--Datatable styling and scripts-->
+    <link rel="stylesheet" type="text/css" href="${resource(dir:'css', file:'jquery.dataTables.css')}">
+    
 	<!-- Include Ext stylesheets here: -->
 	<link rel="stylesheet" type="text/css" href="${resource(dir:'js/ext/resources/css', file:'ext-all.css')}">
 	<link rel="stylesheet" type="text/css" href="${resource(dir:'js/ext/resources/css', file:'xtheme-gray.css')}">
