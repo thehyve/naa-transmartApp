@@ -1161,6 +1161,7 @@ public class SearchController{
 			or {
 				eq('assayDataType', 'GWAS')
 				eq('assayDataType', 'Metabolic GWAS')
+				eq('assayDataType','GWAS Fail')
 			}
 			'in'('id', analysisIds)
 		}
