@@ -425,6 +425,7 @@ function showSetValueDialog()
 {		
 		var conceptnode=selectedConcept; //not dragging so selected concept is what im updating
 		setvaluewin.setHeight(200); //set height back to old closed
+        setvaluewin.setPosition(100, 100);
 		Ext.get("setvaluechartsPanel1").update("");
 		Ext.get("setvaluechartsPanel2").update("");
         setvaluewin.show(viewport);
@@ -1909,7 +1910,11 @@ function getTreeNodeFromXMLNode(concept)
  		var normalunitsnode 	= 	null;
  		var oktousevaluesnode	= 	null;
  		var oktousevalues		=	null;
- 			
+        var visualattributes    =   null;
+        var sourcesystemcdnode  =   null;
+        var sourcesystemcd      =   null;
+
+
 	    level				=	concept.selectSingleNode('level').firstChild.nodeValue;
 	    key					=	concept.selectSingleNode('key').firstChild.nodeValue;
 	    name				=	concept.selectSingleNode('name').firstChild.nodeValue; 
@@ -1924,6 +1929,8 @@ function getTreeNodeFromXMLNode(concept)
 	   	comment				=	getValue(commentnode, "");	    
 	    oktousevaluesnode	=	concept.selectSingleNode('.//metadataxml/ValueMetadata/Oktousevalues');
 	    oktousevalues		=	getValue(oktousevaluesnode, "N");
+        sourcesystemcdnode  =   concept.selectSingleNode('sourcesystem_cd');
+        sourcesystemcd      =   getValue(sourcesystemcdnode, "");
 	    
 	    //We need to replace the < signs with &lt;
 	    name = name.replace(/</gi,"&lt;");
@@ -1945,6 +1952,14 @@ function getTreeNodeFromXMLNode(concept)
 	    	iconCls=visualattributes.substr(2,1).toLowerCase()+"leaficon";
 	    	tcls=visualattributes.substr(2,1).toLowerCase()+"leafclass";
 	    	}
+
+        if (visualattributes.indexOf('P') > '-1') {
+            iconCls="programicon";
+        }
+        if (visualattributes.indexOf('S') > '-1') {
+            iconCls="studyicon";
+        }
+
 	    if(nodetype=='F') //folder-dragable
 	    {
 	    leaf=false;
@@ -1965,6 +1980,8 @@ function getTreeNodeFromXMLNode(concept)
 	    var autoExpand=false;
 		//var pathToExpand="\\\\Clinical Trials\\Clinical Trials\\C-2006-004\\Subjects\\Demographics\\Race\\";
 	    if(GLOBAL.PathToExpand.indexOf(key)>-1) autoExpand=true;
+
+        if (visualattributes)
 		
 	    // set the root node
     	newnode = new Tree.AsyncTreeNode({
@@ -1985,7 +2002,9 @@ function getTreeNodeFromXMLNode(concept)
    		tablename: tablename,
    		normalunits: normalunits,
    		oktousevalues: oktousevalues,
-   		expanded: autoExpand
+        visualattributes: visualattributes,
+   		expanded: autoExpand,
+        accession: sourcesystemcd
    		 });
    		 newnode.addListener('contextmenu',ontologyRightClick);
 	return newnode;

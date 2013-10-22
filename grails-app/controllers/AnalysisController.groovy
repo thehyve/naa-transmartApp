@@ -44,6 +44,8 @@ import com.recomdata.genepattern.JobStatus
 import com.recomdata.genepattern.WorkflowStatus
 import org.codehaus.groovy.grails.plugins.web.taglib.ApplicationTagLib
 
+import com.recomdata.transmart.domain.searchapp.AccessLog
+
 /**
  * $Id: AnalysisController.groovy 11302 2011-12-23 02:59:44Z mkapoor $
  * @author $Author: mkapoor $

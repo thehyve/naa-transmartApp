@@ -21,7 +21,7 @@
         <link rel="stylesheet" href="${resource(dir:'css', file:'jquery/multiselect/common.css')}"></link>
                                 
         <!-- jQuery JS libraries -->
-        <script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery.min.js')}"></script>   
+        <script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery-1.8.3.min.js')}"></script>   
 	    <script>jQuery.noConflict();</script> 
         
         <script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery-ui.min.js')}"></script>
@@ -37,8 +37,13 @@
   		<script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery.dataTables.js')}"></script>
   		<script type="text/javascript" src="${resource(dir:'js', file:'facetedSearch/facetedSearchBrowse.js')}"></script>
   		<script type="text/javascript" src="${resource(dir:'js', file:'jQuery/ui.multiselect.js')}"></script>
-  		<script type="text/javascript" src="${resource(dir:'js', file:'help/D2H_ctxt.js')}"></script>  
-  		  
+  		<script type="text/javascript" src="${resource(dir:'js', file:'help/D2H_ctxt.js')}"></script>
+  		
+  		<g:if test="${org.codehaus.groovy.grails.plugins.PluginManagerHolder.pluginManager.hasGrailsPlugin('folder-management')}">
+            <g:render template="/folderManagementUrls" plugin="folderManagement"/>
+  			<script type="text/javascript" src="${resource(dir:'js', file:'folderManagement.js', plugin: 'folderManagement')}"></script>
+  			<link rel="stylesheet" href="${resource(dir:'css', file:'folderManagement.css', plugin: 'folderManagement')}"></link>        
+  		</g:if>
   		        
   		<!--  SVG Export -->
   		<script type="text/javascript" src="${resource(dir:'js', file:'svgExport/rgbcolor.js')}"></script>  
@@ -176,7 +181,14 @@
 				<div class='toolbar-item' onclick="jQuery('.analysesopen .analysischeckbox').attr('checked', 'checked'); updateSelectedAnalyses();">Select All Visible Analyses</div>
 				<div class='toolbar-item' onclick="jQuery('.analysesopen .analysischeckbox').removeAttr('checked'); updateSelectedAnalyses();">Unselect All Visible Analyses</div>
 	  			<div class='toolbar-item' onclick="filterSelectedAnalyses();">Add Selected to Filter</div>
-				<%-- <div id="searchResultOptions_holder">
+
+                <g:if test="${org.codehaus.groovy.grails.plugins.PluginManagerHolder.pluginManager.hasGrailsPlugin('folder-management')}">
+                    <div class="toolbar-item">
+                        <g:render template="/fmFolder/exportCart" model="[exportCount: exportCount]" plugin="folderManagement"/>
+                    </div>
+                </g:if>
+
+	  			<%-- <div id="searchResultOptions_holder">
 					<div id="searchResultOptions_btn" class='toolbar-item'>
 						 Options <img alt="" style='vertical-align:middle;' src="${resource(dir:'images',file:'tiny_down_arrow.png')}" />
 					</div>
@@ -345,5 +357,9 @@
 		<div id="tableViewHelp" style="position: absolute; top: 70px; right: 20px; display: none;">
 			<tmpl:/help/helpIcon id="1317"/>
 		</div>
+
+        <g:if test="${org.codehaus.groovy.grails.plugins.PluginManagerHolder.pluginManager.hasGrailsPlugin('folder-management')}">
+            <div id="exportOverlay" class="overlay" style="display: none;">&nbsp;</div>
+        </g:if>
     </body>
 </html>

@@ -65,63 +65,6 @@ function dataSelectionCheckboxChanged(ctl)
 	}
 }
 
-function setDataAssociationAvailableFlag(el, success, response, options) {
-	
-	if (!success) {
-		var dataAssociationPanel = Ext.getCmp('dataAssociationPanel');
-		var resultsTabPanel = Ext.getCmp('resultsTabPanel');
-		resultsTabPanel.remove(dataAssociationPanel);
-		resultsTabPanel.doLayout();
-	} else {
-		Ext.Ajax.request(
-		{
-			url : pageInfo.basePath+"/dataAssociation/loadScripts",
-				method : 'GET',
-				timeout: '600000',
-				params :  Ext.urlEncode({}),
-				success : function(result, request)
-				{
-					var exp = result.responseText.evalJSON();
-					if (exp.success && exp.files.length > 0)	{
-						/*for (var i = 0; i < exp.files.length; i++) {
-							var file = exp.files[i]
-							if (file.type == 'script') {
-								
-							}
-						}*/
-						loadScripts(exp.files);
-					}
-				},
-				failure : function(result, request)
-				{
-					alert("Unable to process the export: " + result.responseText);
-				}
-		});
-	}
-}
-
-function loadScripts(scripts) {
-	var handlerData = {
-	//data you wish to pass to your success or failure
-	//handlers.
-	};
-	 
-	var filesArr = []
-	for (var i = 0; i < scripts.length; i++) {
-		var file = scripts[i];
-		filesArr.push(file.path);
-	}
-	YAHOO.util.Get.script(filesArr, {
-		onSuccess: function(o) {
-			//alert("JavaScripts loaded");
-		},
-		onFailure: function(o) {
-			alert("Failed to load Javascript files");
-		},
-		data:      handlerData
-	});
-}
-
 Ext.Panel.prototype.setBody = function(html)
 {
 	var el = this.getEl();
@@ -174,7 +117,7 @@ Ext.onReady(function()
 		northPanel = new Ext.Panel(
 				{
 					id : 'northPanel',
-					html : '<div style="padding:5px;background:#eee;font:14pt arial"><table><tr><td><img src="/images/i2b2_hive_32.gif"></img></td><td><span style="font:arial 14pt;"><b> i2b2 Web Client</b></span></td></tr></table></div>',
+					html : '<div style="padding:5px;background:#eee;font:14pt arial"><table><tr><td><img src="/images/i2b2_hive_32.gif"></td><td><span style="font:arial 14pt;"><b> i2b2 Web Client</b></span></td></tr></table></div>',
 					region : 'north',
 					height : 45,
 					split : false,
@@ -458,6 +401,9 @@ Ext.onReady(function()
 								// alert('generate');
 								GLOBAL.CurrentSubsetIDs[1] = null;
 								GLOBAL.CurrentSubsetIDs[2] = null;
+
+								GLOBAL.currentReportCodes = [];
+                          	  	GLOBAL.currentReportStudy = [];
 								runAllQueries(getSummaryStatistics);
 
 								}
@@ -508,9 +454,17 @@ Ext.onReady(function()
 									{
 										clearAnalysisPanel();
 										resetQuery();
-										clearDataAssociation();									
+										clearDataAssociation();
+
+                                        dataAssociationPanel.load({
+                                            url: pageInfo.basePath + '/datasetExplorer/pluginLanding',
+                                            evalScripts: true,
+                                            method: 'POST',
+                                            callback: function () {
+                                                renderCohortSummary();
+                                            }
+                                        });
 									}
-								// clearGrid(); blah
 								}
 							}
 					),
@@ -518,7 +472,7 @@ Ext.onReady(function()
 					new Ext.Toolbar.Button(
 							{
 								id : 'savecomparsionbutton',
-								text : 'Save',
+								text : 'Save Subsets',
 								iconCls : 'savebutton',
 								disabled : false,
 								handler : function()
@@ -532,11 +486,13 @@ Ext.onReady(function()
 								{
 									runAllQueries(function()
 											{
-										saveComparison();});
+										//saveComparison();});
+										 showSaveSubsetsDialog();});
 								}
 								else
 								{
-									saveComparison();
+									//saveComparison();
+									showSaveSubsetsDialog();
 								}
 								return;
 								}
@@ -779,56 +735,29 @@ Ext.onReady(function()
 					collapsible : true						
 				}
 		);
-		
-		dataAssociationPanel = new Ext.Panel(
-				{
-					id : 'dataAssociationPanel',
-					title : 'Advanced Workflow',
-					region : 'center',
-					split : true,
-					height : 90,
-					layout : 'fit',
-					tbar : new Ext.Toolbar({
-						id : 'advancedWorkflowToolbar',
-						title : 'Advanced Workflow actions',
-						items : []
-						}),
-					autoScroll : true,
-					autoLoad:
-			        {
-			        	url : pageInfo.basePath+'/dataAssociation/defaultPage',
-			           	method:'POST',
-			           	callback: setDataAssociationAvailableFlag,
-			           	evalScripts:true
-			        },
-			        /*buttons: [{
-						text:'Run Job',
-						handler: function()	{
-							var analysis = Ext.get('analysis');
-							if (analysis != undefined) {
-								var selectedAnalysis = analysis.dom.value;
-								if (selectedAnalysis != '') {
-									selectedAnalysis = selectedAnalysis.charAt(0).toUpperCase()+selectedAnalysis.substring(1);
-									eval("submit"+selectedAnalysis+"Job(this.form)");
-								} else {
-									Ext.Msg.alert('Analysis required!!!', 'Please select an Analysis from the \'Analysis\' menu.')
-								}
-							}
-						}      	
-			        }],
-			        buttonAlign:'center',*/
-			        listeners :
-					{
-			        	activate : function() {
-							GLOBAL.Analysis="dataAssociation";
-							renderCohortSummary();
-							//Ext.getCmp('dataAssociationBodyPanel').focus()
-						}
-					},
-					collapsible : true
+
+		dataAssociationPanel = new Ext.Panel({
+			id: 'dataAssociationPanel',
+			title: 'Advanced Workflow',
+			region: 'center',
+			split: true,
+			height: 90,
+			layout: 'fit',
+			tbar: new Ext.Toolbar({
+				id: 'advancedWorkflowToolbar',
+				title: 'Advanced Workflow actions',
+				items: []
+			}),
+			autoScroll: true,
+			listeners: {
+				activate: function () {
+					GLOBAL.Analysis = "dataAssociation";
+					renderCohortSummary();
 				}
-		);
-		
+			},
+			collapsible: true
+		});
+
 		analysisExportJobsPanel = new Ext.Panel(
 				{
 					id : 'analysisExportJobsPanel',
@@ -837,19 +766,41 @@ Ext.onReady(function()
 					split : true,
 					height : 90,
 					layout : 'fit',
-					//autoLoad : getExportJobs,
+					// autoLoad : getExportJobs,
 					listeners :
 					{
 						activate : function(p) {
 							getExportJobs(p)
 						},
 						deactivate: function(){
-							//resultsTabPanel.tools.help.dom.style.display="none";
+							// resultsTabPanel.tools.help.dom.style.display="none";
 						}
 					},
-					collapsible : true						
+					collapsible : true
 				}
 		);
+		 //jira DEMOTM-138 Workspaces tab - subset and report grid CRUD
+        var workspacePanel = new Ext.Panel(
+                {
+                    id : 'workspacePanel',
+                    title : 'Workspace',
+                    region : 'center',
+                    split : true,
+                    height : 90,
+                    layout : 'fit',
+                    autoScroll : true,
+                    listeners :
+                    {
+                        activate : function(p) {
+                            renderWorkspace(p)
+                        },
+                        deactivate: function(){
+
+                        }
+                    },
+                    collapsible : true
+                }
+        );
 		resultsTabPanel.add(queryPanel);
 		resultsTabPanel.add(dataAssociationPanel);
 		resultsTabPanel.add(analysisPanel);
@@ -858,7 +809,10 @@ Ext.onReady(function()
 		//resultsTabPanel.add(analysisJobsPanel);
 		resultsTabPanel.add(analysisDataExportPanel);
 		resultsTabPanel.add(analysisExportJobsPanel);
-		
+        //jira DEMOTM-138 Workspaces tab - subset and report grid CRUD
+        resultsTabPanel.add(workspacePanel);
+		//loadDataAssociationPanel(dataAssociationPanel);
+
 		southCenterPanel = new Ext.Panel(
 				{
 					id : 'southCenterPanel',
@@ -1168,6 +1122,94 @@ function exportDataSets()
 function hasMultipleTimeSeries()
 {
 	return true;
+}
+
+function loadDataAssociationPanel(dataAssociationPanel) {
+    function loadJavascript(exp, plugins, index) {
+        var handlerData = {
+            //data you wish to pass to your success or failure
+            //handlers.
+        };
+        var filesArr = []
+        for (var i = 0; i < exp.files.length; i++) {
+            var file = exp.files[i];
+            filesArr.push(file.path);
+        }
+        YAHOO.util.Get.script(filesArr, {
+            onSuccess: function (o) {
+                loadPluginScripts(plugins, index + 1);
+            },
+            onFailure: function (o) {
+                alert("Failed to load Javascript files");
+                loadPluginScripts(plugins, index + 1); // Continue loading the other plugins if the current one fails
+            },
+            data: handlerData
+        });
+    }
+
+    function loadResources(resources) {
+        for (var i = 0; i < resources.length; i++) {
+            var type = resources[i].type;
+            if (type == 'text/css') {
+                var cssPath = resources[i].path;
+                var cssLink = document.createElement("link");
+                cssLink.setAttribute("rel", "stylesheet");
+                cssLink.setAttribute("type", type);
+                cssLink.setAttribute("href", cssPath);
+                document.getElementsByTagName("head")[0].appendChild(cssLink);
+            }
+        }
+    }
+
+    function loadPluginScripts(plugins, index) {
+        if (index < plugins.length) {
+            Ext.Ajax.request({
+                url: pageInfo.basePath + plugins[index].defaultLink + "/loadScripts",
+                method: 'GET',
+				timeout: '600000',
+				params: Ext.urlEncode({}),
+				success: function (result, request) {
+					var exp = result.responseText.evalJSON();
+					if (exp.success) {
+                        var resources = exp.resources;
+                        if (resources != null && resources.length > 0) {
+                            loadResources(resources);
+                        }
+
+                        if (exp.files.length > 0) {
+                            loadJavascript(exp, plugins, index);
+                        }
+                    }
+				},
+				failure: function (result, request) {
+					alert("Failed to retrieve scripts from plugin: " + plugins[i].name + " responded with: " + result.responseText);
+					loadPluginScripts(plugins, index + 1) // Continue loading the other plugins if the current one fails
+				}
+			});
+		}
+	}
+
+	Ext.Ajax.request({
+		url: pageInfo.basePath + "/plugin/plugins",
+		method: 'GET',
+		success: function (result, request) {
+			var plugins = result.responseText.evalJSON().plugins;
+			if (plugins.size() > 0) {
+				dataAssociationPanel.load({
+					url: pageInfo.basePath + '/datasetExplorer/pluginLanding',
+					method: 'POST',
+					callback: loadPluginScripts(plugins, 0),
+					evalScripts: true
+				});
+			}
+		},
+		failure: function (result, request) {
+			var resultsTabPanel = Ext.getCmp('resultsTabPanel');
+			resultsTabPanel.remove(dataAssociationPanel);
+			resultsTabPanel.doLayout();
+			Ext.Msg.alert('Status', 'Unable to retrieve data association plugins.');
+		}
+	});
 }
 
 function createOntPanel()
@@ -1924,11 +1966,14 @@ function getSubCategories(id_in, title_in, ontresponse)
 
 
 	// add a tree sorter in folder mode
-	new Tree.TreeSorter(ontTree,
+	var ontTreeSorter = new Tree.TreeSorter(ontTree,
 			{
-		folderSort : true
+		        folderSort : true
 			}
 	);
+    if (GLOBAL.pluginFolderManagement) {
+        ontTreeSorter = FM.getFileTreeSorter(ontTree);
+    }
 	ontTree.setRootNode(treeRoot);
 	ontTree.add(toolbar);
 	ontTabPanel.add(ontTree);
@@ -2943,6 +2988,10 @@ function buildAnalysis(nodein)
 				), // or a URL encoded string
 				success : function(result, request)
 				{
+
+				//Add the code we just dragged in to the report list.
+            	GLOBAL.currentReportCodes.push(node.attributes.id)
+            	GLOBAL.currentReportStudy.push(node.attributes.comment)
 				buildAnalysisComplete(result);
 				}
 			,
@@ -2958,6 +3007,8 @@ function buildAnalysis(nodein)
 	getAnalysisGridData(node.attributes.id);
 }
 
+
+
 function buildAnalysisComplete(result)
 {
 	// analysisPanel.body.unmask();
@@ -2967,6 +3018,8 @@ function buildAnalysisComplete(result)
 
 function updateAnalysisPanel(html, insert)
 {
+    var saveButtonHtml="<div id='reportSaveButton'><button style='float:right' type='button' onclick='saveCodeReport()'>Save Report</button></div>";
+    var printButtonHtml="<div id='printButton'><button style='float:right' type='button' onclick='print()'>Print or Save Results</button></div><br>";
 	/* if(insert)
    {
    var frame = analysisPanel.getFrame();
@@ -2984,6 +3037,13 @@ function updateAnalysisPanel(html, insert)
 	{
 		var body = analysisPanel.body;
 		body.insertHtml('afterBegin', html, false);
+
+        jQuery("#reportSaveButton").remove();
+        //jQuery("#printButton").remove();
+
+        //body.insertHtml('afterBegin', printButtonHtml, false);
+        body.insertHtml('afterBegin', saveButtonHtml, false);
+
 		body.scrollTo('top', 0, false);
 	}
 	else
@@ -3758,7 +3818,7 @@ function showNameQueryDialog()
 					           }
 					           ],
 					           resizable : false,
-					           html : '<br>Query Name:&nbsp<input id="nameQueryDialogInput" type="text" size="50"></input>'
+					           html : '<br>Query Name:&nbsp<input id="nameQueryDialogInput" type="text" size="50">'
 				}
 		);
 	}

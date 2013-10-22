@@ -103,6 +103,8 @@ import com.recomdata.statistics.StatHelper;
 import org.jfree.chart.servlet.*;
 import org.apache.commons.math.stat.inference.TestUtils;
 
+import com.recomdata.transmart.domain.searchapp.AccessLog
+
 class ChartController {
 
     def index = { }

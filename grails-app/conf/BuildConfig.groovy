@@ -33,13 +33,14 @@ grails.project.dependency.resolution = {
     }
     log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
     repositories {
-        grailsPlugins()
+		mavenLocal()
+		grailsPlugins()
         grailsHome()
         grailsCentral()
 
         // uncomment the below to enable remote dependency resolution
         // from public Maven repositories
-        //mavenLocal()
+        
         //mavenCentral()
         //mavenRepo "http://snapshots.repository.codehaus.org"
         //mavenRepo "http://repository.codehaus.org"
@@ -48,9 +49,16 @@ grails.project.dependency.resolution = {
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
-
-  
     }
+    plugins {
+        compile(':transmart-java:1.0-SNAPSHOT')
+        compile(':biomart-domain:1.0-SNAPSHOT')
+        compile(':search-domain:1.0-SNAPSHOT')
+        compile(':folder-management:1.0-SNAPSHOT')
+        compile(':spring-security-core:1.1.2')
+        compile(':quartz:0.4.2')
+    }
+
 }
 
 

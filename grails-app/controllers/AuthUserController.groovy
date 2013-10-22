@@ -26,6 +26,8 @@
 
 import search.GeneSignature
 
+import com.recomdata.transmart.domain.searchapp.AccessLog
+
 /**
  * User controller.
  */

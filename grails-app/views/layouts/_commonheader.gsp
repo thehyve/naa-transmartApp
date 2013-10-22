@@ -56,11 +56,15 @@
 
 <g:if test="${'rwg' != app}" >
 <link rel="stylesheet" type="text/css" href="${resource(dir:'css/jquery/cupertino', file:'jquery-ui-1.8.18.custom.css')}">
-<script type="text/javascript" src="${resource(dir:'js/jQuery', file:'jquery.min.js')}"></script>
+<script type="text/javascript" src="${resource(dir:'js/jQuery', file:'jquery-1.8.3.min.js')}"></script>
 <script>jQuery.noConflict();</script> 
 
-<script type="text/javascript" src="${resource(dir:'js/jQuery', file:'jquery-ui.min.js')}"></script>		
+<script type="text/javascript" src="${resource(dir:'js/jQuery', file:'jquery-ui.min.js')}"></script>
+<script type="text/javascript" src="${resource(dir:'js/jQuery/validate', file:'jquery.validate.min.js')}"></script>
+<script type="text/javascript" src="${resource(dir:'js/jQuery/validate', file:'additional-methods.min.js')}"></script>
+<script type="text/javascript" src="${resource(dir:'js/jQuery', file: 'jquery.dataTables.js')}"></script>
 </g:if>
+
 
 <script type="text/javascript" src="${resource(dir:'js/jQuery', file:'jquery.idletimeout.js')}"></script>
 <script type="text/javascript" src="${resource(dir:'js/jQuery', file:'jquery.idletimer.js')}"></script>

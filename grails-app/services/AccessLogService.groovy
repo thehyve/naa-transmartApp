@@ -25,6 +25,9 @@
  * $Revision: 10098 $
  *
  */
+
+import com.recomdata.transmart.domain.searchapp.AccessLog
+
 public class AccessLogService{
 
 	static transactional = true

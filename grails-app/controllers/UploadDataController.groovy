@@ -31,7 +31,7 @@ import com.recomdata.upload.DataUploadResult;
 
 import com.recomdata.snp.SnpData
 import grails.converters.JSON
-
+import com.recomdata.transmart.domain.searchapp.AccessLog
 
 /**
  * Class for controlling the Upload Data page.
@@ -176,6 +176,17 @@ class UploadDataController {
 			upload.expressionPlatformIds = "";
 		}
 		
+		if (params.researchUnit) {
+			if (params.researchUnit instanceof String) {
+				upload.researchUnit = params.researchUnit
+			}
+			else {
+				upload.researchUnit = params.researchUnit.join(";")
+			}
+		}
+		else {
+			upload.researchUnit = "";
+		}
 		def f = null;
 		def filename = null;
 		def uploadsDir = null;
@@ -258,6 +269,7 @@ class UploadDataController {
 		def tagMap = [:]
 		def genotypeMap = [:]
 		def expressionMap = [:]
+		def researchUnitMap= [:]
 		
 		if (upload) {
 			if (upload.phenotypeIds) {
@@ -289,10 +301,17 @@ class UploadDataController {
 				}
 			}
 			
+			if (upload.researchUnit) {
+				for (tag in upload.researchUnit.split(";")) {
+					//def platform = BioAssayPlatform.findByAccession(tag)
+					researchUnitMap.put(tag, tag)
+				}
+			}
+			
 			model.put('tags', tagMap)
 			model.put('genotypePlatforms', genotypeMap)
 			model.put('expressionPlatforms', expressionMap)
-			
+			model.put('researchUnit', researchUnitMap)
 			model.put('study', Experiment.findByAccession(upload.study))
 		}
 		
