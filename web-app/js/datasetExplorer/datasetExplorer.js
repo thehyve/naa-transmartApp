@@ -2032,6 +2032,7 @@ function setupDragAndDrop()
 
 			dts.notifyDrop = function(source, e, data)
 			{
+				 GLOBAL.currentSubsetsStudy=data.node.attributes.comment.substr(6);
 				if(source.tree.id == "previousQueriesTree")
 				{
 					getPreviousQueryFromID(data.node.attributes.id);
@@ -4703,3 +4704,21 @@ function ontFilterLoaded(el, success, response, options)
 			Ext.get("ontSearchButton").dom.click();
 		}
 }
+
+
+//This might be inefficient. 
+//Return new array with duplicate values removed
+Array.prototype.unique =
+function() {
+var a = [];
+var l = this.length;
+for(var i=0; i<l; i++) {
+for(var j=i+1; j<l; j++) {
+  // If this[i] is found later in the array
+  if (this[i] === this[j])
+    j = ++i;
+}
+a.push(this[i]);
+}
+return a;
+};
