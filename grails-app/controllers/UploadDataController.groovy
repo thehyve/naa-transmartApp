@@ -16,7 +16,12 @@
  * 
  *
  ******************************************************************/
-  
+
+
+
+
+import org.codehaus.groovy.grails.commons.ConfigurationHolder
+import org.codehaus.groovy.grails.plugins.PluginManagerHolder
 
 import java.text.SimpleDateFormat;
 
@@ -32,6 +37,7 @@ import com.recomdata.upload.DataUploadResult;
 import com.recomdata.snp.SnpData
 import grails.converters.JSON
 import com.recomdata.transmart.domain.searchapp.AccessLog
+import com.recomdata.grails.plugin.fm.FmFolderService
 
 /**
  * Class for controlling the Upload Data page.
@@ -43,6 +49,8 @@ class UploadDataController {
 	//This server is used to access security objects.
 	def springSecurityService
 	def dataUploadService
+    def fmFolderService
+
 	static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 
 	def index =
@@ -51,8 +59,12 @@ class UploadDataController {
 		//Create an event record for this access.
 		def al = new AccessLog(username: springSecurityService.getPrincipal().username, event:"UploadData-Index", eventmessage:"Upload Data index page", accesstime:new Date())
 		al.save();
-		
-		def model = [uploadDataInstance: new AnalysisMetadata()]
+		def uploadDataInstance = new AnalysisMetadata()
+        def uploadFileInstance
+        if (PluginManagerHolder.pluginManager.hasGrailsPlugin('folder-management')) {
+            uploadFileInstance = new com.recomdata.grails.plugin.fm.FmFile()
+        }
+		def model = [uploadDataInstance: uploadDataInstance, uploadFileInstance: uploadFileInstance]
 		
 		addFieldData(model, null)
 		render(view: "uploadData", model:model)
@@ -127,6 +139,27 @@ class UploadDataController {
 			render(view: "complete", model: [result: result, uploadDataInstance: upload]);
 		}
 	}
+
+    def uploadFile = {
+        def paramMap = params
+        def f = request.getFile('uploadFile');
+        def description = params.fileDescription
+        def fileName = params.displayName
+        def accession = params.study
+
+        if (!fileName) {
+            fileName = f.getOriginalFilename()
+        }
+
+        //Get the fmFolder associated with this study
+        Experiment experiment = Experiment.findByAccession(accession)
+        def folder = fmFolderService.getFolderByBioDataObject(experiment)
+        def tempFile = new File(ConfigurationHolder.config.com.recomdata.FmFolderService.filestoreDirectory, f.getOriginalFilename())
+        f.transferTo(tempFile)
+        fmFolderService.processFile(tempFile, folder, fileName, description)
+        tempFile.delete()
+        render(view: "fileComplete");
+    }
 	def upload = {
 		def paramMap = params
 		def upload = null;
@@ -221,7 +254,7 @@ class UploadDataController {
 				flash.message2=e.getMessage()+". If you wish to skip those SNPs, please click 'Continue'. If you wish to reload, click 'Cancel'."
 				def model = [uploadDataInstance: upload]
 				addFieldData(model, upload)
-				render(view: "uploadData2", model: model)
+				render(view: "uploadData", model: model)
 				}
 				else{
 					result = new DataUploadResult(success:false, error: "Could not verify file: unexpected exception occured." + e.getMessage());

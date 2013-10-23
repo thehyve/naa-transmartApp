@@ -117,7 +117,7 @@
 					Upload Data
 				</g:else>
 			</div>
-			<div style="text-align:right">
+			<div style="text-align:right; padding-top: 8px">
 				<a class="button" href="mailto:${grailsApplication.config.com.recomdata.dataUpload.adminEmail}">Email administrator</a>
 				<div class="uploadMessage">If you are unable to locate the relevant study, email the administrator by clicking the button above.</div>
 			</div>
@@ -127,8 +127,7 @@
 				<table class="uploadTable">
 					<tr>
 						<td width="10%">&nbsp;</td>
-						<td width="90%">&nbsp;
-						</td>
+						<td width="90%">&nbsp;</td>
 					</tr>
 					<tr>
 						<td>
@@ -147,46 +146,96 @@
 							<div id="studyDiv" style="height: 200px; width: 540px; overflow: auto; display: none;">&nbsp;</div>
 						</td>
 					</tr>
-					
-					<tr>
-						<td>
-							Analysis Type to Upload<br/>
-						</td>
-						<td>
-							<div id="dataTypeErrors">
-								<g:eachError bean="${uploadDataInstance}" field="dataType">
-									<div class="fieldError"><g:message error="${it}"/></div>
-								</g:eachError>
-							</div>
-							<g:select name="dataType" name="dataType" noSelection="${['null':'Select...']}" from="${['GWAS':'GWAS','Metabolic GWAS':'GWAS Metabolomics','EQTL':'eQTL']}" optionKey="${{it.key}}" optionValue="${{it.value}}" value="${uploadDataInstance?.dataType}"/>
-							<a class="upload" href="#" onclick="downloadTemplate();">Download Template</a>
-						</td>
-						
-					</tr>
-				
-					<tr>
-						<td>
-							Analysis Name:
-						</td>
-						<td>
-							<div id="analysisNameErrors">
-								<g:eachError bean="${uploadDataInstance}" field="analysisName">
-									<div class="fieldError"><g:message error="${it}"/></div>
-								</g:eachError>
-							</div>
-							<g:textField name="analysisName" style="width: 90%" value="${uploadDataInstance.analysisName}"/>
-						</td>
-					</tr>
-					<tr>
-						<td>Analysis Description:</td>
-						<td colspan="3">
-							<g:textArea name="description" style="width: 90%; height: 100px">${uploadDataInstance.description}</g:textArea>
-						</td>
-					</tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td>
+                            <span class="uploadTypeRadio"><input type="radio" ${!uploadType?.equals("FILE") ? 'checked="checked"' : ''} name="uploadType" value="false" id="uploadAnalysisRadio"/> Upload analysis data</span>
+                            <span class="uploadTypeRadio"><input type="radio" ${uploadType?.equals("FILE")  ? 'checked="checked"' : ''} name="uploadType" value="true" id="uploadFileRadio"/> Upload a file</span>
+                        </td>
+                    </tr>
+
 				</table>
+                <div id="uploadAnalysisPane">
+                    <table class="uploadTable">
+                        <tr>
+                            <td width="10%">
+                                Analysis Type to Upload:<br/>
+                            </td>
+                            <td width="90%">
+                                <div id="dataTypeErrors">
+                                    <g:eachError bean="${uploadDataInstance}" field="dataType">
+                                        <div class="fieldError"><g:message error="${it}"/></div>
+                                    </g:eachError>
+                                </div>
+                                <g:select name="dataType" name="dataType" noSelection="${['null':'Select...']}" from="${['GWAS':'GWAS','Metabolic GWAS':'GWAS Metabolomics','EQTL':'eQTL']}" optionKey="${{it.key}}" optionValue="${{it.value}}" value="${uploadDataInstance?.dataType}"/>
+                                <a class="upload" href="#" onclick="downloadTemplate();">Download Template</a>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                Analysis Name:
+                            </td>
+                            <td>
+                                <div id="analysisNameErrors">
+                                    <g:eachError bean="${uploadDataInstance}" field="analysisName">
+                                        <div class="fieldError"><g:message error="${it}"/></div>
+                                    </g:eachError>
+                                </div>
+                                <g:textField name="analysisName" style="width: 90%" value="${uploadDataInstance.analysisName}"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Analysis Description:</td>
+                            <td colspan="3">
+                                <g:textArea name="description" style="width: 90%; height: 100px">${uploadDataInstance.description}</g:textArea>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div id="uploadFilePane">
+                    <table class="uploadTable">
+                        <tr>
+                            <td width="10%">
+                                File to Upload:
+                            </td>
+                            <td width="90%">
+                                <div id="uploadFileErrors">
+                                    &nbsp;
+                                </div>
+                                <input type="file" id="uploadFile" name="uploadFile" style="border: 1px dotted #CCC" />
+                            </td>
+
+                        </tr>
+
+                        <tr>
+                            <td>
+                                File Name:
+                            </td>
+                            <td>
+                                <div id="uploadFileNameErrors">
+                                    <g:eachError bean="${uploadFileInstance}" field="displayName">
+                                        <div class="fieldError"><g:message error="${it}"/></div>
+                                    </g:eachError>
+                                </div>
+                                <g:textField name="displayName" style="width: 90%" value="${uploadFileInstance.displayName}"/>
+                                <br/>
+                                <div class="uploadMessage">If this is left blank, the original file name will be used.</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>File Description:</td>
+                            <td colspan="3">
+                                <g:textArea name="fileDescription" style="width: 90%; height: 100px">${uploadFileInstance.fileDescription}</g:textArea>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
 				
 				<div class="buttonbar">
-					<a class="button" onclick="showDataUploadForm()">Enter metadata</a>
+					<a class="button" id="enterMetadataButton" onclick="showDataUploadForm()">Enter metadata</a>
+                    <g:actionSubmit class="upload" value="Upload File" action="uploadFile" id="uploadFileButton" onclick="validateFile(event)"/>
 					<a class="button" href="${createLink([action:'index',controller:'search'])}">Cancel</a>
 				</div>
 			</div>
@@ -201,6 +250,10 @@
 					<a class="button" href="mailto:${grailsApplication.config.com.recomdata.dataUpload.adminEmail}">Email administrator</a>
 					<div class="uploadMessage">If you are unable to locate the relevant autocomplete fields, email the administrator by clicking the button above.</div>
 				</div>
+                <%-- Appalling hack from previous version - leaving this in until I can sort it properly --%>
+                <g:if test="${flash.message2}">
+                    <div class="fieldError">${flash.message2}</div>
+                </g:if>
 				<table class="uploadTable">
 					<tr>
 						<td width="10%">
@@ -218,18 +271,6 @@
 							<i>Upload should be a tab-delimited plain text file</i>
 						</td>
 					</tr>
-					<%-- Disabled instant check
-					<tr>
-						<td>
-							&nbsp;
-						</td>
-						<td colspan="3">
-							<div id="columnsAll">&nbsp;</div>
-							<div id="columnsNotFound">&nbsp;</div>
-							<br/>
-						</td>
-					</tr>
-					 --%> 
 					
 					<tr class="borderbottom bordertop">
 						<td id="tagsLabel">

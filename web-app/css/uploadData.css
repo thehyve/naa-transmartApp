@@ -18,9 +18,15 @@ a.upload {
 }
 
 .dataFormTitle {
-	font-size: 20pt;
-	font-weight: bold;
-	text-align: center;
+    font: 18px tahoma,verdana,helvetica;
+    font-weight:bold;
+    text-align: center;
+}
+
+.uploadTypeRadio {
+    padding: 8px;
+    border: 1px dotted #ccc;
+    margin-bottom: 8px;
 }
 
 div.buttonbar {
@@ -134,4 +140,10 @@ tr.borderbottom td {
 
 .datalabel {
 	font-weight: bold;
+}
+
+.ajaxloading {
+    background-image: url('../images/loader-large.gif') !important;
+    background-repeat: no-repeat !important;
+    background-position: 50% 50% !important;
 }

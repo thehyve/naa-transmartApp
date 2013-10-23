@@ -125,6 +125,29 @@ function showDataUploadForm() {
 	$j('#formPage2').show();
 }
 
+function validateFile(event) {
+
+    //TODO Cheap Javascript validation in here - move to actual validator!
+    $j('#studyErrors').empty();
+
+    var errors = false;
+    if ($j('#study').val() == null || $j('#study').val() == '') {
+        $j('#studyErrors').html('<div class="fieldError">Please select a study</div>');
+        errors = true;
+    }
+
+    if ($j('#uploadFile').val() == null || $j('#uploadFile').val() == '') {
+        $j('#uploadFileErrors').html('<div class="fieldError">Please select a file to upload</div>');
+        errors = true;
+    }
+
+    if (errors) {
+        event.preventDefault();
+        return false;
+    }
+    return true;
+}
+
 function showAnalysisForm() {
 	$j('#formPage2').hide();
 	$j('#formPage1').show();
@@ -209,7 +232,7 @@ function fillSelectAjax(element, url, params) {
 
 function updateStudyTable(param) {
 	
-	$j('#studyDiv').empty().hide();
+	$j('#studyDiv').empty().hide().slideDown('slow').addClass('ajaxloading');
 	
 	request = $j.ajax({
 		url: studyDetailUrl,
@@ -225,7 +248,7 @@ function updateStudyTable(param) {
 	
 	request.done(function(msg) {
 		
-		$j('#studyDiv').html(msg).slideDown('slow');
+		$j('#studyDiv').html(msg).removeClass('ajaxloading');
 	});
 	
 }
@@ -331,3 +354,22 @@ function addResearchUnit(field) {
 	typeField.val(null);
 	
 }
+
+jQuery(document).ready(function() {
+    jQuery('#uploadFilePane').hide();
+    jQuery('#uploadFileButton').hide();
+
+    jQuery('body').on('click', '#uploadAnalysisRadio', function() {
+        jQuery('#uploadAnalysisPane').show();
+        jQuery('#enterMetadataButton').show();
+        jQuery('#uploadFileButton').hide();
+        jQuery('#uploadFilePane').hide();
+    });
+    jQuery('body').on('click', '#uploadFileRadio', function() {
+        jQuery('#uploadAnalysisPane').hide();
+        jQuery('#enterMetadataButton').hide();
+        jQuery('#uploadFileButton').show();
+        jQuery('#uploadFilePane').show();
+
+    });
+});
