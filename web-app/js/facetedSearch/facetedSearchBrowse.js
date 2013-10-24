@@ -21,8 +21,8 @@ function generateBrowseWindow(nodeClicked)
 		case "Region of Interest":
 			URLtoUse = regionBrowseWindow;
 			filteringFunction = applyPopupFiltersRegions;
-			dialogHeight = 340;
-			dialogWidth = 430;
+			dialogHeight = 420;
+			dialogWidth = 900;
 			break;
 		case "Data Type":
 			URLtoUse = dataTypeBrowseWindow;
@@ -32,6 +32,7 @@ function generateBrowseWindow(nodeClicked)
 			alert("Failed to find applicable popup! Please contact an administrator.");
 			return false;
 	}
+
 	
 	//Load from the URL into a dialog window to capture the user input. We pass in a function that handles what happens after the user presses "Select".
 	jQuery('#divBrowsePopups').dialog("destroy");
@@ -108,8 +109,10 @@ function applyPopupFiltersRegions()
 	var searchString = "";
 	var text = "";
 	if (jQuery('[name=\'regionFilter\'][value=\'gene\']:checked').size() > 0) {
-		var geneId = jQuery('#filterGeneId').val();
-		var geneName = jQuery('#filterGeneId-input').val();
+        jQuery("#filterGeneId :selected").each(function(i,selected){
+		var geneId= selected.value
+
+		var geneName = selected.text;
 		range = jQuery('#filterGeneRange').val();
 		basePairs = jQuery('#filterGeneBasePairs').val();
 		if (basePairs == null || basePairs == "") {
@@ -120,7 +123,20 @@ function applyPopupFiltersRegions()
 		searchString += "GENE;" + geneId
 		
 		text = "HG" + use + " " + geneName + " " + getRangeSymbol(range) + " " + basePairs;
-	}
+
+        searchString += ";" + range + ";" + basePairs + ";" + use;
+
+        var searchParam={id:searchString,
+            display:'Region',
+            keyword:searchString,
+            category:'REGION',
+            text:text};
+
+        addSearchTerm(searchParam);
+        })
+        //This destroys our popup window.
+        jQuery(this).dialog("destroy");
+    }
 	else if (jQuery('[name=\'regionFilter\'][value=\'chromosome\']:checked').size() > 0) {
 		range = jQuery('#filterChromosomeRange').val();
 		basePairs = jQuery('#filterChromosomeBasePairs').val();
@@ -143,7 +159,7 @@ function applyPopupFiltersRegions()
 		else {
 			text = "HG" + use + " chromosome " + chromNum;
 		}
-	}
+
 	searchString += ";" + range + ";" + basePairs + ";" + use;
 
 	var searchParam={id:searchString,
@@ -156,7 +172,7 @@ function applyPopupFiltersRegions()
 	
 	//This destroys our popup window.
 	jQuery(this).dialog("destroy");
-}
+}  }
 
 function getRangeSymbol(string) {
 	
