@@ -103,16 +103,26 @@ class GeneSignatureController {
 		// break into owned and public
 		def myItems = []
 		def pubItems = []
+        def myListItems = []
 
 		signatures.each {
-			if(user.id==it.createdByAuthUser.id) {
-				myItems.add(it)
-			} else {
-				pubItems.add(it)
-			}
+            if(it.uniqueId.startsWith("GENESIG") )
+            {
+                if(user.id==it.createdByAuthUser.id) {
+                    myItems.add(it)
+                } else {
+                    pubItems.add(it)
+                }
+            }
+            else
+            {
+                if(user.id==it.createdByAuthUser.id) {
+                    myListItems.add(it)
+                }
+            }
 		}
 
-		render(view: "list", model:[user: user, adminFlag: bAdmin, myItems: myItems, pubItems: pubItems, ctMap: ctMap])
+		render(view: "list", model:[user: user, adminFlag: bAdmin, myItems: myItems, pubItems: pubItems, myListItems: myListItems, ctMap: ctMap])
 	}
 
 	/**
@@ -134,6 +144,28 @@ class GeneSignatureController {
 
 		redirect(action:'create1')
 	}
+
+    /**
+     * initialize session for the create gs wizard
+     */
+    def createListWizard = {
+        // initialize session model data
+        def user = AuthUser.findByUsername(springSecurityService.getPrincipal().username)
+
+        // initialize new gs inst
+        def geneSigInst = new GeneSignature();
+        geneSigInst.properties.createdByAuthUser = user;
+        geneSigInst.properties.publicFlag = false;
+        geneSigInst.properties.deletedFlag = false;
+        geneSigInst.properties.list = true;
+
+        // initialize session
+        def newWizard = new WizardModelDetails(loggedInUser: user, geneSigInst: geneSigInst);
+        session.setAttribute(WIZ_DETAILS_ATTRIBUTE, newWizard)
+
+        redirect(action:'createList')
+    }
+
 
 	/**
 	 * initialize session for the edit gs wizard
@@ -263,6 +295,19 @@ class GeneSignatureController {
 		render(view: "wizard3", model:[wizard: wizard])
 	}
 
+
+    def createList = {
+        def wizard = session.getAttribute(WIZ_DETAILS_ATTRIBUTE)
+
+        // bind params
+        bindGeneSigData(params, wizard.geneSigInst)
+
+        // load data for page 3
+        //loadWizardItems(4, wizard)
+
+        render(view: "wizard_list", model:[wizard: wizard])
+    }
+
 	/**
 	 * edit gs in page 1 of wizard
 	 */
@@ -373,6 +418,102 @@ class GeneSignatureController {
 			render(view: "wizard3", model:[wizard: wizard])
 		}
 	}
+
+    /**
+     * save new gene list
+     */
+    def saveList = {
+        def wizard = session.getAttribute(WIZ_DETAILS_ATTRIBUTE)
+        def gs = wizard.geneSigInst
+        gs.properties.list = true
+        assert null == gs.properties.id
+
+        // species
+        gs.speciesConceptCode =  ConceptCode.findByCodeTypeNameAndBioConceptCode("OTHER", "OTHER")
+
+        // technology platforms
+        gs.techPlatform = BioAssayPlatform.findByName("Multiple or Unknown")
+
+        // p value cutoffs
+        gs.pValueCutoffConceptCode =  ConceptCode.findByCodeTypeNameAndBioConceptCode(P_VAL_CUTOFF_CATEGORY, "UNDEFINED")
+
+        // file schemas
+        gs.fileSchema =  GeneSignatureFileSchema.findByName("Gene Symbol <tab> Metric Indicator")
+
+        // fold change metrics
+        gs.foldChgMetricConceptCode = ConceptCode.findByCodeTypeNameAndBioConceptCode(FOLD_CHG_METRIC_CATEGORY, "NOT_USED")
+
+        // bind params
+        bindGeneSigData(params, gs)
+
+        // get file
+        def file = request.getFile('uploadFile')
+        gs.properties.name = request.getParameter('name')
+
+        // load file contents, if clone check for file presence
+        boolean bLoadFile = (file!=null && file.getOriginalFilename().trim() !="")
+        if(!bLoadFile) file = null
+        if(bLoadFile) {
+            gs.properties.uploadFile = file.getOriginalFilename()
+
+            // check for empty file
+            if(file.empty) {
+                flash.message = "The file:'${gs.properties.uploadFile}' you uploaded is empty"
+                return render(view: "wizard_list", model:[wizard: wizard])
+            }
+
+            // validate file format
+            def metricType = "NOT_USED"
+            def schemaColCt = 2
+
+            try {
+                geneSignatureService.verifyFileFormat(file, schemaColCt, metricType)
+            } catch (FileSchemaException e) {
+                flash.message = e.getMessage()
+                return render(view: "wizard_list", model:[wizard: wizard])
+            }
+
+        } else {
+            gs.properties.uploadFile = "Manual Item Entry"
+
+            // load items from list rather than file
+            Iterator iter = params.entrySet().iterator()
+            SortedSet invalidSymbols = new TreeSet();
+            while(iter.hasNext()) {
+                def param = iter.next()
+                def key = param.getKey().trim()
+                def val = param.getValue()
+                List<String> markers = []
+                if(key.startsWith("biomarker_") && val != null && val != "") {
+                    markers.add(val.trim())
+
+                }
+                def gsItems = geneSignatureService.loadGeneSigItemsFromList(markers)
+                gsItems.each { gs.addToGeneSigItems(it) }
+            }
+        }
+
+        // good to go, call save service
+        try {
+            gs = geneSignatureService.saveWizard(gs, file)
+
+            // clean up session
+            wizard = null
+            session.setAttribute(WIZ_DETAILS_ATTRIBUTE, wizard)
+
+            // send message to user
+            flash.message = "GeneSignature '${gs.name}' was created on: ${gs.dateCreated}"
+            redirect(action:'list')
+
+        } catch (FileSchemaException fse) {
+            flash.message = fse.getMessage()
+            render(view: "wizard_list", model:[wizard: wizard])
+        } catch (RuntimeException re) {
+            flash.message = "Runtime exception "+re.getClass().getName()+":<br>"+re.getMessage()
+            render(view: "wizard_list", model:[wizard: wizard])
+        }
+    }
+
 
 	/**
 	 * update gene signature and the associated items (new file only)
