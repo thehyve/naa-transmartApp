@@ -110,41 +110,41 @@ function showDetailDialog(dataURL, dialogTitle, dialogHeight)	{
 }
 
 // Open and close the analysis for a given trial
-function toggleDetailDiv(trialNumber, dataURL)	{	
-	var imgExpand = "#imgExpand_"  + trialNumber;
-	var trialDetail = "#" + trialNumber + "_detail";
-	
-	// If data attribute is undefined then this is the first time opening the div, load the analysis... 
-	if (typeof jQuery(trialDetail).attr('data') == 'undefined')	{		
-		var src = jQuery(imgExpand).attr('src').replace('down_arrow_small2.png', 'ajax-loader-flat.gif');	
-		jQuery(imgExpand).attr('src',src);
-		jQuery.ajax({	
-			url:dataURL,			
-			success: function(response) {
-				jQuery(imgExpand).attr('src', jQuery(imgExpand).attr('src').replace('ajax-loader-flat.gif', 'up_arrow_small2.png'));
-				jQuery(trialDetail).addClass("gtb1");
-				jQuery(trialDetail).html(response);
-				jQuery(trialDetail).addClass("analysesopen");
-				jQuery(trialDetail).attr('data', true);// Add an attribute that we will use as a flag so we don't need to load the data multiple times
-			},
-			error: function(xhr) {
-				console.log('Error!  Status = ' + xhr.status + xhr.statusText);
-			}
-		});
-	} else	{
-		var src = jQuery(imgExpand).attr('src').replace('up_arrow_small2.png', 'down_arrow_small2.png');
-		if (jQuery(trialDetail).attr('data') == "true")	{
-			jQuery(trialDetail).attr('data',false);
-			jQuery(trialDetail).removeClass("analysesopen");
-		} else	{
-			src = jQuery(imgExpand).attr('src').replace('down_arrow_small2.png', 'up_arrow_small2.png');
-			jQuery(trialDetail).attr('data',true);
-			jQuery(trialDetail).addClass("analysesopen");
-		}	
-		jQuery(imgExpand).attr('src',src);
-		jQuery(trialDetail).toggle();		
-	}
-	return false;
+function toggleDetailDiv(trialNumber, dataURL)	{
+    var imgExpand = "#imgExpand_"  + trialNumber;
+    var trialDetail = "#" + trialNumber + "_detail";
+
+    // If data attribute is undefined then this is the first time opening the div, load the analysis...
+    if (typeof jQuery(trialDetail).attr('data') == 'undefined')	{
+        var src = jQuery(imgExpand).attr('src').replace('down_arrow_small2.png', 'ajax-loader-flat.gif');
+        jQuery(imgExpand).attr('src',src);
+        jQuery.ajax({
+            url:dataURL,
+            success: function(response) {
+                jQuery(imgExpand).attr('src', jQuery(imgExpand).attr('src').replace('ajax-loader-flat.gif', 'up_arrow_small2.png'));
+                jQuery(trialDetail).addClass("gtb1");
+                jQuery(trialDetail).html(response);
+                jQuery(trialDetail).addClass("analysesopen");
+                jQuery(trialDetail).attr('data', true);// Add an attribute that we will use as a flag so we don't need to load the data multiple times
+            },
+            error: function(xhr) {
+                console.log('Error!  Status = ' + xhr.status + xhr.statusText);
+            }
+        });
+    } else	{
+        var src = jQuery(imgExpand).attr('src').replace('up_arrow_small2.png', 'down_arrow_small2.png');
+        if (jQuery(trialDetail).attr('data') == "true")	{
+            jQuery(trialDetail).attr('data',false);
+            jQuery(trialDetail).removeClass("analysesopen");
+        } else	{
+            src = jQuery(imgExpand).attr('src').replace('down_arrow_small2.png', 'up_arrow_small2.png');
+            jQuery(trialDetail).attr('data',true);
+            jQuery(trialDetail).addClass("analysesopen");
+        }
+        jQuery(imgExpand).attr('src',src);
+        jQuery(trialDetail).toggle();
+    }
+    return false;
 }
 
 // Method to add the toggle button to show/hide the search filters
@@ -1892,66 +1892,6 @@ function showVisualization(analysisID, changedPaging)	{
 	return false;
 }
 
-//This function will kick off the webservice that generates the QQ plot.
-function loadQQPlot(analysisID)
-{
-	jQuery('#qqplot_results_' +analysisID).empty().addClass('ajaxloading');
-	jQuery.ajax( {
-	    "url": getQQPlotURL,
-	    bDestroy: true,
-	    bServerSide: true,
-	    data: {analysisId: analysisID, pvalueCutoff: jQuery('#analysis_results_table_' + analysisID + '_cutoff').val(), search: jQuery('#analysis_results_table_' + analysisID + '_search').val()},
-	    "success": function ( json ) {
-	    	jQuery('#analysis_holder_' +analysisID).unmask();
-	    	jQuery('#qqplot_results_' + analysisID).prepend("<img src='" + json.imageURL + "' />").removeClass('ajaxloading');
-	    	jQuery('#qqplot_export_' + analysisID).attr('href', json.imageURL);
-	    	},
-	    "error": function ( json ) {
-	    	jQuery('#qqplot_results_' + analysisID).prepend(json).removeClass('ajaxloading');
-	    	jQuery('#analysis_holder_' +analysisID).unmask();
-	    },
-	    "dataType": "json"
-	} );		
-}
-
-// This function will load the analysis data into a GRAILS template.
-function loadAnalysisResultsGrid(analysisID, paramMap)
-{
-	paramMap.analysisId = analysisID
-	jQuery('#analysis_results_table_' + analysisID + '_wrapper').empty().addClass('ajaxloading');
-	jQuery.ajax( {
-	    "url": getAnalysisDataURL,
-	    bDestroy: true,
-	    bServerSide: true,
-	    data: paramMap,
-	    "success": function (jqXHR) {
-	    	jQuery('#analysis_holder_' +analysisID).unmask();
-	    	jQuery('#analysis_results_table_' + analysisID + '_wrapper').html(jqXHR).removeClass('ajaxloading');
-	    },
-	    "error": function (jqXHR, error, e) {
-	    	jQuery('#analysis_results_table_' + analysisID + '_wrapper').html(jqXHR).removeClass('ajaxloading');
-	    	jQuery('#analysis_holder_' +analysisID).unmask();
-	    },
-	    "dataType": "html"
-	} );		
-}
-
-//This function will load all filtered analysis data into a GRAILS template.
-function loadTableResultsGrid(paramMap)
-{
-	jQuery('#table-results-div').empty().addClass('ajaxloading');
-	jQuery.ajax( {
-	    "url": getTableDataURL,
-	    bDestroy: true,
-	    bServerSide: true,
-	    data: paramMap,
-	    "success": function (jqXHR) {
-	    	jQuery('#table-results-div').html(jqXHR).removeClass('ajaxloading');
-	    },
-	    "dataType": "html"
-	} );
-}
-
 // Make a call to the server to load the heatmap data
 function loadHeatmapData(divID, analysisID, probesPage, probesPerPage)	{
 	
@@ -3231,48 +3171,6 @@ function updateSelectedAnalyses() {
 	}
 	else {
 		jQuery('#selectedAnalyses').html("&nbsp;");
-	}
-}
-
-function startPlotter() {
-	var selectedboxes = jQuery(".analysischeckbox:checked");
-	if (selectedboxes.length == 0) {
-		alert("No analyses are selected! Please select analyses to plot.");
-	}
-	else {
-		var analysisIds = "";
-		analysisIds += jQuery(selectedboxes[0]).attr('name');
-		for (var i = 1; i < selectedboxes.length; i++) {
-			analysisIds += "," + jQuery(selectedboxes[i]).attr('name');
-		}
-		
-		var snpSource = jQuery('#plotSnpSource').val();
-		var geneSource = jQuery('#plotGeneSource').val();
-		var pvalueCutoff = jQuery('#plotPvalueCutoff').val();
-		
-		window.location = webStartURL + "?analysisIds=" + analysisIds + "&snpSource=" + snpSource + "&geneSource=GRCh37&pvalueCutoff=" + pvalueCutoff;
-		jQuery('#divPlotOptions').dialog("destroy");
-	}
-}
-
-function openPlotOptions() {
-	var selectedboxes = jQuery(".analysischeckbox:checked");
-	if (selectedboxes.length == 0) {
-		alert("No analyses are selected! Please select analyses to plot.");
-	}
-	else {
-		jQuery('#divPlotOptions').dialog("destroy");
-		jQuery('#divPlotOptions').dialog(
-			{
-				modal: false,
-				height: 250,
-				width: 400,
-				title: "Manhattan Plot Options",
-				show: 'fade',
-				hide: 'fade',
-				resizable: false,
-				buttons: {"Plot" : startPlotter}
-			});
 	}
 }
 

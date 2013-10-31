@@ -137,11 +137,11 @@ src="${resource(dir:'js', file:'ext/ext-all.js')}"></script>
 		.ui-progressbar-value { background-image: url(images/pbar-ani.gif); }
 	</style>
 
-    <g:if test="${org.codehaus.groovy.grails.plugins.PluginManagerHolder.pluginManager.hasGrailsPlugin('folder-management')}">
+    <g:ifPlugin name="folder-management">
         <g:render template="/folderManagementUrls" plugin="folderManagement"/>
         <script type="text/javascript" src="${resource(dir:'js', file:'folderManagementDE.js', plugin: 'folderManagement')}"></script>
         <link rel="stylesheet" href="${resource(dir:'css', file:'folderManagement.css', plugin: 'folderManagement')}"></link>
-    </g:if>
+    </g:ifPlugin>
 
 </head>
 
@@ -164,6 +164,7 @@ src="${resource(dir:'js', file:'ext/ext-all.js')}"></script>
 	}
 
     var helpURL = '${grailsApplication.config.com.recomdata.searchtool.adminHelpURL}';
+    var hasPluginFolderManagement = <g:ifPlugin name="folder-management" true="true" false="false"/>;
 
 	/******************************************************************************/
 	//Global Variables
@@ -227,7 +228,7 @@ src="${resource(dir:'js', file:'ext/ext-all.js')}"></script>
 	  SNPType: '',
 	  basePath: pageInfo.basePath,
 	  hideAcrossTrialsPanel:'${grailsApplication.config.com.recomdata.datasetExplorer.hideAcrossTrialsPanel}',
-      pluginFolderManagement: ${org.codehaus.groovy.grails.plugins.PluginManagerHolder.pluginManager.hasGrailsPlugin('folder-management')}
+      pluginFolderManagement: hasPluginFolderManagement
 	};
 	// initialize browser version variables; see http://www.quirksmode.org/js/detect.html
 	BrowserDetect.init();

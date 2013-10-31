@@ -39,11 +39,11 @@
   		<script type="text/javascript" src="${resource(dir:'js', file:'jQuery/ui.multiselect.js')}"></script>
   		<script type="text/javascript" src="${resource(dir:'js', file:'help/D2H_ctxt.js')}"></script>
   		
-  		<g:if test="${org.codehaus.groovy.grails.plugins.PluginManagerHolder.pluginManager.hasGrailsPlugin('folder-management')}">
+  		<g:ifPlugin name="folder-management">
             <g:render template="/folderManagementUrls" plugin="folderManagement"/>
   			<script type="text/javascript" src="${resource(dir:'js', file:'folderManagement.js', plugin: 'folderManagement')}"></script>
   			<link rel="stylesheet" href="${resource(dir:'css', file:'folderManagement.css', plugin: 'folderManagement')}"></link>        
-  		</g:if>
+  		</g:ifPlugin>
   		        
   		<!--  SVG Export -->
   		<script type="text/javascript" src="${resource(dir:'js', file:'svgExport/rgbcolor.js')}"></script>  
@@ -53,6 +53,9 @@
         
         <!-- Our JS -->        
         <script type="text/javascript" src="${resource(dir:'js', file:'rwg.js')}"></script>
+        <g:ifPlugin name="transmart-gwas">
+            <script type="text/javascript" src="${resource(dir:'js', file:'gwas.js', plugin:'transmart-gwas')}"></script>
+        </g:ifPlugin>
         <script type="text/javascript" src="${resource(dir:'js', file:'maintabpanel.js')}"></script>
         
         <!-- Protovis Visualization library and IE plugin (for lack of SVG support in IE8) -->
@@ -84,21 +87,26 @@
 			//These are the URLS for the different browse windows.
 			var studyBrowseWindow = "${createLink([controller:'experiment',action:'browseExperimentsMultiSelect'])}";
 			var analysisBrowseWindow = "${createLink([controller:'experimentAnalysis',action:'browseAnalysisMultiSelect'])}";
-			var regionBrowseWindow = "${createLink([controller:'RWG',action:'getRegionFilter'])}";
 			var dataTypeBrowseWindow = "${createLink([controller:'RWG',action:'browseDataTypesMultiSelect'])}";
-			var getTableDataURL = "${createLink([controller:'search',action:'getTableResults'])}";
-			var getAnalysisDataURL = "${createLink([controller:'search',action:'getAnalysisResults'])}";
-			var getQQPlotURL = "${createLink([controller:'search',action:'getQQPlotImage'])}";
+        </script>
 
-			var webStartURL = "${createLink([controller:'search',action:'webStartPlotter'])}";
-	       	
+        <g:ifPlugin name="transmart-gwas">
+            <g:render template="/gwas/gwasURLs" plugin="transmart-gwas"/>
+        </g:ifPlugin>
+
+        <script type="text/javascript" charset="utf-8">
 	        var mouse_inside_options_div = false;
+            var popupWindowPropertiesMap = [];
 
 	        jQuery(document).ready(function() {
 		        
 		        addSelectCategories();
 		        addSearchAutoComplete();
 		        addToggleButton();
+
+                popupWindowPropertiesMap['Study'] = {'URLToUse': studyBrowseWindow, 'filteringFunction': applyPopupFiltersStudy}
+                popupWindowPropertiesMap['Analyses'] = {'URLToUse': analysisBrowseWindow, 'filteringFunction': applyPopupFiltersAnalyses}
+                popupWindowPropertiesMap['Data Type'] = {'URLToUse': dataTypeBrowseWindow, 'filteringFunction': applyPopupFiltersDataTypes}
 
 		        jQuery("#xtButton").colorbox({opacity:.75, inline:true, width:"95%", height:"95%"});
       
@@ -177,16 +185,18 @@
 				 -->
 				<div class='toolbar-item' onclick='collapseAllStudies();'>Collapse All Studies</div>
 				<div class='toolbar-item' onclick='expandAllStudies();'>Expand All Studies</div>
-				<div class='toolbar-item' onclick='openPlotOptions();'>Manhattan Plot</div>
+				<g:ifPlugin name="transmart-gwas">
+                    <div class='toolbar-item' onclick='openPlotOptions();'>Manhattan Plot</div>
+                </g:ifPlugin>
 				<div class='toolbar-item' onclick="jQuery('.analysesopen .analysischeckbox').attr('checked', 'checked'); updateSelectedAnalyses();">Select All Visible Analyses</div>
 				<div class='toolbar-item' onclick="jQuery('.analysesopen .analysischeckbox').removeAttr('checked'); updateSelectedAnalyses();">Unselect All Visible Analyses</div>
 	  			<div class='toolbar-item' onclick="filterSelectedAnalyses();">Add Selected to Filter</div>
 
-                <g:if test="${org.codehaus.groovy.grails.plugins.PluginManagerHolder.pluginManager.hasGrailsPlugin('folder-management')}">
+                <g:ifPlugin name="folder-management">
                     <div class="toolbar-item">
                         <g:render template="/fmFolder/exportCart" model="[exportCount: exportCount]" plugin="folderManagement"/>
                     </div>
-                </g:if>
+                </g:ifPlugin>
 
 	  			<%-- <div id="searchResultOptions_holder">
 					<div id="searchResultOptions_btn" class='toolbar-item'>
@@ -293,34 +303,9 @@
 			
 		</div>
 		
-		<!--  Another DIV for the manhattan plot options. -->
-		<div id="divPlotOptions" style="width:300px; display: none;">
-			<table class="columndetail">
-				<tr>
-					<td class="columnname">SNP Annotation Source</td>
-					<td>
-						<select id="plotSnpSource" style="width: 220px">
-							<option value="19">Human Genome 19</option>
-							<option value="18">Human Genome 18</option>
-						</select>
-					</td>
-				</tr>
-				<%--<tr>
-					<td class="columnname">Gene Annotation Source</td>
-					<td>
-						<select id="plotGeneSource" style="width: 220px">
-							<option id="GRCh37">Human Gene data from NCBI</option>
-						</select>
-					</td>
-				</tr>--%>
-				<tr>
-					<td class="columnname">P-value cutoff</td>
-					<td>
-						<input id="plotPvalueCutoff" style="width: 210px">
-					</td>
-				</tr>
-			</table>
-		</div>
+        <g:ifPlugin name="transmart-gwas">
+            <g:render template="/manhattan/plotOptions" plugin="transmartGwas"/>
+        </g:ifPlugin>
 		
 		<!--  Everything for the across trial function goes here and is displayed using colorbox -->
 		<div style="display:none">
@@ -358,8 +343,8 @@
 			<tmpl:/help/helpIcon id="1317"/>
 		</div>
 
-        <g:if test="${org.codehaus.groovy.grails.plugins.PluginManagerHolder.pluginManager.hasGrailsPlugin('folder-management')}">
+        <g:ifPlugin name="folder-management">
             <div id="exportOverlay" class="overlay" style="display: none;">&nbsp;</div>
-        </g:if>
+        </g:ifPlugin>
     </body>
 </html>

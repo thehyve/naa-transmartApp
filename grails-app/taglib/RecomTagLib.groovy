@@ -16,7 +16,11 @@
  * 
  *
  ******************************************************************/
-  
+
+
+
+import org.codehaus.groovy.grails.plugins.GrailsPluginManager
+import org.codehaus.groovy.grails.plugins.PluginManagerHolder
 
 import java.io.File
 import java.text.SimpleDateFormat;
@@ -346,5 +350,25 @@ class RecomTagLib {
 			out << "None"
 		}
 	}
+
+    def ifPlugin = { attrs, body ->
+
+        def name = attrs['name']
+        def yes = attrs['true']
+        def no = attrs['false']
+
+        //If the tag does not have true/false reactions, do the body. If it does, output the yes/no string.
+        if (PluginManagerHolder.pluginManager.hasGrailsPlugin(name)) {
+            if (yes) {
+                out << yes
+            }
+            else {
+                out << body()
+            }
+        }
+        else if (no) {
+            out << no
+        }
+    }
 
 }

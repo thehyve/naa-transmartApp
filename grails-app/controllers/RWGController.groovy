@@ -33,7 +33,6 @@ import search.GeneSignatureItem
 import groovy.time.TimeCategory;
 import groovy.time.TimeDuration;
 import groovyx.net.http.HTTPBuilder
-import org.codehaus.groovy.grails.plugins.PluginManagerHolder
 
 import com.recomdata.transmart.domain.searchapp.AccessLog
 
@@ -887,8 +886,7 @@ class RWGController {
 	   if (!studyWithResultsFound)	{
 		   html = g.render(template:'/search/noResult', plugin: "biomartForGit").toString()
 	   } else {
-	       def showFiles = PluginManagerHolder.pluginManager.hasGrailsPlugin('folder-management');
-	       html = g.render(template:'/RWG/experiments', plugin: "biomartForGit", model:[showFiles: showFiles, experiments:exprimentAnalysis, analysisCount:total, duration:TimeCategory.minus(new Date(), startTime)]).toString()
+	       html = g.render(template:'/RWG/experiments', plugin: "biomartForGit", model:[experiments:exprimentAnalysis, analysisCount:total, duration:TimeCategory.minus(new Date(), startTime)]).toString()
 	   }
 	   
 	   return html
@@ -1043,13 +1041,4 @@ class RWGController {
 	  
 	  render(template:'dataTypesBrowseMulti',model:[dataTypes:dataTypes], plugin: "biomartForGit")
   }
-  
-  /**
-   * Renders a UI for selecting regions by gene/RSID or chromosome.
-   */
-  def getRegionFilter = {
-	  render(template:'regionFilter', model: [ranges:['both':'+/-','plus':'+','minus':'-']], plugin: "biomartForGit")
-  }
-   
-   
 }
