@@ -36,6 +36,8 @@ import org.codehaus.groovy.grails.commons.ConfigurationHolder
 
 class RecomTagLib {
 
+    def diseaseService
+
 	def createFileLink = { attrs ->
 
 		def document = attrs["document"]
@@ -350,6 +352,20 @@ class RecomTagLib {
 			out << "None"
 		}
 	}
+
+    def meshLineage = { attrs, body ->
+
+        def disease = attrs["disease"]
+        def lineage = diseaseService.getMeshLineage(disease)
+
+        for (item in lineage) {
+            out << "<div class='diseaseHierarchy'>" + item.disease
+        }
+        for (item in lineage) {
+            out << "</div>"
+        }
+
+    }
 
     def ifPlugin = { attrs, body ->
 

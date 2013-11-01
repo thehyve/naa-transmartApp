@@ -828,6 +828,13 @@ border-top: 1px solid #CCC;
 */
 }
 
+.diseaseHierarchy {
+    padding-left: 16px;
+    background-image: url('../images/elbow.png');
+    background-repeat: no-repeat;
+    background-position: 4px 0px;
+}
+
 
 /* Custom CSS for jQuery tabs used in analysis */
 .analysis-tabs { background: transparent; border: none; }

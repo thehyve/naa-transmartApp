@@ -42,7 +42,7 @@
 						<g:elseif test="${layoutRow.column.equals('phenotypes')}">
 							<ul>
 								<g:each in="${analysis.diseases}" var="disease">
-									<li>${disease.disease}</li>
+									<li><g:meshLineage disease="${disease}"/></li>
 								</g:each>
 								<%-- If this is not EQTL, put observations here as well --%>
 								<g:if test="${!analysis.assayDataType.equals('EQTL')}">

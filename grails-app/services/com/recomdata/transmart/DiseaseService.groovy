@@ -18,37 +18,29 @@
  ******************************************************************/
   
 
-package transmartapp
+package com.recomdata.transmart
 
-import bio.Disease;
-import bio.Observation;
-import grails.converters.JSON
+import bio.BioMesh
+import bio.Disease
 
-class DiseaseController {
+class DiseaseService {
 
-	/**
-	 * Find the top 15 diseases with a case-insensitive LIKE
-	 */
-    def extSearch = {
-		def paramMap = params
-		def value = params.term.toUpperCase();
-		
-		def observations = null;
-		//eQTL requires just disease - GWAS types need diseases and observations
-		def diseases = Disease.executeQuery("SELECT meshCode, disease FROM Disease d WHERE upper(d.disease) LIKE '%' || :term || '%'", [term: value], [max: 10]);
-		if (!params.type.equals("eqtl")) {
-			observations = Observation.executeQuery("SELECT code, name, codeSource FROM Observation o WHERE upper(o.name) LIKE '%' || :term || '%'", [term: value], [max: 10]);
-		}
-		
-		def itemlist = [];
-		for (disease in diseases) {
-			itemlist.add([id:disease[0], keyword:disease[1], sourceAndCode:"MESH:"+disease[0], category:"DISEASE", display:"Disease"]);
-		}
-		for (observation in observations) {
-			itemlist.add([id:observation[0], keyword:observation[1], sourceAndCode:observation[2] + ":" + observation[0], category:"OBSERVATION", display:"Observation"]);
-		}
-		
-		render itemlist as JSON;
-	}
+    boolean transactional = true
 
+    def getMeshLineage(Disease disease) {
+        def lineage = []
+        def mesh = BioMesh.read(disease.meshCode) //Read only!
+        def lineageCodes = mesh.code?.split("\\.")
+        if (lineageCodes) {
+            def concatenatedCode = ""
+            for (code in lineageCodes) {
+                concatenatedCode += code
+                def meshCode = BioMesh.findByCode(concatenatedCode).id
+                lineage.add(Disease.findByMeshCode(meshCode))
+                concatenatedCode += "."
+            }
+        }
+
+        return lineage
+    }
 }
