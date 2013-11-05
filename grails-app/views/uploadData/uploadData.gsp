@@ -22,7 +22,7 @@
 	<head>
 		<meta http-equiv="X-UA-Compatible" content="IE=8" />
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-		<link rel="shortctu icon" href="${resource(dir:'images',file:'searchtool.ico')}">
+		<link rel="shortcut icon" href="${resource(dir:'images',file:'searchtool.ico')}">
 		<link rel="icon" href="${resource(dir:'images',file:'searchtool.ico')}">
 		<link rel="stylesheet" href="${resource(dir:'js', file:'ext/resources/css/ext-all.css')}"></link>
 		<link rel="stylesheet" href="${resource(dir:'js', file:'ext/resources/css/xtheme-gray.css')}"></link>
@@ -219,7 +219,7 @@
                                         <div class="fieldError"><g:message error="${it}"/></div>
                                     </g:eachError>
                                 </div>
-                                <g:textField name="displayName" style="width: 90%" value="${uploadFileInstance.displayName}"/>
+                                <g:textField name="displayName" style="width: 90%" value="${uploadFileInstance?.displayName}"/>
                                 <br/>
                                 <div class="uploadMessage">If this is left blank, the original file name will be used.</div>
                             </td>
@@ -227,7 +227,7 @@
                         <tr>
                             <td>File Description:</td>
                             <td colspan="3">
-                                <g:textArea name="fileDescription" style="width: 90%; height: 100px">${uploadFileInstance.fileDescription}</g:textArea>
+                                <g:textArea name="fileDescription" style="width: 90%; height: 100px">${uploadFileInstance?.fileDescription}</g:textArea>
                             </td>
                         </tr>
                     </table>
@@ -277,7 +277,7 @@
 							Phenotype:
 						</td>
 						<td colspan="3">
-							<tmpl:extTagSearchField fieldName="tags" searchAction="extSearch" searchController="disease" values="${tags}"/>
+							<tmpl:extDiseaseSearchField fieldName="tags" searchAction="extSearch" searchController="disease" values="${tags}"/>
 							<%--<a id="tagsLink" class="upload" href="#">Add more Phenotypes/Tags</a>--%>
 						</td>
 					</tr>

@@ -1,8 +1,26 @@
 <g:javascript>
 
 jQuery(document).ready(function() {	
-	
+
 	var escapedFieldName = '${fieldName}'.replace(".", "\\.");
+
+	<g:each in="${values}" var="phenotype">
+        <g:if test="${phenotype.value.type == 'DISEASE'}">
+        $j.ajax({
+            url: '${createLink([action:'getMeshLineage',controller:'disease'])}',
+                data: {
+                    code: '${phenotype.value.code}'
+                },
+                success: function(json) {
+                    addDiseaseTag(json.diseases, 'MESH:' + '${phenotype.value.code}', escapedFieldName);
+                }
+        });
+        </g:if>
+        <g:else>
+            addObservationTag('${phenotype.value.code}', '${phenotype.key}', escapedFieldName);
+        </g:else>
+    </g:each>
+
 	jQuery("#" + escapedFieldName + "-input").autocomplete({
 		source: function( request, response ) {
 			jQuery.ajax({
@@ -30,17 +48,24 @@ jQuery(document).ready(function() {
 		select: function(event, ui) {
 			var sourceAndCode = ui.item.sourceAndCode;
 			var diseaseName = ui.item.keyword;
-			jQuery("#" + escapedFieldName + "-input").val('').focus();
-			$j('#' + escapedFieldName).append($j('<option></option>').val(sourceAndCode).text(diseaseName).attr('selected', 'selected'));
-			var newTag = $j('<span/>', {
-				id: '${fieldName}-tag-' + sourceAndCode,
-				'class': 'tag',
-				name: sourceAndCode
-			}).text(diseaseName);
-			$j('#' + escapedFieldName + '-tags').append(newTag);
-			newTag.hide().fadeIn('slow');
-			
-			return false;
+			//Create a space for the new tag while we're working out the hierarchy
+			if (ui.item.category == "DISEASE") {
+                $j.ajax({
+                    url: '${createLink([action:'getMeshLineage',controller:'disease'])}',
+                    data: {
+                        code: ui.item.id
+                    },
+                    success: function(json) {
+                        addDiseaseTag(json.diseases, sourceAndCode, escapedFieldName);
+                    },
+                    error: function(xhr) {
+                        alert(xhr.responseText);
+                    }
+                });
+            }
+            else { //For observations
+                addObservationTag(diseaseName, sourceAndCode, escapedFieldName);
+            }
 		}
 	}).data("autocomplete")._renderItem = function( ul, item ) {
 		return jQuery('<li></li>')		
@@ -52,16 +77,10 @@ jQuery(document).ready(function() {
 </g:javascript>
 <%-- Tag box (visual display of tags) --%>
 <div id="${fieldName}-tags" class="tagBox" name="${fieldName}">
-	<g:each in="${values}" var="value">
-		<span class="tag" id="${fieldName}-tag-${value.key}" name="${value.key}">${value.value}</span>
-	</g:each>
 </div>
 
 <%-- Hidden select field, keeps actual selected values --%>
-<select id="${fieldName}" name="${fieldName}" multiple="multiple" style="display: none;">
-	<g:each in="${values}" var="value">
-		<option selected="selected" value="${value.key}">${value.value}</option>
-	</g:each>
+<select id="${fieldName}" name="${fieldName}" multiple="multiple" style="display: none">
 </select>
 
 <%-- Visible input --%>

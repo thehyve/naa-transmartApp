@@ -157,7 +157,9 @@ function removeTag(fieldName, tag) {
 	var escapedFieldName = fieldName.replace(".", "\\.");
 	//Attribute selector here gets around spaces in ID, which shouldn't be allowed... but is
 	$j('[id=\'' + escapedFieldName + '-tag-' + tag + "\']").remove();
-	$j('#' + escapedFieldName + ' option[value="' + tag + '"]').remove();
+    $j('[id=\'' + escapedFieldName + '-tag-' + tag + '-prefix' + "\']").remove();
+    $j('[id=\'' + escapedFieldName + '-tag-' + tag + '-break' + "\']").remove();
+    $j('#' + escapedFieldName + ' option[value="' + tag + '"]').remove();
 }
 
 function addPlatform(field) {
@@ -353,6 +355,92 @@ function addResearchUnit(field) {
 	newTag.hide().fadeIn('slow');
 	typeField.val(null);
 	
+}
+
+addDiseaseTag = function(diseaseHierarchy, sourceAndCode, escapedFieldName) {
+    var diseasePath = "";
+    var diseases = diseaseHierarchy
+    var diseasePathName = "";
+    var diseaseName = "";
+
+    for (var i = 0; i < diseases.length; i++) {
+        var disease = diseases[i];
+        if (i != diseases.length-1) { //We don't want to include the last disease name, as this is in the tag!
+            diseasePathName += disease.name + " > ";
+        }
+        else {
+            diseaseName = disease.name;
+        }
+        diseasePath += disease.code + "/";
+    }
+
+    jQuery("#" + escapedFieldName + "-input").val('').focus();
+
+    //Check for supersets - confirm and remove
+    var conflicts = []
+    var subsets = []
+    var existingDiseases = $j('#' + escapedFieldName + ' option');
+    for (var i = 0; i < existingDiseases.length; i++) {
+        var pathToExamine = $j(existingDiseases[i]).text();
+        if (pathToExamine.startsWith(diseasePath) || diseasePath.startsWith(pathToExamine)) {
+            conflicts.push(i);
+        }
+    }
+
+    //If we have conflicts, remove the originals by index.
+    if (conflicts.length > 0) {
+        var i = 0;
+        var tags = $j('#' + escapedFieldName + '-tags .tag');
+        for (i = 0; i < tags.length; i++) {
+            if ($j.inArray(i, conflicts) > -1) {
+                var tagToRemove = $j(tags[i]);
+                removeTag(tagToRemove.parent().attr('name'), tagToRemove.attr('name'));
+            }
+        }
+    }
+
+    //Update hidden select box
+    $j('#' + escapedFieldName).append($j('<option></option>').val(sourceAndCode).text(diseasePath).attr('selected', 'selected'));
+
+    //Draw on-screen representation
+    var newTagPrefix = $j('<span/>', {
+        id: escapedFieldName + '-tag-' + sourceAndCode + '-prefix',
+        'class': 'tagPrefixSpan',
+        name: sourceAndCode + "-prefix"
+    }).text(diseasePathName);
+
+    var newTag = $j('<span/>', {
+        id: escapedFieldName + '-tag-' + sourceAndCode,
+        'class': 'tag',
+        name: sourceAndCode
+    }).text(diseaseName);
+
+    var tagBreak = $j('<br/>', { id: escapedFieldName + '-tag-' + sourceAndCode + '-break' });
+
+    if (newTagPrefix.text() != "") {
+        $j('#' + escapedFieldName + '-tags').append(newTagPrefix)
+    }
+
+    $j('#' + escapedFieldName + '-tags').append(newTag).append(tagBreak);
+    newTag.hide().fadeIn('slow');
+
+    return false;
+}
+
+addObservationTag = function(observationName, sourceAndCode, escapedFieldName) {
+    jQuery("#" + escapedFieldName + "-input").val('').focus();
+    $j('#' + escapedFieldName).append($j('<option></option>').val(sourceAndCode).text(observationName).attr('selected', 'selected'));
+    var newTag = $j('<span/>', {
+        id: escapedFieldName + '-tag-' + sourceAndCode,
+        'class': 'tag observationtag',
+        name: sourceAndCode
+    }).text(observationName);
+    var tagBreak = $j('<br/>', { id: escapedFieldName + '-tag-' + sourceAndCode + '-break' });
+
+    $j('#' + escapedFieldName + '-tags').append(newTag).append(tagBreak);
+    newTag.hide().fadeIn('slow');
+
+    return false;
 }
 
 jQuery(document).ready(function() {

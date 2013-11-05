@@ -1,5 +1,8 @@
 ////////////////////////////////////////////////////////////////////
 // Globals
+// Delimiter we're expecting between search fields
+var SEARCH_DELIMITER = ";"
+
 // Store the current search terms in an array in format ("category display|category:term") where category display is the display term i.e. Gene, Disease, etc.
 var currentCategories = new Array();
 var currentSearchTerms = new Array(); 
@@ -381,7 +384,7 @@ function showFacetResults(tabToShow)	{
 
 	// first, loop through each term and add categories and terms to respective arrays 		
     for (var i=0; i<savedSearchTermsArray.length; i++)	{
-		var fields = savedSearchTermsArray[i].split(":");
+		var fields = savedSearchTermsArray[i].split(SEARCH_DELIMITER);
 		// search terms are in format <Category Display>|<Category>:<Search term display>:<Search term id>
 		var termId = fields[2]; 
 		var categoryFields = fields[0].split("|");
@@ -426,10 +429,10 @@ function showFacetResults(tabToShow)	{
     	else  {
     		queryType = "q";
     	}
-    	facetSearch.push(queryType + "=" + categories[i] + ":" + terms[i]);
+    	facetSearch.push(queryType + "=" + categories[i] + SEARCH_DELIMITER + terms[i]);
     }
 
-    // now add all tree categories that arene't being searched on to the string
+    // now add all tree categories that aren't being searched on to the string
     for (var i=0; i<treeCategories.length; i++)  {
     	if (categories.indexOf(treeCategories[i])==-1)  {
     		queryType = "ff";
@@ -519,7 +522,7 @@ function addSearchTerm(searchTerm, noUpdate)	{
 	
 	var text = (searchTerm.text == undefined ? (searchTerm.keyword == undefined ? searchTerm : searchTerm.keyword) : searchTerm.text);
 	var id = searchTerm.id == undefined ? -1 : searchTerm.id;
-	var key = category + ":" + text + ":" + id;
+	var key = category + SEARCH_DELIMITER + text + SEARCH_DELIMITER + id;
 	if (currentSearchTerms.indexOf(key) < 0)	{
 		currentSearchTerms.push(key);
 		if (currentCategories.indexOf(category) < 0)	{
@@ -564,7 +567,7 @@ function removeSearchTerm(ctrl)	{
 		currentSearchTerms.splice(idx, 1);
 		
 		// check if there are any remaining terms for this category; remove category from list if none
-		var fields = currentSearchTermID.split(":");
+		var fields = currentSearchTermID.split(SEARCH_DELIMITER);
 		var category = fields[0];
 		clearCategoryIfNoTerms(category);
 
@@ -602,7 +605,7 @@ function addFilterTreeSearchTerm(searchTerm)	{
 	var category = searchTerm.display == undefined ? "TEXT" : searchTerm.display;
 	var text = searchTerm.keyword == undefined ? searchTerm : searchTerm.keyword;
 	var id = searchTerm.id == undefined ? -1 : searchTerm.id;
-	var key = category + ":" + text + ":" + id;
+	var key = category + SEARCH_DELIMITER + text + SEARCH_DELIMITER + id;
 	if (currentSearchTerms.indexOf(key) < 0)	{
 		currentSearchTerms.push(key);
 		if (currentCategories.indexOf(category) < 0)	{
@@ -891,7 +894,7 @@ function clearCategoryIfNoTerms(category)  {
 	
 	var found = false;
 	for (var j=0; j<currentSearchTerms.length; j++)	{
-		var fields2 = currentSearchTerms[j].split(":");
+		var fields2 = currentSearchTerms[j].split(SEARCH_DELIMITER);
 		var category2 = fields2[0];
 		
 		if (category == category2)  {
@@ -913,7 +916,7 @@ function removeFilterTreeSearchTerm(termID)	{
 		currentSearchTerms.splice(idx, 1);
 
 		// check if there are any remaining terms for this category; remove category from list if none
-		var fields = termID.split(":");
+		var fields = termID.split(SEARCH_DELIMITER);
 		var category = fields[0];
 		clearCategoryIfNoTerms(category);
 	}
@@ -2578,7 +2581,7 @@ function showSearchTemplate()	{
 	
 	for (var i=0; i<currentCategories.length; i++)	{
 		for (var j=0; j<currentSearchTerms.length; j++)	{
-			var fields = currentSearchTerms[j].split(":");
+			var fields = currentSearchTerms[j].split(SEARCH_DELIMITER);
 			if (currentCategories[i] == fields[0]){
 				var tagID = currentSearchTerms[j].split(' ').join('%20');			// URL encode the spaces
 				var tagID = currentSearchTerms[j].split(',').join('%44');			// And the commas
@@ -2630,7 +2633,7 @@ function getSearchKeywordList()   {
 	var keywords = new Array();
 	
 	for (var j=0; j<currentSearchTerms.length; j++)	{
-		var fields = currentSearchTerms[j].split(":");		
+		var fields = currentSearchTerms[j].split(SEARCH_DELIMITER);
 	    var keyword = fields[2];			
 		keywords.push(keyword);
 	}

@@ -160,6 +160,7 @@ class UploadDataController {
         tempFile.delete()
         render(view: "fileComplete");
     }
+
 	def upload = {
 		def paramMap = params
 		def upload = null;
@@ -307,14 +308,16 @@ class UploadDataController {
 		if (upload) {
 			if (upload.phenotypeIds) {
 				for (tag in upload.phenotypeIds.split(";")) {
-					def meshCode = tag.split(":")[1]
+                    def splitTag = tag.split(":")
+                    def meshCode = tag
+                    if (splitTag.length > 1) { meshCode = splitTag[1]}
 					def disease = Disease.findByMeshCode(meshCode)
 					def observation = Observation.findByCode(meshCode)
 					if (disease) {
-						tagMap.put(tag, disease.disease)
+						tagMap.put(tag, [code: disease.meshCode, type: 'DISEASE'])
 					}
 					if (observation) {
-						tagMap.put(tag, observation.name)
+						tagMap.put(tag, [code: observation.name, type: 'OBSERVATION'])
 					}
 				}
 			}

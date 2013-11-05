@@ -94,7 +94,7 @@ class RWGController {
 	  // create the key that matches what we use in javascript to identify search terms
 	  // assuming for now that the category and the category display are the same (with category being all caps); may
 	  // need to break this out into separate fields	  
-	  parent["key"] = categoryName + "|" + categoryName.toUpperCase() + ":" + parentNode.termName + ":" + id	  
+	  parent["key"] = categoryName + "|" + categoryName.toUpperCase() + ";" + parentNode.termName + ";" + id
 	  
 	  // if category, then display as folder and don't show checkbox; other levels, not a folder and show checkbox
 	  parent["isFolder"] = isCategory 
@@ -324,8 +324,8 @@ class RWGController {
 	   for (qp in facetQueryParams)  {
 		   
     	   // each queryParam is in form cat1:term1|term2|term3
-	       String category = qp.split(":")[0]
-	       String termList = qp.split(":")[1]
+	       String category = qp.split(";")[0]
+	       String termList = qp.split(";")[1]
 		   
 		   // skip TEXT search fields (these wouldn't be in tree so throw exception since this should never happen)
 		   if (category =="TEXT")  {
@@ -369,8 +369,8 @@ class RWGController {
 			   continue;
 		   }
     	   // each queryParam is in form cat1:term1|term2|term3
-	       String category = qp.split(":")[0]
-	       String termList = qp.split(":")[1]
+	       String category = qp.split(";")[0]
+	       String termList = qp.split(";")[1]
 
    		   def categoryQueryString = createCategoryQueryString(category, termList)
 		   
@@ -553,8 +553,8 @@ class RWGController {
 	   for (p in params)  {
 		   
 		   // each queryParam is in form cat1:term1|term2|term3
-		   String category = p.split(":")[0]
-		   String termList = p.split(":")[1]
+		   String category = p.split(";")[0]
+		   String termList = p.split(";")[1]
 
 		   // add all the genes from a gene list/sig to the List of genes		   
 		   if (category == 'GENELIST' || category == 'GENESIG')  {

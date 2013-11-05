@@ -95,6 +95,11 @@ top: 58px;
 	  
 		
 }
+
+.textsmall {
+    font-size: 8pt;
+}
+
 .x-panel-header
 {
 	margin:0;

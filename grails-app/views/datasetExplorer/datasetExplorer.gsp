@@ -273,6 +273,12 @@ src="${resource(dir:'js', file:'ext/ext-all.js')}"></script>
         </form>
     </div>
 
+    <g:ifPlugin name="folder-management">
+        <div id="fileDetailsDialog" style="display:none;font: 11px arial,tahoma,helvetica,sans-serif;font-weight:normal;">
+
+        </div>
+    </g:ifPlugin>
+
 	<span id="visualizerSpan0"></span> <!-- place applet tag here -->
 	<span id="visualizerSpan1"></span> <!-- place applet tag here -->
 <!-- ************************************** -->

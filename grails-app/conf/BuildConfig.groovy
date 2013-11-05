@@ -57,13 +57,14 @@ grails.project.dependency.resolution = {
         compile(':folder-management:1.0-SNAPSHOT')
         compile(':transmart-gwas:1.0-SNAPSHOT')
         compile(':spring-security-core:1.1.2')
+        compile(':rdc-rmodules:0.1')
         compile(':quartz:0.4.2')
     }
 
 }
 
-//grails.plugin.location.transmartJava='C:\\Users\\davinewton\\Documents\\workspace-sts-2.6.1.RELEASE-pfizer\\transmartPfizer\\transmart-java'
-//grails.plugin.location.biomartDomain='C:\\Users\\davinewton\\Documents\\workspace-sts-2.6.1.RELEASE-pfizer\\transmartPfizer\\transmart-domain'
-//grails.plugin.location.searchDomain='C:\\Users\\davinewton\\Documents\\workspace-sts-2.6.1.RELEASE-pfizer\\transmartPfizer\\searchapp-domain'
-//grails.plugin.location.folderManagement='C:\\Users\\davinewton\\Documents\\workspace-sts-2.6.1.RELEASE-pfizer\\file-management'
-//grails.plugin.location.transmartGwas='C:\\Users\\davinewton\\Documents\\workspace-sts-2.6.1.RELEASE-pfizer\\folder-management'
+grails.plugin.location.transmartJava='C:\\Users\\davinewton\\Documents\\workspace-sts-2.6.1.RELEASE-pfizer\\transmartPfizer\\transmart-java'
+grails.plugin.location.biomartDomain='C:\\Users\\davinewton\\Documents\\workspace-sts-2.6.1.RELEASE-pfizer\\transmartPfizer\\transmart-domain'
+grails.plugin.location.searchDomain='C:\\Users\\davinewton\\Documents\\workspace-sts-2.6.1.RELEASE-pfizer\\transmartPfizer\\searchapp-domain'
+grails.plugin.location.folderManagement='C:\\Users\\davinewton\\Documents\\workspace-sts-2.6.1.RELEASE-pfizer\\folder-management'
+grails.plugin.location.transmartGwas='W:\\transmart\\pfizer\\transmartApp\\transmart-gwas'

@@ -27,7 +27,7 @@ class DiseaseService {
 
     boolean transactional = true
 
-    def getMeshLineage(Disease disease) {
+    def getMeshLineage(Disease disease) throws Exception {
         def lineage = []
         def mesh = BioMesh.read(disease.meshCode) //Read only!
         def lineageCodes = mesh.code?.split("\\.")
@@ -35,7 +35,11 @@ class DiseaseService {
             def concatenatedCode = ""
             for (code in lineageCodes) {
                 concatenatedCode += code
-                def meshCode = BioMesh.findByCode(concatenatedCode).id
+                def meshCode = BioMesh.findByCode(concatenatedCode)?.id
+                if (meshCode == null) {
+                    concatenatedCode += "."
+                    continue
+                }
                 lineage.add(Disease.findByMeshCode(meshCode))
                 concatenatedCode += "."
             }

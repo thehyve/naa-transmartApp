@@ -71,6 +71,18 @@ a.button {
 	background-repeat: no-repeat;
 }
 
+.tag.observationtag {
+    background-color: #EDF;
+    border: 1px solid #A9F;
+}
+
+.tagPrefixSpan {
+    font-size: 8pt;
+    border: 1px solid #ccc;
+    background-color: #e8e8e8;
+    padding: 2px;
+}
+
 .tag:hover {
 	background-color: #F0F0FF;
 	cursor: pointer;
