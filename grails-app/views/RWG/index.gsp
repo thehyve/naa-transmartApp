@@ -44,6 +44,11 @@
   			<script type="text/javascript" src="${resource(dir:'js', file:'folderManagement.js', plugin: 'folderManagement')}"></script>
   			<link rel="stylesheet" href="${resource(dir:'css', file:'folderManagement.css', plugin: 'folderManagement')}"></link>        
   		</g:ifPlugin>
+
+        <g:ifPlugin name="transmart-gwas">
+            <script type="text/javascript" src="${resource(dir:'js', file:'gwas.js', plugin:'transmart-gwas')}"></script>
+            <link rel="stylesheet" href="${resource(dir:'css', file:'gwas.css', plugin: 'transmart-gwas')}"></link>
+        </g:ifPlugin>
   		        
   		<!--  SVG Export -->
   		<script type="text/javascript" src="${resource(dir:'js', file:'svgExport/rgbcolor.js')}"></script>  
@@ -53,9 +58,7 @@
         
         <!-- Our JS -->        
         <script type="text/javascript" src="${resource(dir:'js', file:'rwg.js')}"></script>
-        <g:ifPlugin name="transmart-gwas">
-            <script type="text/javascript" src="${resource(dir:'js', file:'gwas.js', plugin:'transmart-gwas')}"></script>
-        </g:ifPlugin>
+
         <script type="text/javascript" src="${resource(dir:'js', file:'maintabpanel.js')}"></script>
         
         <!-- Protovis Visualization library and IE plugin (for lack of SVG support in IE8) -->
