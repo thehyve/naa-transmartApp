@@ -23,7 +23,6 @@ import bio.Compound
 import bio.Disease
 import bio.ClinicalTrial
 import bio.BioAssayAnalysis
-import bio.BioAssayAnalysisExt
 import bio.BioAssayAnalysisData
 import com.recomdata.search.query.AssayAnalysisDataQuery
 import com.recomdata.search.query.Query

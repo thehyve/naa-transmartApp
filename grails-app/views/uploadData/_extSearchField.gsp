@@ -3,7 +3,15 @@ jQuery(document).ready(function() {
 	
 	var escapedFieldName = '${fieldName}'.replace(".", "\\.");
 	jQuery("#" + escapedFieldName + "-input").autocomplete({
-		source: '${createLink([action:searchAction,controller:searchController])}',
+		source: function(request, response) {
+		    jQuery.ajax({
+                url: '${createLink([action:searchAction,controller:searchController])}',
+		        type: 'POST',
+		        data: {'term': request['term'], ${paramString?: "'prm':'prm'"}},
+                success: function(responseText) { response(responseText) },
+                failure: function(xhr) { alert(xhr.responseText); response(responseText); }
+		    });
+		},
 		minLength:0,
 		select: function(event, ui) {
 			var studyId = ui.item.id;

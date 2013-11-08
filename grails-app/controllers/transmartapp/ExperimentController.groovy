@@ -31,12 +31,19 @@ class ExperimentController {
     def extSearch = {
 		def paramMap = params
 		def value = params.term.toUpperCase();
+        def studyType = params.studyType?.toUpperCase();
 		
-		def experiments = Experiment.executeQuery("SELECT accession, title FROM Experiment e WHERE upper(e.title) LIKE '%' || :term || '%'", [term: value], [max: 20]);
-		
+		def experiments = Experiment.executeQuery("SELECT accession, title FROM Experiment e WHERE upper(e.title) LIKE '%' || :term || '%' AND upper(e.type) = :studyType", [term: value, studyType: studyType], [max: 20]);
+
+        def category = "STUDY"
+        def categoryDisplay = "Study"
+        if (studyType.equals('I2B2')) {
+            category="i2b2"
+            categoryDisplay = "i2b2"
+        }
 		def itemlist = [];
 		for (exp in experiments) {
-			itemlist.add([id:exp[0], keyword:exp[1], category:"STUDY", display:"Study"]);
+			itemlist.add([id:exp[0], keyword:exp[1], category:category, display:categoryDisplay]);
 		}
 		
 		render itemlist as JSON;
