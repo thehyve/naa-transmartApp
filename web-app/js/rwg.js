@@ -523,8 +523,20 @@ function addSearchTerm(searchTerm, noUpdate)	{
 	var text = (searchTerm.text == undefined ? (searchTerm.keyword == undefined ? searchTerm : searchTerm.keyword) : searchTerm.text);
 	var id = searchTerm.id == undefined ? -1 : searchTerm.id;
 	var key = category + SEARCH_DELIMITER + text + SEARCH_DELIMITER + id;
+	var index, value;
+	pval=[]
 	if (currentSearchTerms.indexOf(key) < 0)	{
 		currentSearchTerms.push(key);
+		for (index = 0; index < currentSearchTerms.length; ++index) {
+			value = currentSearchTerms[index];
+			if (value.substring(0, 7) === "PVALUE|" ) {
+				pval.push(value);
+				if (pval.length >1) {
+					currentSearchTerms.splice(currentSearchTerms.indexOf(pval[0]),1);
+					pval.shift();
+				}
+			}
+		}
 		if (currentCategories.indexOf(category) < 0)	{
 			currentCategories.push(category);
 		}
@@ -560,8 +572,13 @@ function updateSearch() {
 }
 
 // Remove the search term that the user has clicked.
-function removeSearchTerm(ctrl)	{
-	var currentSearchTermID = ctrl.id.replace(/\%20/g, " ").replace(/\%44/g, ",");
+function removeSearchTerm(ctrl,isPvalue)	{
+	if(!isPvalue) {
+		var currentSearchTermID = ctrl.id.replace(/\%20/g, " ").replace(/\%44/g, ",");
+	}
+	else {
+		var currentSearchTermID = isPvalue.replace(/\%20/g, " ").replace(/\%44/g, ",");
+	}
 	var idx = currentSearchTerms.indexOf(currentSearchTermID);
 	if (idx > -1)	{
 		currentSearchTerms.splice(idx, 1);
@@ -3199,3 +3216,73 @@ function filterSelectedAnalyses() {
 		
 	})
 }
+
+function exportAnalysisandMail()
+{
+	
+	var selectedboxes = jQuery(".analysischeckbox:checked");
+	if (selectedboxes.length == 0) {
+		alert("No analyses are selected! Please select analyses to plot.");
+	}
+	else {
+		jQuery('#divTomailIds').dialog("destroy");
+		jQuery('#divTomailIds').dialog(
+			{
+				modal: true,
+				height: 250,
+				width: 400,
+				title: "Enter Email Id",
+				show: 'fade',
+				hide: 'fade',
+				resizable: false,
+				buttons: {"Submit" : sendMail}
+			});
+	}
+}
+
+
+function sendMail()
+{
+	var selectedboxes = jQuery(".analysischeckbox:checked");
+	if (selectedboxes.length == 0) {
+		alert("No analyses are selected! Please select analyses to plot.");
+	}
+	else {
+		var radioMail= jQuery('#radioMail:checked').val();
+		var analysisIds = "";
+		analysisIds += jQuery(selectedboxes[0]).attr('name');
+		for (var i = 1; i < selectedboxes.length; i++) {
+			analysisIds += "," + jQuery(selectedboxes[i]).attr('name');
+		}
+	
+		var toMailId = jQuery('#toEmailID').val();
+	
+		var emailReg = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
+		if( !emailReg.test(toMailId) || !toMailId) {
+			alert ("Please enter a valid email address!")
+			} 
+		else {
+			if (radioMail == "link") {
+				window.location = exportAnalysisURL + "?analysisIds=" + analysisIds + "&toMailId=" + toMailId + "&isLink=false" ;
+				}
+			else {
+				window.location = exportAnalysisURL + "?analysisIds=" + analysisIds + "&toMailId=" + toMailId;
+				}	
+		jQuery('#divTomailIds').dialog("destroy");
+		}
+	
+	}
+}
+
+//Remove P-value from active filters if P-value selected from inside the analysis results window
+function removepvalue(analysisId){
+	var pvalue=jQuery('#analysis_results_table_' + analysisId + '_cutoff').val();
+	for (index = 0; index < currentSearchTerms.length; ++index) {
+		value = currentSearchTerms[index];
+		if (value.substring(0, 7) === "PVALUE|" ) {
+		alert("P-value cutoff will be removed from Active filters. Please enter the P-value cutoff again");
+		removeSearchTerm(this,value);
+		}
+	}
+}
+
