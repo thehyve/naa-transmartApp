@@ -254,11 +254,21 @@ class RWGController {
    /**
     * Create a query string for the category in the form of (<cat1>:"term1" OR <cat1>:"term2")
     */
-   def createCategoryQueryString = {category, termList -> 
+   def createCategoryQueryString = {category, termList ->
 
        // create a query for the category in the form of (<cat1>:"term1" OR <cat1>:"term2")
        String categoryQuery = ""
        for (t in termList.tokenize("|"))  {
+
+           t = cleanForSOLR(t)
+           if (category.toLowerCase().equals("text")) {
+               if (t.indexOf(" ") > -1) {
+                   t = ("\"" + t.toLowerCase() + "\"");
+               }
+               else {
+                   t = ("*" + t.toLowerCase() + "*");
+               }
+           }
 	   
 	       def queryTerm = /${category}:"${t}"/
 	   
@@ -373,11 +383,6 @@ class RWGController {
 	       String termList = qp.split(";")[1]
 
    		   def categoryQueryString = createCategoryQueryString(category, termList)
-		   
-		   // skip TEXT search fields (or do we need to handle them somehow)
-		   if (category =="TEXT")  {
-			   continue
-		   }
 
 		   // add category query to main nonfaceted query string using ANDs between category clauses
 		   if (nonfacetedQuery == "")  {
@@ -1041,4 +1046,8 @@ class RWGController {
 	  
 	  render(template:'dataTypesBrowseMulti',model:[dataTypes:dataTypes], plugin: "biomartForGit")
   }
+
+    def cleanForSOLR(t) {
+        return t.replace("&", "%26").replace("(", "\\(").replace(")", "\\)");
+    }
 }

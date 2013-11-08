@@ -251,7 +251,14 @@ function addSearchAutoComplete()	{
 		if (event.which == 13)	{
 			jQuery("#search-ac").autocomplete('search');
 		}
-	});	
+	});
+    jQuery("#search-ac").keypress(function(event)	{
+        if (event.which == 13)	{
+            var content = jQuery('#search-ac').val();
+            addSearchTerm({id:content,display:'Text',keyword:content,category:'text'});
+            jQuery('#search-ac').val('');
+        }
+    });
 	return false;
 }
 

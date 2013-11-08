@@ -381,9 +381,6 @@ addObservationTag = function(observationName, sourceAndCode, escapedFieldName) {
 }
 
 jQuery(document).ready(function() {
-    jQuery(window).on('resize', function(){
-        onResize();
-    });
 
     jQuery('#uploadFilePane').hide();
     jQuery('#uploadFileButton').hide();
@@ -393,6 +390,7 @@ jQuery(document).ready(function() {
         jQuery(this).addClass('selected');
 
         if (jQuery(this).attr('id') == 'uploadAnalysisRadio') {
+            UPLOAD_STUDY_TYPE = 'Experiment';
             jQuery('#uploadAnalysisPane').show();
             jQuery('#enterMetadataButton').show();
             jQuery('#uploadFileButton').hide();
@@ -425,9 +423,5 @@ jQuery(document).ready(function() {
         jQuery('#uploadSidebarDisabled').show();
     }
 
-    onResize();
 });
 
-function onResize() {
-    jQuery('#mainUploadPane').height(jQuery(document).height() - 100);
-}

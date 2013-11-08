@@ -164,6 +164,11 @@ tr.borderbottom td {
     margin-left: 300px;
     border-left: 1px solid #cfcfcf;
     padding: 32px;
+    position: absolute;
+    top:29px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
 }
 
 #uploadSidebarWrapper {
