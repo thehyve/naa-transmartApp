@@ -1,4 +1,5 @@
-CREATE OR REPLACE PROCEDURE TM_CZ."I2B2_LOAD_CLINICAL_DATA_HZ" 
+set define off;
+CREATE OR REPLACE PROCEDURE TM_CZ."I2B2_LOAD_CLINICAL_DATA" 
 (
   trial_id             IN    VARCHAR2
  ,top_node            in  varchar2
@@ -676,7 +677,7 @@ BEGIN
 
     --    deletes unused leaf nodes for a trial one at a time
 
-        i2b2_delete_1_node(r_delUnusedLeaf.c_fullname);
+        i2b2_delete_1_node(r_delUnusedLeaf.c_fullname,jobId);
         stepCt := stepCt + 1;    
         cz_write_audit(jobId,databaseName,procedureName,'Deleted unused node: ' || r_delUnusedLeaf.c_fullname,SQL%ROWCOUNT,stepCt,'Done');
 
@@ -899,8 +900,8 @@ BEGIN
         select case when u.nbr_children = 1 
                     then 'L' || substr(a.c_visualattributes,2,2)
                     else 'F' || substr(a.c_visualattributes,2,1) ||
-                         case when u.c_fullname = topNode and highlight_study = 'Y'
-                              then 'J' else substr(a.c_visualattributes,3,1) end
+                         case when u.c_fullname = topNode -- and highlight_study = 'Y'
+							  then 'S' else substr(a.c_visualattributes,3,1) end
                end
         from upd u
         where a.c_fullname = u.c_fullname)
@@ -936,30 +937,94 @@ BEGIN
 
     --    deletes hidden nodes for a trial one at a time
 
-        i2b2_delete_1_node(r_delNodes.c_fullname);
+        i2b2_delete_1_node(r_delNodes.c_fullname,jobid);
         stepCt := stepCt + 1;
         tText := 'Deleted node: ' || r_delNodes.c_fullname;
         
         cz_write_audit(jobId,databaseName,procedureName,tText,SQL%ROWCOUNT,stepCt,'Done');
 
-    END LOOP;      
+    END LOOP; 
 
-   -- add the study to bio_experiment
-    select count(*) into pExists
-            from biomart.bio_experiment
-            where accession = TrialId;
-            
-    if pExists = 0 then
-         insert into biomart.bio_experiment
-                (title, bio_experiment_type, accession, etl_id)
-         select 'Metadata not available', 'BIO_CLINICAL_TRIAL'
-                      ,TrialId
-                      ,'METADATA:' || TrialId
-                from dual;
-                stepCt := stepCt + 1;
-        cz_write_audit(jobId,databaseName,procedureName,'Insert trial/study into biomart.bio_experiment',SQL%ROWCOUNT,stepCt,'Done');
-                commit;
-    end if;
+	--	create entries to support FMAPP
+	
+	select count(*) into pExists
+	from biomart.bio_experiment
+	where accession = TrialId;
+	
+	if pExists = 0 then
+		--	insert placeholder for study in bio_experiment
+		insert into biomart.bio_experiment
+		(title, accession, etl_id, bio_experiment_type)
+		select study_name
+			  ,TrialId
+			  ,'METADATA:' || TrialId
+			  ,'i2b2'
+		from dual;
+		stepCt := stepCt + 1;
+		czx_write_audit(jobId,databaseName,procedureName,'Insert trial/study into biomart.bio_experiment',SQL%ROWCOUNT,stepCt,'Done');
+		commit;
+	end if;
+	
+	select bio_experiment_id into v_bio_experiment_id
+	from biomart.bio_experiment
+	where accession = TrialId;
+	
+	--	insert study into biomart.bio_data_uid
+	
+	insert into biomart.bio_data_uid
+	(bio_data_id
+	,unique_id 
+	,bio_data_type
+	)
+	select v_bio_experiment_id
+		  ,'EXP:' || TrialId
+		  ,'Experiment'
+	from dual
+	where not exists
+		 (select 1 from biomart.bio_data_uid x
+		  where x.bio_data_id = v_bio_experiment_id);
+	stepCt := stepCt + 1;
+	czx_write_audit(jobId,databaseName,procedureName,'Insert trial/study into biomart.bio_data_uid',SQL%ROWCOUNT,stepCt,'Done');
+	commit;	
+	
+	--	insert study into fmapp.fm_folder
+	
+	insert into fmapp.fm_folder
+	(folder_name 
+	,folder_level      
+	,folder_type
+	,active_ind
+	)
+	select TrialId
+		  ,1
+		  ,'STUDY'
+		  ,'1'
+	from dual
+	where not exists
+		  (select 1 from fmapp.fm_folder x
+		   where x.folder_name = TrialId);
+	stepCt := stepCt + 1;
+	czx_write_audit(jobId,databaseName,procedureName,'Insert trial/study into fmapp.fm_folder',SQL%ROWCOUNT,stepCt,'Done');
+	commit;
+	
+	--	insert fm_folder_association
+	
+	insert into fmapp.fm_folder_association
+	(folder_id
+	,object_uid
+	,object_type
+	)
+	select ff.folder_id
+		  ,'EXP:' || TrialId
+		  ,'bio.Experiment'
+	from fmapp.fm_folder ff
+	where folder_name = TrialId
+	  and not exists
+	     (select 1 from fmapp.fm_folder_association x
+		  where ff.folder_id = x.folder_id);
+	stepCt := stepCt + 1;
+	czx_write_audit(jobId,databaseName,procedureName,'Insert trial/study into fmapp.fm_folder_asociation',SQL%ROWCOUNT,stepCt,'Done');
+	commit;	  	
     
     i2b2_create_security_for_trial(TrialId, secureStudy, jobID);
     i2b2_load_security_data(jobID);
