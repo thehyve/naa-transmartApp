@@ -16,15 +16,12 @@
  * 
  *
  ******************************************************************/
-  
 
 grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
-
-//grails.plugin.location.rmodules = "C:\\SVN\\repo1\\pharma\\transmart\\trunk\\plugins\\Rmodules"
-
 //grails.project.war.file = "target/${appName}-${appVersion}.war"
+
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
     inherits("global") {
@@ -41,7 +38,7 @@ grails.project.dependency.resolution = {
         // uncomment the below to enable remote dependency resolution
         // from public Maven repositories
         
-        //mavenCentral()
+        mavenCentral()
         //mavenRepo "http://snapshots.repository.codehaus.org"
         //mavenRepo "http://repository.codehaus.org"
         //mavenRepo "http://download.java.net/maven/2/"
@@ -59,12 +56,7 @@ grails.project.dependency.resolution = {
         compile(':spring-security-core:1.1.2')
         compile(':rdc-rmodules:0.1')
         compile(':quartz:0.4.2')
+        compile(':mail:1.0')
     }
 
 }
-
-grails.plugin.location.transmartJava='C:\\Users\\davinewton\\Documents\\workspace-sts-2.6.1.RELEASE-pfizer\\transmartPfizer\\transmart-java'
-grails.plugin.location.biomartDomain='C:\\Users\\davinewton\\Documents\\workspace-sts-2.6.1.RELEASE-pfizer\\transmartPfizer\\transmart-domain'
-grails.plugin.location.searchDomain='C:\\Users\\davinewton\\Documents\\workspace-sts-2.6.1.RELEASE-pfizer\\transmartPfizer\\searchapp-domain'
-grails.plugin.location.folderManagement='C:\\Users\\davinewton\\Documents\\workspace-sts-2.6.1.RELEASE-pfizer\\folder-management'
-grails.plugin.location.transmartGwas='W:\\transmart\\pfizer\\transmartApp\\transmart-gwas'
