@@ -44,6 +44,11 @@
   			<script type="text/javascript" src="${resource(dir:'js', file:'folderManagement.js', plugin: 'folderManagement')}"></script>
   			<link rel="stylesheet" href="${resource(dir:'css', file:'folderManagement.css', plugin: 'folderManagement')}"></link>        
   		</g:ifPlugin>
+
+        <g:ifPlugin name="transmart-gwas">
+            <script type="text/javascript" src="${resource(dir:'js', file:'gwas.js', plugin:'transmart-gwas')}"></script>
+            <link rel="stylesheet" href="${resource(dir:'css', file:'gwas.css', plugin: 'transmart-gwas')}"></link>
+        </g:ifPlugin>
   		        
   		<!--  SVG Export -->
   		<script type="text/javascript" src="${resource(dir:'js', file:'svgExport/rgbcolor.js')}"></script>  
@@ -53,9 +58,7 @@
         
         <!-- Our JS -->        
         <script type="text/javascript" src="${resource(dir:'js', file:'rwg.js')}"></script>
-        <g:ifPlugin name="transmart-gwas">
-            <script type="text/javascript" src="${resource(dir:'js', file:'gwas.js', plugin:'transmart-gwas')}"></script>
-        </g:ifPlugin>
+
         <script type="text/javascript" src="${resource(dir:'js', file:'maintabpanel.js')}"></script>
         
         <!-- Protovis Visualization library and IE plugin (for lack of SVG support in IE8) -->
@@ -83,6 +86,7 @@
 	        var exportAsImage = "${createLink([action:'exportAsImage'])}";
 
 	        var getStudyAnalysesUrl = "${createLink([controller:'RWG',action:'getTrialAnalysis'])}";
+			var exportAnalysisURL = "${createLink([controller:'search', action:'exportAnalysis'])}";
         
 			//These are the URLS for the different browse windows.
 			var studyBrowseWindow = "${createLink([controller:'experiment',action:'browseExperimentsMultiSelect'])}";
@@ -191,7 +195,7 @@
 				<div class='toolbar-item' onclick="jQuery('.analysesopen .analysischeckbox').attr('checked', 'checked'); updateSelectedAnalyses();">Select All Visible Analyses</div>
 				<div class='toolbar-item' onclick="jQuery('.analysesopen .analysischeckbox').removeAttr('checked'); updateSelectedAnalyses();">Unselect All Visible Analyses</div>
 	  			<div class='toolbar-item' onclick="filterSelectedAnalyses();">Add Selected to Filter</div>
-
+				<div class='toolbar-item' onclick="exportAnalysisandMail();"> Export Analysis</div>
                 <g:ifPlugin name="folder-management">
                     <div class="toolbar-item">
                         <g:render template="/fmFolder/exportCart" model="[exportCount: exportCount]" plugin="folderManagement"/>
@@ -306,7 +310,20 @@
         <g:ifPlugin name="transmart-gwas">
             <g:render template="/manhattan/plotOptions" plugin="transmartGwas"/>
         </g:ifPlugin>
-		
+		<!-- This DIV for export Analysis details -->
+		<div id="divTomailIds" style="width:300px; display: none;">
+			<table class="columndetail">
+				<tr>
+				<td class="columnname">Send mail to :</td>
+					<td>
+						<input id="toEmailID" style="width: 210px">
+					</td>
+				</tr>
+			</table><br><br>
+				<g:radio name="radioMail" value="link" checked="true"/>Send as Link <br><br>
+				<g:radio name="radioMail" value="attachment" />Send as Attachment(top 200 rows)
+
+		</div>
 		<!--  Everything for the across trial function goes here and is displayed using colorbox -->
 		<div style="display:none">
 			<div id="xtHolder">

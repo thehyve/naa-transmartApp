@@ -365,7 +365,7 @@ class RWGController {
 	   for (qp in queryParams)  {
 		   
 		   //Ignore REGIONs here - used later in analysis filter
-		   if (qp.startsWith("REGION") || qp.startsWith("GENE") || qp.startsWith("SNP")) {
+		   if (qp.startsWith("REGION") || qp.startsWith("GENE") || qp.startsWith("SNP") || qp.startsWith("PVALUE")) {
 			   continue;
 		   }
     	   // each queryParam is in form cat1:term1|term2|term3

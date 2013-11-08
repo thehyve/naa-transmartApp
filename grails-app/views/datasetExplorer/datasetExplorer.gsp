@@ -47,7 +47,7 @@ src="${resource(dir:'js', file:'ext/ext-all.js')}"></script>
 	
 <!-- jQuery JS libraries -->
 <script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery-1.8.3.min.js')}"></script>   
-<script>jQuery.noConflict();</script> 
+<script>$j = jQuery.noConflict();</script>
 
 <script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery-ui.min.js')}"></script>
 <script type="text/javascript" src="${resource(dir:'js/jQuery/validate', file:'jquery.validate.min.js')}"></script>
