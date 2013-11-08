@@ -7,6 +7,7 @@ Gex {
     analystServerPort = -1
     analystLoaderID = "transmart"
 
+	// Temp directory on server for processing uploaded data
     analsytUploadTempDir = "/22/"
 
     // Analyst Loader URL - Do not manually configure!
