@@ -299,7 +299,7 @@ class RWGController {
 	   for (ff in facetFieldsParams)  {
 		   
 		   //This list should be in a config, but we don't facet on some of the fields.
-		   if(ff != "REGION_OF_INTEREST" && ff != "GENE" && ff != "SNP")
+		   if(ff != "REGION_OF_INTEREST" && ff != "GENE" && ff != "SNP" && ff != "EQTL_TRANSCRIPT_GENE")
 		   {
 			   // skip TEXT search fields (these wouldn't be in tree so throw exception since this should never happen)
 			   if (ff =="TEXT")  {
@@ -375,7 +375,7 @@ class RWGController {
 	   for (qp in queryParams)  {
 		   
 		   //Ignore REGIONs here - used later in analysis filter
-		   if (qp.startsWith("REGION") || qp.startsWith("GENE") || qp.startsWith("SNP") || qp.startsWith("PVALUE")) {
+		   if (qp.startsWith("REGION") || qp.startsWith("GENE") || qp.startsWith("SNP") || qp.startsWith("PVALUE") || qp.startsWith("TRANSCRIPTGENE")) {
 			   continue;
 		   }
     	   // each queryParam is in form cat1:term1|term2|term3
