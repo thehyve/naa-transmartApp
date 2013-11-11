@@ -261,14 +261,14 @@ class RWGController {
        for (t in termList.tokenize("|"))  {
 
            t = cleanForSOLR(t)
-           if (category.toLowerCase().equals("text")) {
-               if (t.indexOf(" ") > -1) {
-                   t = ("\"" + t.toLowerCase() + "\"");
-               }
-               else {
-                   t = ("*" + t.toLowerCase() + "*");
-               }
-           }
+//           if (category.toLowerCase().equals("text")) {
+//               if (t.indexOf(" ") > -1) {
+//                   t = ("\"" + t.toLowerCase() + "\"");
+//               }
+//               else {
+//                   t = ("*" + t.toLowerCase() + "*");
+//               }
+//           }
 	   
 	       def queryTerm = /${category}:"${t}"/
 	   

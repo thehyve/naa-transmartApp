@@ -254,12 +254,16 @@ function addSearchAutoComplete()	{
 	});
     jQuery("#search-ac").keypress(function(event)	{
         if (event.which == 13)	{
-            var content = jQuery('#search-ac').val();
+            var content = sanitizeText(jQuery('#search-ac').val());
             addSearchTerm({id:content,display:'Text',keyword:content,category:'text'});
             jQuery('#search-ac').val('');
         }
     });
 	return false;
+}
+
+function sanitizeText(text) {
+    return (text.replace(/"/g, ''))
 }
 
 
