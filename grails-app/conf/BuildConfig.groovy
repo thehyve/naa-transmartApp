@@ -41,7 +41,7 @@ grails.project.dependency.resolution = {
         // uncomment the below to enable remote dependency resolution
         // from public Maven repositories
         
-        //mavenCentral()
+        mavenCentral()
         //mavenRepo "http://snapshots.repository.codehaus.org"
         //mavenRepo "http://repository.codehaus.org"
         //mavenRepo "http://download.java.net/maven/2/"
@@ -59,6 +59,7 @@ grails.project.dependency.resolution = {
         compile(':spring-security-core:1.1.2')
         compile(':rdc-rmodules:0.1')
         compile(':quartz:0.4.2')
+        compile(':mail:1.0')
     }
 
 }
