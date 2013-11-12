@@ -671,7 +671,7 @@ public class SearchController {
         def analysisArr = []
         analysisArr.push(analysisId)
         def query
-        if (analysis.assayDataType == "GWAS" || analysis.assayDataType == "Metabolic GWAS") {
+        if (analysis.assayDataType == "GWAS" || analysis.assayDataType == "Metabolic GWAS"||analysis.assayDataType == "GWAS Fail") {
             query = regionSearchService.getAnalysisData(analysisArr, null, 0, 0, null, "data.p_value", "asc", null, "gwas", null, false)
         } else {
             query = regionSearchService.getAnalysisData(analysisArr, null, 0, 0, null, "data.p_value", "asc", null, "eqtl", null, false)
