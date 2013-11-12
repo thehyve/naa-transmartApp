@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/gexModule-inplacePlugin.iml" filepath="$PROJECT_DIR$/gexModule-inplacePlugin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/gexModule-inplacePlugin-grailsPlugins.iml" filepath="$PROJECT_DIR$/gexModule-inplacePlugin-grailsPlugins.iml" />
       <module fileurl="file://$PROJECT_DIR$/rmodules-inplacePlugin.iml" filepath="$PROJECT_DIR$/rmodules-inplacePlugin.iml" />
       <module fileurl="file://$PROJECT_DIR$/transmartApp.iml" filepath="$PROJECT_DIR$/transmartApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/transmartApp-grailsPlugins.iml" filepath="$PROJECT_DIR$/transmartApp-grailsPlugins.iml" />
