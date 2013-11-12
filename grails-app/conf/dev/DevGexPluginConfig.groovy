@@ -13,4 +13,13 @@ Gex {
     // Analyst Loader URL - Do not manually configure!
     analystLoaderBaseURL = "http://${analystServerHostname}:${analystServerPort}/analyst/loader"
 
+	// Administrator email
+	administratorEmail = "ami.khandeshi@pfizer.com"
+}
+
+grails {
+	// SMTP Server
+	mail {
+		host = "ndhsmtp.amer.pfizer.com"
+	}
 }
