@@ -146,13 +146,16 @@
 
 <br>
 <hr></hr>
-<br><h3 class="workspaceheader">Report Manager</h3><br>
+<br><h3 class="workspaceheader">Report/Analysis Manager</h3><br>
 
 <table class="detail" id="reports" style="width:100%;">
 	<thead>
 		<tr>
 			<th style="text-align:left;">
-				Report Name
+				Name
+			</th>
+			<th style="text-align:left;">
+				Type
 			</th>
 			<th style="text-align:left;">
 				Study
@@ -194,6 +197,8 @@
 				 	<input type="text" hidden="hidden" class="editReportDescriptionBox" id="editReportNameBox${report.id}" value="${report.name}" style="width:90%" onkeypress="handleKeyPress(event, '${report.id}', 'report')" onblur="updateReportName('${report.id}')"/>
 				</td>
 				
+				<td> ${report.moduleName} </td>
+				
 				<td> ${report.study} </td>
 				
 				<td style="padding:5px 20px 5px 30px;"> <a id="displayReportCodes${report.id}" class="ui-icon ui-icon-document" href="#" 
@@ -209,7 +214,7 @@
 					OnFocus="handleMouseEnter('runReport${report.id}');"  
 					onmouseout="handleMouseOut('runReport${report.id}');" 
 					OnBlur="handleMouseOut('runReport${report.id}');" 
-					onclick="generateReportFromId('${report.id}', 'trial:${report.study}')"></a>
+					onclick="runReportOrAnalysis('${report.id}', 'trial:${report.study}','${report.moduleName}')"></a>
 				</td>
 				
 				<td> ${report.creatingUser} </td>

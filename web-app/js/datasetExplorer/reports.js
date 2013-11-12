@@ -80,6 +80,24 @@ function saveReport(newReport,reportName,reportDescription,reportPublic,parConce
 			  		study:uniqueStudy}
 		});
 }
+/**
+ * Determine if the Report is a SummaryStatistics or Adv. Workflow
+ * @param moduleName
+ */ 
+function runReportOrAnalysis(reportId, reportStudy, moduleName){
+	//Verify a subset was selected.
+	if(isSubsetEmpty(1) && isSubsetEmpty(2))
+    {
+        Ext.Msg.alert('Subsets are empty', 'All subsets are empty. Please select subsets.');
+        return;
+    }	
+	// If its a Summary Statistics report
+	if(moduleName  && moduleName == "Summary Statistics"){
+		generateReportFromId(reportId, reportStudy)
+	}else {  //otherwise its a RModule
+		loadAdvWorkflowAnalysis(reportId,reportStudy,moduleName)
+	}
+}
 
 /**
  * If a subset is loaded, pull the codes for that report from the database and generate the statistics for each.
@@ -267,4 +285,91 @@ function hideReportCodes(){
 	jQuery(workspaceReportCodesDisplayDialog).dialog("close");
 }
 
+/**
+ * If a subset is loaded, pull the codes for that report from the database and load the analysis
+ * @param reportId
+ * @param reportStudy
+ */
+function loadAdvWorkflowAnalysis(reportId, reportStudy,moduleName)
+{
+	//Verify a subset was selected.
+	if(isSubsetEmpty(1) && isSubsetEmpty(2))
+    {
+        Ext.Msg.alert('Subsets are empty', 'All subsets are empty. Please select subsets.');
+        return;
+    }	
+	
+	//Before running the report clear out global report codes and study arrays
+	GLOBAL.currentAnalysisParams=[];
+	GLOBAL.currentReportStudy=[];
+	
+	//resultsTabPanel.body.mask("loading Analysis Parameters From Database", 'x-mask-loading');
+	
+	//Move the user to theAdv. Workfows tab.
+	resultsTabPanel.setActiveTab('dataAssociationPanel');
+	
+	//Get the JSON list of codes for this report.
+	jQuery.ajax({
+		  url: pageInfo.basePath + '/report/retrieveReportCodes',
+		  success:function(returnedData){openAnalysis(moduleName, returnedData, reportStudy);},
+		  failure:function(returnedData){resultsTabPanel.body.unmask();alert("There was an error retrieving your analysisParameters.")},
+		  data: {reportid:reportId}
+		});
+	
+}
+function openAnalysis(moduleName, returnedData, reportStudy){
+	
+	var menuItem = Ext.getCmp(moduleName);
+	
+	onItemClick(menuItem)
+	 var node_list = document.getElementsByTagName('input');
+	 
+	for (var i = 0; i < node_list.length; i++) {
+	    var node = node_list[i];
+	 
+	    if (node.getAttribute('value') == 'Run') {
+	        // do something here with a <input type="text" .../>
+	        // we alert its value here
+	    	//populateAnalysis(returnedData)
+	    	 submitJob(returnedData);
+	    }
+	} 
+	//$( document ).ready(function() {
+	//	submitJob(returnedData);
+	//	});
+	//submitJob(returnedData)
+	//Ext.Msg.alert('Menu Click', 'You clicked the menu item '+menuItem.text);
+}
+function populateAnalysis(returnedData){
+	if(returnedData){
+		for (var item in returnedData){
+			var obj = returnedData[item]
+			var res = obj.split("=");
+			if(res.length == 2){
+			var key = res[0];
+			var value = res[1]
+				   
+			   switch (key)
+			   {
+			      case "dependentVariable":
+			    	  var variable = Ext.get("divDependentVariable");
+			    	  if(variable){
+			    		  variable.value = value;
+			    	  }
+			    	  break;
+			      case "independentVariable":
+			    	  var variable = Ext.get("divIndependentVariable");
+			    	  if(variable){
+			    		  variable.value = value;
+			    	  }
+			    	  break;
+			      break;
 
+			      default: 
+			          alert(key);
+			          break;
+			   }//switch
+			}//if
+		}//for
+	}//if
+}

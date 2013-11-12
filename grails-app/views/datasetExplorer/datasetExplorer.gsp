@@ -89,6 +89,7 @@ src="${resource(dir:'js', file:'ext/ext-all.js')}"></script>
 <script type="text/javascript" src="${resource(dir:'js', file:'myJobs.js')}"></script>
 <script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file: 'jsTreeFunctions.js')}"></script>
 <script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file: 'reports.js')}"></script>
+<script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file: 'saveAnalysis.js')}"></script>
 <script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file: 'workspace.js')}"></script>
 
 <script type="text/javascript"
