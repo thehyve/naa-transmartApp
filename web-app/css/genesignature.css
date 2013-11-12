@@ -100,3 +100,21 @@ td {
     height:24px;
     z-index:100;
 }
+
+.geneCheckIcon {
+    width: 16px;
+    height: 16px;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+}
+
+.geneCheckIcon.success { background-image: url('../images/skin/accept.png'); }
+.geneCheckIcon.failure { background-image: url('../images/skin/exclamation.png'); }
+.geneCheckIcon.loading { background-image: url('../images/ajax-loader-flat.gif'); }
+
+.biomarkerEntry {
+    height: 24px;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    overflow: hidden;
+}

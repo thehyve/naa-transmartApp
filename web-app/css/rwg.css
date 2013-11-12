@@ -978,6 +978,10 @@ select.multiselect {
 	font-size: 8pt;	
 }
 
+#table-results-div {
+    padding: 0 8px;
+}
+
 .ajaxloading, #table-results-div.ajaxloading {
 	background-image: url('../images/loader-large.gif') !important;
 	background-repeat: no-repeat !important;

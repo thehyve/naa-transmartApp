@@ -28,7 +28,48 @@
 		<title>Gene List Create</title>
 	</g:else>
 
+    <script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery-1.8.3.min.js')}"></script>
+    <script>$j = jQuery.noConflict();</script>
+
 	<script type="text/javascript">
+
+        jQuery(document).ready(function() {
+            var pasteContent;
+
+            jQuery('.biomarkerEntry').on('change', function(event) {
+                var name = jQuery(this).attr('name');
+                var index = parseInt(name.substring(10));
+                checkGene(index);
+            });
+
+            jQuery('.biomarkerEntry').on('paste', function(event) {
+                pasteContent = null;
+                var startingInput = jQuery(this);
+                startingInput.val('');
+                if (window.clipboardData) {
+                    pasteContent = window.clipboardData.getData('Text');
+                }
+                //Paste is ABOUT TO happen, so set timeout
+                setTimeout(function() {
+                    if (pasteContent == null) {
+                        pasteContent = startingInput.val();
+                    }
+                    var pasteList = pasteContent.split(",");
+                    if (pasteList.length < 2) {
+                        pasteList = pasteContent.split("\n");
+                    }
+                    var name = startingInput.attr('name');
+                    var startingIndex = parseInt(name.substring(10));
+                    for (var i = 0; i < pasteList.length; i++) {
+                        var currentIndex = startingIndex + i;
+                        $j('#biomarker_' + currentIndex).val(pasteList[i].trim());
+                        checkGene(currentIndex);
+                    }
+                    jQuery('#pasteSource').val('');
+                }, 1);
+            });
+        });
+
 		function validate() {
 
             var errorMsg = "";
@@ -56,17 +97,41 @@
             var probesetId = "probeset_"+rowNum;
             var metricId = "foldChgMetric_"+rowNum;
 
-            // elements
-            var rowItem = document.getElementById(rowId);
-            var geneItem = document.getElementById(geneId);
-            var probesetItem = document.getElementById(probesetId);
-            var metricItem = document.getElementById(metricId);
-
             // remove and reset
-            geneItem.value="";
-            probesetItem.value="";
-            metricItem.value=""
-            rowItem.style.display="none";
+            jQuery('#geneItem').val('');
+            jQuery('#probesetItem').val('');
+            jQuery('#metricItem').val('');
+            jQuery('#rowItem').hide();
+            checkGene(rowNum);
+        }
+
+        function checkGene(index) {
+            var geneName = jQuery('#biomarker_' + index).val();
+            jQuery('#geneCheckIcon' + index).removeClass('loading').removeClass('success').removeClass('failure');
+            if (geneName == null || geneName == "") {
+                return;
+            }
+            else {
+                jQuery('#geneCheckIcon' + index).addClass('loading')
+                jQuery.ajax({
+                    "url": '${createLink(controller: 'geneSignature', action: 'checkGene')}',
+                    data: {geneName : geneName},
+                    "success": function (jqXHR) {
+                        if (jqXHR.geneFound == true) {
+                            jQuery('#geneCheckIcon' + index).removeClass('loading').addClass('success');
+                        }
+                        else {
+                            jQuery('#geneCheckIcon' + index).removeClass('loading').addClass('failure');
+                        }
+                    },
+                    "error": function (jqXHR, error, e) {
+                        jQuery('#geneCheckIcon' + index).removeClass('loading')
+                        alert(error);
+                    },
+                    "dataType": "json"
+                });
+            }
+
         }
 	</script>
 </head>
@@ -96,7 +161,7 @@
         </tbody>
      </table>
      <br>
-     <table class="detail" style="width: 100%">
+     <table class="detail">
          <tbody id="FileInfoDetail">
         <tr class="prop">
             <td class="name">Upload File<br>(tab delimited text files only)</td>
@@ -109,23 +174,25 @@
         <table class="detail">
         <tbody id="_new_items_detail" style="display: block;">
         <tr id="new_header">
-            <th style="text-align: center;">#</th>
+            <%--<th style="text-align: center;">#</th>--%>
             <th style="text-align: center;">Gene Symbol</th>
+            <th style="text-align: center;">&nbsp;</th>
             <th style="text-align: center;">Remove</th>
         </tr>
 
-        <!-- hidden items for adding -->
         <g:set var="n" value="${0}"/>
         <g:while test="${n < 10}">
-            <%n++%>
+
             <tr id="new_item_${n}">
-                <td style="color: gray;">${n}_a</td>
+                <%--<td style="color: gray;">${n}</td>--%>
 
             <!-- check if coming from an error -->
-                <td><g:textField name="biomarker_${n}" maxlength="25" /></td>
+                <td><g:textArea name="biomarker_${n}" class="biomarkerEntry"/></td>
+                <td><div class="geneCheckIcon" id="geneCheckIcon${n}">&nbsp;</div></td>
                 <td style="text-align: center;"><img alt="remove item" onclick="javascript:removeNewItem(${n});" src="${resource(dir:'images',file:'remove.png')}" /></td>
 
             </tr>
+            <%n++%>
         </g:while>
         </tbody>
     </table>

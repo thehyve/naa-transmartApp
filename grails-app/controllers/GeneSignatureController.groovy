@@ -16,7 +16,11 @@
  * 
  *
  ******************************************************************/
-  
+
+
+
+import bio.BioMarker
+import grails.converters.JSON
 
 import javax.servlet.ServletOutputStream
 
@@ -1000,5 +1004,16 @@ class GeneSignatureController {
 		//if(!gs.isAttached()) wizard.geneSigInst = gs.merge()
 		wizard.geneSigInst = gs.merge()
 	}
+
+    def checkGene = {
+        def paramMap = params
+        BioMarker b = BioMarker.findByNameAndBioMarkerType(params.geneName, 'GENE');
+        if (b) {
+            render '{"geneFound": true}'
+        }
+        else {
+            render '{"geneFound": false}'
+        }
+    }
 }
 

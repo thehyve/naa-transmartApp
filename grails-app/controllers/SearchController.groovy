@@ -640,31 +640,6 @@ public class SearchController {
 
     }
 
-    def exportResults(columns, rows, filename) {
-
-        response.setHeader('Content-disposition', 'attachment; filename=' + filename)
-        response.contentType = 'text/plain'
-
-        String lineSeparator = System.getProperty('line.separator')
-        CSVWriter csv = new CSVWriter(response.writer)
-        def headList = []
-        for (column in columns) {
-            headList.push(column.sTitle)
-        }
-        String[] head = headList
-        csv.writeNext(head)
-
-        for (row in rows) {
-            def rowData = []
-            for (data in row) {
-                rowData.push(data)
-            }
-            String[] vals = rowData
-            csv.writeNext(vals)
-        }
-        csv.close()
-    }
-
     //Common Method to export analysis data as link or attachment
     def exportAnalysisData(analysisId, dataWriter) {
         def analysis = BioAssayAnalysis.findById(analysisId, [max: 1])
@@ -672,9 +647,9 @@ public class SearchController {
         analysisArr.push(analysisId)
         def query
         if (analysis.assayDataType == "GWAS" || analysis.assayDataType == "Metabolic GWAS") {
-            query = regionSearchService.getAnalysisData(analysisArr, null, 0, 0, null, "data.p_value", "asc", null, "gwas", null, false)
+            query = regionSearchService.getAnalysisData(analysisArr, null, 0, 0, null, "data.p_value", "asc", null, "gwas", null, null, false)
         } else {
-            query = regionSearchService.getAnalysisData(analysisArr, null, 0, 0, null, "data.p_value", "asc", null, "eqtl", null, false)
+            query = regionSearchService.getAnalysisData(analysisArr, null, 0, 0, null, "data.p_value", "asc", null, "eqtl", null, null, false)
         }
         def dataset = query.results
 
