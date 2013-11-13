@@ -22,8 +22,11 @@ grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
 
-//grails.plugin.location.rmodules = "../Rmodules"
-//grails.plugin.location.gexModule = "../tmart-gex"
+File devFolder = new File("./grails-app/conf/dev/")
+if (devFolder.exists()) {
+	grails.plugin.location.rmodules = "../Rmodules"
+	grails.plugin.location.gexModule = "../tmart-gex"
+}
 
 //grails.project.war.file = "target/${appName}-${appVersion}.war"
 grails.project.dependency.resolution = {
@@ -47,12 +50,12 @@ grails.project.dependency.resolution = {
         //mavenRepo "http://download.java.net/maven/2/"
         //mavenRepo "http://repository.jboss.com/maven2/"
     }
+
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
-
-  
     }
-	    plugins {
+
+	plugins {
         compile(':rdc-rmodules:0.1')
         compile(':gex:0.1')
     }
