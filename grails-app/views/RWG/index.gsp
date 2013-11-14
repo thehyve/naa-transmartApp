@@ -311,6 +311,7 @@
             <g:render template="/manhattan/plotOptions" plugin="transmartGwas"/>
         </g:ifPlugin>
 		<!-- This DIV for export Analysis details -->
+		<div id="divMailStatus"></div>
 		<div id="divTomailIds" style="width:300px; display: none;">
 			<table class="columndetail">
 				<tr>

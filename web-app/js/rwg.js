@@ -3273,15 +3273,76 @@ function sendMail()
 			alert ("Please enter a valid email address!")
 			} 
 		else {
+			var data='';
 			if (radioMail == "link") {
-				window.location = exportAnalysisURL + "?analysisIds=" + analysisIds + "&toMailId=" + toMailId + "&isLink=false" ;
+				data="analysisIds=" + analysisIds + "&toMailId=" + toMailId + "&isLink=false";
+				//window.location = exportAnalysisURL + "?analysisIds=" + analysisIds + "&toMailId=" + toMailId + "&isLink=false" ;
 				}
 			else {
-				window.location = exportAnalysisURL + "?analysisIds=" + analysisIds + "&toMailId=" + toMailId;
-				}	
-		jQuery('#divTomailIds').dialog("destroy");
+				data="analysisIds=" + analysisIds + "&toMailId=" + toMailId;
+				//window.location = exportAnalysisURL + "?analysisIds=" + analysisIds + "&toMailId=" + toMailId;
+				}
+			jQuery('#divMailStatus').html('Please wait mail is being sent...');
+			jQuery('#divMailStatus').dialog(
+					{
+						modal: true,
+						height: 150,
+						width: 400,
+						title: "Email Status",
+						show: 'fade',
+						hide: 'fade',
+						resizable: false,
+						 
+					});	
+
+			jQuery.ajax(
+					{
+					// The link we are accessing.
+					url:exportAnalysisURL,
+					data:data,
+					// The type of request.
+					type: "post",
+					// The type of data that is getting returned.
+					dataType: "json",
+					error: function(){
+					jQuery('#divMailStatus').html('<message>Mail sending failed!!!</message>');
+						jQuery('#divMailStatus').dialog(
+								{
+									modal: true,
+									height: 150,
+									width: 400,
+									title: "Email Status",
+									show: 'fade',
+									hide: 'fade',
+									resizable: false,			 
+								});	 
+					},
+					beforeSend: function(){
+					},
+					complete: function(){
+						
+					},
+					success: function( data ){
+					if(data.status=='success')
+						{
+						jQuery('#divTomailIds').dialog("destroy");	
+						jQuery('#divMailStatus').html('<message>Mail sent successfully!!!</message>');
+						jQuery('#divMailStatus').dialog(
+								{
+									modal: true,
+									height: 150,
+									width: 400,
+									title: "Email Status",
+									show: 'fade',
+									hide: 'fade',
+									resizable: false,			 
+								});	
+						}
+					}
+
+			});
 		}
-	
+		
 	}
 }
 

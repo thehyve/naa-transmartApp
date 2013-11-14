@@ -25,6 +25,10 @@
  */
 import java.util.zip.ZipOutputStream
 import java.util.zip.ZipEntry
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
+import org.codehaus.groovy.grails.web.json.JSONObject
 
 import grails.converters.*
 import search.CustomFilter
@@ -640,16 +644,41 @@ public class SearchController {
 
     }
 
+    def exportResults(columns, rows, filename) {
+
+        response.setHeader('Content-disposition', 'attachment; filename=' + filename)
+        response.contentType = 'text/plain'
+
+        String lineSeparator = System.getProperty('line.separator')
+        CSVWriter csv = new CSVWriter(response.writer)
+        def headList = []
+        for (column in columns) {
+            headList.push(column.sTitle)
+        }
+        String[] head = headList
+        csv.writeNext(head)
+
+        for (row in rows) {
+            def rowData = []
+            for (data in row) {
+                rowData.push(data)
+            }
+            String[] vals = rowData
+            csv.writeNext(vals)
+        }
+        csv.close()
+    }
+
     //Common Method to export analysis data as link or attachment
-    def exportAnalysisData(analysisId, dataWriter) {
+    def exportAnalysisData(analysisId, dataWriter,cutoff,regions,geneNames,max) {
         def analysis = BioAssayAnalysis.findById(analysisId, [max: 1])
         def analysisArr = []
         analysisArr.push(analysisId)
         def query
-        if (analysis.assayDataType == "GWAS" || analysis.assayDataType == "Metabolic GWAS"||analysis.assayDataType == "GWAS Fail") {
-            query = regionSearchService.getAnalysisData(analysisArr, null, 0, 0, null, "data.p_value", "asc", null, "gwas", null, null, false)
+        if (analysis.assayDataType == "GWAS" || analysis.assayDataType == "Metabolic GWAS") {
+            query=regionSearchService.getAnalysisData(analysisArr, regions, max, 0, cutoff, "data.p_value", "asc", null, "gwas", geneNames,false)
         } else {
-            query = regionSearchService.getAnalysisData(analysisArr, null, 0, 0, null, "data.p_value", "asc", null, "eqtl", null, null, false)
+            query=regionSearchService.getAnalysisData(analysisArr, regions, max, 0, cutoff, "data.p_value", "asc", null, "eqtl", geneNames,false)
         }
         def dataset = query.results
 
@@ -681,6 +710,14 @@ public class SearchController {
 
         def paramMap = params;
         def isLink = params.isLink
+		def cutoff = params.double('cutoff')
+		if (getSearchCutoff(session['solrSearchFilter'])){
+			cutoff = getSearchCutoff(session['solrSearchFilter'])
+			}
+		def regions = getSearchRegions(session['solrSearchFilter'])
+		def geneNames = getGeneNames(session['solrSearchFilter'])
+		def queryparameter=session['solrSearchFilter']
+		
 
         if (isLink == "true") {
             def analysisId = params.analysisId
@@ -688,19 +725,20 @@ public class SearchController {
             response.setHeader('Content-disposition', 'attachment; filename=' + analysisId + "_ANALYSIS_DATA.txt")
             response.contentType = 'text/plain'
             PrintWriter dataWriter = new PrintWriter(response.writer);
-            exportAnalysisData(analysisId, dataWriter)
+            exportAnalysisData(analysisId,dataWriter,cutoff,regions,geneNames,0)
 
         } else if (isLink == "false") {
             def analysisIds = params?.analysisIds.split(",")
             def mailId = params.toMailId
             def link = new StringBuilder()
-            link.append(createLink(controller: 'search', action: 'exportAnalysis', absolute: true))
+            if(queryparameter){link.append("Query Criteria at time of export: "+queryparameter+"\n")}
+			link.append(createLink(controller: 'search', action: 'exportAnalysis', absolute: true))
             def links = ""
             if (analysisIds.size() > 0) {
 
                 for (analysisId in analysisIds) {
                     analysisId = analysisId.toLong()
-                    links += link + "?analysisId=" + analysisId + "&isLink=true\n"
+                    links += link+"?analysisId=" + analysisId + "&regions="+regions.toString().replace(" ","")+"&cutoff="+cutoff+"&geneNames="+geneNames.toString().replace(" ","")+"&isLink=true\n"
                 }
             }
             def messageSubject = "Export Analysis Results"  //(links,messageSubject,mailId)
@@ -725,8 +763,16 @@ public class SearchController {
                     analysisId = analysisId.toLong()
                     def analysis = BioAssayAnalysis.findById(analysisId, [max: 1])
                     def accession = analysis.etlId
+					def analysisName= analysis.name
+					Pattern pt = Pattern.compile("[^a-zA-Z0-9 ]")
+					Matcher match= pt.matcher(analysisName)
+					while(match.find()){
+					String s= match.group();
+					analysisName=analysisName.replaceAll("\\"+s, "");
+					}
+
                     def dirStudy = rootDir + accession + "/"
-                    def dirAnalysis = dirStudy + analysisId + "/"
+                    def dirAnalysis = dirStudy + analysisName + "/"
                     def dir = new File(dirAnalysis)
                     dir.mkdirs()
 
@@ -734,7 +780,7 @@ public class SearchController {
                     def fileName = dirAnalysis + analysisId + "_ANALYSIS_DATA.txt"
                     File file = new File(fileName);
                     BufferedWriter dataWriter = new BufferedWriter(new FileWriter(file));
-                    exportAnalysisData(analysisId, dataWriter)
+                    exportAnalysisData(analysisId,dataWriter,cutoff,regions,geneNames,200)
 
                     //This is to generate a file with Study Metadata
                     def FileStudyMeta = dirStudy + accession + "_STUDY_METADATA.txt"
@@ -1010,6 +1056,7 @@ public class SearchController {
             String messageBody = "Attached is the list of Analyses"
             String file = zipFile
             String messageSubject = "Export of Analysis as attachment"
+			if (queryparameter) {messageBody+="Query Criteria at time of export: "+queryparameter+"\n"}
 
             sendMail {
                 multipart true
@@ -1020,7 +1067,8 @@ public class SearchController {
             }
         }
 
-        redirect(controller: 'RWG', action: 'index')
+       def myString=new JSONObject().put("status","success").toString();
+		render myString
     }
 
 }
