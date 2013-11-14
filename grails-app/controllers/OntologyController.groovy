@@ -22,6 +22,8 @@
 import grails.converters.*
 import org.json.*;
 import edu.mit.wi.haploview.*;
+import search.AuthUser
+
 class OntologyController {
 
     def index = { }

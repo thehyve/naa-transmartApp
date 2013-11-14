@@ -163,7 +163,7 @@
 		</tbody>
        	</table>
             <br>
-            <p style="text-align: right;"><span class="button"><g:actionSubmit class="edit" action="createListWizard" value="New Gene List"/></span></p>
+            <p style="text-align: right;"><span class="button"><g:actionSubmit class="edit" action="createListWizard" value="New Gene/RSID List"/></span></p>
             <!-- show my lists -->
             <table id="myLists"  class="detail" style="width: 100%">
                 <g:tableHeaderToggle label="My Lists (${myListItems.size()})" divPrefix="my_lists" status="open" colSpan="${5}"/>

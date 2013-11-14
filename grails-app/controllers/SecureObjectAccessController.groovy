@@ -19,7 +19,8 @@
   
 
 import command.SecureObjectAccessCommand
-
+import search.SecureObjectAccess;
+import search.AuthUser
 
 class SecureObjectAccessController {
 

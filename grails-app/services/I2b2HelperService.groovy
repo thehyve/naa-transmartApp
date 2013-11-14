@@ -81,6 +81,8 @@ import org.Hibernate.*;
 import com.recomdata.db.DBHelper;
 import com.recomdata.export.*;
 
+import search.AuthUser;
+
 /**
  * ResNetService that will provide an .rnef file for Jubilant data
  *

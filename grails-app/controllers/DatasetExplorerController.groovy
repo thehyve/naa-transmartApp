@@ -19,7 +19,7 @@
   
 
 import grails.converters.*
-
+import search.AuthUser
 
 class DatasetExplorerController {
 	def springSecurityService

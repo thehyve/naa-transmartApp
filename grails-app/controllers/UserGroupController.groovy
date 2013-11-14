@@ -22,6 +22,9 @@ import groovy.sql.Sql;
 import command.UserGroupCommand;
 import grails.converters.*;
 
+import search.AuthUser;
+import search.UserGroup;
+
 class UserGroupController {
 	def dataSource ;
 

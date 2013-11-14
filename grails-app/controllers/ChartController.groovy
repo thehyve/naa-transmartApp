@@ -102,6 +102,7 @@ import com.recomdata.statistics.StatHelper;
 //import edu.mit.wi.haploview.*;
 import org.jfree.chart.servlet.*;
 import org.apache.commons.math.stat.inference.TestUtils;
+import search.AuthUser;
 
 import com.recomdata.transmart.domain.searchapp.AccessLog
 

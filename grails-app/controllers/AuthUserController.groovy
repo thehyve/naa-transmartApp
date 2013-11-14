@@ -25,6 +25,8 @@
  */
 
 import search.GeneSignature
+import search.AuthUser;
+import search.Role;
 
 import com.recomdata.transmart.domain.searchapp.AccessLog
 

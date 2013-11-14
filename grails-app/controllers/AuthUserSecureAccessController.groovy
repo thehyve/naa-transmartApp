@@ -16,9 +16,10 @@
  * 
  *
  ******************************************************************/
-  
 
 
+import search.AuthUser;
+import search.AuthUserSecureAccess;
 
 class AuthUserSecureAccessController {
 

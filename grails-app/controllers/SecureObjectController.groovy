@@ -16,9 +16,9 @@
  * 
  *
  ******************************************************************/
-  
 
 
+import search.SecureObject;
 
 class SecureObjectController {
 

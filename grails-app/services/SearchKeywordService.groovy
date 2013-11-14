@@ -21,6 +21,7 @@ import bio.BioDataExternalCode
 import search.SearchKeyword
 import search.SearchKeywordTerm
 import search.GeneSignature
+import search.AuthUser
 
 /**
  * @author $Author: mmcduffie $

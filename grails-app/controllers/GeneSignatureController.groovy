@@ -21,6 +21,8 @@
 
 import bio.BioMarker
 import grails.converters.JSON
+import search.SearchKeywordTerm
+import search.AuthUser
 
 import javax.servlet.ServletOutputStream
 
@@ -1007,12 +1009,12 @@ class GeneSignatureController {
 
     def checkGene = {
         def paramMap = params
-        BioMarker b = BioMarker.findByNameAndBioMarkerType(params.geneName, 'GENE');
-        if (b) {
-            render '{"geneFound": true}'
+        SearchKeywordTerm skt = SearchKeywordTerm.findByKeywordTerm(params.geneName?.toUpperCase());
+        if (skt && (skt?.dataCategory?.equals('GENE') || skt?.dataCategory?.equals('SNP'))) {
+            render '{"found": "' + skt.dataCategory + '"}'
         }
         else {
-            render '{"geneFound": false}'
+            render '{"found": "none"}'
         }
     }
 }

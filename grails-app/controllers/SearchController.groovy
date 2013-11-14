@@ -27,6 +27,7 @@ import java.util.zip.ZipOutputStream
 import java.util.zip.ZipEntry
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import search.AuthUser
 
 import org.codehaus.groovy.grails.web.json.JSONObject
 

@@ -105,7 +105,10 @@ td {
     width: 16px;
     height: 16px;
     background-repeat: no-repeat;
-    background-position: 50% 50%;
+    background-position: 0 50%;
+    padding-left: 18px;
+    line-height: 16px;
+    margin-top: 3px;
 }
 
 .geneCheckIcon.success { background-image: url('../images/skin/accept.png'); }
@@ -117,4 +120,9 @@ td {
     font-family: Arial, sans-serif;
     font-size: 13px;
     overflow: hidden;
+}
+
+span.infotext {
+    font-weight: normal;
+    font-style: italic;
 }

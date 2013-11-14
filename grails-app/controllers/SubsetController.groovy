@@ -21,7 +21,7 @@
 
 import grails.converters.*
 import org.json.*;
-
+import search.AuthUser
 
 import com.recomdata.transmart.domain.searchapp.Subset;
 

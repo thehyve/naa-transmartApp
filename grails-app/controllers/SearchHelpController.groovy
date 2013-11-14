@@ -23,6 +23,7 @@ import search.GeneSignature
 import bio.Experiment
 import bio.Compound
 import bio.Disease
+import search.AuthUser
 
 /**
  *$Id: SearchHelpController.groovy 9178 2011-08-24 13:50:06Z mmcduffie $
