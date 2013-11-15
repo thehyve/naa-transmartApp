@@ -1357,7 +1357,7 @@ function createOntPanel()
 					region : 'north',
 					bodyStyle : 'background:#eee;padding: 10px;',
 					//html : shtml,
-					height : 130,
+					height : 135,
 					border : true,
 					split : false,
 					//autoScroll: true,
