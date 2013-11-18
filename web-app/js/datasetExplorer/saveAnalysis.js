@@ -113,47 +113,50 @@ function buildAnalysisFromCode(nodeCode, lastCode, reportsStudy)
 }
 
 function populateAnalysis(){
-	var returnedData = GLOBAL.returnedAnalysisData[1];
-	var binningEnabled = false;
-	if(returnedData){
-		for (var i = 0; i < returnedData.length; i++) {
-			var obj = returnedData[i]
-			var res = obj.split("=");
-			if(res.length == 2){
-			var concept_key = res[0];
-			var concept_value = res[1];
-				   
-			   switch (concept_key)
-			   {
-			      case "dependentVariable":
-			    	  populatePanel("divDependentVariable",concept_value);
-			    	  break;
-			      case "independentVariable":
-			    	  populatePanel("divIndependentVariable",concept_value);
-			    	  break;
-			      case "variablesConceptPaths":
-			    	  populatePanel("divVariables",concept_value);
-			    	  break;
-			      case "correlationBy":
-			    	  populateElement("correlationBy",concept_value);
-			    	  break;
-			      case "correlationType":
-			    	  populateElement("correlationType",concept_value);
-			    	  break;
-			      case "binning":
-			    	  if(concept_value === "TRUE"){
-			    		  binningEnabled = true;
-			    	  }  
-			      default: 
-			          //alert(concept_key +"="+concept_value);
-			          break;
-			   }//switch
-			}//if
-		}//for
-		if(binningEnabled){
-			populateBinning(returnedData);
-		}
-	}//if
+    var returnedData = GLOBAL.returnedAnalysisData[1];
+    var binningEnabled = false;
+    if(returnedData){
+        for (var i = 0; i < returnedData.length; i++) {
+            var obj = returnedData[i]
+            var res = obj.split("=");
+            if(res.length == 2){
+                var concept_key = res[0];
+                var concept_value = res[1];
+
+                switch (concept_key) {
+                    case "dependentVariable":
+                        populatePanel("divDependentVariable",concept_value);
+                        break;
+                    case "independentVariable":
+                        populatePanel("divIndependentVariable",concept_value);
+                        break;
+                    case "variablesConceptPaths":
+                        populatePanel("divVariables",concept_value);
+                        break;
+                    case "correlationBy":
+                        populateElement("correlationBy",concept_value);
+                        break;
+                    case "correlationType":
+                        populateElement("correlationType",concept_value);
+                        break;
+                    case "binning":
+                        if(concept_value === "TRUE"){
+                            binningEnabled = true;
+                        }
+                        break;
+                    case "groupByVariable":
+                        populatePanel("divGroupByVariable");
+                        break;
+                    default:
+                        //alert(concept_key +"="+concept_value);
+                        break;
+                }//switch
+            }//if
+        }//for
+        if(binningEnabled){
+            populateBinning(returnedData);
+        }
+    }//if
 }
 function populatePanel(elementId, concept_value){
 	  panel = document.getElementById(elementId);
