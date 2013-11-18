@@ -112,3 +112,161 @@ function buildAnalysisFromCode(nodeCode, lastCode, reportsStudy)
 
 }
 
+function populateAnalysis(){
+	var returnedData = GLOBAL.returnedAnalysisData[1];
+	var binningEnabled = false;
+	if(returnedData){
+		for (var i = 0; i < returnedData.length; i++) {
+			var obj = returnedData[i]
+			var res = obj.split("=");
+			if(res.length == 2){
+			var concept_key = res[0];
+			var concept_value = res[1];
+				   
+			   switch (concept_key)
+			   {
+			      case "dependentVariable":
+			    	  populatePanel("divDependentVariable",concept_value);
+			    	  break;
+			      case "independentVariable":
+			    	  populatePanel("divIndependentVariable",concept_value);
+			    	  break;
+			      case "variablesConceptPaths":
+			    	  populatePanel("divVariables",concept_value);
+			    	  break;
+			      case "correlationBy":
+			    	  populateElement("correlationBy",concept_value);
+			    	  break;
+			      case "correlationType":
+			    	  populateElement("correlationType",concept_value);
+			    	  break;
+			      case "binning":
+			    	  if(concept_value === "TRUE"){
+			    		  binningEnabled = true;
+			    	  }  
+			      default: 
+			          //alert(concept_key +"="+concept_value);
+			          break;
+			   }//switch
+			}//if
+		}//for
+		if(binningEnabled){
+			populateBinning(returnedData);
+		}
+	}//if
+}
+function populatePanel(elementId, concept_value){
+	  panel = document.getElementById(elementId);
+	  if(panel  && concept_value){
+		  if(concept_value.indexOf('|') !== -1)
+		  {
+    		    //multiple concepts, so parse them into array
+    			  var splits=concept_value.split("|");
+    			  for(j=0;j<splits.length;j++){
+    				 concept_value =splits[j];
+    				 var concept=new Concept('', concept_value, '', concept_value, '',concept_value, '', '', '', new Value(), '');
+    				 createPanelItemNew(panel, concept);
+    				 }
+    		  } else{
+    			  	 var concept=new Concept('', concept_value, '', concept_value, '', concept_value, '', '', '', new Value(), '');	
+    				 createPanelItemNew(panel, concept);
+    	}
+	  }
+}
+function populateElement(elementId,concept_value){
+	  variable = document.getElementById(elementId);
+	  if(variable && concept_value){
+		  variable.value= concept_value;	
+		  variable.src = variable.src;
+	  }
+}
+function populateBinning(returnedData){
+	if(returnedData){
+	    var manualBinning = '' ;
+	    var binVariable = '';
+	    var variableType = '';
+	    var numberOfBins = '';
+	    var binRanges = '';
+		for (var i = 0; i < returnedData.length; i++) {
+			var obj = returnedData[i]
+			var res = obj.split("=");
+			if(res.length == 2){
+			var concept_key = res[0];
+			var concept_value = res[1];
+
+			   switch (concept_key)
+			   {
+			      case "manualBinning":
+			    		  manualBinning = concept_value;
+			    	  break;
+			      case "binRanges":
+			    		  binRanges = concept_value;
+			    	  break;
+			      case "binVariable":
+			    		  binVariable = concept_value;
+			    	  break;
+			      case "variableType":
+			    		  variableType = concept_value;
+			    	  break;
+			      case "numberOfBins":
+			    	  numberOfBins = concept_value;
+			    	  break;	  
+			      default: 
+			          //alert(concept_key +"="+concept_value);
+			          break;
+			   }//switch
+			}//if
+		}//for
+		//First enable binning
+		var binningToggle = document.getElementById('BinningToggle');
+		if(binningToggle){
+			binningToggle.onclick();
+		}
+		//Set Values
+		 if(manualBinning === 'TRUE'){
+			 document.getElementById('chkManualBin').checked =  true;
+	   	  }else{
+	   		 document.getElementById('chkManualBin').checked = false;
+	   	  }
+		 if(binVariable.length>0){
+			 populateElement("selBinVariableSelection",binVariable);
+		 }
+		 if(variableType.length>0){
+			 populateElement("variableType",variableType);
+		 }
+		 manageBins(numberOfBins);
+		 if(numberOfBins.length>0){
+			 populateElement("txtNumberOfBins",numberOfBins);
+		 }
+		 populateManualBins(binRanges,variableType);
+	}//if
+}
+function populateManualBins(binRanges,variableType){
+	if(binRanges  && variableType){
+		if(binRanges.indexOf('|') !== -1)
+		  {
+  		    //multiple concepts, so parse them into array
+  			  var splits=binRanges.split("|");
+  			  for(i=0;i<splits.length;i++){
+  				var binNo = i+1;
+  				var binsplits =splits[i].split("<>");
+	  				for(j=1;j<binsplits.length;j++){
+	  					var bin_value = binsplits[j];
+						populatePanel("div" + variableType + "Bin" + binNo,bin_value);
+	  						}
+	  						
+	  					}
+  		  } else{
+  			  	var binsplits =binRanges.split("<>");
+					for(j=0;j<binsplits.length;j++){
+						var bins = binsplits[j];
+						alert(bins +"="+bins);
+					}
+
+  		  }
+		if(variableType ==='Categorical'){
+			//clear the categorical items 
+			document.getElementById("divCategoricalItems").innerHTML = "";
+		}
+	}
+}

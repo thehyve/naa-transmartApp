@@ -302,7 +302,7 @@ function loadAdvWorkflowAnalysis(reportId, reportStudy,moduleName)
 	//Before running the report clear out global report codes and study arrays
 	GLOBAL.currentAnalysisParams=[];
 	GLOBAL.currentReportStudy=[];
-	
+	GLOBAL.returnedAnalysisData = [];
 	//resultsTabPanel.body.mask("loading Analysis Parameters From Database", 'x-mask-loading');
 	
 	//Move the user to theAdv. Workfows tab.
@@ -316,60 +316,34 @@ function loadAdvWorkflowAnalysis(reportId, reportStudy,moduleName)
 		  data: {reportid:reportId}
 		});
 	
+//	jQuery(document).ready(function() {
+//		//alert("It's loaded!");
+//		//populateAnalysis(GLOBAL.returnedAnalysisData[1]);
+//	})
+	
+	 jQuery(document).ready(function () { 
+		 setTimeout(function () { 
+				var selectedAnalysis = document.getElementById("analysis").value;
+				selectedAnalysis = selectedAnalysis.charAt(0).toUpperCase()+selectedAnalysis.substring(1);
+				
+				var funcName = "populate"+selectedAnalysis;
+				
+				if (typeof funcName == 'string' && eval('typeof ' + funcName) == 'function') 
+				{
+					eval(funcName +'()');
+				}
+			 //populateAnalysis(GLOBAL.returnedAnalysisData[1]);
+			 
+			 }, 1000); });
+	
 }
+
+
 function openAnalysis(moduleName, returnedData, reportStudy){
 	
 	var menuItem = Ext.getCmp(moduleName);
-	
-	onItemClick(menuItem)
-	 var node_list = document.getElementsByTagName('input');
-	 
-	for (var i = 0; i < node_list.length; i++) {
-	    var node = node_list[i];
-	 
-	    if (node.getAttribute('value') == 'Run') {
-	        // do something here with a <input type="text" .../>
-	        // we alert its value here
-	    	//populateAnalysis(returnedData)
-	    	 submitJob(returnedData);
-	    }
-	} 
-	//$( document ).ready(function() {
-	//	submitJob(returnedData);
-	//	});
-	//submitJob(returnedData)
-	//Ext.Msg.alert('Menu Click', 'You clicked the menu item '+menuItem.text);
-}
-function populateAnalysis(returnedData){
-	if(returnedData){
-		for (var item in returnedData){
-			var obj = returnedData[item]
-			var res = obj.split("=");
-			if(res.length == 2){
-			var key = res[0];
-			var value = res[1]
-				   
-			   switch (key)
-			   {
-			      case "dependentVariable":
-			    	  var variable = Ext.get("divDependentVariable");
-			    	  if(variable){
-			    		  variable.value = value;
-			    	  }
-			    	  break;
-			      case "independentVariable":
-			    	  var variable = Ext.get("divIndependentVariable");
-			    	  if(variable){
-			    		  variable.value = value;
-			    	  }
-			    	  break;
-			      break;
+	onItemClick(menuItem);
+    clearDataAssociation();
+	GLOBAL.returnedAnalysisData[1] = returnedData;
 
-			      default: 
-			          alert(key);
-			          break;
-			   }//switch
-			}//if
-		}//for
-	}//if
 }
