@@ -334,7 +334,7 @@ function loadAdvWorkflowAnalysis(reportId, reportStudy,moduleName)
 				}
 			 //populateAnalysis(GLOBAL.returnedAnalysisData[1]);
 			 
-			 }, 1000); });
+			 }, 3000); });
 	
 }
 
