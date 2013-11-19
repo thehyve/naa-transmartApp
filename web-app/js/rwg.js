@@ -22,6 +22,7 @@ var analysisProbeIds = new Array();
 
 var openAnalyses = new Array(); //store the IDs of the analyses that are open
 
+var dataCategoryNames = ['GENE', 'PATHWAY', 'GENELIST', 'GENESIG', 'REGION', 'TRANSCRIPTGENE', 'PVALUE'];
 
 //create an ajaxmanager named rwgAJAXManager
 //this will handle all ajax calls on this page and prevent too many 
@@ -2546,6 +2547,13 @@ function isGeneCategory(catId)  {
 	}
 }
 
+function isDataCategory(catId) {
+    if (jQuery.inArray(catId, dataCategoryNames) > -1) {
+        return true;
+    }
+    return false;
+}
+
 /* Find the width of a text element */
 String.prototype.visualLength = function(fontFamily) 
 { 
@@ -2563,7 +2571,8 @@ function roundNumber(num, dec) {
 	return result;
 }
 
-//Main method to show the current array of search terms 
+//Main method to show the current array of search terms
+//TODO Convert this entire thing to jQuery instead of HTML string
 function showSearchTemplate()	{
 	var searchHTML = '';
 	var startATag = '&nbsp;<a id=\"';
@@ -2572,7 +2581,8 @@ function showSearchTemplate()	{
 	var firstItem = true;
 
 	// iterate through categories array and move all the "gene" categories together at the top 
-	var newCategories = new Array();
+	var dataCategories = new Array();
+    var analysisCategories = new Array();
 	
 	var geneCategoriesProcessed = false;
 	for (var i=0; i<currentCategories.length; i++)	{
@@ -2585,28 +2595,46 @@ function showSearchTemplate()	{
 			if (!geneCategoriesProcessed)  {
 				
 				// add first gene category to new array
-				newCategories.push(currentCategories[i]);
+				dataCategories.push(currentCategories[i]);
 
 				// look for other "gene" categories, starting at the next index value, and add each to array
 				for (var j=i+1; j<currentCategories.length; j++)	{
 					var catFields2 = currentCategories[j].split("|");
 					var catId2 = catFields2[1];
 					if (isGeneCategory(catId2)) {
-						newCategories.push(currentCategories[j]);
+						dataCategories.push(currentCategories[j]);
 					}				
 				}
 				// set flag so we don't try to process again
 				geneCategoriesProcessed = true;
 			}
 		}
-		else  {    // not a gene catageory, add to new list
-			newCategories.push(currentCategories[i]);
+		else  {    // not a gene category - add depending on category type
+		    if (isDataCategory(catId)) {
+			    dataCategories.push(currentCategories[i]);
+            }
+            else {
+                analysisCategories.push(currentCategories[i]);
+            }
 		}
 	}
 	
 	// replace old array with new array
-    currentCategories = newCategories;
-	
+    //Merge analysisCategories then dataCategories - they are now organized one after the other
+    var combinedCategories = new Array();
+    jQuery.merge(combinedCategories, analysisCategories);
+    jQuery.merge(combinedCategories, dataCategories);
+    currentCategories = combinedCategories;
+
+    var firstDataCategoryDrawn = false;
+
+    if (analysisCategories.length > 0) {
+        searchHTML += "<div class='filtertypebox analysis'><div class='filtertypetitle'>Analysis filters</div>";
+    }
+    else if (dataCategories.length > 0) {
+        searchHTML += "<div class='filtertypebox data'><div class='filtertypetitle'>Data filters</div>";
+    }
+
 	for (var i=0; i<currentCategories.length; i++)	{
 		for (var j=0; j<currentSearchTerms.length; j++)	{
 			var fields = currentSearchTerms[j].split(SEARCH_DELIMITER);
@@ -2622,6 +2650,7 @@ function showSearchTemplate()	{
 					if (i>0)	{	
 						
 						var suppressAnd = false;
+                        var newCategoryBox = false;
 						// if this is a "gene" category, check the previous category and see if it is also one
 		                if (isGeneCategory(catId))  {
 							var catFieldsPrevious = currentCategories[i-1].split("|");
@@ -2629,20 +2658,28 @@ function showSearchTemplate()	{
 		                	if (isGeneCategory(catIdPrevious))  {
 		                		suppressAnd = true;	
 		                	}
-		                } 
+		                }
+
+                        //Suppress the 'and' if this is the first data category type
+                        if (isDataCategory(catId) && !firstDataCategoryDrawn) {
+                            searchHTML = searchHTML + "</div><div class='filtertypebox data'><div class='filtertypetitle'>Data filters</div>";
+                            firstDataCategoryDrawn = true;
+                            suppressAnd = true;
+                            newCategoryBox = true;
+                        }
 						
 		                // if previous category is a "gene" category, don't show AND
 		                if (!suppressAnd)  {
 							searchHTML = searchHTML + "<span class='category_join'>AND<span class='h_line'></span></span>";  			// Need to add a new row and a horizontal line
 					    }
-		                else  {
+		                else if(!newCategoryBox)  {
 							searchHTML = searchHTML + "<br/>";  				                	
 		                }
 					}
 					searchHTML = searchHTML +"<span class='category_label'>" +catDisplay + "&nbsp;></span>&nbsp;<span class=term>"+ fields[1] + startATag + tagID + endATag + imgTag +"</span>";
 					firstItem = false;
 				} else	{
-					searchHTML = searchHTML + "<span class='spacer'>| </span><span class=term>"+ fields[1] + startATag + tagID + endATag + imgTag +"</span> ";
+					searchHTML = searchHTML + "<span class='spacer'> OR </span><span class=term>"+ fields[1] + startATag + tagID + endATag + imgTag +"</span> ";
 				}				
 			} else	{
 				continue;												// Do the categories by row and in order
@@ -2650,6 +2687,8 @@ function showSearchTemplate()	{
 		}
 		firstItem = true;
 	}
+
+    searchHTML += '</div>'
 	document.getElementById('active-search-div').innerHTML = searchHTML;
 	getSearchKeywordList();
 }
