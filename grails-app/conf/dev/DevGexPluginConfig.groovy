@@ -15,6 +15,8 @@ Gex {
 
 	// Administrator email
 	administratorEmail = "ami.khandeshi@pfizer.com"
+
+    apiKey="eece99dcbafde61880a429acd07038cd1c91da76"
 }
 
 grails {
