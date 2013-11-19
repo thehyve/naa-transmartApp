@@ -450,7 +450,7 @@ class GeneSignatureController {
         gs.foldChgMetricConceptCode = ConceptCode.findByCodeTypeNameAndBioConceptCode(FOLD_CHG_METRIC_CATEGORY, "NOT_USED")
 
         // bind params
-        bindGeneSigData(params, gs)
+        bindData(gs, params)
 
         // get file
         def file = request.getFile('uploadFile')

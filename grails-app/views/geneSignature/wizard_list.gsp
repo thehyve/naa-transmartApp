@@ -96,10 +96,10 @@
 				errorMsg = "You must specify a list name";
             }
 
-            if(document.geneSignatureFrm.uploadFile.value=="" && document.geneSignatureFrm.biomarker_1.value=="")
+            if(document.geneSignatureFrm.uploadFile.value=="" && document.geneSignatureFrm.biomarker_0.value=="")
                  errorMsg = errorMsg + "\n- Please select a file, or manually enter a gene list";
 
-            if(document.geneSignatureFrm.uploadFile.value!="" && document.geneSignatureFrm.biomarker_1.value!="")
+            if(document.geneSignatureFrm.uploadFile.value!="" && document.geneSignatureFrm.biomarker_0.value!="")
                 errorMsg = errorMsg + "\n- You have both specified a file and manually entered a list";
             // if no errors, continue submission
             if(errorMsg=="") return true;

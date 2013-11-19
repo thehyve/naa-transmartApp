@@ -126,3 +126,8 @@ span.infotext {
     font-weight: normal;
     font-style: italic;
 }
+
+.genesigdetail {
+    font: 10px verdana, arial, helvetica, sans-serif;
+    font-weight: bold;
+}

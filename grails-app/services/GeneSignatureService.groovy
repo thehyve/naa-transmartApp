@@ -33,6 +33,8 @@ import com.recomdata.util.ExcelSheet
 import com.recomdata.util.ExcelGenerator
 import org.hibernate.*;
 import search.AuthUser
+import search.SearchKeyword
+import search.SearchKeywordTerm
 
 /**
  * Service class for Gene Signature functionality
@@ -141,8 +143,14 @@ public class GeneSignatureService {
 
         Iterator iter = markers.iterator()
         while(iter.hasNext()) {
-            def marker = lookupBioAssociations(iter.next())
+            def geneSymbol = iter.next()
+            def marker = lookupBioAssociations(geneSymbol)
             if(marker==null || marker.size()==0) {
+                def snpUid = lookupSnpBioAssociations(geneSymbol)
+                if (snpUid) {
+                    gsItems.add(new GeneSignatureItem(bioDataUniqueId: snpUid))
+                    continue;
+                }
                 println("WARN: invalid gene symbol: "+ geneSymbol)
                 invalidSymbols.add(geneSymbol);
                 continue;
@@ -243,6 +251,11 @@ public class GeneSignatureService {
 					marker = lookupBioAssociations(geneSymbol,organism)
 					
 					if(marker==null || marker.size()==0) {
+                        def snpUid = lookupSnpBioAssociations(geneSymbol)
+                        if (snpUid) {
+                            gsItems.add(new GeneSignatureItem(bioDataUniqueId: snpUid))
+                            continue;
+                        }
 						println("WARN: invalid gene symbol: "+ geneSymbol)
 						invalidSymbols.add(geneSymbol);
 						continue;
@@ -250,7 +263,7 @@ public class GeneSignatureService {
 					
 					def bioMarkerId = marker.getAt(0);
 					def uniqueId = marker.getAt(1)
-					println(">> Gene lookup: 1) marker id: "+bioMarkerId+"; 2) uniqued i: "+uniqueId)
+					println(">> Gene lookup: 1) marker id: "+bioMarkerId+"; 2) unique id: "+uniqueId)
 					
 					// create item instance
 					GeneSignatureItem item = new GeneSignatureItem(bioMarker: BioMarker.read(bioMarkerId), bioDataUniqueId: uniqueId, foldChgMetric: foldChg);
@@ -261,6 +274,11 @@ public class GeneSignatureService {
 					marker = lookupProbesetBioAssociations(geneSymbol)
 				
 					if(marker==null || marker.isEmpty()) {
+                        def snpUid = lookupSnpBioAssociations(geneSymbol)
+                        if (snpUid) {
+                            gsItems.add(new GeneSignatureItem(bioDataUniqueId: snpUid))
+                            continue;
+                        }
 						println("WARN: invalid probe set id: "+ geneSymbol)
 						invalidSymbols.add(geneSymbol);
 						continue;
@@ -658,6 +676,16 @@ public class GeneSignatureService {
 		
 		return marker;
 	}
+
+    /**
+     *  Match the uploaded item with our SNP list
+     */
+    def lookupSnpBioAssociations(String keyword) {
+        def skt = SearchKeywordTerm.findByKeywordTermAndDataCategory(keyword.toUpperCase(), 'SNP')
+        if (!skt) return null
+        def skid = skt.searchKeyword.uniqueId
+        return skid;
+    }
 	
 	/**
 	 * gets a lit of permissioned gene signature records the user is allowed to view. The returned
