@@ -399,13 +399,16 @@ jQuery(document).ready(function() {
             changeField('study-combobox', 'study');
             jQuery('#formPage2').hide();
             jQuery('#formPage1').show();
+            jQuery('.dataFormTitle').text("Upload Analysis Data");
         }
         else {
             if (jQuery(this).attr('id') == 'uploadFileDatasetExplorerRadio') {
                 UPLOAD_STUDY_TYPE = 'i2b2';
+                jQuery('.dataFormTitle').text("Upload File to Dataset Explorer");
             }
             else if (jQuery(this).attr('id') == 'uploadFileRadio') {
                 UPLOAD_STUDY_TYPE = 'Experiment';
+                jQuery('.dataFormTitle').text("Upload File to Study");
             }
             jQuery('#uploadAnalysisPane').hide();
             jQuery('#enterMetadataButton').hide();
@@ -415,6 +418,7 @@ jQuery(document).ready(function() {
             changeField('study-combobox', 'study');
             jQuery('#formPage2').hide();
             jQuery('#formPage1').show();
+
         }
     });
 

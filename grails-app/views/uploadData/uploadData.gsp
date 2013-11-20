@@ -88,7 +88,7 @@ var buildVer = 'Build Version: <g:meta name="environment.BUILD_NUMBER"/> - <g:me
                     Edit Metadata
                 </g:if>
                 <g:else>
-                    Upload Data
+                    Upload Analysis Data
                 </g:else>
             </div>
             <div style="position: relative; text-align:right;">
