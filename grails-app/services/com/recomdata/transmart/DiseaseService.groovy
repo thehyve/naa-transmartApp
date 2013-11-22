@@ -30,7 +30,7 @@ class DiseaseService {
     def getMeshLineage(Disease disease) throws Exception {
         def lineage = []
         def mesh = disease.primarySourceCode
-        def lineageCodes = mesh.code?.split("\\.")
+        def lineageCodes = mesh.split("\\.")
         if (lineageCodes) {
             def concatenatedCode = ""
             for (code in lineageCodes) {
