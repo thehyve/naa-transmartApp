@@ -3272,7 +3272,7 @@ function exportAnalysisandMail()
 	
 	var selectedboxes = jQuery(".analysischeckbox:checked");
 	if (selectedboxes.length == 0) {
-		alert("No analyses are selected! Please select analyses to plot.");
+		alert("No analyses are selected! Please select analyses to export.");
 	}
 	else {
 		jQuery('#divTomailIds').dialog("destroy");
@@ -3295,7 +3295,7 @@ function sendMail()
 {
 	var selectedboxes = jQuery(".analysischeckbox:checked");
 	if (selectedboxes.length == 0) {
-		alert("No analyses are selected! Please select analyses to plot.");
+		alert("No analyses are selected! Please select analyses to export.");
 	}
 	else {
 		var radioMail= jQuery('#radioMail:checked').val();
