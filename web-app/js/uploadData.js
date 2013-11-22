@@ -408,7 +408,7 @@ jQuery(document).ready(function() {
             }
             else if (jQuery(this).attr('id') == 'uploadFileRadio') {
                 UPLOAD_STUDY_TYPE = 'Experiment';
-                jQuery('.dataFormTitle').text("Upload File to Study");
+                jQuery('.dataFormTitle').text("Upload File to Faceted Search");
             }
             jQuery('#uploadAnalysisPane').hide();
             jQuery('#enterMetadataButton').hide();

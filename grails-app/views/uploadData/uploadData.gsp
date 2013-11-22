@@ -424,7 +424,7 @@ var buildVer = 'Build Version: <g:meta name="environment.BUILD_NUMBER"/> - <g:me
                     <li class="sidebarRadio" id="uploadFileRadio">
                         <span class="dynatree-node dynatree-folder dynatree-exp-c dynatree-ico-cf">
                             <span class="dynatree-no-connector"></span>
-                            <a class="dynatree-title">Upload file to study</a>
+                            <a class="dynatree-title">Upload file to Faceted Search</a>
                         </span>
                     </li>
                     <li class="sidebarRadio" id="uploadFileDatasetExplorerRadio">
