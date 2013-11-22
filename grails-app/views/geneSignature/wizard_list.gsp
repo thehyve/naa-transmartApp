@@ -28,7 +28,66 @@
 		<title>Gene List Create</title>
 	</g:else>
 
+    <script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery-1.8.3.min.js')}"></script>
+    <script>$j = jQuery.noConflict();</script>
+
 	<script type="text/javascript">
+
+        jQuery(document).ready(function() {
+            var pasteContent;
+
+            jQuery('#biomarkerList').on('change', '.biomarkerEntry', function(event) {
+                var name = jQuery(this).attr('name');
+                var index = parseInt(name.substring(10));
+                checkGene(index);
+            });
+
+            jQuery('#biomarkerList').on('keypress', '.biomarkerEntry', function(event) {
+                if (event.which == 13) {
+                    event.preventDefault();
+
+                    var name = jQuery(this).attr('name');
+                    var startingIndex = parseInt(name.substring(10));
+                    createNewInputIfRequired(startingIndex);
+                    $j('#biomarker_' + (startingIndex+1)).focus();
+                }
+            });
+
+            jQuery('#biomarkerList').on('paste', '.biomarkerEntry', function(event) {
+                pasteContent = null;
+                var startingInput = jQuery(this);
+                startingInput.val('');
+                if (window.clipboardData) {
+                    pasteContent = window.clipboardData.getData('Text');
+                }
+                //Paste is ABOUT TO happen, so set timeout
+                setTimeout(function() {
+                    if (pasteContent == null) {
+                        pasteContent = startingInput.val();
+                    }
+                    var pasteList = pasteContent.split(",");
+                    if (pasteList.length < 2) {
+                        pasteList = pasteContent.split("\n");
+                    }
+                    var name = startingInput.attr('name');
+                    var startingIndex = parseInt(name.substring(10));
+                    for (var i = 0; i < pasteList.length; i++) {
+                        var currentIndex = startingIndex + i;
+                        $j('#biomarker_' + currentIndex).val(pasteList[i].trim());
+                        checkGene(currentIndex);
+                    }
+                    jQuery('#pasteSource').val('');
+                }, 1);
+            });
+
+            jQuery('#biomarkerList').on('click', '.biomarkerDelete', function(event) {
+                var name = jQuery(this).attr('name');
+                var index = parseInt(name.substring(10));
+                jQuery('#biomarker_' + index).val('');
+                jQuery('#geneCheckIcon' + index).removeClass('loading').removeClass('success').removeClass('failure').text('');
+            });
+        });
+
 		function validate() {
 
             var errorMsg = "";
@@ -37,10 +96,10 @@
 				errorMsg = "You must specify a list name";
             }
 
-            if(document.geneSignatureFrm.uploadFile.value=="" && document.geneSignatureFrm.biomarker_1.value=="")
+            if(document.geneSignatureFrm.uploadFile.value=="" && document.geneSignatureFrm.biomarker_0.value=="")
                  errorMsg = errorMsg + "\n- Please select a file, or manually enter a gene list";
 
-            if(document.geneSignatureFrm.uploadFile.value!="" && document.geneSignatureFrm.biomarker_1.value!="")
+            if(document.geneSignatureFrm.uploadFile.value!="" && document.geneSignatureFrm.biomarker_0.value!="")
                 errorMsg = errorMsg + "\n- You have both specified a file and manually entered a list";
             // if no errors, continue submission
             if(errorMsg=="") return true;
@@ -49,24 +108,49 @@
             return false;
 		}
 
-        // hide inidcated row
-        function removeNewItem(rowNum) {
-            var rowId = "new_item_"+rowNum;
-            var geneId = "biomarker_"+rowNum;
-            var probesetId = "probeset_"+rowNum;
-            var metricId = "foldChgMetric_"+rowNum;
+        function createNewInputIfRequired(index) {
+            var removeImage = "${resource(dir:'images',file:'remove.png')}"
+            var newIndex = index+1;
+            var checkInputField = jQuery('#biomarker_' + newIndex);
+            if (checkInputField.length == 0) {
+                var newtr = jQuery('<tr/>').attr('id', 'new_item_' + newIndex);
+                var newtdTextArea = jQuery('<td/>').append(jQuery('<textArea/>').attr('name', 'biomarker_' + newIndex).attr('id', 'biomarker_' + newIndex).addClass('biomarkerEntry'));
+                var newtdIcon = jQuery('<td/>').append(jQuery('<div/>').attr('id', 'geneCheckIcon' + newIndex).addClass('geneCheckIcon'));
+                var newtdImage = jQuery('<td/>').attr('style', 'text-align: center;').append(jQuery('<img/>').attr('name', 'biomarker_' + newIndex).attr('src', removeImage).addClass('biomarkerDelete'));
 
-            // elements
-            var rowItem = document.getElementById(rowId);
-            var geneItem = document.getElementById(geneId);
-            var probesetItem = document.getElementById(probesetId);
-            var metricItem = document.getElementById(metricId);
+                newtr.append(newtdTextArea).append(newtdIcon).append(newtdImage);
+                jQuery('#biomarkerList').append(newtr);
+            }
+        }
 
-            // remove and reset
-            geneItem.value="";
-            probesetItem.value="";
-            metricItem.value=""
-            rowItem.style.display="none";
+        function checkGene(index) {
+            createNewInputIfRequired(index);
+            var geneName = jQuery('#biomarker_' + index).val();
+            jQuery('#geneCheckIcon' + index).removeClass('loading').removeClass('success').removeClass('failure').text('');
+            if (geneName == null || geneName == "") {
+                return;
+            }
+            else {
+                jQuery('#geneCheckIcon' + index).addClass('loading')
+                jQuery.ajax({
+                    "url": '${createLink(controller: 'geneSignature', action: 'checkGene')}',
+                    data: {geneName : geneName},
+                    "success": function (jqXHR) {
+                        if (jqXHR.found != 'none') {
+                            jQuery('#geneCheckIcon' + index).removeClass('loading').addClass('success').text(jqXHR.found);
+                        }
+                        else {
+                            jQuery('#geneCheckIcon' + index).removeClass('loading').addClass('failure').text('');
+                        }
+                    },
+                    "error": function (jqXHR, error, e) {
+                        jQuery('#geneCheckIcon' + index).removeClass('loading')
+                        alert(error);
+                    },
+                    "dataType": "json"
+                });
+            }
+
         }
 	</script>
 </head>
@@ -96,47 +180,69 @@
         </tbody>
      </table>
      <br>
-     <table class="detail" style="width: 100%">
+     <table class="detail">
          <tbody id="FileInfoDetail">
         <tr class="prop">
-            <td class="name">Upload File<br>(tab delimited text files only)</td>
+            <td class="name">Upload File
+                <br/>
+                <span class="infotext">Upload a tab-delimited text file.</span>
+            </td>
             <td class="value"><input type="file" name="uploadFile" <g:if test="${wizard.wizardType==0}">value="${gs.uploadFile}"</g:if><g:else>value=""</g:else> size="100" /></td>
         </tr>
 
         <tr>
-            <td class="name">Enter List Manually</td>
+            <td class="name">Enter List Manually
+                <br/>
+                <span class="infotext">Type or copy and paste a list of genes and/or SNPs here. The form will expand as needed.</span>
+            </td>
             <td>
-        <table class="detail">
+        <table class="detail" width="300" id="biomarkerList">
         <tbody id="_new_items_detail" style="display: block;">
         <tr id="new_header">
-            <th style="text-align: center;">#</th>
+            <%--<th style="text-align: center;">#</th>--%>
             <th style="text-align: center;">Gene Symbol</th>
+            <th style="text-align: center;">&nbsp;</th>
             <th style="text-align: center;">Remove</th>
         </tr>
 
-        <!-- hidden items for adding -->
         <g:set var="n" value="${0}"/>
-        <g:while test="${n < 10}">
-            <%n++%>
+        <g:while test="${n < 5}">
+
             <tr id="new_item_${n}">
-                <td style="color: gray;">${n}_a</td>
+                <%--<td style="color: gray;">${n}</td>--%>
 
             <!-- check if coming from an error -->
-                <td><g:textField name="biomarker_${n}" maxlength="25" /></td>
-                <td style="text-align: center;"><img alt="remove item" onclick="javascript:removeNewItem(${n});" src="${resource(dir:'images',file:'remove.png')}" /></td>
+                <td><g:textArea name="biomarker_${n}" class="biomarkerEntry"/></td>
+                <td><div class="geneCheckIcon" id="geneCheckIcon${n}">&nbsp;</div></td>
+                <td style="text-align: center;"><img class="biomarkerDelete" name="biomarker_${n}" alt="remove item" src="${resource(dir:'images',file:'remove.png')}" /></td>
 
             </tr>
+            <%n++%>
         </g:while>
         </tbody>
     </table>
             </td>
         </tr>
+         <tr class="prop">
+             <td class="name">Flanking Region
+                 <br/>
+                 <span class="infotext">When searching on this gene list, include the gene regions +/- this number of chromosomal positions</span>
+             </td>
+             <td class="value"><input type="text" id="flankingRegion" name="flankingRegion" <g:if test="${wizard.wizardType==0}">value="${gs.flankingRegion}"</g:if><g:else>value="0"</g:else> /></td>
+         </tr>
+         <tr class="prop">
+             <td class="name">Make List Public
+                 <br/>
+                 <span class="infotext">Allow others to view this gene list</span>
+             </td>
+             <td class="value"><g:checkBox name="publicFlag" value="${gs.publicFlag}" />
+         </tr>
 </tbody>
       </table>
 
         <div class="buttons">
         <g:actionSubmit class="save" action="${(wizard.wizardType==1) ? 'update' : 'saveList'}" value="Save" onclick="return validate();" />
-		<g:actionSubmit class="cancel" action="refreshSummary" onclick="return confirm('Are you sure you want to exit?')" value="Cancel" />
+		<g:actionSubmit class="cancel" action="refreshSummary" onclick="return confirm('Are you sure you want to exit without saving this list?')" value="Cancel" />
 	</div>			
 
 	<br>

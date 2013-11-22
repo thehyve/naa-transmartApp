@@ -25,6 +25,7 @@ import search.SearchKeyword
 import search.CustomFilter
 import search.CustomFilterItem
 import grails.converters.*
+import search.AuthUser
 
 /**
  * @author $Author: mmcduffie $

@@ -62,7 +62,7 @@
 			</div>
 
 			<div class="paginateButtons">
-				<g:paginate total="${AuthUser.count()}" />
+				<g:paginate total="${search.AuthUser.count()}" />
 			</div>
 
 		</div>

@@ -41,16 +41,11 @@
 				</div></td>
 		</tr>
 	</table>
-	<table width="100%">
-		<tr>
-			<td colspan="3" align="center"><input id="ontSearchButton"
-				type="SUBMIT" VALUE="SEARCH" class="searchform"><input
-				type="reset" VALUE="CLEAR" onclick="clearSearch();"
-				class="searchform"><br>
-				<div class="searchform" id="searchresultstext"></div>
-			</td>
-		</tr>
-	</table>
+    <div style="text-align: center">
+	    <input id="ontSearchButton" type="SUBMIT" VALUE="Search" class="searchform">
+        <input type="reset" VALUE="Clear" onclick="clearSearch();" class="searchform">
+    </div>
+	<div class="searchform" id="searchresultstext"></div>
 
 </g:formRemote>
 <script type="text/javascript">

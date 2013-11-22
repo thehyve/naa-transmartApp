@@ -16,9 +16,9 @@
  * 
  *
  ******************************************************************/
-  
 
 
+import search.SecureObjectPath;
 
 class SecureObjectPathController {
 

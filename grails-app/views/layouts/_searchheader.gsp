@@ -28,7 +28,7 @@
 			<img src="${resource(dir:'images',file:'c-med.gif')}" alt="arrow" style="position: relative; top: 8px;" />
 		</td>
 		<td valign="middle" style="vertical-align:middle; border:1px; padding-rigtht:0px; font-size:11px" nowrap="nowrap">
-			<div style="width:650px;">
+			<div style="width:880px;">
    				<div class="x-box-tl">
 					<div class="x-box-tr">
 						<div class="x-box-tc">

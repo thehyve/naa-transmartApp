@@ -34,6 +34,7 @@ class ReportController {
 	
 	def springSecurityService
 	
+	
 	def saveReport = 
 	{
 		
@@ -57,6 +58,8 @@ class ReportController {
 			}
 			
 			report.creatingUser = springSecurityService.getPrincipal().username
+			
+			report.moduleName = "Summary Statistics"   //default for GSS reports
 			
 			//Create the report and get its id.
 			report.save(flush:true, failOnError:true)

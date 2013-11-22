@@ -86,7 +86,6 @@
 	        var exportAsImage = "${createLink([action:'exportAsImage'])}";
 
 	        var getStudyAnalysesUrl = "${createLink([controller:'RWG',action:'getTrialAnalysis'])}";
-			var exportAnalysisURL = "${createLink([controller:'search', action:'exportAnalysis'])}";
         
 			//These are the URLS for the different browse windows.
 			var studyBrowseWindow = "${createLink([controller:'experiment',action:'browseExperimentsMultiSelect'])}";
@@ -311,6 +310,7 @@
             <g:render template="/manhattan/plotOptions" plugin="transmartGwas"/>
         </g:ifPlugin>
 		<!-- This DIV for export Analysis details -->
+		<div id="divMailStatus"></div>
 		<div id="divTomailIds" style="width:300px; display: none;">
 			<table class="columndetail">
 				<tr>

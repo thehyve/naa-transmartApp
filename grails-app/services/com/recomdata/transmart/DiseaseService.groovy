@@ -29,18 +29,18 @@ class DiseaseService {
 
     def getMeshLineage(Disease disease) throws Exception {
         def lineage = []
-        def mesh = BioMesh.read(disease.meshCode) //Read only!
-        def lineageCodes = mesh.code?.split("\\.")
+        def mesh = disease.primarySourceCode
+        def lineageCodes = mesh.split("\\.")
         if (lineageCodes) {
             def concatenatedCode = ""
             for (code in lineageCodes) {
                 concatenatedCode += code
-                def meshCode = BioMesh.findByCode(concatenatedCode)?.id
-                if (meshCode == null) {
+                def meshCodeDisease = Disease.findByPrimarySourceCode(concatenatedCode)
+                if (meshCodeDisease == null) {
                     concatenatedCode += "."
                     continue
                 }
-                lineage.add(Disease.findByMeshCode(meshCode))
+                lineage.add(meshCodeDisease)
                 concatenatedCode += "."
             }
         }

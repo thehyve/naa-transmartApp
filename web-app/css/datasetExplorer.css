@@ -545,3 +545,9 @@ li.x-tab-strip-active {
 #queryPanel .x-panel-bwrap .x-panel-body {
 	background-color: white !important	
 }
+
+#searchresultstext {
+    height: 16px;
+    text-align: center;
+    /*font-size: 8pt;  Ext cuts off bottom of search panel on Firefox. Therefore I've cheated */
+}

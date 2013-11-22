@@ -25,6 +25,7 @@
   */
 
 import org.springframework.util.StringUtils
+import search.Requestmap
 
 /**
  * Requestmap controller.

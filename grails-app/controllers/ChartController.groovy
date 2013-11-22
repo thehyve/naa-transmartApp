@@ -102,6 +102,7 @@ import com.recomdata.statistics.StatHelper;
 //import edu.mit.wi.haploview.*;
 import org.jfree.chart.servlet.*;
 import org.apache.commons.math.stat.inference.TestUtils;
+import search.AuthUser;
 
 import com.recomdata.transmart.domain.searchapp.AccessLog
 
@@ -803,13 +804,15 @@ private void renderCategoryResultsHashMap(HashMap<String,Integer> results, Strin
 	  String key = entry.getKey();
 	  Integer value = entry.getValue();
 	  Double test=((double)value / (double)totalsubjects);
-	  pw.write("<tr>"
-			   + "<td>"+ key + "</td>"
-			   + "<td>" + value.toString() + "</td>"
-			   + "<td>" + form.format(((double)value / (double)total)) + "</td>"
-			   // + "<td>" + form.format(test) + "</td>"
-			   + "</tr>"
-			   );
+        if (value) {
+            pw.write("<tr>"
+                    + "<td>"+ key + "</td>"
+                    + "<td>" + value.toString() + "</td>"
+                    + "<td>" + form.format(((double)value / (double)total)) + "</td>"
+                    // + "<td>" + form.format(test) + "</td>"
+                    + "</tr>"
+            );
+        }
 	}
 	 pw.write("<tr>"
 			  + "<td><b>Total</b></td>"

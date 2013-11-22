@@ -254,11 +254,21 @@ class RWGController {
    /**
     * Create a query string for the category in the form of (<cat1>:"term1" OR <cat1>:"term2")
     */
-   def createCategoryQueryString = {category, termList -> 
+   def createCategoryQueryString = {category, termList ->
 
        // create a query for the category in the form of (<cat1>:"term1" OR <cat1>:"term2")
        String categoryQuery = ""
        for (t in termList.tokenize("|"))  {
+
+           t = cleanForSOLR(t)
+//           if (category.toLowerCase().equals("text")) {
+//               if (t.indexOf(" ") > -1) {
+//                   t = ("\"" + t.toLowerCase() + "\"");
+//               }
+//               else {
+//                   t = ("*" + t.toLowerCase() + "*");
+//               }
+//           }
 	   
 	       def queryTerm = /${category}:"${t}"/
 	   
@@ -289,7 +299,7 @@ class RWGController {
 	   for (ff in facetFieldsParams)  {
 		   
 		   //This list should be in a config, but we don't facet on some of the fields.
-		   if(ff != "REGION_OF_INTEREST" && ff != "GENE" && ff != "SNP")
+		   if(ff != "REGION_OF_INTEREST" && ff != "GENE" && ff != "SNP" && ff != "EQTL_TRANSCRIPT_GENE")
 		   {
 			   // skip TEXT search fields (these wouldn't be in tree so throw exception since this should never happen)
 			   if (ff =="TEXT")  {
@@ -365,7 +375,7 @@ class RWGController {
 	   for (qp in queryParams)  {
 		   
 		   //Ignore REGIONs here - used later in analysis filter
-		   if (qp.startsWith("REGION") || qp.startsWith("GENE") || qp.startsWith("SNP") || qp.startsWith("PVALUE")) {
+		   if (qp.startsWith("REGION") || qp.startsWith("GENE") || qp.startsWith("SNP") || qp.startsWith("PVALUE") || qp.startsWith("TRANSCRIPTGENE")) {
 			   continue;
 		   }
     	   // each queryParam is in form cat1:term1|term2|term3
@@ -373,11 +383,6 @@ class RWGController {
 	       String termList = qp.split(";")[1]
 
    		   def categoryQueryString = createCategoryQueryString(category, termList)
-		   
-		   // skip TEXT search fields (or do we need to handle them somehow)
-		   if (category =="TEXT")  {
-			   continue
-		   }
 
 		   // add category query to main nonfaceted query string using ANDs between category clauses
 		   if (nonfacetedQuery == "")  {
@@ -1041,4 +1046,8 @@ class RWGController {
 	  
 	  render(template:'dataTypesBrowseMulti',model:[dataTypes:dataTypes], plugin: "biomartForGit")
   }
+
+    def cleanForSOLR(t) {
+        return t.replace("&", "%26").replace("(", "\\(").replace(")", "\\)");
+    }
 }

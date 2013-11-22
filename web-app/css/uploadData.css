@@ -159,3 +159,53 @@ tr.borderbottom td {
     background-repeat: no-repeat !important;
     background-position: 50% 50% !important;
 }
+
+#mainUploadPane {
+    margin-left: 300px;
+    border-left: 1px solid #cfcfcf;
+    padding: 32px;
+    position: absolute;
+    top:29px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+}
+
+#uploadSidebarWrapper {
+    position: absolute;
+    width:300px;
+    margin-top: 29px;
+    top: 0px;
+}
+
+#uploadSidebarDisabled {
+    font-size: 12pt;
+    text-align: center;
+    color: #BBB;
+    font-style: italic;
+    padding-top: 32px;
+}
+
+.formPage {
+    background-color: #F4F4F4;
+    border: 1px solid #CCC;
+    padding: 8px;
+}
+
+#title-upload-target {
+    height: 25px;
+    overflow: hide;
+    width: 299px;
+}
+
+ul.dynatree-container li {
+    cursor: pointer;
+}
+
+li.sidebarRadio.selected a {
+    background-color: #e1ecfa;
+}
+
+html {
+    overflow: auto;
+}

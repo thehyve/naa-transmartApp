@@ -16,7 +16,13 @@
  * 
  *
  ******************************************************************/
-  
+
+
+
+import bio.BioMarker
+import grails.converters.JSON
+import search.SearchKeywordTerm
+import search.AuthUser
 
 import javax.servlet.ServletOutputStream
 
@@ -444,7 +450,7 @@ class GeneSignatureController {
         gs.foldChgMetricConceptCode = ConceptCode.findByCodeTypeNameAndBioConceptCode(FOLD_CHG_METRIC_CATEGORY, "NOT_USED")
 
         // bind params
-        bindGeneSigData(params, gs)
+        bindData(gs, params)
 
         // get file
         def file = request.getFile('uploadFile')
@@ -1000,5 +1006,16 @@ class GeneSignatureController {
 		//if(!gs.isAttached()) wizard.geneSigInst = gs.merge()
 		wizard.geneSigInst = gs.merge()
 	}
+
+    def checkGene = {
+        def paramMap = params
+        SearchKeywordTerm skt = SearchKeywordTerm.findByKeywordTerm(params.geneName?.toUpperCase());
+        if (skt && (skt?.dataCategory?.equals('GENE') || skt?.dataCategory?.equals('SNP'))) {
+            render '{"found": "' + skt.dataCategory + '"}'
+        }
+        else {
+            render '{"found": "none"}'
+        }
+    }
 }
 

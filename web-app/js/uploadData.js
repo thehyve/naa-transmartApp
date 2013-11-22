@@ -1,70 +1,11 @@
+var UPLOAD_STUDY_TYPE = 'Experiment';
+
 function changeField(field, valueField) {
 	var escapedFieldName = valueField.replace(".", "\\.");
 
 	$j('#' + escapedFieldName).val('');
 	$j('#' + escapedFieldName + "-input").val('').removeAttr('disabled').focus();
 }
-
-function ieReadFileHeader(filename) 
-{
-	/* Disabled instant check for now
-    try
-    {
-        var fso  = new ActiveXObject("Scripting.FileSystemObject"); 
-        var fh = fso.OpenTextFile(filename, 1); 
-        var contents = fh.ReadLine(); 
-        fh.Close();
-        return contents;
-    }
-    catch (e)
-    {
-        alert ("Could not open file: " + e.message);
-    }
-    */
-}
-
-/*
-function verifyHeader() {
-	$j('#columnsAll').html("Columns found: ");
-	$j('#columnsNotFound').empty();
-	
-	var filepath = document.getElementById('file').value;
-	var header = ieReadFileHeader(filepath);
-	var columns = header.split(",");
-	if (columns.length == 0) {
-		$j('#columnsNotFound').html('Could not parse the file!');
-	}
-	else {
-
-		var requiredColumns
-		//TODO Get required columns from model
-		if ($j('#analysisType').val() == 'gwas') {
-			requiredColumns = GWAS_COLUMNS;
-		}
-		else if ($j('#analysisType').val() == 'eqtl') {
-			requiredColumns = EQTL_COLUMNS;
-		}
-		else {
-			requiredColumns = GWASM_COLUMNS;
-		}
-		 
-		
-		
-		acknowledgeColumn(columns[0], requiredColumns);
-		for (var i = 1; i < columns.length; i++) {
-			$j('#columnsAll').append(", ");
-			acknowledgeColumn(columns[i], requiredColumns);
-		}
-
-		if (requiredColumns.length > 0) {
-			$j('#columnsNotFound').append('Columns missing: ' + requiredColumns[0]);
-			for (var i = 1; i < requiredColumns.length; i++) {
-				$j('#columnsNotFound').append(', ' + requiredColumns[i]);
-			}
-		}
-	}				
-}
-*/
 
 function acknowledgeColumn(column, requiredColumns) {
 	$j('#columnsAll').append(column);
@@ -118,10 +59,6 @@ function showDataUploadForm() {
 		$j('#expressionPlatformRow').hide();
 	}
 	$j('#formPage1').hide();
-
-	//Gets around oddity with Ext combo box layout on display:none divs
-	//$j('#formPage2').css('visibility', 'visible');
-	//$j('#formPage2').hide();
 	$j('#formPage2').show();
 }
 
@@ -444,20 +381,51 @@ addObservationTag = function(observationName, sourceAndCode, escapedFieldName) {
 }
 
 jQuery(document).ready(function() {
+
     jQuery('#uploadFilePane').hide();
     jQuery('#uploadFileButton').hide();
 
-    jQuery('body').on('click', '#uploadAnalysisRadio', function() {
-        jQuery('#uploadAnalysisPane').show();
-        jQuery('#enterMetadataButton').show();
-        jQuery('#uploadFileButton').hide();
-        jQuery('#uploadFilePane').hide();
-    });
-    jQuery('body').on('click', '#uploadFileRadio', function() {
-        jQuery('#uploadAnalysisPane').hide();
-        jQuery('#enterMetadataButton').hide();
-        jQuery('#uploadFileButton').show();
-        jQuery('#uploadFilePane').show();
+    jQuery('body').on('click', '.sidebarRadio', function() {
+        jQuery('.sidebarRadio').removeClass('selected');
+        jQuery(this).addClass('selected');
 
+        if (jQuery(this).attr('id') == 'uploadAnalysisRadio') {
+            UPLOAD_STUDY_TYPE = 'Experiment';
+            jQuery('#uploadAnalysisPane').show();
+            jQuery('#enterMetadataButton').show();
+            jQuery('#uploadFileButton').hide();
+            jQuery('#uploadFilePane').hide();
+            jQuery('#studyDiv').empty().slideUp('slow');
+            changeField('study-combobox', 'study');
+            jQuery('#formPage2').hide();
+            jQuery('#formPage1').show();
+            jQuery('.dataFormTitle').text("Upload Analysis Data");
+        }
+        else {
+            if (jQuery(this).attr('id') == 'uploadFileDatasetExplorerRadio') {
+                UPLOAD_STUDY_TYPE = 'i2b2';
+                jQuery('.dataFormTitle').text("Upload File to Dataset Explorer");
+            }
+            else if (jQuery(this).attr('id') == 'uploadFileRadio') {
+                UPLOAD_STUDY_TYPE = 'Experiment';
+                jQuery('.dataFormTitle').text("Upload File to Faceted Search");
+            }
+            jQuery('#uploadAnalysisPane').hide();
+            jQuery('#enterMetadataButton').hide();
+            jQuery('#uploadFileButton').show();
+            jQuery('#uploadFilePane').show();
+            jQuery('#studyDiv').empty().slideUp('slow');
+            changeField('study-combobox', 'study');
+            jQuery('#formPage2').hide();
+            jQuery('#formPage1').show();
+
+        }
     });
+
+    if (IS_EDIT) {
+        jQuery('#uploadSidebar').hide();
+        jQuery('#uploadSidebarDisabled').show();
+    }
+
 });
+
