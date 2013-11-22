@@ -20,6 +20,9 @@
 
 import command.SecureObjectAccessCommand
 import search.SecureObjectAccess;
+import search.SecureObject;
+import search.Principal;
+import search.SecureAccessLevel;
 import search.AuthUser
 
 class SecureObjectAccessController {

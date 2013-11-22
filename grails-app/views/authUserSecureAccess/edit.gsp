@@ -48,7 +48,7 @@
                                     <label for="authUser">Auth User:</label>
                                 </td>
                                 <td valign="top" class="value ${hasErrors(bean:authUserSecureAccessInstance,field:'authUser','errors')}">
-                                    <g:select optionKey="id" from="${AuthUser.listOrderByUsername()}" name="authUser.id" value="${authUserSecureAccessInstance?.authUser?.id}" noSelection="['null':'']"></g:select>
+                                    <g:select optionKey="id" from="${search.AuthUser.listOrderByUsername()}" name="authUser.id" value="${authUserSecureAccessInstance?.authUser?.id}" noSelection="['null':'']"></g:select>
                                 </td>
                             </tr>
 
