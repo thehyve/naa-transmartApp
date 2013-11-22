@@ -230,6 +230,13 @@
              </td>
              <td class="value"><input type="text" id="flankingRegion" name="flankingRegion" <g:if test="${wizard.wizardType==0}">value="${gs.flankingRegion}"</g:if><g:else>value="0"</g:else> /></td>
          </tr>
+         <tr class="prop">
+             <td class="name">Make List Public
+                 <br/>
+                 <span class="infotext">Allow others to view this gene list</span>
+             </td>
+             <td class="value"><g:checkBox name="publicFlag" value="${gs.publicFlag}" />
+         </tr>
 </tbody>
       </table>
 
