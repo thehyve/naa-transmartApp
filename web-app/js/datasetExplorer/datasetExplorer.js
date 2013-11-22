@@ -518,35 +518,6 @@ Ext.onReady(function()
 							}
 					),
 					new Ext.Toolbar.Separator(),
-					new Ext.Toolbar.Button(
-							{
-								id : 'savecomparsionbutton',
-								text : 'Save Subsets',
-								iconCls : 'savebutton',
-								disabled : false,
-								handler : function()
-								{
-								if(isSubsetEmpty(1) && isSubsetEmpty(2))
-								{
-									alert('Empty subsets found, need at least 1 valid subset to save a comparsion');
-									return;
-								}
-								if((GLOBAL.CurrentSubsetIDs[1] == null && ! isSubsetEmpty(1)) || (GLOBAL.CurrentSubsetIDs[2] == null && ! isSubsetEmpty(2)))
-								{
-									runAllQueries(function()
-											{
-										//saveComparison();});
-										 showSaveSubsetsDialog();});
-								}
-								else
-								{
-									//saveComparison();
-									showSaveSubsetsDialog();
-								}
-								return;
-								}
-							}
-					),
 					'->',
 					new Ext.Toolbar.Separator(),
 					new Ext.Toolbar.Button({
@@ -855,28 +826,6 @@ Ext.onReady(function()
 					collapsible : true						
 				}
 		);
-		 //jira DEMOTM-138 Workspaces tab - subset and report grid CRUD
-        var workspacePanel = new Ext.Panel(
-                {
-                    id : 'workspacePanel',
-                    title : 'Workspace',
-                    region : 'center',
-                    split : true,
-                    height : 90,
-                    layout : 'fit',
-                    autoScroll : true,
-                    listeners :
-                    {
-                        activate : function(p) {
-                            renderWorkspace(p)
-                        },
-                        deactivate: function(){
-
-                        }
-                    },
-                    collapsible : true
-                }
-        );
 		resultsTabPanel.add(queryPanel);
 		resultsTabPanel.add(dataAssociationPanel);
 		resultsTabPanel.add(analysisPanel);
@@ -885,8 +834,8 @@ Ext.onReady(function()
 		//resultsTabPanel.add(analysisJobsPanel);
 		resultsTabPanel.add(analysisDataExportPanel);
 		resultsTabPanel.add(analysisExportJobsPanel);
-        //jira DEMOTM-138 Workspaces tab - subset and report grid CRUD
-        resultsTabPanel.add(workspacePanel);
+
+
 		//loadDataAssociationPanel(dataAssociationPanel);
 
 		southCenterPanel = new Ext.Panel(

@@ -56,6 +56,7 @@ grails.project.dependency.resolution = {
         compile(':search-domain:1.0-SNAPSHOT')
         compile(':folder-management:1.0-SNAPSHOT')
         compile(':transmart-gwas:1.0-SNAPSHOT')
+        compile(':transmart-workspace:1.0-SNAPSHOT')
         compile(':spring-security-core:1.1.2')
         compile(':rdc-rmodules:0.1')
         compile(':quartz:0.4.2')

@@ -383,4 +383,14 @@ class UploadDataController {
 		}
 		model.put('ResearchUnits', ResearchUnitlist)
 	}
+
+
+    def list = {
+        def uploads = AnalysisMetadata.createCriteria().list {
+            order('id', 'desc')
+            maxResults(20)
+        }
+
+        render(view: "list", model: [uploads: uploads])
+    }
 }

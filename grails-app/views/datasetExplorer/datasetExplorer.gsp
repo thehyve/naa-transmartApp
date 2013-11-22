@@ -89,8 +89,6 @@ src="${resource(dir:'js', file:'ext/ext-all.js')}"></script>
 <script type="text/javascript" src="${resource(dir:'js', file:'myJobs.js')}"></script>
 <script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file: 'jsTreeFunctions.js')}"></script>
 <script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file: 'reports.js')}"></script>
-<script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file: 'saveAnalysis.js')}"></script>
-<script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file: 'workspace.js')}"></script>
 
 <script type="text/javascript"
 	src="${resource(dir:'js/datasetExplorer/exportData', file: 'dataTab.js')}"></script>
@@ -142,6 +140,11 @@ src="${resource(dir:'js', file:'ext/ext-all.js')}"></script>
         <g:render template="/folderManagementUrls" plugin="folderManagement"/>
         <script type="text/javascript" src="${resource(dir:'js', file:'folderManagementDE.js', plugin: 'folderManagement')}"></script>
         <link rel="stylesheet" href="${resource(dir:'css', file:'folderManagement.css', plugin: 'folderManagement')}"></link>
+    </g:ifPlugin>
+
+    <g:ifPlugin name="transmart-workspace">
+        <script type="text/javascript" src="${resource(dir:'js', file: 'saveAnalysis.js', plugin: 'transmart-workspace')}"></script>
+        <script type="text/javascript" src="${resource(dir:'js', file: 'workspace.js', plugin: 'transmart-workspace')}"></script>
     </g:ifPlugin>
 
 </head>
