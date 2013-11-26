@@ -677,7 +677,7 @@ BEGIN
 
     --    deletes unused leaf nodes for a trial one at a time
 
-        i2b2_delete_1_node(r_delUnusedLeaf.c_fullname,jobId);
+        i2b2_delete_1_node(r_delUnusedLeaf.c_fullname);
         stepCt := stepCt + 1;    
         cz_write_audit(jobId,databaseName,procedureName,'Deleted unused node: ' || r_delUnusedLeaf.c_fullname,SQL%ROWCOUNT,stepCt,'Done');
 
@@ -937,7 +937,7 @@ BEGIN
 
     --    deletes hidden nodes for a trial one at a time
 
-        i2b2_delete_1_node(r_delNodes.c_fullname,jobid);
+        i2b2_delete_1_node(r_delNodes.c_fullname);
         stepCt := stepCt + 1;
         tText := 'Deleted node: ' || r_delNodes.c_fullname;
         
