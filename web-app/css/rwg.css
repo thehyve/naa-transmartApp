@@ -985,9 +985,13 @@ div.selected ul.selected li {
     white-space: nowrap;   
 }
 
-/* Override multiselect dimensions */
+/* Override multiselect dimensions and icons */
 select.multiselect {
 	width: 96%; height: 94%
+}
+
+.ui-multiselect .ui-icon-arrowthick-2-n-s.ui-icon {
+    background-image: none;
 }
 
 .ui-autocomplete .ui-menu-item a {
