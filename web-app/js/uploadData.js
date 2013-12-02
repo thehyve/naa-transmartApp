@@ -170,7 +170,27 @@ function fillSelectAjax(element, url, params) {
 }
 
 function updateStudyTable(param) {
-	
+
+    //Check for availability of study folder
+    $j('#studyNoFolderMessage').hide();
+
+    $j.ajax({
+        url: studyHasFolderUrl,
+        type: 'POST',
+        data: {'accession': param},
+        success: function(response) {
+            if (!response.found) {
+                $j('#studyNoFolderMessage').show();
+                $j('#studyNoFolderMessage').html("Error retrieving folder for this study: " + response.message + ". Please contact the administrator using the button on the top right.");
+            }
+        },
+        failure: function(xhr) {
+            if (xhr.responseText != null && xhr.responseText != "") {
+                $j('#studyNoFolderMessage').html("Error retrieving folder for this study: " + xhr.responseText + ". Please contact the administrator using the button on the top right.");
+            }
+        }
+    });
+
 	$j('#studyDiv').empty().hide().slideDown('slow').addClass('ajaxloading');
 	
 	request = $j.ajax({

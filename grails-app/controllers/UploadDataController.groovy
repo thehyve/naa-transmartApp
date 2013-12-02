@@ -393,4 +393,16 @@ class UploadDataController {
 
         render(view: "list", model: [uploads: uploads])
     }
+
+    def studyHasFolder = {
+        //Verify that a given study has a folder to upload to.
+        //TODO This assumes folder-management
+        def returnData = [:]
+        Experiment experiment = Experiment.findByAccession(params.accession)
+        if (!experiment) { returnData.message = "No experiment found with accession " + params.accession}
+        def folder = fmFolderService.getFolderByBioDataObject(experiment)
+        if (!folder) { returnData.message = "No folder association found for accession " + experiment.accession + ", unique ID " + experiment.uniqueId}
+        else {returnData.put('found', true)}
+        render returnData as JSON
+    }
 }

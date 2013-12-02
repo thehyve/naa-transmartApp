@@ -46,6 +46,7 @@
 <script type="text/javascript" charset="utf-8">
 var studyBrowseWindowUrl = '${createLink([controller: 'experiment', action: 'browseExperimentsSingleSelect'])}';
 var studyDetailUrl = '${createLink([controller:'experimentAnalysis', action:'expDetail'])}';
+var studyHasFolderUrl = '${createLink([controller:'uploadData', action:'studyHasFolder'])}';
 var platformTypesUrl = '${createLink([action:'platformsForVendor',controller:'bioAssayPlatform'])}';
 var templateDownloadUrl = '${createLink([action:'template',controller:'uploadData'])}';
 
@@ -117,6 +118,7 @@ var buildVer = 'Build Version: <g:meta name="environment.BUILD_NUMBER"/> - <g:me
                         <a id="studyChangeButton" class="upload" onclick="$j('#studyDiv').empty().slideUp('slow'); changeField('study-combobox', 'study')">Change</a>
                         <a style="margin-left: 32px;" id="studyBrowseButton" class="upload" onclick="generateBrowseWindow('Studies');">Browse</a>
                         <br/><br/>
+                        <div id="studyNoFolderMessage" class="fieldError" style="display: none;"></div>
                         <div id="studyDiv" style="height: 200px; width: 540px; overflow: auto; display: none;">&nbsp;</div>
                     </td>
                 </tr>
