@@ -3,7 +3,7 @@
 <script type="text/javascript">
 	jQuery(function(){
 	  // choose either the full version
-	  jQuery(".multiselect").multiselect({sortable: false});
+	  jQuery(".multiselect").multiselect();
 	  // or disable some features
 	  //jQuery(".multiselect").multiselect({sortable: false, searchable: false});
 	});
