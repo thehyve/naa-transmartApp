@@ -112,7 +112,7 @@ class GeneSignatureController {
         def myListItems = []
 
 		signatures.each {
-            if(it.uniqueId.startsWith("GENESIG") )
+            if(it.uniqueId?.startsWith("GENESIG") )
             {
                 if(user.id==it.createdByAuthUser.id) {
                     myItems.add(it)

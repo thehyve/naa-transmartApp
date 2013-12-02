@@ -231,6 +231,11 @@ public class GeneSignatureService {
                     marker = lookupBioAssociations(geneSymbol)
 
                     if(marker==null || marker.size()==0) {
+                        def snpUid = lookupSnpBioAssociations(geneSymbol)
+                        if (snpUid) {
+                            gsItems.add(new GeneSignatureItem(bioDataUniqueId: snpUid))
+                            continue;
+                        }
                         println("WARN: invalid gene symbol: "+ geneSymbol)
                         invalidSymbols.add(geneSymbol);
                         continue;
@@ -547,7 +552,7 @@ public class GeneSignatureService {
 
 		GeneSignatureItem item = null;
 		parent.geneSigItems.each {
-			item = new GeneSignatureItem(bioMarker: BioMarker.get(it.bioMarker.id), bioDataUniqueId: it.bioDataUniqueId, foldChgMetric: it.foldChgMetric);
+			item = new GeneSignatureItem(bioMarker: BioMarker.get(it.bioMarker?.id), bioDataUniqueId: it.bioDataUniqueId, foldChgMetric: it.foldChgMetric);
 			clone.addToGeneSigItems(item);
 		}
 	}
