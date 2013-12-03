@@ -12,6 +12,8 @@ AS
   stepCt number(18,0);
   analysis_id number(18,0);
   E_ID number(18,0);
+  
+  sqlText	varchar2(1000);
 
   BEGIN    
     E_ID := etlID;
@@ -60,7 +62,10 @@ AS
     cz_write_audit(jobId,databaseName,procedureName,'Delete existing data in bio_assay_analysis_ext',SQL%ROWCOUNT,stepCt,'Done');
     commit;
     --delete from bio_assay_analysis_GWAS
-    DELETE from biomart.bio_assay_analysis_gwas where bio_assay_analysis_id=analysis_id;
+	--	changed to drop partition
+    --DELETE from biomart.bio_assay_analysis_gwas where bio_assay_analysis_id=analysis_id;
+	sqlText := 'alter table biomart.bio_assay_analysis_gwas drop partition "' || to_char(analysis_id) || '"';
+	execute immediate(sqlText);
     stepCt := stepCt + 1;
     cz_write_audit(jobId,databaseName,procedureName,'Delete existing data in bio_assay_analysis_gwas',SQL%ROWCOUNT,stepCt,'Done');
     commit;
