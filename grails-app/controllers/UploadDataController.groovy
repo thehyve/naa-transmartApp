@@ -401,7 +401,7 @@ class UploadDataController {
         Experiment experiment = Experiment.findByAccession(params.accession)
         if (!experiment) { returnData.message = "No experiment found with accession " + params.accession}
         def folder = fmFolderService.getFolderByBioDataObject(experiment)
-        if (!folder) { returnData.message = "No folder association found for accession " + experiment.accession + ", unique ID " + experiment.uniqueId}
+        if (!folder) { returnData.message = "No folder association found for accession " + experiment.accession + ", unique ID " + experiment.uniqueId?.uniqueId}
         else {returnData.put('found', true)}
         render returnData as JSON
     }
