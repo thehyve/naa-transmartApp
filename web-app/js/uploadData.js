@@ -213,21 +213,22 @@ function updateStudyTable(param) {
 }
 
 
-function generateBrowseWindow(nodeClicked)
+function generateBrowseWindow()
 {
       //Grab the URL from a JS object.
       var URLtoUse = studyBrowseWindowUrl
-      
+      jQuery('#divBrowseStudies').empty().addClass('ajax-loading');
+
       jQuery('#divBrowseStudies').dialog(
                   {
                         modal: false,
                         open: function()
                         {
-                              jQuery(this).load(URLtoUse)
+                              jQuery(this).load(URLtoUse + "?type=" + UPLOAD_STUDY_TYPE).removeClass('ajax-loading');
                         },
                         height: 300,
                         width: 500,
-                        title: nodeClicked,
+                        title: "Studies in " + (UPLOAD_STUDY_TYPE == 'i2b2'?"Dataset Explorer":"faceted search"),
                         show: 'fade',
                         hide: 'fade',
                         buttons: {"Select" : applyStudyBrowse}
