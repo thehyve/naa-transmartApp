@@ -110,6 +110,7 @@ class GeneSignatureController {
 		def myItems = []
 		def pubItems = []
         def myListItems = []
+        def pubListItems = []
 
 		signatures.each {
             if(it.uniqueId?.startsWith("GENESIG") )
@@ -124,11 +125,13 @@ class GeneSignatureController {
             {
                 if(user.id==it.createdByAuthUser.id) {
                     myListItems.add(it)
+                } else {
+                    pubListItems.add(it)
                 }
             }
 		}
 
-		render(view: "list", model:[user: user, adminFlag: bAdmin, myItems: myItems, pubItems: pubItems, myListItems: myListItems, ctMap: ctMap])
+		render(view: "list", model:[user: user, adminFlag: bAdmin, myItems: myItems, pubItems: pubItems, myListItems: myListItems, pubListItems: pubListItems, ctMap: ctMap])
 	}
 
 	/**
