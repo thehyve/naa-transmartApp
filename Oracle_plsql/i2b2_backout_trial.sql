@@ -259,6 +259,20 @@ BEGIN
 	cz_write_audit(jobId,databaseName,procedureName,'Delete trial from bio_data_taxonomy',SQL%ROWCOUNT,stepCt,'Done');
 	commit;
 	
+	--	remove study from FMAPP
+	
+	delete from fmapp.fm_folder_association
+	where object_uid = 'EXP:' || TrialId;
+	stepCt := stepCt + 1;
+	cz_write_audit(jobId,databaseName,procedureName,'Delete trial from fm_folder_association',SQL%ROWCOUNT,stepCt,'Done');
+	commit;
+	
+	delete from fmapp.fm_folder
+	where folder_name = TrialId;
+	stepCt := stepCt + 1;
+	cz_write_audit(jobId,databaseName,procedureName,'Delete trial from fm_folder',SQL%ROWCOUNT,stepCt,'Done');
+	commit;
+	
 	--	reload i2b2_secure
 	
 	i2b2_load_security_data;
