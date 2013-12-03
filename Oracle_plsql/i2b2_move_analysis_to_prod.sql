@@ -125,8 +125,9 @@ AS
         end if;        
     end if;
 
-    --    delete any existing data in bio_assay_analysis_gwas and bio_assay_analysis_eqtl
-               
+    --    delete any existing data in bio_assay_analysis_eqtl
+      
+/*	  
     if v_GWAS_staged = 1 then
         delete from biomart.bio_assay_analysis_gwas g
         where g.bio_assay_analysis_id in
@@ -144,6 +145,7 @@ AS
         cz_write_audit(jobId,databaseName,procedureName,'Delete exising data for staged analyses from BIOMART.BIO_ASSAY_ANALYSIS_GWAS',SQL%ROWCOUNT,stepCt,'Done');
         commit;    
     end if;
+*/
 
     if v_EQTL_staged = 1 then
         delete from biomart.bio_assay_analysis_eqtl g
@@ -216,6 +218,27 @@ AS
          
             commit;        
         else
+			--	check if partition exists for bio_assay_analysis_id, if not, add, if yes, truncate
+			select count(*) into v_exists
+			from all_tab_partitions
+			where table_name = 'BIO_ASSAY_ANALYSIS_GWAS'
+			  and partition_name = to_char(gwas_data.bio_assay_analysis_id);
+		
+			if v_exists = 0 then	
+				--	need to add partition to bio_assay_analysis_gwas
+				sqlText := 'alter table biomart.bio_assay_analysis_gwas add PARTITION "' || to_char(gwas_data.bio_assay_analysis_id) || '"  VALUES (' || 
+						    to_char(gwas_data.bio_assay_analysis_id) || ') ' ||
+						   'NOLOGGING TABLESPACE "BIOMART" ';
+				execute immediate(sqlText);
+				stepCt := stepCt + 1;
+				cz_write_audit(jobId,databaseName,procedureName,'Adding partition to bio_assay_analysis_gwas',0,stepCt,'Done');
+			else
+				sqlText := 'alter table biomart.bio_assay_analysis_gwas truncate partition "' || to_char(gwas_data.bio_assay_analysis_id) || '"';
+				execute immediate(sqlText);
+				stepCt := stepCt + 1;
+				cz_write_audit(jobId,databaseName,procedureName,'Truncating partition in bio_assay_analysis_gwas',0,stepCt,'Done');
+			end if;
+			
             insert into biomart.bio_assay_analysis_gwas
             (bio_asy_analysis_gwas_id
             ,bio_assay_analysis_id
@@ -342,4 +365,4 @@ AS
         cz_end_audit (jobID, 'FAIL');
     
 END;
-/
+
