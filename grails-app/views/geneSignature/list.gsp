@@ -182,6 +182,24 @@
                 </g:each>
                 </tbody>
             </table>
+            <br/>
+            <table id="publicLists"  class="detail" style="width: 100%">
+                <g:tableHeaderToggle label="Public Lists (${pubListItems.size()})" divPrefix="pub_lists" status="open" colSpan="${5}"/>
+
+                <tbody id="pub_lists_detail" style="display: block;">
+                <tr>
+                    <th>Name</th>
+                    <th>Author</th>
+                    <th>Date Created</th>
+                    <th># Genes</th>
+                    <th>&nbsp;</th>
+                </tr>
+
+                <g:each var="gs" in="${pubListItems}" status="idx">
+                    <g:render template="/geneSignature/list_summary_record" model="[gs:gs, idx: idx]" />
+                </g:each>
+                </tbody>
+            </table>
 
 
         </g:form>
