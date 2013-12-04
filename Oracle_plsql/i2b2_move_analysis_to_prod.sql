@@ -222,18 +222,18 @@ AS
 			select count(*) into v_exists
 			from all_tab_partitions
 			where table_name = 'BIO_ASSAY_ANALYSIS_GWAS'
-			  and partition_name = to_char(gwas_data.bio_assay_analysis_id);
+			  and partition_name = to_char(v_bio_assay_analysis_id);
 		
 			if v_exists = 0 then	
 				--	need to add partition to bio_assay_analysis_gwas
-				sqlText := 'alter table biomart.bio_assay_analysis_gwas add PARTITION "' || to_char(gwas_data.bio_assay_analysis_id) || '"  VALUES (' || 
-						    to_char(gwas_data.bio_assay_analysis_id) || ') ' ||
+				sqlText := 'alter table biomart.bio_assay_analysis_gwas add PARTITION "' || to_char(v_bio_assay_analysis_id) || '"  VALUES (' || 
+						    to_char(v_bio_assay_analysis_id) || ') ' ||
 						   'NOLOGGING TABLESPACE "BIOMART" ';
 				execute immediate(sqlText);
 				stepCt := stepCt + 1;
 				cz_write_audit(jobId,databaseName,procedureName,'Adding partition to bio_assay_analysis_gwas',0,stepCt,'Done');
 			else
-				sqlText := 'alter table biomart.bio_assay_analysis_gwas truncate partition "' || to_char(gwas_data.bio_assay_analysis_id) || '"';
+				sqlText := 'alter table biomart.bio_assay_analysis_gwas truncate partition "' || to_char(v_bio_assay_analysis_id) || '"';
 				execute immediate(sqlText);
 				stepCt := stepCt + 1;
 				cz_write_audit(jobId,databaseName,procedureName,'Truncating partition in bio_assay_analysis_gwas',0,stepCt,'Done');
