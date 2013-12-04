@@ -53,25 +53,42 @@ class ExperimentController {
 	 * This will display a list of the available studies in the system to the user. The user will only be able to select one item from the dropdown.
 	 */
 	def browseExperimentsSingleSelect = {
-		
-		def experiments = getSortedList()
-		
-		render(template:'browseSingle',model:[experiments:experiments])
+
+        def experiments
+
+        if (params.type) {
+            experiments = Experiment.findAllByType(params.type)
+            experiments = getSortedList(experiments)
+        }
+        else {
+            experiments = Experiment.list()
+            experiments = getSortedList(experiments)
+        }
+
+        render(template:'browseSingle',model:[experiments:experiments])
 	}
 	
 	/**
 	 * This will render a UI where the user can pick an experiment from a list of all the experiments in the system. Selection of multiple studies is allowed.
 	 */
 	def browseExperimentsMultiSelect = {
-		
-		def experiments = getSortedList()
-		
+
+        def experiments
+
+        if (params.type) {
+            experiments = Experiment.findAllByType(params.type)
+            experiments = getSortedList(experiments)
+        }
+        else {
+            experiments = Experiment.list()
+            experiments = getSortedList(experiments)
+        }
+
 		render(template:'browseMulti',model:[experiments:experiments])
 	}
 	
-	def getSortedList() {
-		def experiments = Experiment.listOrderByTitle()
-		
+	def getSortedList(experiments) {
+
 		experiments.sort({a, b ->
 			return a.title.trim().compareToIgnoreCase(b.title.trim());
 		})
