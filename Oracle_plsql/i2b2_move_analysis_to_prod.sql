@@ -226,15 +226,15 @@ AS
 		
 			if v_exists = 0 then	
 				--	need to add partition to bio_assay_analysis_gwas
-				sqlText := 'alter table biomart.bio_assay_analysis_gwas add PARTITION "' || to_char(v_bio_assay_analysis_id) || '"  VALUES (' || 
+				v_sqlText := 'alter table biomart.bio_assay_analysis_gwas add PARTITION "' || to_char(v_bio_assay_analysis_id) || '"  VALUES (' || 
 						    to_char(v_bio_assay_analysis_id) || ') ' ||
 						   'NOLOGGING TABLESPACE "BIOMART" ';
-				execute immediate(sqlText);
+				execute immediate(v_sqlText);
 				stepCt := stepCt + 1;
 				cz_write_audit(jobId,databaseName,procedureName,'Adding partition to bio_assay_analysis_gwas',0,stepCt,'Done');
 			else
-				sqlText := 'alter table biomart.bio_assay_analysis_gwas truncate partition "' || to_char(v_bio_assay_analysis_id) || '"';
-				execute immediate(sqlText);
+				v_sqlText := 'alter table biomart.bio_assay_analysis_gwas truncate partition "' || to_char(v_bio_assay_analysis_id) || '"';
+				execute immediate(v_sqlText);
 				stepCt := stepCt + 1;
 				cz_write_audit(jobId,databaseName,procedureName,'Truncating partition in bio_assay_analysis_gwas',0,stepCt,'Done');
 			end if;
