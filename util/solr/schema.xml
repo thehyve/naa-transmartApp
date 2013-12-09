@@ -460,6 +460,10 @@
 <field name="ANALYSES"  type="string" indexed="true" stored="false" required="false" multiValued="true"/>
 <field name="DATA_TYPE"  type="string" indexed="true" stored="false" required="false" multiValued="true"/>
 
+<field name="PLATFORM" type="string" indexed="true" stored="true" required="false"/>
+<field name="PLATFORM_DESCRIPTION" type="string" indexed="true" stored="true" required="false"/>
+<field name="PLATFORM_VENDOR" type="string" indexed="true" stored="true" required="false"/>
+
 <field name="STUDY_TITLE" type="string" indexed="true" stored="true" required="false"/>
 <field name="STUDY_DESCRIPTION" type="string" indexed="true" stored="true" required="false"/>
 <field name="STUDY_DESIGN" type="string" indexed="true" stored="true" required="false"/>
@@ -480,6 +484,10 @@
 <field name="ANALYSIS_METHOD" type="string" indexed="true" stored="true" required="false"/>
 <field name="ANALYSIS_DATA_TYPE" type="string" indexed="true" stored="true" required="false"/>
 <field name="ANALYSIS_QA_CRITERIA" type="string" indexed="true" stored="true" required="false"/>
+<field name="MODEL_NAME" type="string" indexed="true" stored="true" required="false"/>
+<field name="MODEL_DESCRIPTION" type="string" indexed="true" stored="true" required="false"/>
+<field name="RESEARCH_UNIT" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+
    <!--
    The following store examples are used to demonstrate the various ways one might _CHOOSE_ to
     implement spatial.  It is highly unlikely that you would ever have ALL of these fields defined.
@@ -527,6 +535,13 @@
    <copyField source="ANALYSIS_METHOD" dest="text"/>
    <copyField source="ANALYSIS_DATA_TYPE" dest="text"/>
    <copyField source="ANALYSIS_QA_CRITERIA" dest="text"/>
+   <copyField source="PLATFORM" dest="text"/>
+   <copyField source="PLATFORM_DESCRIPTION" dest="text"/>
+   <copyField source="PLATFORM_VENDOR" dest="text"/>
+   <copyField source="MODEL_NAME" dest="text"/>
+   <copyField source="MODEL_DESCRIPTION" dest="text"/>
+   <copyField source="RESEARCH_UNIT" dest="text"/>
+
 
    <!-- catchall text field that indexes tokens both normally and in reverse for efficient
         leading wildcard queries. -->
