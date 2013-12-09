@@ -22,39 +22,19 @@
 	"CREATINGUSER" VARCHAR2(200), 
 	"PUBLIC_FLAG" CHAR(1), 
 	"CREATE_DATE" TIMESTAMP (1), 
-	"STUDY" VARCHAR2(200)
+	"STUDY" VARCHAR2(200),
+	"MODULE_NAME" varchar2(200)
    ) NOCOMPRESS NOLOGGING
   TABLESPACE "BIOMART" ;
   
    CREATE TABLE "SEARCHAPP"."REPORT_ITEM" 
    ("REPORT_ITEM_ID" NUMBER NOT NULL ENABLE, 
 	"REPORT_ID" NUMBER NOT NULL ENABLE, 
-	"CODE" VARCHAR2(200)
+	"CODE" VARCHAR2(4000)
    ) NOCOMPRESS NOLOGGING
   TABLESPACE "BIOMART" ;
   
 CREATE OR REPLACE SYNONYM "BIOMART_USER"."SUBSET" FOR "SEARCHAPP"."SUBSET";
 CREATE OR REPLACE SYNONYM "BIOMART_USER"."REPORT" FOR "SEARCHAPP"."REPORT";   
 CREATE OR REPLACE SYNONYM "BIOMART_USER"."REPORT_ITEM" FOR "SEARCHAPP"."REPORT_ITEM";
-
   
-  create table searchapp.analysis
-  (analysis_id		number(22,0)
-  ,name				varchar2(200)
-  ,description		varchar2(1000)
-  ,creatinguser		varchar2(200)
-  ,analysis_module_name	varchar2(200)
-  ,public_flag		char(1)
-  ,create_date		timestamp
-  ,study			varchar2(200)
-  ) nocompress nologging tablespace "BIOMART";
-  
-  create table searchapp.analysis_item
-  (analysis_item_id		number(22,0)
-  ,analysis_id			number(22,0)
-  ,parameter			varchar2(4000)
-  )
-  nocompress nologging tablespace "BIOMART";
-  
- CREATE OR REPLACE SYNONYM "BIOMART_USER"."ANALYSIS" FOR "SEARCHAPP"."ANALYSIS";
-CREATE OR REPLACE SYNONYM "BIOMART_USER"."ANALYSIS_ITEM" FOR "SEARCHAPP"."ANALYSIS_ITEM";   
