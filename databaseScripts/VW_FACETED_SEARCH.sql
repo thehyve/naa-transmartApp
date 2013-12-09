@@ -15,7 +15,7 @@
 ,bplat.platform_accession as PLATFORM
 ,bplat.platform_description as PLATFORM_DESCRIPTION
 ,bplat.platform_vendor as PLATFORM_VENDOR
-,bplat.platform_name as PLATFORM_NAME
+,baap.platform_name as PLATFORM_NAME
 ,'OBS:' || bpobs.obs_code as OBSERVATION
 ,be.title as STUDY_TITLE
 ,be.description as STUDY_DESCRIPTION
@@ -53,6 +53,8 @@ on bdplat.bio_assay_platform_id = bplat.bio_assay_platform_id
 left outer join bio_data_observation bdpobs
 on ba.bio_assay_analysis_id = bdpobs.bio_data_id
 left outer join bio_observation bpobs
-on bdpobs.bio_observation_id = bpobs.bio_observation_id; 
+on bdpobs.bio_observation_id = bpobs.bio_observation_id
+left outer join bio_asy_analysis_pltfm baap
+on baap.bio_asy_analysis_pltfm_id = ba.bio_asy_analysis_pltfm_id; 
 
 
