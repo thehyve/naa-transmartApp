@@ -15,6 +15,7 @@ LEFT JOIN biomart.vw_faceted_search_disease fsd ON fs.analysis_id = fsd.bio_assa
             <field name="PLATFORM" column="PLATFORM" />
 		<field name="PLATFORM_DESCRIPTION" column="PLATFORM_VENDOR" />
 		<field name="PLATFORM_VENDOR" column="PLATFORM_DESCRIPTION" />
+		<field name="PLATFORM_NAME" column="PLATFORM_NAME" />
             <field name="OBSERVATION" column="OBSERVATION" />
             <field column="DISEASE" splitBy="/" sourceColName="SOLR_HIERARCHY" />
 

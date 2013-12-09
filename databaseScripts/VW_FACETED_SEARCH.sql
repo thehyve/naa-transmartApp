@@ -15,6 +15,7 @@
 ,bplat.platform_accession as PLATFORM
 ,bplat.platform_description as PLATFORM_DESCRIPTION
 ,bplat.platform_vendor as PLATFORM_VENDOR
+,bplat.platform_name as PLATFORM_NAME
 ,'OBS:' || bpobs.obs_code as OBSERVATION
 ,be.title as STUDY_TITLE
 ,be.description as STUDY_DESCRIPTION

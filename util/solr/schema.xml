@@ -463,6 +463,7 @@
 <field name="PLATFORM" type="string" indexed="true" stored="true" required="false"/>
 <field name="PLATFORM_DESCRIPTION" type="string" indexed="true" stored="true" required="false"/>
 <field name="PLATFORM_VENDOR" type="string" indexed="true" stored="true" required="false"/>
+<field name="PLATFORM_NAME" type="string" indexed="true" stored="true" required="false"/>
 
 <field name="STUDY_TITLE" type="string" indexed="true" stored="true" required="false"/>
 <field name="STUDY_DESCRIPTION" type="string" indexed="true" stored="true" required="false"/>
@@ -538,9 +539,11 @@
    <copyField source="PLATFORM" dest="text"/>
    <copyField source="PLATFORM_DESCRIPTION" dest="text"/>
    <copyField source="PLATFORM_VENDOR" dest="text"/>
+   <copyField source="PLATFORM_NAME" dest="text"/>
    <copyField source="MODEL_NAME" dest="text"/>
    <copyField source="MODEL_DESCRIPTION" dest="text"/>
    <copyField source="RESEARCH_UNIT" dest="text"/>
+
 
 
    <!-- catchall text field that indexes tokens both normally and in reverse for efficient
