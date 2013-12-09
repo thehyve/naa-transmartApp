@@ -261,11 +261,38 @@ BEGIN
 	
 	--	remove study from FMAPP
 	
+	delete from fmapp.fm_file ff
+	where ff.file_id in
+		 (select ffa.file_id
+		  from fmapp.fm_folder f
+			  ,fmapp.fm_folder_file_association ffa
+		  where f.folder_name = TrialId
+		    and f.folder_id = ffa.folder_id);
+	stepCt := stepCt + 1;
+	cz_write_audit(jobId,databaseName,procedureName,'Delete files from fm_file',SQL%ROWCOUNT,stepCt,'Done');
+	
+	delete from fmapp.fm_data_uid ff
+	where ff.unique_id in
+		 (select 'FIL:' || to_char(ffa.file_id)
+		  from fmapp.fm_folder f
+			  ,fmapp.fm_folder_file_association ffa
+		  where f.folder_name = TrialId
+		    and f.folder_id = ffa.folder_id);
+	stepCt := stepCt + 1;
+	cz_write_audit(jobId,databaseName,procedureName,'Delete files from fm_data_uid',SQL%ROWCOUNT,stepCt,'Done');
+	
 	delete from fmapp.fm_folder_association
 	where object_uid = 'EXP:' || TrialId;
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Delete trial from fm_folder_association',SQL%ROWCOUNT,stepCt,'Done');
-	commit;
+	
+	delete from fmapp.fm_data_uid ff
+	where ff.unique_id in
+		 (select 'FOL:' || to_char(f.folder_id)
+		  from fmapp.fm_folder f
+		  where f.folder_name = TrialId);
+	stepCt := stepCt + 1;
+	cz_write_audit(jobId,databaseName,procedureName,'Delete folders from fm_data_uid',SQL%ROWCOUNT,stepCt,'Done');
 	
 	delete from fmapp.fm_folder
 	where folder_name = TrialId;

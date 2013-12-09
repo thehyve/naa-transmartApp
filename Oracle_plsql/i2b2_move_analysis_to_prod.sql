@@ -101,51 +101,21 @@ AS
         
     end loop;
     
-    --    drop indexes if loading GWAS data
+    --    disable indexes if loading GWAS data
     
     if v_GWAS_staged = 1 then
-        select count(*) into v_exists
-        from all_indexes
-        where owner = 'BIOMART'
-          and table_name = 'BIO_ASSAY_ANALYSIS_GWAS'
-          and index_name = 'BIO_ASSAY_ANALYSIS_GWAS_PK';
-          
-        if v_exists > 0 then
-            execute immediate('drop index biomart.bio_assay_analysis_gwas_pk');
-        end if;
-
-        select count(*) into v_exists
-        from all_indexes
-        where owner = 'BIOMART'
-          and table_name = 'BIO_ASSAY_ANALYSIS_GWAS'
-          and index_name = 'BIO_ASSAY_ANALYSIS_GWAS_IDX2';
-          
-        if v_exists > 0 then
-            execute immediate('drop index biomart.bio_assay_analysis_gwas_idx2');
-        end if;        
+		for gwas_idx in (select index_name from all_indexes where owner = 'BIOMART' and table_name = 'BIO_ASSAY_ANALYSIS_GWAS')
+		loop
+			v_sqlText := 'alter index ' || gwas_idx.index_name || ' unusable';
+			stepCt := stepCt + 1;
+			cz_write_audit(jobId,databaseName,procedureName,'Disabling index ' || gwas_idx.index_name || ' on BIOMART.BIO_ASSAY_ANALYSIS_GWAS',SQL%ROWCOUNT,stepCt,'Done');
+			execute immediate(v_sqlText);
+			stepCt := stepCt + 1;
+			cz_write_audit(jobId,databaseName,procedureName,'Disabling complete',SQL%ROWCOUNT,stepCt,'Done');       
+		end loop;
     end if;
 
     --    delete any existing data in bio_assay_analysis_eqtl
-      
-/*	  
-    if v_GWAS_staged = 1 then
-        delete from biomart.bio_assay_analysis_gwas g
-        where g.bio_assay_analysis_id in
-             (select x.bio_assay_analysis_id
-              from tm_lz.lz_src_analysis_metadata t
-                  ,biomart.bio_assay_analysis x
-              where t.status = 'STAGED'
-                and t.data_type in ('GWAS','Metabolic GWAS')
-                and t.study_id = x.etl_id
-                and t.etl_id = x.etl_id_source
-                and case when i_etl_id = -1 then 1
-                         when t.etl_id = i_etl_id then 1
-                         else 0 end = 1);
-        stepCt := stepCt + 1;
-        cz_write_audit(jobId,databaseName,procedureName,'Delete exising data for staged analyses from BIOMART.BIO_ASSAY_ANALYSIS_GWAS',SQL%ROWCOUNT,stepCt,'Done');
-        commit;    
-    end if;
-*/
 
     if v_EQTL_staged = 1 then
         delete from biomart.bio_assay_analysis_eqtl g
@@ -163,18 +133,6 @@ AS
         stepCt := stepCt + 1;
         cz_write_audit(jobId,databaseName,procedureName,'Delete exising data for staged analyses from BIOMART.BIO_ASSAY_ANALYSIS_EQTL',SQL%ROWCOUNT,stepCt,'Done');
         commit;    
-    end if;
-    
-    if v_GWAS_staged = 1 then
-        select count(*) into v_exists
-        from all_indexes
-        where owner = 'BIOMART'
-          and table_name = 'BIO_ASSAY_ANALYSIS_GWAS'
-          and index_name = 'BIO_ASSAY_ANALYSIS_GWAS_IDX1';
-          
-        if v_exists > 0 then
-            execute immediate('drop index biomart.BIO_ASSAY_ANALYSIS_GWAS_IDX1');
-        end if;    
     end if;
     
     for i in stage_array.first .. stage_array.last
@@ -222,19 +180,19 @@ AS
 			select count(*) into v_exists
 			from all_tab_partitions
 			where table_name = 'BIO_ASSAY_ANALYSIS_GWAS'
-			  and partition_name = to_char(gwas_data.bio_assay_analysis_id);
+			  and partition_name = to_char(v_bio_assay_analysis_id);
 		
 			if v_exists = 0 then	
 				--	need to add partition to bio_assay_analysis_gwas
-				sqlText := 'alter table biomart.bio_assay_analysis_gwas add PARTITION "' || to_char(gwas_data.bio_assay_analysis_id) || '"  VALUES (' || 
-						    to_char(gwas_data.bio_assay_analysis_id) || ') ' ||
+				v_sqlText := 'alter table biomart.bio_assay_analysis_gwas add PARTITION "' || to_char(v_bio_assay_analysis_id) || '"  VALUES (' || 
+						    to_char(v_bio_assay_analysis_id) || ') ' ||
 						   'NOLOGGING TABLESPACE "BIOMART" ';
-				execute immediate(sqlText);
+				execute immediate(v_sqlText);
 				stepCt := stepCt + 1;
 				cz_write_audit(jobId,databaseName,procedureName,'Adding partition to bio_assay_analysis_gwas',0,stepCt,'Done');
 			else
-				sqlText := 'alter table biomart.bio_assay_analysis_gwas truncate partition "' || to_char(gwas_data.bio_assay_analysis_id) || '"';
-				execute immediate(sqlText);
+				v_sqlText := 'alter table biomart.bio_assay_analysis_gwas truncate partition "' || to_char(v_bio_assay_analysis_id) || '"';
+				execute immediate(v_sqlText);
 				stepCt := stepCt + 1;
 				cz_write_audit(jobId,databaseName,procedureName,'Truncating partition in bio_assay_analysis_gwas',0,stepCt,'Done');
 			end if;
@@ -301,27 +259,28 @@ AS
         end loop;
     end if;
     
-    --    recreate GWAS indexes if needed
+    --    rebuild indexes if loading GWAS data
     
     if v_GWAS_staged = 1 then
-        execute immediate('create index biomart.bio_assay_analysis_gwas_idx1 on biomart.bio_assay_analysis_gwas (bio_assay_analysis_id) tablespace "INDX" parallel 8');
-        stepCt := stepCt + 1;
-        cz_write_audit(jobId,databaseName,procedureName,'Created index bio_assay_analysis_gwas_idx1',0,stepCt,'Done');
-        execute immediate('create index biomart.bio_assay_analysis_gwas_idx2 on biomart.bio_assay_analysis_gwas (rs_id) tablespace "INDX" parallel 8');
-        stepCt := stepCt + 1;
-        cz_write_audit(jobId,databaseName,procedureName,'Created index bio_assay_analysis_gwas_idx2',0,stepCt,'Done');
-        execute immediate('create unique index biomart.bio_assay_analysis_gwas_pk on biomart.bio_assay_analysis_gwas (bio_asy_analysis_gwas_id) tablespace "INDX" parallel 8 ');
-        stepCt := stepCt + 1;
-        cz_write_audit(jobId,databaseName,procedureName,'Created index bio_assay_analysis_gwas_pk',0,stepCt,'Done');
-        
-        
-    I2B2_LOAD_EQTL_TOP50();
-    stepCt := stepCt + 1;
-        cz_write_audit(jobId,databaseName,procedureName,'Created top 50 EQTL',0,stepCt,'Done');
-    I2B2_LOAD_GWAS_TOP50();
-    stepCt := stepCt + 1;
+		for gwas_idx in (select index_name from all_indexes where owner = 'BIOMART' and table_name = 'BIO_ASSAY_ANALYSIS_GWAS')
+		loop
+			v_sqlText := 'alter index ' || gwas_idx.index_name || ' rebuild';
+			stepCt := stepCt + 1;
+			cz_write_audit(jobId,databaseName,procedureName,'Rebuilding index ' || gwas_idx.index_name || ' on BIOMART.BIO_ASSAY_ANALYSIS_GWAS',SQL%ROWCOUNT,stepCt,'Done');
+			execute immediate(v_sqlText);
+			stepCt := stepCt + 1;
+			cz_write_audit(jobId,databaseName,procedureName,'Rebuilding complete',SQL%ROWCOUNT,stepCt,'Done');       
+		end loop;
+		
+		I2B2_LOAD_GWAS_TOP50();
+		stepCt := stepCt + 1;
         cz_write_audit(jobId,databaseName,procedureName,'Created top 50 GWAS',0,stepCt,'Done');
-
+    end if;
+        
+    if v_EQTL_staged = 1 then
+		I2B2_LOAD_EQTL_TOP50();
+		stepCt := stepCt + 1;
+        cz_write_audit(jobId,databaseName,procedureName,'Created top 50 EQTL',0,stepCt,'Done');
     end if;
     
     --Insert data_count to bio_assay_analysis table. added by Haiyan Zhang 01/22/2013

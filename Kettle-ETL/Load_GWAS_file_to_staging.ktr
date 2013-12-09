@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <transformation>
   <info>
-    <name>new_load_GWAS_file_to_staging</name>
+    <name>load_GWAS_file_to_staging</name>
     <description/>
     <extended_description/>
     <trans_version/>
@@ -391,10 +391,6 @@
     <steps>
       <step>
         <name>Read GWAS File</name>
-        <CopyNr>0</CopyNr>
-        </step>
-      <step>
-        <name>Bulk Loader GWAS</name>
         <CopyNr>0</CopyNr>
         </step>
       <step>
