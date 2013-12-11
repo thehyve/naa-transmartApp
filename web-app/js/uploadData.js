@@ -217,14 +217,14 @@ function generateBrowseWindow()
 {
       //Grab the URL from a JS object.
       var URLtoUse = studyBrowseWindowUrl
-      jQuery('#divBrowseStudies').empty().addClass('ajax-loading');
+      jQuery('#divBrowseStudies').empty().addClass('ajaxloading');
 
       jQuery('#divBrowseStudies').dialog(
                   {
                         modal: false,
                         open: function()
                         {
-                              jQuery(this).load(URLtoUse + "?type=" + UPLOAD_STUDY_TYPE).removeClass('ajax-loading');
+                              jQuery(this).load(URLtoUse + "?type=" + UPLOAD_STUDY_TYPE).removeClass('ajaxloading');
                         },
                         height: 300,
                         width: 500,
