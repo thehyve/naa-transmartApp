@@ -67,6 +67,7 @@ AS
   pCount		integer;
   sCount		integer;
   tablespaceName	varchar2(200);
+  v_bio_experiment_id	number(18,0);
   
     --Audit variables
   newJobFlag INTEGER(1);
@@ -575,6 +576,86 @@ BEGIN
 	cz_write_audit(jobId,databaseName,procedureName,'Update wt_mrna_nodes with newly created concept_cds',SQL%ROWCOUNT,stepCt,'Done');
 	commit;
 	 
+		--	create entries to support FMAPP
+	
+	select count(*) into pExists
+	from biomart.bio_experiment
+	where accession = TrialId;
+	
+	if pExists = 0 then
+		--	insert placeholder for study in bio_experiment
+		insert into biomart.bio_experiment
+		(title, accession, etl_id, bio_experiment_type)
+		select study_name
+			  ,TrialId
+			  ,'METADATA:' || TrialId
+			  ,'i2b2'
+		from dual;
+		stepCt := stepCt + 1;
+		cz_write_audit(jobId,databaseName,procedureName,'Insert trial/study into biomart.bio_experiment',SQL%ROWCOUNT,stepCt,'Done');
+		commit;
+	end if;
+	
+	select bio_experiment_id into v_bio_experiment_id
+	from biomart.bio_experiment
+	where accession = TrialId;
+	
+	--	insert study into biomart.bio_data_uid
+	
+	insert into biomart.bio_data_uid
+	(bio_data_id
+	,unique_id 
+	,bio_data_type
+	)
+	select v_bio_experiment_id
+		  ,'EXP:' || TrialId
+		  ,'Experiment'
+	from dual
+	where not exists
+		 (select 1 from biomart.bio_data_uid x
+		  where x.bio_data_id = v_bio_experiment_id);
+	stepCt := stepCt + 1;
+	cz_write_audit(jobId,databaseName,procedureName,'Insert trial/study into biomart.bio_data_uid',SQL%ROWCOUNT,stepCt,'Done');
+	commit;	
+	
+	--	insert study into fmapp.fm_folder
+	
+	insert into fmapp.fm_folder
+	(folder_name 
+	,folder_level      
+	,folder_type
+	,active_ind
+	)
+	select TrialId
+		  ,1
+		  ,'STUDY'
+		  ,'1'
+	from dual
+	where not exists
+		  (select 1 from fmapp.fm_folder x
+		   where x.folder_name = TrialId);
+	stepCt := stepCt + 1;
+	cz_write_audit(jobId,databaseName,procedureName,'Insert trial/study into fmapp.fm_folder',SQL%ROWCOUNT,stepCt,'Done');
+	commit;
+	
+	--	insert fm_folder_association
+	
+	insert into fmapp.fm_folder_association
+	(folder_id
+	,object_uid
+	,object_type
+	)
+	select ff.folder_id
+		  ,'EXP:' || TrialId
+		  ,'bio.Experiment'
+	from fmapp.fm_folder ff
+	where folder_name = TrialId
+	  and not exists
+	     (select 1 from fmapp.fm_folder_association x
+		  where ff.folder_id = x.folder_id);
+	stepCt := stepCt + 1;
+	cz_write_audit(jobId,databaseName,procedureName,'Insert trial/study into fmapp.fm_folder_asociation',SQL%ROWCOUNT,stepCt,'Done');
+	commit;	  	
 	
   --Load the DE_SUBJECT_SAMPLE_MAPPING from wt_subject_mrna_data
 

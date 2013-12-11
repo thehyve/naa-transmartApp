@@ -961,7 +961,7 @@ BEGIN
 			  ,'i2b2'
 		from dual;
 		stepCt := stepCt + 1;
-		czx_write_audit(jobId,databaseName,procedureName,'Insert trial/study into biomart.bio_experiment',SQL%ROWCOUNT,stepCt,'Done');
+		cz_write_audit(jobId,databaseName,procedureName,'Insert trial/study into biomart.bio_experiment',SQL%ROWCOUNT,stepCt,'Done');
 		commit;
 	end if;
 	
@@ -984,7 +984,7 @@ BEGIN
 		 (select 1 from biomart.bio_data_uid x
 		  where x.bio_data_id = v_bio_experiment_id);
 	stepCt := stepCt + 1;
-	czx_write_audit(jobId,databaseName,procedureName,'Insert trial/study into biomart.bio_data_uid',SQL%ROWCOUNT,stepCt,'Done');
+	cz_write_audit(jobId,databaseName,procedureName,'Insert trial/study into biomart.bio_data_uid',SQL%ROWCOUNT,stepCt,'Done');
 	commit;	
 	
 	--	insert study into fmapp.fm_folder
@@ -1004,7 +1004,7 @@ BEGIN
 		  (select 1 from fmapp.fm_folder x
 		   where x.folder_name = TrialId);
 	stepCt := stepCt + 1;
-	czx_write_audit(jobId,databaseName,procedureName,'Insert trial/study into fmapp.fm_folder',SQL%ROWCOUNT,stepCt,'Done');
+	cz_write_audit(jobId,databaseName,procedureName,'Insert trial/study into fmapp.fm_folder',SQL%ROWCOUNT,stepCt,'Done');
 	commit;
 	
 	--	insert fm_folder_association
@@ -1023,7 +1023,7 @@ BEGIN
 	     (select 1 from fmapp.fm_folder_association x
 		  where ff.folder_id = x.folder_id);
 	stepCt := stepCt + 1;
-	czx_write_audit(jobId,databaseName,procedureName,'Insert trial/study into fmapp.fm_folder_asociation',SQL%ROWCOUNT,stepCt,'Done');
+	cz_write_audit(jobId,databaseName,procedureName,'Insert trial/study into fmapp.fm_folder_asociation',SQL%ROWCOUNT,stepCt,'Done');
 	commit;	  	
     
     i2b2_create_security_for_trial(TrialId, secureStudy, jobID);

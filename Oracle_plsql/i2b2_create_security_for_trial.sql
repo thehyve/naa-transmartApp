@@ -25,6 +25,7 @@ AS
 	securedStudy 		varchar2(5);
 	pExists				int;
 	v_bio_experiment_id	number(18,0);
+	v_study_name		varchar2(500);
   
 	--Audit variables
 	newJobFlag INTEGER(1);
@@ -53,7 +54,7 @@ BEGIN
 	END IF;
   
 	stepCt := 0;
-  
+	  
 	delete from i2b2demodata.observation_fact
 	where case when modifier_cd = '@'
 			   then sourcesystem_cd
@@ -136,11 +137,18 @@ BEGIN
 			where accession = TrialId;
 			
 			if pExists = 0 then
+			
+				select c_name into v_study_name
+				from i2b2metadata.i2b2
+				where c_fullname = (select min(c_fullname) from i2b2metadata.i2b2
+				                    where sourcesystem_cd = Trialid);
+				
 				insert into biomart.bio_experiment
-				(title, accession, etl_id)
-				select 'Metadata not available'
+				(title, accession, etl_id, bio_experiment_type)
+				select v_study_name
 					  ,TrialId
 					  ,'METADATA:' || TrialId
+					  ,'i2b2'
 				from dual;
 				stepCt := stepCt + 1;
 				cz_write_audit(jobId,databaseName,procedureName,'Insert trial/study into biomart.bio_experiment',SQL%ROWCOUNT,stepCt,'Done');
