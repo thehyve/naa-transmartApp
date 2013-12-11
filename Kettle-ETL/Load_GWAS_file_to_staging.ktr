@@ -1333,7 +1333,7 @@
            </partitioning>
     <connection>BIOMART_STAGE</connection>
     <schema/>
-    <table>TJEA_GWAS</table>
+    <table>BIO_ASSAY_ANALYSIS_GWAS</table>
     <commit>1000</commit>
     <truncate>N</truncate>
     <ignore_errors>N</ignore_errors>
