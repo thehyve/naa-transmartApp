@@ -1,3 +1,4 @@
+drop materialized view deapp.de_snp_info_hg19_mv;
 create materialized view deapp.de_snp_info_hg19_mv 
 as
 select 
