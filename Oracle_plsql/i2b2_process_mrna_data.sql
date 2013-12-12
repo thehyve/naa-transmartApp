@@ -762,6 +762,7 @@ BEGIN
 			and nvl(a.attribute_1,'@') = nvl(ln.attribute_1,'@')
 			and nvl(a.attribute_2,'@') = nvl(ln.attribute_2,'@')
 			and ln.node_type = 'LEAF'
+                        and ln.category_cd=a.category_cd    --added by HZ 12/11/13
 		inner join wt_mrna_nodes pn
 			on a.platform = pn.platform
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'PLATFORM')+8),'TISSUETYPE') > 1 then a.tissue_type else '@' end = nvl(pn.tissue_type,'@')
