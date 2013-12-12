@@ -66,7 +66,7 @@
 				}				
 
 				if(action=="showEditItems") {
-					url = "${createLink(action: 'showEditItems')}/"+id+"";
+					url = "${createLink(action: 'editList')}/"+id+"";
 				}
 				
 				// export to Excel 

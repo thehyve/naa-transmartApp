@@ -86,7 +86,30 @@
                 jQuery('#biomarker_' + index).val('');
                 jQuery('#geneCheckIcon' + index).removeClass('loading').removeClass('success').removeClass('failure').text('');
             });
+
+            <%-- Add checks for all fields if this is an edit --%>
+            <g:if test="${wizard.wizardType == 1}">
+                <g:set var="n" value="${0}"/>
+                <g:while test="${n < gs?.geneSigItems?.size()}">
+                    checkGene(${n});
+                    <g:set var="n" value="${n+1}"/>
+                </g:while>
+            </g:if>
         });
+
+        function checkBiomarkerValues() {
+            var foundEntry = false;
+            var biomarkerFields = jQuery(".biomarkerEntry");
+
+            for (var n = 0; n < biomarkerFields.size(); n++) {
+                var textContent = jQuery(biomarkerFields[n]).val();
+                if (textContent != null && textContent.trim() != "") {
+                    foundEntry = true;
+                    break;
+                }
+            }
+            return foundEntry;
+        }
 
 		function validate() {
 
@@ -96,10 +119,10 @@
 				errorMsg = "You must specify a list name";
             }
 
-            if(document.geneSignatureFrm.uploadFile.value=="" && document.geneSignatureFrm.biomarker_0.value=="")
+            if(document.geneSignatureFrm.uploadFile.value=="" && !checkBiomarkerValues())
                  errorMsg = errorMsg + "\n- Please select a file, or manually enter a gene list";
 
-            if(document.geneSignatureFrm.uploadFile.value!="" && document.geneSignatureFrm.biomarker_0.value!="")
+            if(document.geneSignatureFrm.uploadFile.value!="" && !checkBiomarkerValues())
                 errorMsg = errorMsg + "\n- You have both specified a file and manually entered a list";
             // if no errors, continue submission
             if(errorMsg=="") return true;
@@ -168,7 +191,12 @@
         <br>
     </g:if>
 
-    <h1>Gene List Create</h1>
+    <g:if test="${wizard.wizardType==1}">
+        <h1>Gene List Edit: ${gs?.name}</h1>
+    </g:if>
+    <g:else>
+        <h1>Gene List Create</h1>
+    </g:else>
     <g:form name="geneSignatureFrm" enctype="multipart/form-data" method="post">
 
      <table class="detail" style="width: 100%">
@@ -206,13 +234,28 @@
         </tr>
 
         <g:set var="n" value="${0}"/>
-        <g:while test="${n < 5}">
+        <g:set var="geneSigItems" value="${gs?.geneSigItems}"/>
+        <g:set var="geneSigItemsIterator" value="${gs?.geneSigItems.iterator()}"/>
+        <g:while test="${n < 5 || geneSigItemsIterator?.hasNext()}">
 
             <tr id="new_item_${n}">
                 <%--<td style="color: gray;">${n}</td>--%>
 
             <!-- check if coming from an error -->
-                <td><g:textArea name="biomarker_${n}" class="biomarkerEntry"/></td>
+                <g:set var="bioMarkerValue" value=""/>
+                <g:if test="${geneSigItems}">
+                    <g:set var="nextItem" value="${geneSigItemsIterator.hasNext() ? geneSigItemsIterator.next(): null}"/>
+                    <g:if test="${nextItem?.bioMarker}">
+                        <g:set var="bioMarkerValue" value="${nextItem.bioMarker.name}"/>
+                    </g:if>
+                    <g:elseif test="${nextItem?.bioDataUniqueId}">
+                        <g:set var="bioMarkerValue" value="${nextItem.bioDataUniqueId?.substring(4)}"/> <%-- Substring to cut off SNP: --%>
+                    </g:elseif>
+                    <g:else>
+                        <g:set var="bioMarkerValue" value=""/>
+                    </g:else>
+                </g:if>
+                <td><g:textArea name="biomarker_${n}" class="biomarkerEntry" value="${bioMarkerValue}"/></td>
                 <td><div class="geneCheckIcon" id="geneCheckIcon${n}">&nbsp;</div></td>
                 <td style="text-align: center;"><img class="biomarkerDelete" name="biomarker_${n}" alt="remove item" src="${resource(dir:'images',file:'remove.png')}" /></td>
 
@@ -228,7 +271,7 @@
                  <br/>
                  <span class="infotext">When searching on this gene list, include the gene regions +/- this number of chromosomal positions</span>
              </td>
-             <td class="value"><input type="text" id="flankingRegion" name="flankingRegion" <g:if test="${wizard.wizardType==0}">value="${gs.flankingRegion}"</g:if><g:else>value="0"</g:else> /></td>
+             <td class="value"><input type="text" id="flankingRegion" name="flankingRegion" value="${gs?.flankingRegion ?: 0}"/></td>
          </tr>
          <tr class="prop">
              <td class="name">Make List Public
@@ -241,7 +284,8 @@
       </table>
 
         <div class="buttons">
-        <g:actionSubmit class="save" action="${(wizard.wizardType==1) ? 'update' : 'saveList'}" value="Save" onclick="return validate();" />
+        <g:hiddenField name="isEdit" value="${wizard.wizardType==1}"/>
+        <g:actionSubmit class="save" action="saveList" value="Save" onclick="return validate();" />
 		<g:actionSubmit class="cancel" action="refreshSummary" onclick="return confirm('Are you sure you want to exit without saving this list?')" value="Cancel" />
 	</div>			
 

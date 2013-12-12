@@ -21,6 +21,7 @@
 
 import bio.BioMarker
 import grails.converters.JSON
+import search.GeneSignatureItem
 import search.SearchKeywordTerm
 import search.AuthUser
 
@@ -175,7 +176,6 @@ class GeneSignatureController {
         redirect(action:'createList')
     }
 
-
 	/**
 	 * initialize session for the edit gs wizard
 	 */
@@ -311,10 +311,23 @@ class GeneSignatureController {
         // bind params
         bindGeneSigData(params, wizard.geneSigInst)
 
-        // load data for page 3
-        //loadWizardItems(4, wizard)
-
         render(view: "wizard_list", model:[wizard: wizard])
+    }
+
+    def editList = {
+        // initialize session model data
+        def user = AuthUser.findByUsername(springSecurityService.getPrincipal().username)
+
+        // initialize new gs inst
+        def geneSigInst = GeneSignature.get(params.id);
+        // initialize session
+        def wizard = new WizardModelDetails(loggedInUser: user, geneSigInst: geneSigInst);
+        session.setAttribute(WIZ_DETAILS_ATTRIBUTE, wizard)
+
+        // bind params
+        bindGeneSigData(params, wizard.geneSigInst)
+        wizard.wizardType = 1;
+        render(view: "wizard_list", model:[wizard: wizard, gs: wizard.geneSigInst, isEdit: true])
     }
 
 	/**
@@ -435,8 +448,18 @@ class GeneSignatureController {
         def wizard = session.getAttribute(WIZ_DETAILS_ATTRIBUTE)
         def gs = wizard.geneSigInst
         gs.properties.list = true
-        assert null == gs.properties.id
-
+        if (!params.isEdit) {
+          assert null == gs.properties.id
+        }
+        else {
+            def currentListItems = GeneSignatureItem.createCriteria().list {
+                eq('geneSignature', gs)
+            }
+            for (i in currentListItems) {
+                i.delete();
+            }
+            gs.geneSigItems.clear()
+        }
         // species
         gs.speciesConceptCode =  ConceptCode.findByCodeTypeNameAndBioConceptCode("OTHER", "OTHER")
 
@@ -484,7 +507,6 @@ class GeneSignatureController {
 
         } else {
             gs.properties.uploadFile = "Manual Item Entry"
-
             // load items from list rather than file
             Iterator iter = params.entrySet().iterator()
             SortedSet invalidSymbols = new TreeSet();
@@ -498,7 +520,12 @@ class GeneSignatureController {
 
                 }
                 def gsItems = geneSignatureService.loadGeneSigItemsFromList(markers)
-                gsItems.each { gs.addToGeneSigItems(it) }
+                def geneSigUniqueIds = gs.geneSigItems*.bioDataUniqueId
+                gsItems.each {
+                    if (!geneSigUniqueIds.contains(it.bioDataUniqueId)) {
+                        gs.addToGeneSigItems(it)
+                    }
+                }
             }
         }
 
@@ -511,7 +538,7 @@ class GeneSignatureController {
             session.setAttribute(WIZ_DETAILS_ATTRIBUTE, wizard)
 
             // send message to user
-            flash.message = "GeneSignature '${gs.name}' was created on: ${gs.dateCreated}"
+            flash.message = "GeneSignature '${gs.name}' was " + params.isEdit? "edited" : "created" + " on: ${gs.dateCreated}"
             redirect(action:'list')
 
         } catch (FileSchemaException fse) {

@@ -30,7 +30,7 @@
 	<td><select name="action_${gs.id}" style="font-size: 10px;" onchange="handleActionItem(this, ${gs.id});">
 			<option value="">-- Select Action --</option>
 			<g:if test="${!gs.deletedFlag && ownerFlag}"><option value="delete">Delete</option></g:if>
-			<g:if test="${ownerFlag}"><option value="showEditItems">Edit Items</option></g:if>	                    								              	
+			<g:if test="${ownerFlag}"><option value="showEditItems">Edit Items</option></g:if>
 			<option value="export">Excel Download</option>
 			<option value="gmt">Download .GMT file</option>
      	</select>
