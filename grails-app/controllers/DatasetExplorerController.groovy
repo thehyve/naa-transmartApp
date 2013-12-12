@@ -31,11 +31,21 @@ class DatasetExplorerController {
 			log.trace("in index");
 			//code for retrieving a saved comparison
 			def pathToExpand=params.path;
-			def sc=params.qid1;
+			def sc=params.id;
 			log.trace("DatasetExplorer Controller found saved comparison id="+sc);
 			def qid1=null;
 			def qid2=null;
 			Boolean restorecomparison=false;
+			if (sc!=null && sc!="")
+			{
+				def s=i2b2.Comparison.get(Integer.parseInt(sc))
+				if(s!=null)
+				{
+					restorecomparison=true;
+					qid1=s.queryID1;
+					qid2=s.queryID2;
+				}
+			}
 			def savedSubsetId = params["sId"]
 			log.trace("SavedComparison Controller found saved comparison id="+savedSubsetId)
 			if(savedSubsetId!=null && savedSubsetId!=""){
@@ -46,7 +56,6 @@ class DatasetExplorerController {
 					qid2=savedSubset.queryID2
 				}
 			}
-			
 			//Grab i2b2 credentials from the config file
 			def i2b2Domain = grailsApplication.config.com.recomdata.i2b2.subject.domain
 			def i2b2ProjectID = grailsApplication.config.com.recomdata.i2b2.subject.projectid
