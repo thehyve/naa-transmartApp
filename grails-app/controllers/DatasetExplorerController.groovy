@@ -17,7 +17,7 @@
  *
  ******************************************************************/
   
-
+import com.recomdata.transmart.domain.searchapp.Subset;
 import grails.converters.*
 import search.AuthUser
 
@@ -31,19 +31,19 @@ class DatasetExplorerController {
 			log.trace("in index");
 			//code for retrieving a saved comparison
 			def pathToExpand=params.path;
-			def sc=params.id;
+			def sc=params.qid1;
 			log.trace("DatasetExplorer Controller found saved comparison id="+sc);
 			def qid1=null;
 			def qid2=null;
 			Boolean restorecomparison=false;
-			if (sc!=null && sc!="")
-			{
-				def s=i2b2.Comparison.get(Integer.parseInt(sc))
-				if(s!=null)
-				{
-					restorecomparison=true;
-					qid1=s.queryID1;
-					qid2=s.queryID2;
+			def savedSubsetId = params["sId"]
+			log.trace("SavedComparison Controller found saved comparison id="+savedSubsetId)
+			if(savedSubsetId!=null && savedSubsetId!=""){
+				def savedSubset = Subset.get(savedSubsetId)
+				if(savedSubset){
+					restorecomparison=true
+					qid1=savedSubset.queryID1
+					qid2=savedSubset.queryID2
 				}
 			}
 			
