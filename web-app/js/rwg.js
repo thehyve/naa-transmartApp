@@ -90,7 +90,9 @@ var cohortBGColors = new Array(
 */
 ////////////////////////////////////////////////////////////////////
 function showDetailDialog(dataURL, dialogTitle, dialogHeight)	{
-	var height = 'auto';
+	//var height = 'auto';
+	var wHeight = jQuery(window).height();
+	var height =wHeight *0.8;
 	if (typeof dialogHeight == 'number')	{
 		height = dialogHeight;
 	}	

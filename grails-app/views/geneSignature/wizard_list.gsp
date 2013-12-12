@@ -195,7 +195,7 @@
         <h1>Gene List Edit: ${gs?.name}</h1>
     </g:if>
     <g:else>
-        <h1>Gene List Create</h1>
+        <h1>Gene/RSID List Create</h1>
     </g:else>
     <g:form name="geneSignatureFrm" enctype="multipart/form-data" method="post">
 
@@ -221,14 +221,14 @@
         <tr>
             <td class="name">Enter List Manually
                 <br/>
-                <span class="infotext">Type or copy and paste a list of genes and/or SNPs here. The form will expand as needed.</span>
+                <span class="infotext">Type or copy and paste a list of genes and/or SNPs here. The form will expand as needed. Pasted lists should be comma or new line separated.</span>
             </td>
             <td>
         <table class="detail" width="300" id="biomarkerList">
         <tbody id="_new_items_detail" style="display: block;">
         <tr id="new_header">
             <%--<th style="text-align: center;">#</th>--%>
-            <th style="text-align: center;">Gene Symbol</th>
+            <th style="text-align: center;">Gene Symbol or rsID</th>
             <th style="text-align: center;">&nbsp;</th>
             <th style="text-align: center;">Remove</th>
         </tr>
