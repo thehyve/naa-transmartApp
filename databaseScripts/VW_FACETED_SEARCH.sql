@@ -7,7 +7,7 @@
 
 
   CREATE OR REPLACE FORCE VIEW "BIOMART"."VW_FACETED_SEARCH" AS 
-  select ba.bio_assay_analysis_id as ANALYSIS_ID
+select ba.bio_assay_analysis_id as ANALYSIS_ID
 ,be.bio_experiment_id as STUDY
 ,be.bio_experiment_id as STUDY_ID
 ,ba.analysis_type as ANALYSES
@@ -55,6 +55,5 @@ on ba.bio_assay_analysis_id = bdpobs.bio_data_id
 left outer join bio_observation bpobs
 on bdpobs.bio_observation_id = bpobs.bio_observation_id
 left outer join bio_asy_analysis_pltfm baap
-on baap.bio_asy_analysis_pltfm_id = ba.bio_asy_analysis_pltfm_id; 
-
-
+on baap.bio_asy_analysis_pltfm_id = ba.bio_asy_analysis_pltfm_id
+WHERE be.bio_experiment_type IN ('Experiment', 'i2b2'); 
