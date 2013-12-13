@@ -122,7 +122,7 @@
             if(document.geneSignatureFrm.uploadFile.value=="" && !checkBiomarkerValues())
                  errorMsg = errorMsg + "\n- Please select a file, or manually enter a gene list";
 
-            if(document.geneSignatureFrm.uploadFile.value!="" && !checkBiomarkerValues())
+            if(document.geneSignatureFrm.uploadFile.value!="" && checkBiomarkerValues())
                 errorMsg = errorMsg + "\n- You have both specified a file and manually entered a list";
             // if no errors, continue submission
             if(errorMsg=="") return true;
@@ -168,7 +168,6 @@
                     },
                     "error": function (jqXHR, error, e) {
                         jQuery('#geneCheckIcon' + index).removeClass('loading')
-                        alert(error);
                     },
                     "dataType": "json"
                 });
