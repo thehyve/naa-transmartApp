@@ -129,7 +129,8 @@ function generateReportFromId(reportId, reportStudy)
     }	
 
     //Get the basic summary statistics. When that is done processing run "pullReportCodes" which will run an analysis per code.
-	getSummaryStatistics(pullReportCodes,[reportId, reportStudy]);
+	//getSummaryStatistics();
+    pullReportCodes([reportId, reportStudy]);
 	
 }
 
