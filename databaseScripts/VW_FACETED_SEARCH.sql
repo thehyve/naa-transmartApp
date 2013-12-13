@@ -56,4 +56,4 @@ left outer join bio_observation bpobs
 on bdpobs.bio_observation_id = bpobs.bio_observation_id
 left outer join bio_asy_analysis_pltfm baap
 on baap.bio_asy_analysis_pltfm_id = ba.bio_asy_analysis_pltfm_id
-WHERE be.bio_experiment_type IN ('Experiment', 'i2b2'); 
+WHERE lower(be.bio_experiment_type) = 'experiment'; 
