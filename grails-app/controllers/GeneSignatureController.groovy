@@ -448,7 +448,7 @@ class GeneSignatureController {
         def wizard = session.getAttribute(WIZ_DETAILS_ATTRIBUTE)
         def gs = wizard.geneSigInst
         gs.properties.list = true
-        if (!params.isEdit) {
+        if (!params.boolean('isEdit')) {
           assert null == gs.properties.id
         }
         else {
@@ -522,7 +522,7 @@ class GeneSignatureController {
                 def gsItems = geneSignatureService.loadGeneSigItemsFromList(markers)
                 def geneSigUniqueIds = gs.geneSigItems*.bioDataUniqueId
                 gsItems.each {
-                    if (!geneSigUniqueIds.contains(it.bioDataUniqueId)) {
+                    if (!geneSigUniqueIds?.contains(it.bioDataUniqueId)) {
                         gs.addToGeneSigItems(it)
                     }
                 }
@@ -538,7 +538,7 @@ class GeneSignatureController {
             session.setAttribute(WIZ_DETAILS_ATTRIBUTE, wizard)
 
             // send message to user
-            flash.message = "GeneSignature '${gs.name}' was " + params.isEdit? "edited" : "created" + " on: ${gs.dateCreated}"
+            flash.message = "GeneSignature '${gs.name}' was " + (params.boolean('isEdit') ? "edited" : "created") + " on: ${gs.dateCreated}"
             redirect(action:'list')
 
         } catch (FileSchemaException fse) {
