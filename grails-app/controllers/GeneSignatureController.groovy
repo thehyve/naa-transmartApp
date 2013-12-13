@@ -538,7 +538,7 @@ class GeneSignatureController {
             session.setAttribute(WIZ_DETAILS_ATTRIBUTE, wizard)
 
             // send message to user
-            flash.message = "GeneSignature '${gs.name}' was " + params.isEdit? "edited" : "created" + " on: ${gs.dateCreated}"
+            flash.message = "GeneSignature '${gs.name}' was " + (params.boolean('isEdit') ? "edited" : "created") + " on: ${gs.dateCreated}"
             redirect(action:'list')
 
         } catch (FileSchemaException fse) {
