@@ -2678,7 +2678,7 @@ function showSearchTemplate()	{
 							searchHTML = searchHTML + "<br/>";  				                	
 		                }
 					}
-					searchHTML = searchHTML +"<span class='category_label'>" +catDisplay + "&nbsp;></span>&nbsp;<span class=term>"+ fields[1] + startATag + tagID + endATag + imgTag +"</span>";
+					searchHTML = searchHTML +"<span class='category_label'>" +catDisplay + ":</span>&nbsp;<span class=term>"+ fields[1] + startATag + tagID + endATag + imgTag +"</span>";
 					firstItem = false;
 				} else	{
 					searchHTML = searchHTML + "<span class='spacer'> OR </span><span class=term>"+ fields[1] + startATag + tagID + endATag + imgTag +"</span> ";

@@ -194,7 +194,7 @@
 				<div class='toolbar-item' onclick="jQuery('.analysesopen .analysischeckbox').attr('checked', 'checked'); updateSelectedAnalyses();">Select All Visible Analyses</div>
 				<div class='toolbar-item' onclick="jQuery('.analysesopen .analysischeckbox').removeAttr('checked'); updateSelectedAnalyses();">Unselect All Visible Analyses</div>
 	  			<div class='toolbar-item' onclick="filterSelectedAnalyses();">Add Selected to Filter</div>
-				<div class='toolbar-item' onclick="exportAnalysisandMail();"> Export Analysis</div>
+				<div class='toolbar-item' onclick="exportAnalysisandMail();"> Email Analysis</div>
                 <g:ifPlugin name="folder-management">
                     <div class="toolbar-item">
                         <g:render template="/fmFolder/exportCart" model="[exportCount: exportCount]" plugin="folderManagement"/>
@@ -320,7 +320,7 @@
 					</td>
 				</tr>
 			</table><br><br>
-				<g:radio name="radioMail" value="link" checked="true"/>Send as Link <br><br>
+				<g:radio name="radioMail" value="link" checked="true"/>Send as Link (full set) <br><br>
 				<g:radio name="radioMail" value="attachment" />Send as Attachment(top 200 rows)
 
 		</div>
