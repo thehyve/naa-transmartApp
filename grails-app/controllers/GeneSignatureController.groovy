@@ -568,6 +568,8 @@ class GeneSignatureController {
 		def gsReal = GeneSignature.get(wizard.editId)
 		def origFile = gsReal.uploadFile
 		clone.copyPropertiesTo(gsReal)
+        //Unique ID is not cloned - do this manually
+        gsReal.uniqueId = clone.uniqueId
 		gsReal.modifiedByAuthUser=user
 		gsReal.uploadFile = origFile
 
