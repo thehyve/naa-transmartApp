@@ -46,7 +46,7 @@
                                     <label for="authUser">Auth User:</label>
                                 </td>
                                 <td valign="top" class="value ${hasErrors(bean:authUserSecureAccessInstance,field:'authUser','errors')}">
-                                    <g:select optionKey="id"  from="${AuthUser.listOrderByUsername()}" name="authUser.id" value="${authUserSecureAccessInstance?.authUser?.id}" noSelection="['null':'']"
+                                    <g:select optionKey="id"  from="${search.AuthUser.listOrderByUsername()}" name="authUser.id" value="${authUserSecureAccessInstance?.authUser?.id}" noSelection="['null':'']"
                                     onchange="${remoteFunction(action:'listAccessLevel',
                                                                  update:'accessLevelList',
                                                                  params:'\'id=\'+this.value')}"
@@ -59,7 +59,7 @@
                                     <label for="accessLevel">Access Level:</label>
                                 </td>
                                 <td valign="top" class="value ${hasErrors(bean:authUserSecureAccessInstance,field:'accessLevel','errors')}">
-                                    <g:select id="accessLevelList" optionKey="id"  optionValue="accessLevelName" from="${SecureAccessLevel.listOrderByAccessLevelValue()}" name="accessLevel.id" value="${authUserSecureAccessInstance?.accessLevel?.id}" ></g:select>
+                                    <g:select id="accessLevelList" optionKey="id"  optionValue="accessLevelName" from="${search.SecureAccessLevel.listOrderByAccessLevelValue()}" name="accessLevel.id" value="${authUserSecureAccessInstance?.accessLevel?.id}" ></g:select>
                                 </td>
                             </tr>
 
@@ -68,7 +68,7 @@
                                     <label for="secureObject">Secure Object:</label>
                                 </td>
                                 <td valign="top" class="value ${hasErrors(bean:authUserSecureAccessInstance,field:'secureObject','errors')}">
-                                    <g:select optionKey="id" optionValue="displayName" from="${SecureObject.listOrderByDisplayName()}" name="secureObject.id" value="${authUserSecureAccessInstance?.secureObject?.id}" ></g:select>
+                                    <g:select optionKey="id" optionValue="displayName" from="${search.SecureObject.listOrderByDisplayName()}" name="secureObject.id" value="${authUserSecureAccessInstance?.secureObject?.id}" ></g:select>
                                 </td>
                             </tr>
 

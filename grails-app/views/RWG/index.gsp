@@ -21,7 +21,7 @@
         <link rel="stylesheet" href="${resource(dir:'css', file:'jquery/multiselect/common.css')}"></link>
                                 
         <!-- jQuery JS libraries -->
-        <script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery.min.js')}"></script>   
+        <script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery-1.8.3.min.js')}"></script>   
 	    <script>jQuery.noConflict();</script> 
         
         <script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery-ui.min.js')}"></script>
@@ -37,8 +37,18 @@
   		<script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery.dataTables.js')}"></script>
   		<script type="text/javascript" src="${resource(dir:'js', file:'facetedSearch/facetedSearchBrowse.js')}"></script>
   		<script type="text/javascript" src="${resource(dir:'js', file:'jQuery/ui.multiselect.js')}"></script>
-  		<script type="text/javascript" src="${resource(dir:'js', file:'help/D2H_ctxt.js')}"></script>  
-  		  
+  		<script type="text/javascript" src="${resource(dir:'js', file:'help/D2H_ctxt.js')}"></script>
+  		
+  		<g:ifPlugin name="folder-management">
+            <g:render template="/folderManagementUrls" plugin="folderManagement"/>
+  			<script type="text/javascript" src="${resource(dir:'js', file:'folderManagement.js', plugin: 'folderManagement')}"></script>
+  			<link rel="stylesheet" href="${resource(dir:'css', file:'folderManagement.css', plugin: 'folderManagement')}"></link>        
+  		</g:ifPlugin>
+
+        <g:ifPlugin name="transmart-gwas">
+            <script type="text/javascript" src="${resource(dir:'js', file:'gwas.js', plugin:'transmart-gwas')}"></script>
+            <link rel="stylesheet" href="${resource(dir:'css', file:'gwas.css', plugin: 'transmart-gwas')}"></link>
+        </g:ifPlugin>
   		        
   		<!--  SVG Export -->
   		<script type="text/javascript" src="${resource(dir:'js', file:'svgExport/rgbcolor.js')}"></script>  
@@ -48,6 +58,7 @@
         
         <!-- Our JS -->        
         <script type="text/javascript" src="${resource(dir:'js', file:'rwg.js')}"></script>
+
         <script type="text/javascript" src="${resource(dir:'js', file:'maintabpanel.js')}"></script>
         
         <!-- Protovis Visualization library and IE plugin (for lack of SVG support in IE8) -->
@@ -79,21 +90,26 @@
 			//These are the URLS for the different browse windows.
 			var studyBrowseWindow = "${createLink([controller:'experiment',action:'browseExperimentsMultiSelect'])}";
 			var analysisBrowseWindow = "${createLink([controller:'experimentAnalysis',action:'browseAnalysisMultiSelect'])}";
-			var regionBrowseWindow = "${createLink([controller:'RWG',action:'getRegionFilter'])}";
 			var dataTypeBrowseWindow = "${createLink([controller:'RWG',action:'browseDataTypesMultiSelect'])}";
-			var getTableDataURL = "${createLink([controller:'search',action:'getTableResults'])}";
-			var getAnalysisDataURL = "${createLink([controller:'search',action:'getAnalysisResults'])}";
-			var getQQPlotURL = "${createLink([controller:'search',action:'getQQPlotImage'])}";
+        </script>
 
-			var webStartURL = "${createLink([controller:'search',action:'webStartPlotter'])}";
-	       	
+        <g:ifPlugin name="transmart-gwas">
+            <g:render template="/gwas/gwasURLs" plugin="transmart-gwas"/>
+        </g:ifPlugin>
+
+        <script type="text/javascript" charset="utf-8">
 	        var mouse_inside_options_div = false;
+            var popupWindowPropertiesMap = [];
 
 	        jQuery(document).ready(function() {
 		        
 		        addSelectCategories();
 		        addSearchAutoComplete();
 		        addToggleButton();
+
+                popupWindowPropertiesMap['Study'] = {'URLToUse': studyBrowseWindow, 'filteringFunction': applyPopupFiltersStudy}
+                popupWindowPropertiesMap['Analyses'] = {'URLToUse': analysisBrowseWindow, 'filteringFunction': applyPopupFiltersAnalyses}
+                popupWindowPropertiesMap['Data Type'] = {'URLToUse': dataTypeBrowseWindow, 'filteringFunction': applyPopupFiltersDataTypes}
 
 		        jQuery("#xtButton").colorbox({opacity:.75, inline:true, width:"95%", height:"95%"});
       
@@ -172,9 +188,19 @@
 				 -->
 				<div class='toolbar-item' onclick='collapseAllStudies();'>Collapse All Studies</div>
 				<div class='toolbar-item' onclick='expandAllStudies();'>Expand All Studies</div>
-				<div class='toolbar-item' onclick='openPlotOptions();'>Manhattan Plot</div>
+				<g:ifPlugin name="transmart-gwas">
+                    <div class='toolbar-item' onclick='openPlotOptions();'>Manhattan Plot</div>
+                </g:ifPlugin>
 				<div class='toolbar-item' onclick="jQuery('.analysesopen .analysischeckbox').attr('checked', 'checked'); updateSelectedAnalyses();">Select All Visible Analyses</div>
 				<div class='toolbar-item' onclick="jQuery('.analysesopen .analysischeckbox').removeAttr('checked'); updateSelectedAnalyses();">Unselect All Visible Analyses</div>
+	  			<div class='toolbar-item' onclick="filterSelectedAnalyses();">Add Selected to Filter</div>
+				<div class='toolbar-item' onclick="exportAnalysisandMail();"> Email Analysis</div>
+                <g:ifPlugin name="folder-management">
+                    <div class="toolbar-item">
+                        <g:render template="/fmFolder/exportCart" model="[exportCount: exportCount]" plugin="folderManagement"/>
+                    </div>
+                </g:ifPlugin>
+
 	  			<%-- <div id="searchResultOptions_holder">
 					<div id="searchResultOptions_btn" class='toolbar-item'>
 						 Options <img alt="" style='vertical-align:middle;' src="${resource(dir:'images',file:'tiny_down_arrow.png')}" />
@@ -280,35 +306,24 @@
 			
 		</div>
 		
-		<!--  Another DIV for the manhattan plot options. -->
-		<div id="divPlotOptions" style="width:300px; display: none;">
+        <g:ifPlugin name="transmart-gwas">
+            <g:render template="/manhattan/plotOptions" plugin="transmartGwas"/>
+        </g:ifPlugin>
+		<!-- This DIV for export Analysis details -->
+		<div id="divMailStatus"></div>
+		<div id="divTomailIds" style="width:300px; display: none;">
 			<table class="columndetail">
 				<tr>
-					<td class="columnname">SNP Annotation Source</td>
+				<td class="columnname">Send mail to :</td>
 					<td>
-						<select id="plotSnpSource" style="width: 220px">
-							<option value="19">Human Genome 19</option>
-							<option value="18">Human Genome 18</option>
-						</select>
+						<input id="toEmailID" style="width: 210px">
 					</td>
 				</tr>
-				<%--<tr>
-					<td class="columnname">Gene Annotation Source</td>
-					<td>
-						<select id="plotGeneSource" style="width: 220px">
-							<option id="GRCh37">Human Gene data from NCBI</option>
-						</select>
-					</td>
-				</tr>--%>
-				<tr>
-					<td class="columnname">P-value cutoff</td>
-					<td>
-						<input id="plotPvalueCutoff" style="width: 210px">
-					</td>
-				</tr>
-			</table>
+			</table><br><br>
+				<g:radio name="radioMail" value="link" checked="true"/>Send as Link (full set) <br><br>
+				<g:radio name="radioMail" value="attachment" />Send as Attachment(top 200 rows)
+
 		</div>
-		
 		<!--  Everything for the across trial function goes here and is displayed using colorbox -->
 		<div style="display:none">
 			<div id="xtHolder">
@@ -344,5 +359,9 @@
 		<div id="tableViewHelp" style="position: absolute; top: 70px; right: 20px; display: none;">
 			<tmpl:/help/helpIcon id="1317"/>
 		</div>
+
+        <g:ifPlugin name="folder-management">
+            <div id="exportOverlay" class="overlay" style="display: none;">&nbsp;</div>
+        </g:ifPlugin>
     </body>
 </html>

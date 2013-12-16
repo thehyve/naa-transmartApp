@@ -22,6 +22,8 @@
 import grails.converters.*
 import org.json.*;
 import edu.mit.wi.haploview.*;
+import search.AuthUser
+
 class OntologyController {
 
     def index = { }
@@ -114,16 +116,16 @@ class OntologyController {
 			// this is not a generic solution - 
 			// if tag type is all then do a name like search
 			if(tagsearchtype=='ALL'){
-				myCount = i2b2.OntNode.executeQuery("SELECT COUNT(DISTINCT o.id) from i2b2.OntNode o WHERE o.name like '"+searchtermWild+"' AND o.visualattributes NOT like '"+visualAttrHiddenWild+"'")[0]
+				myCount = i2b2.OntNode.executeQuery("SELECT COUNT(DISTINCT o.id) from i2b2.OntNode o WHERE UPPER(o.name) like '"+searchtermWild.toUpperCase()+"' AND o.visualattributes NOT like '"+visualAttrHiddenWild+"'")[0]
 				
-				myNodes = i2b2.OntNode.executeQuery("SELECT o from i2b2.OntNode o WHERE o.name like '"+searchtermWild+"' AND o.visualattributes NOT like '"+visualAttrHiddenWild+"'", [max:100])
+				myNodes = i2b2.OntNode.executeQuery("SELECT o from i2b2.OntNode o WHERE UPPER(o.name) like '"+searchtermWild.toUpperCase()+"' AND o.visualattributes NOT like '"+visualAttrHiddenWild+"'", [max:100])
   
 			}else{
 			 allSystemCds = i2b2.OntNode.executeQuery("SELECT DISTINCT o.sourcesystemcd FROM i2b2.OntNode o JOIN o.tags t WHERE t.tag IN (:tagArg) AND t.tagtype =:tagTypeArg",[tagArg:searchtags, tagTypeArg:tagsearchtype], [max:800])
 			 	
-			  myCount = i2b2.OntNode.executeQuery("SELECT COUNT(DISTINCT o.id) from i2b2.OntNode o WHERE o.sourcesystemcd IN (:scdArg) AND o.name like '"+searchtermWild+"' AND o.visualattributes NOT like '"+visualAttrHiddenWild+"'", [scdArg:allSystemCds])[0]
+			  myCount = i2b2.OntNode.executeQuery("SELECT COUNT(DISTINCT o.id) from i2b2.OntNode o WHERE o.sourcesystemcd IN (:scdArg) AND UPPER(o.name) like '"+searchtermWild.toUpperCase()+"' AND o.visualattributes NOT like '"+visualAttrHiddenWild+"'", [scdArg:allSystemCds])[0]
 			  
-			  myNodes = i2b2.OntNode.executeQuery("SELECT o from i2b2.OntNode o WHERE o.sourcesystemcd IN (:scdArg) AND o.name like '"+searchtermWild+"' AND o.visualattributes NOT like '"+visualAttrHiddenWild+"'", [scdArg:allSystemCds], [max:100])
+			  myNodes = i2b2.OntNode.executeQuery("SELECT o from i2b2.OntNode o WHERE o.sourcesystemcd IN (:scdArg) AND UPPER(o.name) like '"+searchtermWild.toUpperCase()+"' AND o.visualattributes NOT like '"+visualAttrHiddenWild+"'", [scdArg:allSystemCds], [max:100])
 			}
 			 }
 			

@@ -126,94 +126,6 @@
     </attributes>
   </connection>
   <connection>
-    <name>BIOMART_STAGE</name>
-    <server>${BIOMART_STAGE_DB_SERVER}</server>
-    <type>ORACLE</type>
-    <access>Native</access>
-    <database>${BIOMART_STAGE_DB_NAME}</database>
-    <port>${BIOMART_STAGE_DB_PORT}</port>
-    <username>${BIOMART_STAGE_DB_USER}</username>
-    <password>${BIOMART_STAGE_DB_PWD}</password>
-    <servername/>
-    <data_tablespace/>
-    <index_tablespace/>
-    <attributes>
-      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
-      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
-      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
-      <attribute><code>PORT_NUMBER</code><attribute>${BIOMART_STAGE_DB_PORT}</attribute></attribute>
-      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
-      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>N</attribute></attribute>
-      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
-    </attributes>
-  </connection>
-  <connection>
-    <name>DEAPP</name>
-    <server>${DEAPP_DB_SERVER}</server>
-    <type>ORACLE</type>
-    <access>Native</access>
-    <database>${DEAPP_DB_NAME}</database>
-    <port>${DEAPP_DB_PORT}</port>
-    <username>${DEAPP_DB_USER}</username>
-    <password>${DEAPP_DB_PWD}</password>
-    <servername/>
-    <data_tablespace/>
-    <index_tablespace/>
-    <attributes>
-      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
-      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
-      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
-      <attribute><code>PORT_NUMBER</code><attribute>${DEAPP_DB_PORT}</attribute></attribute>
-      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
-      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>N</attribute></attribute>
-      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
-    </attributes>
-  </connection>
-  <connection>
-    <name>I2B2DEMODATA</name>
-    <server>${I2B2DEMODATA_DB_SERVER}</server>
-    <type>ORACLE</type>
-    <access>Native</access>
-    <database>${I2B2DEMODATA_DB_NAME}</database>
-    <port>${I2B2DEMODATA_DB_PORT}</port>
-    <username>${I2B2DEMODATA_DB_USER}</username>
-    <password>${I2B2DEMODATA_DB_PWD}</password>
-    <servername/>
-    <data_tablespace/>
-    <index_tablespace/>
-    <attributes>
-      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
-      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
-      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
-      <attribute><code>PORT_NUMBER</code><attribute>${I2B2DEMODATA_DB_PORT}</attribute></attribute>
-      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
-      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>N</attribute></attribute>
-      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
-    </attributes>
-  </connection>
-  <connection>
-    <name>SQLLDR_STAGE</name>
-    <server>${SQLLDR_STAGE_DB_SERVER}</server>
-    <type>ORACLE</type>
-    <access>Native</access>
-    <database>${SQLLDR_STAGE_DB_NAME}</database>
-    <port>${BIOMART_STAGE_DB_PORT}</port>
-    <username>${SQLLDR_STAGE_DB_USER}</username>
-    <password>${SQLLDR_STAGE_DB_PWD}</password>
-    <servername/>
-    <data_tablespace/>
-    <index_tablespace/>
-    <attributes>
-      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
-      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
-      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
-      <attribute><code>PORT_NUMBER</code><attribute>${BIOMART_STAGE_DB_PORT}</attribute></attribute>
-      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
-      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>N</attribute></attribute>
-      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
-    </attributes>
-  </connection>
-  <connection>
     <name>TM_CZ</name>
     <server>${TM_CZ_DB_SERVER}</server>
     <type>ORACLE</type>
@@ -258,7 +170,7 @@
     </attributes>
   </connection>
   <order>
-  <hop> <from>No BIO_ASSAY_ANALYSIS_ID</from><to>Add new seq for bio_assay_analysis_id</to><enabled>Y</enabled> </hop>  <hop> <from>No BIO_ASSAY_ANALYSIS_ID</from><to>Insert &#47; Update BIO_ASSAY_ANALYSIS</to><enabled>Y</enabled> </hop>  <hop> <from>No BIO_ASSAY_ANALYSIS_EXT_ID</from><to>Add new seq for BIO_ASSAY_ANALYSIS_EXT_ID</to><enabled>Y</enabled> </hop>  <hop> <from>No BIO_ASSAY_ANALYSIS_EXT_ID</from><to>Insert&#47;Update BIO_ASSAY_ANALYSIS_EXT</to><enabled>Y</enabled> </hop>  <hop> <from>Set BIO_ASSAY_ANALYSIS_ID to new_ext_id</from><to>Remove new_ext_id</to><enabled>Y</enabled> </hop>  <hop> <from>Select fields for phenotype ids</from><to>Split phenotype ids</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup disease</from><to>Got disease</to><enabled>Y</enabled> </hop>  <hop> <from>Got disease</from><to>Insert BIO_DATA_DISEASE</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup observation</from><to>Got observation</to><enabled>Y</enabled> </hop>  <hop> <from>Got observation</from><to>Write invalid phenotype to log</to><enabled>Y</enabled> </hop>  <hop> <from>Got observation</from><to>Insert BIO_DATA_OBSERVATION</to><enabled>Y</enabled> </hop>  <hop> <from>Select values for expression platform ids</from><to>Split expression platform ids</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup GEX platform</from><to>Got gex platform</to><enabled>Y</enabled> </hop>  <hop> <from>Got gex platform</from><to>Insert BIO_DATA_PLATFORM for gex</to><enabled>Y</enabled> </hop>  <hop> <from>Got gex platform</from><to>Write invalid gex platform to log</to><enabled>Y</enabled> </hop>  <hop> <from>Got genotype platform</from><to>Write invalid genotype platform</to><enabled>Y</enabled> </hop>  <hop> <from>Add new seq for bio_assay_analysis_id</from><to>Set new_assay_id to number</to><enabled>Y</enabled> </hop>  <hop> <from>Set new_assay_id to number</from><to>Set BIO_ASSAY_ANALYSIS_ID to new_assay_id</to><enabled>Y</enabled> </hop>  <hop> <from>Add new seq for BIO_ASSAY_ANALYSIS_EXT_ID</from><to>Set new_ext_id to number</to><enabled>Y</enabled> </hop>  <hop> <from>Set new_ext_id to number</from><to>Set BIO_ASSAY_ANALYSIS_ID to new_ext_id</to><enabled>Y</enabled> </hop>  <hop> <from>Skip null phenotypes</from><to>No phenotype</to><enabled>Y</enabled> </hop>  <hop> <from>Split expression platform ids</from><to>Skip null gex platform</to><enabled>Y</enabled> </hop>  <hop> <from>Skip null gex platform</from><to>No gex platform</to><enabled>Y</enabled> </hop>  <hop> <from>Skip null genotype platform</from><to>No genotype platform</to><enabled>Y</enabled> </hop>  <hop> <from>Remove new_ext_id</from><to>Insert&#47;Update BIO_ASSAY_ANALYSIS_EXT</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup bio_assay_analysis_ext_id </from><to>No BIO_ASSAY_ANALYSIS_EXT_ID</to><enabled>Y</enabled> </hop>  <hop> <from>Split genotype platform ids</from><to>Skip null genotype platform</to><enabled>Y</enabled> </hop>  <hop> <from>Got genotype platform</from><to>Insert BIO_DATA_PLATFORM for genotype</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup BIO_ASSAY_ANALYSIS_ID</from><to>No BIO_ASSAY_ANALYSIS_ID</to><enabled>Y</enabled> </hop>  <hop> <from>Insert &#47; Update BIO_ASSAY_ANALYSIS</from><to>Set BIO_ASSAY_ANALYSIS_ID variable</to><enabled>Y</enabled> </hop>  <hop> <from>Remove new_assay_id</from><to>Insert &#47; Update BIO_ASSAY_ANALYSIS</to><enabled>Y</enabled> </hop>  <hop> <from>Insert&#47;Update BIO_ASSAY_ANALYSIS_EXT</from><to>Delete existing data in BIO_DATA_DISEASE</to><enabled>Y</enabled> </hop>  <hop> <from>Delete existing data in BIO_DATA_DISEASE</from><to>Delete existing data in BIO_DATA_PLATFORM</to><enabled>Y</enabled> </hop>  <hop> <from>Delete existing data in BIO_DATA_PLATFORM</from><to>Delete existing data in BIO_DATA_OBSERVATION</to><enabled>Y</enabled> </hop>  <hop> <from>Delete existing data in BIO_DATA_OBSERVATION</from><to>Select genotype platform ids</to><enabled>Y</enabled> </hop>  <hop> <from>Delete existing data in BIO_DATA_OBSERVATION</from><to>Select values for expression platform ids</to><enabled>Y</enabled> </hop>  <hop> <from>Delete existing data in BIO_DATA_OBSERVATION</from><to>Select fields for phenotype ids</to><enabled>Y</enabled> </hop>  <hop> <from>Get counts for audited steps</from><to>Join Rows (cartesian product) 2</to><enabled>Y</enabled> </hop>  <hop> <from>Block for auditing</from><to>Get counts for audited steps</to><enabled>Y</enabled> </hop>  <hop> <from>Set database name as study - analysis </from><to>Call cz_write_audit 2</to><enabled>Y</enabled> </hop>  <hop> <from>Set load_date</from><to>Join Rows (cartesian product) 2</to><enabled>Y</enabled> </hop>  <hop> <from>Increment step_number</from><to>Set database name as study - analysis </to><enabled>Y</enabled> </hop>  <hop> <from>Add constants 2</from><to>Sort by step_id</to><enabled>Y</enabled> </hop>  <hop> <from>Sort by step_id</from><to>Increment step_number</to><enabled>Y</enabled> </hop>  <hop> <from>Join Rows (cartesian product) 2</from><to>Add constants 2</to><enabled>Y</enabled> </hop>  <hop> <from>Set database name as study - analysis  unmapped</from><to>Call cz_write_audit unmapped</to><enabled>Y</enabled> </hop>  <hop> <from>Split phenotype ids</from><to>Skip null phenotypes</to><enabled>Y</enabled> </hop>  <hop> <from>Split phenotype into code and source</from><to>MeSH source</to><enabled>Y</enabled> </hop>  <hop> <from>MeSH source</from><to>Lookup disease</to><enabled>Y</enabled> </hop>  <hop> <from>Got disease</from><to>Remove BIO_DISEASE_ID</to><enabled>Y</enabled> </hop>  <hop> <from>Remove BIO_DISEASE_ID</from><to>Lookup observation</to><enabled>Y</enabled> </hop>  <hop> <from>MeSH source</from><to>Lookup observation</to><enabled>Y</enabled> </hop>  <hop> <from>Write invalid gex platform to log</from><to>Add gex log fields</to><enabled>Y</enabled> </hop>  <hop> <from>Add gex log fields</from><to>Step_desc for gex</to><enabled>Y</enabled> </hop>  <hop> <from>Step_desc for gex</from><to>Select gex log values</to><enabled>Y</enabled> </hop>  <hop> <from>Step_desc for genotype</from><to>Select genotype log values</to><enabled>Y</enabled> </hop>  <hop> <from>Add genotype log fields</from><to>Step_desc for genotype</to><enabled>Y</enabled> </hop>  <hop> <from>Write invalid genotype platform</from><to>Add genotype log fields</to><enabled>Y</enabled> </hop>  <hop> <from>Add audit constants unmapped</from><to>Set database name as study - analysis  unmapped</to><enabled>Y</enabled> </hop>  <hop> <from>Select genotype log values</from><to>Add audit constants unmapped</to><enabled>Y</enabled> </hop>  <hop> <from>Select gex log values</from><to>Add audit constants unmapped</to><enabled>Y</enabled> </hop>  <hop> <from>Step_desc for phenotype</from><to>Select phenotype log values</to><enabled>Y</enabled> </hop>  <hop> <from>Write invalid phenotype to log</from><to>Add phenotype log fields</to><enabled>Y</enabled> </hop>  <hop> <from>Add phenotype log fields</from><to>Step_desc for phenotype</to><enabled>Y</enabled> </hop>  <hop> <from>Make copy of phenotype</from><to>Split phenotype into code and source</to><enabled>Y</enabled> </hop>  <hop> <from>Select phenotype log values</from><to>Add audit constants unmapped</to><enabled>Y</enabled> </hop>  <hop> <from>Set BIO_ASSAY_ANALYSIS_ID to new_assay_id</from><to>Remove new_assay_id</to><enabled>Y</enabled> </hop>  <hop> <from>Get job_id, job_name</from><to>Write to log</to><enabled>Y</enabled> </hop>  <hop> <from>Write to log</from><to>Set load_date</to><enabled>Y</enabled> </hop>  <hop> <from>Select genotype platform ids</from><to>Split genotype platform ids</to><enabled>Y</enabled> </hop>  <hop> <from>Skip null genotype platform</from><to>Get unique snp platforms</to><enabled>Y</enabled> </hop>  <hop> <from>Skip null gex platform</from><to>Get unique gex platform</to><enabled>Y</enabled> </hop>  <hop> <from>Skip null phenotypes</from><to>Get unique phenotypes</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup genotype platform</from><to>Got genotype platform</to><enabled>Y</enabled> </hop>  <hop> <from>Get unique snp platforms</from><to>Add SNP platform_type</to><enabled>Y</enabled> </hop>  <hop> <from>Get unique gex platform</from><to>Add Gene Expression platform_type</to><enabled>Y</enabled> </hop>  <hop> <from>Add SNP platform_type</from><to>Trim snp platform</to><enabled>Y</enabled> </hop>  <hop> <from>Trim snp platform</from><to>Lookup genotype platform</to><enabled>Y</enabled> </hop>  <hop> <from>Add Gene Expression platform_type</from><to>Trim gex platform</to><enabled>Y</enabled> </hop>  <hop> <from>Trim gex platform</from><to>Lookup GEX platform</to><enabled>Y</enabled> </hop>  <hop> <from>Get unique phenotypes</from><to>Trim phenotype</to><enabled>Y</enabled> </hop>  <hop> <from>Trim phenotype</from><to>Make copy of phenotype</to><enabled>Y</enabled> </hop>  <hop> <from>Set load_date</from><to>Lookup BIO_ASSAY_ANALYSIS_ID</to><enabled>Y</enabled> </hop>  <hop> <from>Set BIO_ASSAY_ANALYSIS_ID variable</from><to>Lookup bio_experiment_id</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup bio_experiment_id</from><to>No BIO_EXPERIMENT_ID</to><enabled>Y</enabled> </hop>  <hop> <from>No BIO_EXPERIMENT_ID</from><to>Add new seq for bio_experiment_id</to><enabled>Y</enabled> </hop>  <hop> <from>Add new seq for bio_experiment_id</from><to>Set new_experiment_id to number</to><enabled>Y</enabled> </hop>  <hop> <from>Set new_experiment_id to number</from><to>Set BIO_EXPERIMENT_ID to new_experimen_id</to><enabled>Y</enabled> </hop>  <hop> <from>Set BIO_EXPERIMENT_ID to new_experimen_id</from><to>Set title</to><enabled>Y</enabled> </hop>  <hop> <from>Set title</from><to>Set metadata etl_id</to><enabled>Y</enabled> </hop>  <hop> <from>Set metadata etl_id</from><to>Insert &#47; Update bio_experiment</to><enabled>Y</enabled> </hop>  <hop> <from>Insert &#47; Update bio_experiment</from><to>Remove bio_experiment values</to><enabled>Y</enabled> </hop>  <hop> <from>Get lz_src_analysis_metadata for ETL_ID</from><to>Get job_id, job_name</to><enabled>Y</enabled> </hop>  <hop> <from>No BIO_EXPERIMENT_ID</from><to>Lookup bio_assay_analysis_ext_id </to><enabled>Y</enabled> </hop>  <hop> <from>Remove bio_experiment values</from><to>Lookup bio_assay_analysis_ext_id </to><enabled>Y</enabled> </hop>  </order>
+  <hop> <from>No BIO_ASSAY_ANALYSIS_ID</from><to>Add new seq for bio_assay_analysis_id</to><enabled>Y</enabled> </hop>  <hop> <from>No BIO_ASSAY_ANALYSIS_ID</from><to>Insert &#47; Update BIO_ASSAY_ANALYSIS</to><enabled>Y</enabled> </hop>  <hop> <from>No BIO_ASSAY_ANALYSIS_EXT_ID</from><to>Add new seq for BIO_ASSAY_ANALYSIS_EXT_ID</to><enabled>Y</enabled> </hop>  <hop> <from>No BIO_ASSAY_ANALYSIS_EXT_ID</from><to>Insert&#47;Update BIO_ASSAY_ANALYSIS_EXT</to><enabled>Y</enabled> </hop>  <hop> <from>Set BIO_ASSAY_ANALYSIS_EXT_ID to new_ext_id</from><to>Remove new_ext_id</to><enabled>Y</enabled> </hop>  <hop> <from>Select fields for phenotype ids</from><to>Split phenotype ids</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup disease</from><to>Got disease</to><enabled>Y</enabled> </hop>  <hop> <from>Got disease</from><to>Insert BIO_DATA_DISEASE</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup observation</from><to>Got observation</to><enabled>Y</enabled> </hop>  <hop> <from>Got observation</from><to>Write invalid phenotype to log</to><enabled>Y</enabled> </hop>  <hop> <from>Got observation</from><to>Insert BIO_DATA_OBSERVATION</to><enabled>Y</enabled> </hop>  <hop> <from>Select values for expression platform ids</from><to>Split expression platform ids</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup GEX platform</from><to>Got gex platform</to><enabled>Y</enabled> </hop>  <hop> <from>Got gex platform</from><to>Insert BIO_DATA_PLATFORM for gex</to><enabled>Y</enabled> </hop>  <hop> <from>Got gex platform</from><to>Write invalid gex platform to log</to><enabled>Y</enabled> </hop>  <hop> <from>Got genotype platform</from><to>Write invalid genotype platform</to><enabled>Y</enabled> </hop>  <hop> <from>Add new seq for bio_assay_analysis_id</from><to>Set new_assay_id to number</to><enabled>Y</enabled> </hop>  <hop> <from>Set new_assay_id to number</from><to>Set BIO_ASSAY_ANALYSIS_ID to new_assay_id</to><enabled>Y</enabled> </hop>  <hop> <from>Add new seq for BIO_ASSAY_ANALYSIS_EXT_ID</from><to>Set new_ext_id to number</to><enabled>Y</enabled> </hop>  <hop> <from>Set new_ext_id to number</from><to>Set BIO_ASSAY_ANALYSIS_EXT_ID to new_ext_id</to><enabled>Y</enabled> </hop>  <hop> <from>Skip null phenotypes</from><to>No phenotype</to><enabled>Y</enabled> </hop>  <hop> <from>Split expression platform ids</from><to>Skip null gex platform</to><enabled>Y</enabled> </hop>  <hop> <from>Skip null gex platform</from><to>No gex platform</to><enabled>Y</enabled> </hop>  <hop> <from>Skip null genotype platform</from><to>No genotype platform</to><enabled>Y</enabled> </hop>  <hop> <from>Remove new_ext_id</from><to>Insert&#47;Update BIO_ASSAY_ANALYSIS_EXT</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup bio_assay_analysis_ext_id </from><to>No BIO_ASSAY_ANALYSIS_EXT_ID</to><enabled>Y</enabled> </hop>  <hop> <from>Split genotype platform ids</from><to>Skip null genotype platform</to><enabled>Y</enabled> </hop>  <hop> <from>Got genotype platform</from><to>Insert BIO_DATA_PLATFORM for genotype</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup BIO_ASSAY_ANALYSIS_ID</from><to>No BIO_ASSAY_ANALYSIS_ID</to><enabled>Y</enabled> </hop>  <hop> <from>Insert &#47; Update BIO_ASSAY_ANALYSIS</from><to>Set BIO_ASSAY_ANALYSIS_ID variable</to><enabled>Y</enabled> </hop>  <hop> <from>Remove new_assay_id</from><to>Insert &#47; Update BIO_ASSAY_ANALYSIS</to><enabled>Y</enabled> </hop>  <hop> <from>Insert&#47;Update BIO_ASSAY_ANALYSIS_EXT</from><to>Delete existing data in BIO_DATA_DISEASE</to><enabled>Y</enabled> </hop>  <hop> <from>Delete existing data in BIO_DATA_DISEASE</from><to>Delete existing data in BIO_DATA_PLATFORM</to><enabled>Y</enabled> </hop>  <hop> <from>Delete existing data in BIO_DATA_PLATFORM</from><to>Delete existing data in BIO_DATA_OBSERVATION</to><enabled>Y</enabled> </hop>  <hop> <from>Delete existing data in BIO_DATA_OBSERVATION</from><to>Select genotype platform ids</to><enabled>Y</enabled> </hop>  <hop> <from>Delete existing data in BIO_DATA_OBSERVATION</from><to>Select values for expression platform ids</to><enabled>Y</enabled> </hop>  <hop> <from>Delete existing data in BIO_DATA_OBSERVATION</from><to>Select fields for phenotype ids</to><enabled>Y</enabled> </hop>  <hop> <from>Get counts for audited steps</from><to>Join Rows (cartesian product) 2</to><enabled>Y</enabled> </hop>  <hop> <from>Block for auditing</from><to>Get counts for audited steps</to><enabled>Y</enabled> </hop>  <hop> <from>Set database name as study - analysis </from><to>Call cz_write_audit 2</to><enabled>Y</enabled> </hop>  <hop> <from>Set load_date</from><to>Join Rows (cartesian product) 2</to><enabled>Y</enabled> </hop>  <hop> <from>Increment step_number</from><to>Set database name as study - analysis </to><enabled>Y</enabled> </hop>  <hop> <from>Add constants 2</from><to>Sort by step_id</to><enabled>Y</enabled> </hop>  <hop> <from>Sort by step_id</from><to>Increment step_number</to><enabled>Y</enabled> </hop>  <hop> <from>Join Rows (cartesian product) 2</from><to>Add constants 2</to><enabled>Y</enabled> </hop>  <hop> <from>Set database name as study - analysis  unmapped</from><to>Call cz_write_audit unmapped</to><enabled>Y</enabled> </hop>  <hop> <from>Split phenotype ids</from><to>Skip null phenotypes</to><enabled>Y</enabled> </hop>  <hop> <from>Split phenotype into code and source</from><to>MeSH source</to><enabled>Y</enabled> </hop>  <hop> <from>MeSH source</from><to>Lookup disease</to><enabled>Y</enabled> </hop>  <hop> <from>Got disease</from><to>Remove BIO_DISEASE_ID</to><enabled>Y</enabled> </hop>  <hop> <from>Remove BIO_DISEASE_ID</from><to>Lookup observation</to><enabled>Y</enabled> </hop>  <hop> <from>MeSH source</from><to>Lookup observation</to><enabled>Y</enabled> </hop>  <hop> <from>Write invalid gex platform to log</from><to>Add gex log fields</to><enabled>Y</enabled> </hop>  <hop> <from>Add gex log fields</from><to>Step_desc for gex</to><enabled>Y</enabled> </hop>  <hop> <from>Step_desc for gex</from><to>Select gex log values</to><enabled>Y</enabled> </hop>  <hop> <from>Step_desc for genotype</from><to>Select genotype log values</to><enabled>Y</enabled> </hop>  <hop> <from>Add genotype log fields</from><to>Step_desc for genotype</to><enabled>Y</enabled> </hop>  <hop> <from>Write invalid genotype platform</from><to>Add genotype log fields</to><enabled>Y</enabled> </hop>  <hop> <from>Add audit constants unmapped</from><to>Set database name as study - analysis  unmapped</to><enabled>Y</enabled> </hop>  <hop> <from>Select genotype log values</from><to>Add audit constants unmapped</to><enabled>Y</enabled> </hop>  <hop> <from>Select gex log values</from><to>Add audit constants unmapped</to><enabled>Y</enabled> </hop>  <hop> <from>Step_desc for phenotype</from><to>Select phenotype log values</to><enabled>Y</enabled> </hop>  <hop> <from>Write invalid phenotype to log</from><to>Add phenotype log fields</to><enabled>Y</enabled> </hop>  <hop> <from>Add phenotype log fields</from><to>Step_desc for phenotype</to><enabled>Y</enabled> </hop>  <hop> <from>Make copy of phenotype</from><to>Split phenotype into code and source</to><enabled>Y</enabled> </hop>  <hop> <from>Select phenotype log values</from><to>Add audit constants unmapped</to><enabled>Y</enabled> </hop>  <hop> <from>Set BIO_ASSAY_ANALYSIS_ID to new_assay_id</from><to>Remove new_assay_id</to><enabled>Y</enabled> </hop>  <hop> <from>Get job_id, job_name</from><to>Write to log</to><enabled>Y</enabled> </hop>  <hop> <from>Write to log</from><to>Set load_date</to><enabled>Y</enabled> </hop>  <hop> <from>Select genotype platform ids</from><to>Split genotype platform ids</to><enabled>Y</enabled> </hop>  <hop> <from>Skip null genotype platform</from><to>Get unique snp platforms</to><enabled>Y</enabled> </hop>  <hop> <from>Skip null gex platform</from><to>Get unique gex platform</to><enabled>Y</enabled> </hop>  <hop> <from>Skip null phenotypes</from><to>Get unique phenotypes</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup genotype platform</from><to>Got genotype platform</to><enabled>Y</enabled> </hop>  <hop> <from>Get unique snp platforms</from><to>Add SNP platform_type</to><enabled>Y</enabled> </hop>  <hop> <from>Get unique gex platform</from><to>Add Gene Expression platform_type</to><enabled>Y</enabled> </hop>  <hop> <from>Add SNP platform_type</from><to>Trim snp platform</to><enabled>Y</enabled> </hop>  <hop> <from>Trim snp platform</from><to>Lookup genotype platform</to><enabled>Y</enabled> </hop>  <hop> <from>Add Gene Expression platform_type</from><to>Trim gex platform</to><enabled>Y</enabled> </hop>  <hop> <from>Trim gex platform</from><to>Lookup GEX platform</to><enabled>Y</enabled> </hop>  <hop> <from>Get unique phenotypes</from><to>Trim phenotype</to><enabled>Y</enabled> </hop>  <hop> <from>Trim phenotype</from><to>Make copy of phenotype</to><enabled>Y</enabled> </hop>  <hop> <from>Set load_date</from><to>Lookup BIO_ASSAY_ANALYSIS_ID</to><enabled>Y</enabled> </hop>  <hop> <from>Set BIO_ASSAY_ANALYSIS_ID variable</from><to>Lookup bio_experiment_id</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup bio_experiment_id</from><to>No BIO_EXPERIMENT_ID</to><enabled>Y</enabled> </hop>  <hop> <from>No BIO_EXPERIMENT_ID</from><to>Add new seq for bio_experiment_id</to><enabled>Y</enabled> </hop>  <hop> <from>Add new seq for bio_experiment_id</from><to>Set new_experiment_id to number</to><enabled>Y</enabled> </hop>  <hop> <from>Set new_experiment_id to number</from><to>Set BIO_EXPERIMENT_ID to new_experimen_id</to><enabled>Y</enabled> </hop>  <hop> <from>Set BIO_EXPERIMENT_ID to new_experimen_id</from><to>Set title</to><enabled>Y</enabled> </hop>  <hop> <from>Set title</from><to>Set metadata etl_id</to><enabled>Y</enabled> </hop>  <hop> <from>Set metadata etl_id</from><to>Insert &#47; Update bio_experiment</to><enabled>Y</enabled> </hop>  <hop> <from>Insert &#47; Update bio_experiment</from><to>Remove bio_experiment values</to><enabled>Y</enabled> </hop>  <hop> <from>Get lz_src_analysis_metadata for ETL_ID</from><to>Get job_id, job_name</to><enabled>Y</enabled> </hop>  <hop> <from>No BIO_EXPERIMENT_ID</from><to>Lookup bio_assay_analysis_ext_id </to><enabled>Y</enabled> </hop>  <hop> <from>Remove bio_experiment values</from><to>Lookup bio_assay_analysis_ext_id </to><enabled>Y</enabled> </hop>  </order>
   <step>
     <name>Add Gene Expression platform_type</name>
     <type>Constant</type>
@@ -1027,6 +939,8 @@
 , ANALYSIS_NAME_ARCHIVED
 , MODEL_NAME
 , MODEL_DESC
+, SENSITIVE_FLAG
+, SENSITIVE_DESC
 FROM LZ_SRC_ANALYSIS_METADATA
 where etl_id = ${ETL_ID}
 
@@ -1771,7 +1685,7 @@ where etl_id = ${ETL_ID}
         <update>Y</update>
       </value>
       <value>
-        <name>GNOME_VERSION</name>
+        <name>GENOME_VERSION</name>
         <rename>GENOME_VERSION</rename>
         <update>Y</update>
       </value>
@@ -1806,8 +1720,18 @@ where etl_id = ${ETL_ID}
         <update>Y</update>
       </value>
       <value>
-        <name>RU</name>
+        <name>RESEARCH_UNIT</name>
         <rename>RESEARCH_UNIT</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>SENSITIVE_FLAG</name>
+        <rename>SENSITIVE_FLAG</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>SENSITIVE_DESC</name>
+        <rename>SENSITIVE_DESC</rename>
         <update>Y</update>
       </value>
     </lookup>
@@ -2707,6 +2631,30 @@ where etl_id = ${ETL_ID}
     </step>
 
   <step>
+    <name>Set BIO_ASSAY_ANALYSIS_EXT_ID to new_ext_id</name>
+    <type>SetValueField</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <fields>
+      <field>
+        <name>BIO_ASSAY_ANALYSIS_EXT_ID</name>
+        <replaceby>new_ext_id</replaceby>
+        </field>
+      </fields>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>817</xloc>
+      <yloc>854</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
     <name>Set BIO_ASSAY_ANALYSIS_ID to new_assay_id</name>
     <type>SetValueField</type>
     <description/>
@@ -2726,30 +2674,6 @@ where etl_id = ${ETL_ID}
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
       <xloc>706</xloc>
       <yloc>360</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>Set BIO_ASSAY_ANALYSIS_ID to new_ext_id</name>
-    <type>SetValueField</type>
-    <description/>
-    <distribute>Y</distribute>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-    <fields>
-      <field>
-        <name>BIO_ASSAY_ANALYSIS_EXT_ID</name>
-        <replaceby>new_ext_id</replaceby>
-        </field>
-      </fields>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>817</xloc>
-      <yloc>854</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -3223,6 +3147,7 @@ where etl_id = ${ETL_ID}
    <rownum>N</rownum>
    <rownum_field/>
    <resetrownumber>Y</resetrownumber>
+   <delimiter_is_regex>N</delimiter_is_regex>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
       <xloc>649</xloc>
@@ -3247,6 +3172,7 @@ where etl_id = ${ETL_ID}
    <rownum>N</rownum>
    <rownum_field/>
    <resetrownumber>Y</resetrownumber>
+   <delimiter_is_regex>N</delimiter_is_regex>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
       <xloc>367</xloc>
@@ -3271,6 +3197,7 @@ where etl_id = ${ETL_ID}
    <rownum>N</rownum>
    <rownum_field/>
    <resetrownumber>Y</resetrownumber>
+   <delimiter_is_regex>N</delimiter_is_regex>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
       <xloc>906</xloc>

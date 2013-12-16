@@ -34,6 +34,8 @@ import groovy.time.TimeCategory;
 import groovy.time.TimeDuration;
 import groovyx.net.http.HTTPBuilder
 
+import com.recomdata.transmart.domain.searchapp.AccessLog
+
 class RWGController {
 	def trialQueryService
 	def searchService
@@ -92,7 +94,7 @@ class RWGController {
 	  // create the key that matches what we use in javascript to identify search terms
 	  // assuming for now that the category and the category display are the same (with category being all caps); may
 	  // need to break this out into separate fields	  
-	  parent["key"] = categoryName + "|" + categoryName.toUpperCase() + ":" + parentNode.termName + ":" + id	  
+	  parent["key"] = categoryName + "|" + categoryName.toUpperCase() + ";" + parentNode.termName + ";" + id
 	  
 	  // if category, then display as folder and don't show checkbox; other levels, not a folder and show checkbox
 	  parent["isFolder"] = isCategory 
@@ -252,11 +254,21 @@ class RWGController {
    /**
     * Create a query string for the category in the form of (<cat1>:"term1" OR <cat1>:"term2")
     */
-   def createCategoryQueryString = {category, termList -> 
+   def createCategoryQueryString = {category, termList ->
 
        // create a query for the category in the form of (<cat1>:"term1" OR <cat1>:"term2")
        String categoryQuery = ""
        for (t in termList.tokenize("|"))  {
+
+           t = cleanForSOLR(t)
+//           if (category.toLowerCase().equals("text")) {
+//               if (t.indexOf(" ") > -1) {
+//                   t = ("\"" + t.toLowerCase() + "\"");
+//               }
+//               else {
+//                   t = ("*" + t.toLowerCase() + "*");
+//               }
+//           }
 	   
 	       def queryTerm = /${category}:"${t}"/
 	   
@@ -287,7 +299,7 @@ class RWGController {
 	   for (ff in facetFieldsParams)  {
 		   
 		   //This list should be in a config, but we don't facet on some of the fields.
-		   if(ff != "REGION_OF_INTEREST" && ff != "GENE" && ff != "SNP")
+		   if(ff != "REGION_OF_INTEREST" && ff != "GENE" && ff != "SNP" && ff != "EQTL_TRANSCRIPT_GENE")
 		   {
 			   // skip TEXT search fields (these wouldn't be in tree so throw exception since this should never happen)
 			   if (ff =="TEXT")  {
@@ -322,8 +334,8 @@ class RWGController {
 	   for (qp in facetQueryParams)  {
 		   
     	   // each queryParam is in form cat1:term1|term2|term3
-	       String category = qp.split(":")[0]
-	       String termList = qp.split(":")[1]
+	       String category = qp.split(";")[0]
+	       String termList = qp.split(";")[1]
 		   
 		   // skip TEXT search fields (these wouldn't be in tree so throw exception since this should never happen)
 		   if (category =="TEXT")  {
@@ -363,19 +375,14 @@ class RWGController {
 	   for (qp in queryParams)  {
 		   
 		   //Ignore REGIONs here - used later in analysis filter
-		   if (qp.startsWith("REGION") || qp.startsWith("GENE") || qp.startsWith("SNP")) {
+		   if (qp.startsWith("REGION") || qp.startsWith("GENE") || qp.startsWith("SNP") || qp.startsWith("PVALUE") || qp.startsWith("TRANSCRIPTGENE")) {
 			   continue;
 		   }
     	   // each queryParam is in form cat1:term1|term2|term3
-	       String category = qp.split(":")[0]
-	       String termList = qp.split(":")[1]
+	       String category = qp.split(";")[0]
+	       String termList = qp.split(";")[1]
 
    		   def categoryQueryString = createCategoryQueryString(category, termList)
-		   
-		   // skip TEXT search fields (or do we need to handle them somehow)
-		   if (category =="TEXT")  {
-			   continue
-		   }
 
 		   // add category query to main nonfaceted query string using ANDs between category clauses
 		   if (nonfacetedQuery == "")  {
@@ -551,8 +558,8 @@ class RWGController {
 	   for (p in params)  {
 		   
 		   // each queryParam is in form cat1:term1|term2|term3
-		   String category = p.split(":")[0]
-		   String termList = p.split(":")[1]
+		   String category = p.split(";")[0]
+		   String termList = p.split(";")[1]
 
 		   // add all the genes from a gene list/sig to the List of genes		   
 		   if (category == 'GENELIST' || category == 'GENESIG')  {
@@ -882,9 +889,9 @@ class RWGController {
 	   // capture html as a string that will be passed back in JSON object
 	   def html
 	   if (!studyWithResultsFound)	{
-		   html = g.render(template:'/search/noResult').toString()
+		   html = g.render(template:'/search/noResult', plugin: "biomartForGit").toString()
 	   } else {
-	       html = g.render(template:'/RWG/experiments',model:[experiments:exprimentAnalysis, analysisCount:total, duration:TimeCategory.minus(new Date(), startTime)]).toString()
+	       html = g.render(template:'/RWG/experiments', plugin: "biomartForGit", model:[experiments:exprimentAnalysis, analysisCount:total, duration:TimeCategory.minus(new Date(), startTime)]).toString()
 	   }
 	   
 	   return html
@@ -896,7 +903,7 @@ class RWGController {
 		   event:"Loading trial analysis", eventmessage:params.trialNumber, accesstime:new Date()).save()
 
 	   def analysisList = trialQueryService.querySOLRTrialAnalysis(params, session.solrSearchFilter)
-	   render(template:'/RWG/analysis', model:[aList:analysisList])
+	   render(template:'/RWG/analysis', model:[aList:analysisList], plugin: "biomartForGit")
    }
  
    // First iteration of the method to get the heatmap data for RWG  
@@ -1018,7 +1025,7 @@ class RWGController {
 	   
 	   
 	   
-	   render(template:'pie')
+	   render(template:'pie', plugin: "biomartForGit")
    }
    
    
@@ -1035,17 +1042,12 @@ class RWGController {
 	  }
 	  */
 	  
-	  def dataTypes = ["GWAS":"GWAS","EQTL":"eQTL","Metabolic GWAS":"Metabolic GWAS"]
+	  def dataTypes = ["GWAS":"GWAS","EQTL":"eQTL","Metabolic GWAS":"Metabolic GWAS","GWAS Fail":"GWAS Fail"]
 	  
-	  render(template:'dataTypesBrowseMulti',model:[dataTypes:dataTypes])
+	  render(template:'dataTypesBrowseMulti',model:[dataTypes:dataTypes], plugin: "biomartForGit")
   }
-  
-  /**
-   * Renders a UI for selecting regions by gene/RSID or chromosome.
-   */
-  def getRegionFilter = {
-	  render(template:'regionFilter', model: [ranges:['both':'+/-','plus':'+','minus':'-']])
-  }
-   
-   
+
+    def cleanForSOLR(t) {
+        return t.replace("&", "%26").replace("(", "\\(").replace(")", "\\)");
+    }
 }

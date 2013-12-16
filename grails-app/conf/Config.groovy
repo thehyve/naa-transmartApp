@@ -44,8 +44,10 @@ def defaultConfigFiles = [
 defaultConfigFiles.each { filePath ->
 	def f = new File(filePath)
 	if (f.exists()) {
+		println (filePath)
 		grails.config.locations << "file:${filePath}"
 	} else {
+		println("No " + filePath + "!")
 	}
 }
 String bashSafeEnvAppName = appName.toUpperCase(Locale.ENGLISH).replaceAll(/-/, '_')

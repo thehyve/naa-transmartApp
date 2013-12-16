@@ -26,7 +26,7 @@ class SearchDAO {
 		if (ranges) {
 			qb.append(" AND gwas.rsId IN (:parSearchProbes)");
 		}
-		def results = bio.BioAssayAnalysisGwas.executeQuery(qb.toString(), queryParams,[max:100])
+		def results = com.recomdata.grails.plugin.gwas.BioAssayAnalysisGwas.executeQuery(qb.toString(), queryParams,[max:100])
 		return results
 	}
 	
@@ -50,7 +50,7 @@ class SearchDAO {
 	
 	def getEqtlData(analysisId, searchProbes)
 	{
-		def results = bio.BioAssayAnalysisGwas.executeQuery("""
+		def results = com.recomdata.grails.plugin.gwas.BioAssayAnalysisEqtl.executeQuery("""
 			SELECT	eqtl.rsId,
 					eqtl.pValue,
 					eqtl.logPValue,

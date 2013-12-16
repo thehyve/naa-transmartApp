@@ -31,6 +31,8 @@ import javax.xml.bind.Marshaller;
 
 import com.recomdata.util.ariadne.Batch;
 
+import com.recomdata.transmart.domain.searchapp.AccessLog
+
 class LiteratureController {
 
 	def literatureQueryService

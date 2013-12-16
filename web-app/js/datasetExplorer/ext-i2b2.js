@@ -23,20 +23,25 @@ Ext.ux.OntologyTreeLoader = Ext.extend(Ext.tree.TreeLoader, {
 
 requestData : function(node, callback){
         if(this.fireEvent("beforeload", this, node, callback) !== false){
-        var getChildrenRequest=getONTRequestHeader()+'<ns4:get_children blob="true" max="1000" synonyms="false" hiddens="false">';
-        getChildrenRequest=getChildrenRequest+"<parent>"+node.id+"</parent></ns4:getchildren>"+getONTRequestFooter();
-        
-            this.transId = Ext.Ajax.request({
-                url: pageInfo.basePath+"/proxy?url="+GLOBAL.ONTUrl+"getChildren",
-    	        method: 'POST',
-    	        xmlData: getChildrenRequest,  
-                success: this.handleResponse,
-                failure: this.handleFailure,
-                scope: this,
-                argument: {callback: callback, node: node},
-                timeout: '120000', //2 minutes
-                params: { }
-            });
+            if(GLOBAL.pluginFolderManagement && node.attributes.cls == 'fileFolderNode') {
+                this.transId = FM.handleFolderFilesRequest(this, node, callback);
+            }
+            else {
+                var getChildrenRequest=getONTRequestHeader()+'<ns4:get_children blob="true" max="1000" synonyms="false" hiddens="false" type="all">';
+                getChildrenRequest=getChildrenRequest+"<parent>"+node.id+"</parent></ns4:getchildren>"+getONTRequestFooter();
+
+                this.transId = Ext.Ajax.request({
+                    url: pageInfo.basePath+"/proxy?url="+GLOBAL.ONTUrl+"getChildren",
+                    method: 'POST',
+                    xmlData: getChildrenRequest,
+                    success: this.handleResponse,
+                    failure: this.handleFailure,
+                    scope: this,
+                    argument: {callback: callback, node: node},
+                    timeout: '120000', //2 minutes
+                    params: { }
+                });
+            }
         }else{
             // if the load is cancelled, make sure we notify
             // the node that we are done
@@ -47,26 +52,40 @@ requestData : function(node, callback){
   },
 
 processResponse:function (response, node, callback) {
- //	if(GLOBAL.Debug){alert(response.responseText)};
- 	try{
- 	//response.responseText.evalJSON();
- 	}
- 	catch(e){}
-	//var nodes = this.parseXml(response);
-	node.beginUpdate();
-	//node.appendChild(nodes);
-	this.parseXml(response, node);
-	getChildConceptPatientCounts(node);
-	node.endUpdate();
-	if (typeof callback == "function") {
-		callback(this, node);
-	}
-}, 
 
-parseXml:function (response, node) {
+    if(GLOBAL.pluginFolderManagement && node.attributes.cls == 'fileFolderNode') {
+        FM.addFileNodes(this, response, node, callback);
+    }
+    else {
+        this.startAppending(response, node, callback);
+    }
+},
+
+
+
+startAppending:function (response, node, callback) {
  // shorthand
     var Tree = Ext.tree;
-    
+    node.beginUpdate();
+
+    if (GLOBAL.pluginFolderManagement && node.attributes.level == 1) {
+        FM.handleFolderHasFilesRequest(this, response, node, callback);
+    }
+    else {
+        this.parseXml(response, node);
+        getChildConceptPatientCounts(node);
+        this.endAppending(node, callback);
+    }
+},
+
+endAppending: function(node, callback) {
+    node.endUpdate();
+    if (typeof callback == "function") {
+        callback(this, node);
+    }
+},
+
+parseXml:function (response, node) {
  var concept=null;
  var concepts=response.responseXML.selectNodes('//concept');
 	
@@ -157,4 +176,3 @@ for (var i=0;i<size2;i++)
 }
 node.endUpdate();
 }
-

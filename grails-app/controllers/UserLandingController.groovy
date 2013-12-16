@@ -26,6 +26,9 @@
  * @author $Author: mmcduffie $
  * @version $Revision: 10133 $
  */
+
+import com.recomdata.transmart.domain.searchapp.AccessLog
+
 class UserLandingController {
 	/**
 	 * Dependency injection for the springSecurityService.

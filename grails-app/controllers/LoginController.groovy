@@ -37,6 +37,8 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.core.userdetails.UserDetails
 
+import com.recomdata.transmart.domain.searchapp.AccessLog
+
 /**
  * Login Controller
  */

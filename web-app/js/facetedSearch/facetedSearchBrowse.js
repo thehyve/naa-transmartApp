@@ -8,30 +8,15 @@ function generateBrowseWindow(nodeClicked)
 	var dialogWidth = 800;
 	
 	//Grab the URL from a JS variable. Different popups need different URLS. We declare these on the RWG Index page.
-	switch(nodeClicked)
-	{
-		case "Study":
-			URLtoUse = studyBrowseWindow;
-			filteringFunction = applyPopupFiltersStudy;
-		  break;
-		case "Analyses":
-			URLtoUse = analysisBrowseWindow;
-			filteringFunction = applyPopupFiltersAnalyses;
-		  break;
-		case "Region of Interest":
-			URLtoUse = regionBrowseWindow;
-			filteringFunction = applyPopupFiltersRegions;
-			dialogHeight = 340;
-			dialogWidth = 430;
-			break;
-		case "Data Type":
-			URLtoUse = dataTypeBrowseWindow;
-			filteringFunction = applyPopupFiltersDataTypes;
-			break;
-		default:
-			alert("Failed to find applicable popup! Please contact an administrator.");
-			return false;
-	}
+    var windowProperties = popupWindowPropertiesMap[nodeClicked];
+
+    if (windowProperties == null) {
+        alert("Failed to find applicable popup for " + nodeClicked + "! Please contact an administrator.");
+        return false;
+    }
+
+    if (windowProperties['dialogHeight'] != null) { dialogHeight = windowProperties['dialogHeight']}
+    if (windowProperties['dialogWidth'] != null) { dialogWidth = windowProperties['dialogWidth']}
 	
 	//Load from the URL into a dialog window to capture the user input. We pass in a function that handles what happens after the user presses "Select".
 	jQuery('#divBrowsePopups').dialog("destroy");
@@ -41,7 +26,7 @@ function generateBrowseWindow(nodeClicked)
 			open: function()
 			{
 				jQuery(this).empty().addClass('ajaxloading');
-				jQuery(this).load(URLtoUse, function() {
+				jQuery(this).load(windowProperties['URLToUse'], function() {
 					jQuery(this).removeClass('ajaxloading');
 				});
 			},
@@ -51,7 +36,7 @@ function generateBrowseWindow(nodeClicked)
 			show: 'fade',
 			hide: 'fade',
 			resizable: false,
-			buttons: {"Select" : filteringFunction}
+			buttons: {"Select" : windowProperties['filteringFunction']}
 		})
 }
 
@@ -96,79 +81,6 @@ function applyPopupFiltersAnalyses()
 	jQuery(this).children().detach().remove();
 	jQuery(this).dialog("destroy");
 	updateSearch();
-}
-
-function applyPopupFiltersRegions()
-{
-	//Pick out the useful fields and generate search terms
-	
-	var range = null;
-	var basePairs = null;
-	var version = null;
-	var searchString = "";
-	var text = "";
-	if (jQuery('[name=\'regionFilter\'][value=\'gene\']:checked').size() > 0) {
-		var geneId = jQuery('#filterGeneId').val();
-		var geneName = jQuery('#filterGeneId-input').val();
-		range = jQuery('#filterGeneRange').val();
-		basePairs = jQuery('#filterGeneBasePairs').val();
-		if (basePairs == null || basePairs == "") {
-			basePairs = 0;
-		}
-		
-		use = jQuery('#filterGeneUse').val();
-		searchString += "GENE;" + geneId
-		
-		text = "HG" + use + " " + geneName + " " + getRangeSymbol(range) + " " + basePairs;
-	}
-	else if (jQuery('[name=\'regionFilter\'][value=\'chromosome\']:checked').size() > 0) {
-		range = jQuery('#filterChromosomeRange').val();
-		basePairs = jQuery('#filterChromosomeBasePairs').val();
-		if (basePairs == null || basePairs == "") {
-			basePairs = 0;
-		}
-		
-		use = jQuery('#filterChromosomeUse').val();
-		var chromNum = jQuery('#filterChromosomeNumber').val();
-		var pos = jQuery('#filterChromosomePosition').val();
-		if (pos == null || pos == "") {
-			pos = 0;
-		}
-		
-		searchString += "CHROMOSOME;" + chromNum + ";" + use + ";" + pos;
-		
-		if (pos != 0 && range != 0) {
-			text = "HG" + use + " chromosome " + chromNum + " position " + pos + " " + getRangeSymbol(range) + " " + basePairs;
-		}
-		else {
-			text = "HG" + use + " chromosome " + chromNum;
-		}
-	}
-	searchString += ";" + range + ";" + basePairs + ";" + use;
-
-	var searchParam={id:searchString,
-	        display:'Region',
-	        keyword:searchString,
-	        category:'REGION',
-	        text:text};
-	
-	addSearchTerm(searchParam);
-	
-	//This destroys our popup window.
-	jQuery(this).dialog("destroy");
-}
-
-function getRangeSymbol(string) {
-	
-	if (string == 'both') {
-		return "+/-";
-	}
-	else if (string == 'plus') {
-		return "+";
-	}
-	else if (string == 'minus') {
-		return "-";
-	}
 }
 
 function applyPopupFiltersDataTypes()

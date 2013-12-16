@@ -16,7 +16,12 @@
  * 
  *
  ******************************************************************/
-  
+
+
+
+
+import org.codehaus.groovy.grails.commons.ConfigurationHolder
+import org.codehaus.groovy.grails.plugins.PluginManagerHolder
 
 import java.text.SimpleDateFormat;
 
@@ -25,12 +30,14 @@ import bio.BioAssayPlatform;
 import bio.Disease;
 import bio.Experiment;
 import bio.Observation;
+import bio.ConceptCode;
 
 import com.recomdata.upload.DataUploadResult;
 
 import com.recomdata.snp.SnpData
 import grails.converters.JSON
-
+import com.recomdata.transmart.domain.searchapp.AccessLog
+import com.recomdata.grails.plugin.fm.FmFolderService
 
 /**
  * Class for controlling the Upload Data page.
@@ -42,6 +49,8 @@ class UploadDataController {
 	//This server is used to access security objects.
 	def springSecurityService
 	def dataUploadService
+    def fmFolderService
+
 	static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 
 	def index =
@@ -50,8 +59,13 @@ class UploadDataController {
 		//Create an event record for this access.
 		def al = new AccessLog(username: springSecurityService.getPrincipal().username, event:"UploadData-Index", eventmessage:"Upload Data index page", accesstime:new Date())
 		al.save();
+		def uploadDataInstance = new AnalysisMetadata()
+        def uploadFileInstance
+        if (PluginManagerHolder.pluginManager.hasGrailsPlugin('folder-management')) {
+            uploadFileInstance = new com.recomdata.grails.plugin.fm.FmFile()
+        }
+		def model = [uploadDataInstance: uploadDataInstance, uploadFileInstance: uploadFileInstance]
 		
-		def model = [uploadDataInstance: new AnalysisMetadata()]
 		addFieldData(model, null)
 		render(view: "uploadData", model:model)
 	}
@@ -67,8 +81,10 @@ class UploadDataController {
 		}
 		def model = [uploadDataInstance: uploadDataInstance];
 		
-		addFieldData(model, uploadDataInstance);
 		
+		
+		uploadDataInstance.setSensitiveFlag("0");
+		addFieldData(model, uploadDataInstance)
 		render(view: "uploadData", model:model)
 	}
 	
@@ -123,6 +139,28 @@ class UploadDataController {
 			render(view: "complete", model: [result: result, uploadDataInstance: upload]);
 		}
 	}
+
+    def uploadFile = {
+        def paramMap = params
+        def f = request.getFile('uploadFile');
+        def description = params.fileDescription
+        def fileName = params.displayName
+        def accession = params.study
+
+        if (!fileName) {
+            fileName = f.getOriginalFilename()
+        }
+
+        //Get the fmFolder associated with this study
+        Experiment experiment = Experiment.findByAccession(accession)
+        def folder = fmFolderService.getFolderByBioDataObject(experiment)
+        def tempFile = new File(ConfigurationHolder.config.com.recomdata.FmFolderService.filestoreDirectory, f.getOriginalFilename())
+        f.transferTo(tempFile)
+        fmFolderService.processFile(tempFile, folder, fileName, description)
+        tempFile.delete()
+        render(view: "fileComplete");
+    }
+
 	def upload = {
 		def paramMap = params
 		def upload = null;
@@ -172,6 +210,17 @@ class UploadDataController {
 			upload.expressionPlatformIds = "";
 		}
 		
+		if (params.researchUnit) {
+			if (params.researchUnit instanceof String) {
+				upload.researchUnit = params.researchUnit
+			}
+			else {
+				upload.researchUnit = params.researchUnit.join(";")
+			}
+		}
+		else {
+			upload.researchUnit = "";
+		}
 		def f = null;
 		def filename = null;
 		def uploadsDir = null;
@@ -206,7 +255,7 @@ class UploadDataController {
 				flash.message2=e.getMessage()+". If you wish to skip those SNPs, please click 'Continue'. If you wish to reload, click 'Cancel'."
 				def model = [uploadDataInstance: upload]
 				addFieldData(model, upload)
-				render(view: "uploadData2", model: model)
+				render(view: "uploadData", model: model)
 				}
 				else{
 					result = new DataUploadResult(success:false, error: "Could not verify file: unexpected exception occured." + e.getMessage());
@@ -254,18 +303,21 @@ class UploadDataController {
 		def tagMap = [:]
 		def genotypeMap = [:]
 		def expressionMap = [:]
+		def researchUnitMap= [:]
 		
 		if (upload) {
 			if (upload.phenotypeIds) {
 				for (tag in upload.phenotypeIds.split(";")) {
-					def meshCode = tag.split(":")[1]
+                    def splitTag = tag.split(":")
+                    def meshCode = tag
+                    if (splitTag.length > 1) { meshCode = splitTag[1]}
 					def disease = Disease.findByMeshCode(meshCode)
 					def observation = Observation.findByCode(meshCode)
 					if (disease) {
-						tagMap.put(tag, disease.disease)
+						tagMap.put(tag, [code: disease.meshCode, type: 'DISEASE'])
 					}
 					if (observation) {
-						tagMap.put(tag, observation.name)
+						tagMap.put(tag, [code: observation.name, type: 'OBSERVATION'])
 					}
 				}
 			}
@@ -285,10 +337,17 @@ class UploadDataController {
 				}
 			}
 			
+			if (upload.researchUnit) {
+				for (tag in upload.researchUnit.split(";")) {
+					//def platform = BioAssayPlatform.findByAccession(tag)
+					researchUnitMap.put(tag, tag)
+				}
+			}
+			
 			model.put('tags', tagMap)
 			model.put('genotypePlatforms', genotypeMap)
 			model.put('expressionPlatforms', expressionMap)
-			
+			model.put('researchUnit', researchUnitMap)
 			model.put('study', Experiment.findByAccession(upload.study))
 		}
 		
@@ -312,6 +371,38 @@ class UploadDataController {
 		}
 		model.put('expVendors', expVendorlist)
 		model.put('snpVendors', snpVendorlist)
+		
+		def ResearchUnitlist = []
+		def ResearchUnits = ConceptCode.executeQuery("SELECT DISTINCT codeName FROM ConceptCode as p WHERE p.codeTypeName='RESEARCH_UNIT' ORDER BY p.codeName")
+		
+		for (ResearchUnit in ResearchUnits) {
+			//println(ResearchUnit)
+			if (ResearchUnit) {
+				ResearchUnitlist.add(ResearchUnit);
+			}
+		}
+		model.put('ResearchUnits', ResearchUnitlist)
 	}
-	
+
+
+    def list = {
+        def uploads = AnalysisMetadata.createCriteria().list {
+            order('id', 'desc')
+            maxResults(20)
+        }
+
+        render(view: "list", model: [uploads: uploads])
+    }
+
+    def studyHasFolder = {
+        //Verify that a given study has a folder to upload to.
+        //TODO This assumes folder-management
+        def returnData = [:]
+        Experiment experiment = Experiment.findByAccession(params.accession)
+        if (!experiment) { returnData.message = "No experiment found with accession " + params.accession}
+        def folder = fmFolderService.getFolderByBioDataObject(experiment)
+        if (!folder) { returnData.message = "No folder association found for accession " + experiment.accession + ", unique ID " + experiment.uniqueId?.uniqueId}
+        else {returnData.put('found', true)}
+        render returnData as JSON
+    }
 }

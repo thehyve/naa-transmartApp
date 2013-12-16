@@ -1,5 +1,8 @@
 ////////////////////////////////////////////////////////////////////
 // Globals
+// Delimiter we're expecting between search fields
+var SEARCH_DELIMITER = ";"
+
 // Store the current search terms in an array in format ("category display|category:term") where category display is the display term i.e. Gene, Disease, etc.
 var currentCategories = new Array();
 var currentSearchTerms = new Array(); 
@@ -19,6 +22,7 @@ var analysisProbeIds = new Array();
 
 var openAnalyses = new Array(); //store the IDs of the analyses that are open
 
+var dataCategoryNames = ['GENE', 'PATHWAY', 'GENELIST', 'GENESIG', 'REGION', 'TRANSCRIPTGENE', 'PVALUE'];
 
 //create an ajaxmanager named rwgAJAXManager
 //this will handle all ajax calls on this page and prevent too many 
@@ -86,7 +90,9 @@ var cohortBGColors = new Array(
 */
 ////////////////////////////////////////////////////////////////////
 function showDetailDialog(dataURL, dialogTitle, dialogHeight)	{
-	var height = 'auto';
+	//var height = 'auto';
+	var wHeight = jQuery(window).height();
+	var height =wHeight *0.8;
 	if (typeof dialogHeight == 'number')	{
 		height = dialogHeight;
 	}	
@@ -110,41 +116,41 @@ function showDetailDialog(dataURL, dialogTitle, dialogHeight)	{
 }
 
 // Open and close the analysis for a given trial
-function toggleDetailDiv(trialNumber, dataURL)	{	
-	var imgExpand = "#imgExpand_"  + trialNumber;
-	var trialDetail = "#" + trialNumber + "_detail";
-	
-	// If data attribute is undefined then this is the first time opening the div, load the analysis... 
-	if (typeof jQuery(trialDetail).attr('data') == 'undefined')	{		
-		var src = jQuery(imgExpand).attr('src').replace('down_arrow_small2.png', 'ajax-loader-flat.gif');	
-		jQuery(imgExpand).attr('src',src);
-		jQuery.ajax({	
-			url:dataURL,			
-			success: function(response) {
-				jQuery(imgExpand).attr('src', jQuery(imgExpand).attr('src').replace('ajax-loader-flat.gif', 'up_arrow_small2.png'));
-				jQuery(trialDetail).addClass("gtb1");
-				jQuery(trialDetail).html(response);
-				jQuery(trialDetail).addClass("analysesopen");
-				jQuery(trialDetail).attr('data', true);// Add an attribute that we will use as a flag so we don't need to load the data multiple times
-			},
-			error: function(xhr) {
-				console.log('Error!  Status = ' + xhr.status + xhr.statusText);
-			}
-		});
-	} else	{
-		var src = jQuery(imgExpand).attr('src').replace('up_arrow_small2.png', 'down_arrow_small2.png');
-		if (jQuery(trialDetail).attr('data') == "true")	{
-			jQuery(trialDetail).attr('data',false);
-			jQuery(trialDetail).removeClass("analysesopen");
-		} else	{
-			src = jQuery(imgExpand).attr('src').replace('down_arrow_small2.png', 'up_arrow_small2.png');
-			jQuery(trialDetail).attr('data',true);
-			jQuery(trialDetail).addClass("analysesopen");
-		}	
-		jQuery(imgExpand).attr('src',src);
-		jQuery(trialDetail).toggle();		
-	}
-	return false;
+function toggleDetailDiv(trialNumber, dataURL)	{
+    var imgExpand = "#imgExpand_"  + trialNumber;
+    var trialDetail = "#" + trialNumber + "_detail";
+
+    // If data attribute is undefined then this is the first time opening the div, load the analysis...
+    if (typeof jQuery(trialDetail).attr('data') == 'undefined')	{
+        var src = jQuery(imgExpand).attr('src').replace('down_arrow_small2.png', 'ajax-loader-flat.gif');
+        jQuery(imgExpand).attr('src',src);
+        jQuery.ajax({
+            url:dataURL,
+            success: function(response) {
+                jQuery(imgExpand).attr('src', jQuery(imgExpand).attr('src').replace('ajax-loader-flat.gif', 'up_arrow_small2.png'));
+                jQuery(trialDetail).addClass("gtb1");
+                jQuery(trialDetail).html(response);
+                jQuery(trialDetail).addClass("analysesopen");
+                jQuery(trialDetail).attr('data', true);// Add an attribute that we will use as a flag so we don't need to load the data multiple times
+            },
+            error: function(xhr) {
+                console.log('Error!  Status = ' + xhr.status + xhr.statusText);
+            }
+        });
+    } else	{
+        var src = jQuery(imgExpand).attr('src').replace('up_arrow_small2.png', 'down_arrow_small2.png');
+        if (jQuery(trialDetail).attr('data') == "true")	{
+            jQuery(trialDetail).attr('data',false);
+            jQuery(trialDetail).removeClass("analysesopen");
+        } else	{
+            src = jQuery(imgExpand).attr('src').replace('down_arrow_small2.png', 'up_arrow_small2.png');
+            jQuery(trialDetail).attr('data',true);
+            jQuery(trialDetail).addClass("analysesopen");
+        }
+        jQuery(imgExpand).attr('src',src);
+        jQuery(trialDetail).toggle();
+    }
+    return false;
 }
 
 // Method to add the toggle button to show/hide the search filters
@@ -248,8 +254,19 @@ function addSearchAutoComplete()	{
 		if (event.which == 13)	{
 			jQuery("#search-ac").autocomplete('search');
 		}
-	});	
+	});
+    jQuery("#search-ac").keypress(function(event)	{
+        if (event.which == 13)	{
+            var content = sanitizeText(jQuery('#search-ac').val());
+            addSearchTerm({id:content,display:'Text',keyword:content,category:'text'});
+            jQuery('#search-ac').val('');
+        }
+    });
 	return false;
+}
+
+function sanitizeText(text) {
+    return (text.replace(/"/g, ''))
 }
 
 
@@ -381,7 +398,7 @@ function showFacetResults(tabToShow)	{
 
 	// first, loop through each term and add categories and terms to respective arrays 		
     for (var i=0; i<savedSearchTermsArray.length; i++)	{
-		var fields = savedSearchTermsArray[i].split(":");
+		var fields = savedSearchTermsArray[i].split(SEARCH_DELIMITER);
 		// search terms are in format <Category Display>|<Category>:<Search term display>:<Search term id>
 		var termId = fields[2]; 
 		var categoryFields = fields[0].split("|");
@@ -426,10 +443,10 @@ function showFacetResults(tabToShow)	{
     	else  {
     		queryType = "q";
     	}
-    	facetSearch.push(queryType + "=" + categories[i] + ":" + terms[i]);
+    	facetSearch.push(queryType + "=" + categories[i] + SEARCH_DELIMITER + terms[i]);
     }
 
-    // now add all tree categories that arene't being searched on to the string
+    // now add all tree categories that aren't being searched on to the string
     for (var i=0; i<treeCategories.length; i++)  {
     	if (categories.indexOf(treeCategories[i])==-1)  {
     		queryType = "ff";
@@ -519,9 +536,21 @@ function addSearchTerm(searchTerm, noUpdate)	{
 	
 	var text = (searchTerm.text == undefined ? (searchTerm.keyword == undefined ? searchTerm : searchTerm.keyword) : searchTerm.text);
 	var id = searchTerm.id == undefined ? -1 : searchTerm.id;
-	var key = category + ":" + text + ":" + id;
+	var key = category + SEARCH_DELIMITER + text + SEARCH_DELIMITER + id;
+	var index, value;
+	pval=[]
 	if (currentSearchTerms.indexOf(key) < 0)	{
 		currentSearchTerms.push(key);
+		for (index = 0; index < currentSearchTerms.length; ++index) {
+			value = currentSearchTerms[index];
+			if (value.substring(0, 7) === "PVALUE|" ) {
+				pval.push(value);
+				if (pval.length >1) {
+					currentSearchTerms.splice(currentSearchTerms.indexOf(pval[0]),1);
+					pval.shift();
+				}
+			}
+		}
 		if (currentCategories.indexOf(category) < 0)	{
 			currentCategories.push(category);
 		}
@@ -535,7 +564,6 @@ function addSearchTerm(searchTerm, noUpdate)	{
 	
 	// find all nodes in tree with this key, and select them
 	var tree = jQuery("#filter-div").dynatree("getTree");
-
 	tree.visit(  function selectNode(node) {
 		             if (node.data.key == key)  {
 		            	 node.select(true);
@@ -558,14 +586,19 @@ function updateSearch() {
 }
 
 // Remove the search term that the user has clicked.
-function removeSearchTerm(ctrl)	{
-	var currentSearchTermID = ctrl.id.replace(/\%20/g, " ").replace(/\%44/g, ",");
+function removeSearchTerm(ctrl,isPvalue)	{
+	if(!isPvalue) {
+		var currentSearchTermID = ctrl.id.replace(/\%20/g, " ").replace(/\%44/g, ",");
+	}
+	else {
+		var currentSearchTermID = isPvalue.replace(/\%20/g, " ").replace(/\%44/g, ",");
+	}
 	var idx = currentSearchTerms.indexOf(currentSearchTermID);
 	if (idx > -1)	{
 		currentSearchTerms.splice(idx, 1);
 		
 		// check if there are any remaining terms for this category; remove category from list if none
-		var fields = currentSearchTermID.split(":");
+		var fields = currentSearchTermID.split(SEARCH_DELIMITER);
 		var category = fields[0];
 		clearCategoryIfNoTerms(category);
 
@@ -603,7 +636,7 @@ function addFilterTreeSearchTerm(searchTerm)	{
 	var category = searchTerm.display == undefined ? "TEXT" : searchTerm.display;
 	var text = searchTerm.keyword == undefined ? searchTerm : searchTerm.keyword;
 	var id = searchTerm.id == undefined ? -1 : searchTerm.id;
-	var key = category + ":" + text + ":" + id;
+	var key = category + SEARCH_DELIMITER + text + SEARCH_DELIMITER + id;
 	if (currentSearchTerms.indexOf(key) < 0)	{
 		currentSearchTerms.push(key);
 		if (currentCategories.indexOf(category) < 0)	{
@@ -892,7 +925,7 @@ function clearCategoryIfNoTerms(category)  {
 	
 	var found = false;
 	for (var j=0; j<currentSearchTerms.length; j++)	{
-		var fields2 = currentSearchTerms[j].split(":");
+		var fields2 = currentSearchTerms[j].split(SEARCH_DELIMITER);
 		var category2 = fields2[0];
 		
 		if (category == category2)  {
@@ -914,7 +947,7 @@ function removeFilterTreeSearchTerm(termID)	{
 		currentSearchTerms.splice(idx, 1);
 
 		// check if there are any remaining terms for this category; remove category from list if none
-		var fields = termID.split(":");
+		var fields = termID.split(SEARCH_DELIMITER);
 		var category = fields[0];
 		clearCategoryIfNoTerms(category);
 	}
@@ -1425,7 +1458,7 @@ function setProbesDropdown(analysisID, selectedProbeID, divId)	{
 	for (var i=0; i<probeIds.length; i++) {
 		
 		if (probeIds[i] == selectedProbeID)	{
-			jQuery(divId).append(jQuery("<option id></option>").attr("selected", "selected").attr("id", probeIds[i]).attr("value", selectList[i]).text(selectList[i]));
+			jQuery(divId).append(jQuery("<option id></option>").attr("", "selected").attr("id", probeIds[i]).attr("value", selectList[i]).text(selectList[i]));
 		} else	{
 			jQuery(divId).append(jQuery("<option></option>").attr("id", probeIds[i]).attr("value", selectList[i]).text(selectList[i]));
 		}
@@ -1891,66 +1924,6 @@ function showVisualization(analysisID, changedPaging)	{
 		
 	} 	
 	return false;
-}
-
-//This function will kick off the webservice that generates the QQ plot.
-function loadQQPlot(analysisID)
-{
-	jQuery('#qqplot_results_' +analysisID).empty().addClass('ajaxloading');
-	jQuery.ajax( {
-	    "url": getQQPlotURL,
-	    bDestroy: true,
-	    bServerSide: true,
-	    data: {analysisId: analysisID, pvalueCutoff: jQuery('#analysis_results_table_' + analysisID + '_cutoff').val(), search: jQuery('#analysis_results_table_' + analysisID + '_search').val()},
-	    "success": function ( json ) {
-	    	jQuery('#analysis_holder_' +analysisID).unmask();
-	    	jQuery('#qqplot_results_' + analysisID).prepend("<img src='" + json.imageURL + "' />").removeClass('ajaxloading');
-	    	jQuery('#qqplot_export_' + analysisID).attr('href', json.imageURL);
-	    	},
-	    "error": function ( json ) {
-	    	jQuery('#qqplot_results_' + analysisID).prepend(json).removeClass('ajaxloading');
-	    	jQuery('#analysis_holder_' +analysisID).unmask();
-	    },
-	    "dataType": "json"
-	} );		
-}
-
-// This function will load the analysis data into a GRAILS template.
-function loadAnalysisResultsGrid(analysisID, paramMap)
-{
-	paramMap.analysisId = analysisID
-	jQuery('#analysis_results_table_' + analysisID + '_wrapper').empty().addClass('ajaxloading');
-	jQuery.ajax( {
-	    "url": getAnalysisDataURL,
-	    bDestroy: true,
-	    bServerSide: true,
-	    data: paramMap,
-	    "success": function (jqXHR) {
-	    	jQuery('#analysis_holder_' +analysisID).unmask();
-	    	jQuery('#analysis_results_table_' + analysisID + '_wrapper').html(jqXHR).removeClass('ajaxloading');
-	    },
-	    "error": function (jqXHR, error, e) {
-	    	jQuery('#analysis_results_table_' + analysisID + '_wrapper').html(jqXHR).removeClass('ajaxloading');
-	    	jQuery('#analysis_holder_' +analysisID).unmask();
-	    },
-	    "dataType": "html"
-	} );		
-}
-
-//This function will load all filtered analysis data into a GRAILS template.
-function loadTableResultsGrid(paramMap)
-{
-	jQuery('#table-results-div').empty().addClass('ajaxloading');
-	jQuery.ajax( {
-	    "url": getTableDataURL,
-	    bDestroy: true,
-	    bServerSide: true,
-	    data: paramMap,
-	    "success": function (jqXHR) {
-	    	jQuery('#table-results-div').html(jqXHR).removeClass('ajaxloading');
-	    },
-	    "dataType": "html"
-	} );
 }
 
 // Make a call to the server to load the heatmap data
@@ -2576,6 +2549,13 @@ function isGeneCategory(catId)  {
 	}
 }
 
+function isDataCategory(catId) {
+    if (jQuery.inArray(catId, dataCategoryNames) > -1) {
+        return true;
+    }
+    return false;
+}
+
 /* Find the width of a text element */
 String.prototype.visualLength = function(fontFamily) 
 { 
@@ -2593,7 +2573,8 @@ function roundNumber(num, dec) {
 	return result;
 }
 
-//Main method to show the current array of search terms 
+//Main method to show the current array of search terms
+//TODO Convert this entire thing to jQuery instead of HTML string
 function showSearchTemplate()	{
 	var searchHTML = '';
 	var startATag = '&nbsp;<a id=\"';
@@ -2602,7 +2583,8 @@ function showSearchTemplate()	{
 	var firstItem = true;
 
 	// iterate through categories array and move all the "gene" categories together at the top 
-	var newCategories = new Array();
+	var dataCategories = new Array();
+    var analysisCategories = new Array();
 	
 	var geneCategoriesProcessed = false;
 	for (var i=0; i<currentCategories.length; i++)	{
@@ -2615,31 +2597,49 @@ function showSearchTemplate()	{
 			if (!geneCategoriesProcessed)  {
 				
 				// add first gene category to new array
-				newCategories.push(currentCategories[i]);
+				dataCategories.push(currentCategories[i]);
 
 				// look for other "gene" categories, starting at the next index value, and add each to array
 				for (var j=i+1; j<currentCategories.length; j++)	{
 					var catFields2 = currentCategories[j].split("|");
 					var catId2 = catFields2[1];
 					if (isGeneCategory(catId2)) {
-						newCategories.push(currentCategories[j]);
+						dataCategories.push(currentCategories[j]);
 					}				
 				}
 				// set flag so we don't try to process again
 				geneCategoriesProcessed = true;
 			}
 		}
-		else  {    // not a gene catageory, add to new list
-			newCategories.push(currentCategories[i]);
+		else  {    // not a gene category - add depending on category type
+		    if (isDataCategory(catId)) {
+			    dataCategories.push(currentCategories[i]);
+            }
+            else {
+                analysisCategories.push(currentCategories[i]);
+            }
 		}
 	}
 	
 	// replace old array with new array
-    currentCategories = newCategories;
-	
+    //Merge analysisCategories then dataCategories - they are now organized one after the other
+    var combinedCategories = new Array();
+    jQuery.merge(combinedCategories, analysisCategories);
+    jQuery.merge(combinedCategories, dataCategories);
+    currentCategories = combinedCategories;
+
+    var firstDataCategoryDrawn = false;
+
+    if (analysisCategories.length > 0) {
+        searchHTML += "<div class='filtertypebox analysis'><div class='filtertypetitle'>Analysis filters</div>";
+    }
+    else if (dataCategories.length > 0) {
+        searchHTML += "<div class='filtertypebox data'><div class='filtertypetitle'>Data filters</div>";
+    }
+
 	for (var i=0; i<currentCategories.length; i++)	{
 		for (var j=0; j<currentSearchTerms.length; j++)	{
-			var fields = currentSearchTerms[j].split(":");
+			var fields = currentSearchTerms[j].split(SEARCH_DELIMITER);
 			if (currentCategories[i] == fields[0]){
 				var tagID = currentSearchTerms[j].split(' ').join('%20');			// URL encode the spaces
 				var tagID = currentSearchTerms[j].split(',').join('%44');			// And the commas
@@ -2652,6 +2652,7 @@ function showSearchTemplate()	{
 					if (i>0)	{	
 						
 						var suppressAnd = false;
+                        var newCategoryBox = false;
 						// if this is a "gene" category, check the previous category and see if it is also one
 		                if (isGeneCategory(catId))  {
 							var catFieldsPrevious = currentCategories[i-1].split("|");
@@ -2659,20 +2660,28 @@ function showSearchTemplate()	{
 		                	if (isGeneCategory(catIdPrevious))  {
 		                		suppressAnd = true;	
 		                	}
-		                } 
+		                }
+
+                        //Suppress the 'and' if this is the first data category type
+                        if (isDataCategory(catId) && !firstDataCategoryDrawn) {
+                            searchHTML = searchHTML + "</div><div class='filtertypebox data'><div class='filtertypetitle'>Data filters</div>";
+                            firstDataCategoryDrawn = true;
+                            suppressAnd = true;
+                            newCategoryBox = true;
+                        }
 						
 		                // if previous category is a "gene" category, don't show AND
 		                if (!suppressAnd)  {
 							searchHTML = searchHTML + "<span class='category_join'>AND<span class='h_line'></span></span>";  			// Need to add a new row and a horizontal line
 					    }
-		                else  {
+		                else if(!newCategoryBox)  {
 							searchHTML = searchHTML + "<br/>";  				                	
 		                }
 					}
-					searchHTML = searchHTML +"<span class='category_label'>" +catDisplay + "&nbsp;></span>&nbsp;<span class=term>"+ fields[1] + startATag + tagID + endATag + imgTag +"</span>";
+					searchHTML = searchHTML +"<span class='category_label'>" +catDisplay + ":</span>&nbsp;<span class=term>"+ fields[1] + startATag + tagID + endATag + imgTag +"</span>";
 					firstItem = false;
 				} else	{
-					searchHTML = searchHTML + "<span class='spacer'>| </span><span class=term>"+ fields[1] + startATag + tagID + endATag + imgTag +"</span> ";
+					searchHTML = searchHTML + "<span class='spacer'> OR </span><span class=term>"+ fields[1] + startATag + tagID + endATag + imgTag +"</span> ";
 				}				
 			} else	{
 				continue;												// Do the categories by row and in order
@@ -2680,6 +2689,8 @@ function showSearchTemplate()	{
 		}
 		firstItem = true;
 	}
+
+    searchHTML += '</div>'
 	document.getElementById('active-search-div').innerHTML = searchHTML;
 	getSearchKeywordList();
 }
@@ -2691,7 +2702,7 @@ function getSearchKeywordList()   {
 	var keywords = new Array();
 	
 	for (var j=0; j<currentSearchTerms.length; j++)	{
-		var fields = currentSearchTerms[j].split(":");		
+		var fields = currentSearchTerms[j].split(SEARCH_DELIMITER);
 	    var keyword = fields[2];			
 		keywords.push(keyword);
 	}
@@ -3235,49 +3246,156 @@ function updateSelectedAnalyses() {
 	}
 }
 
-function startPlotter() {
+//Globally prevent AJAX from being cached (mostly by IE)
+jQuery.ajaxSetup({
+	cache: false
+});
+
+
+//Add selected analyses to active filters
+function filterSelectedAnalyses() {
 	var selectedboxes = jQuery(".analysischeckbox:checked");
 	if (selectedboxes.length == 0) {
-		alert("No analyses are selected! Please select analyses to plot.");
+		jQuery('#selectedAnalyses').html("<b>" + selectedboxes.length + "</b> analyses selected.Please select analyses to be filtered!");
+	}
+	jQuery(".analysischeckbox:checked").each(function(i, selected){
+	var searchParam={id:selected.name,
+		        display:'Analyses',
+		        keyword:selected.value,
+		        category:'ANALYSIS_ID'};
+		addSearchTerm(searchParam);
+		
+		
+	})
+}
+
+function exportAnalysisandMail()
+{
+	
+	var selectedboxes = jQuery(".analysischeckbox:checked");
+	if (selectedboxes.length == 0) {
+		alert("No analyses are selected! Please select analyses to export.");
 	}
 	else {
+		jQuery('#divTomailIds').dialog("destroy");
+		jQuery('#divTomailIds').dialog(
+			{
+				modal: true,
+				height: 250,
+				width: 400,
+				title: "Enter Email Id",
+				show: 'fade',
+				hide: 'fade',
+				resizable: false,
+				buttons: {"Submit" : sendMail}
+			});
+	}
+}
+
+
+function sendMail()
+{
+	var selectedboxes = jQuery(".analysischeckbox:checked");
+	if (selectedboxes.length == 0) {
+		alert("No analyses are selected! Please select analyses to export.");
+	}
+	else {
+		var radioMail= jQuery('#radioMail:checked').val();
 		var analysisIds = "";
 		analysisIds += jQuery(selectedboxes[0]).attr('name');
 		for (var i = 1; i < selectedboxes.length; i++) {
 			analysisIds += "," + jQuery(selectedboxes[i]).attr('name');
 		}
-		
-		var snpSource = jQuery('#plotSnpSource').val();
-		var geneSource = jQuery('#plotGeneSource').val();
-		var pvalueCutoff = jQuery('#plotPvalueCutoff').val();
-		
-		window.location = webStartURL + "?analysisIds=" + analysisIds + "&snpSource=" + snpSource + "&geneSource=GRCh37&pvalueCutoff=" + pvalueCutoff;
-		jQuery('#divPlotOptions').dialog("destroy");
-	}
-}
+	
+		var toMailId = jQuery('#toEmailID').val();
+	
+		var emailReg = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
+		if( !emailReg.test(toMailId) || !toMailId) {
+			alert ("Please enter a valid email address!")
+			} 
+		else {
+			var data='';
+			if (radioMail == "link") {
+				data="analysisIds=" + analysisIds + "&toMailId=" + toMailId + "&isLink=false";
+				//window.location = exportAnalysisURL + "?analysisIds=" + analysisIds + "&toMailId=" + toMailId + "&isLink=false" ;
+				}
+			else {
+				data="analysisIds=" + analysisIds + "&toMailId=" + toMailId;
+				//window.location = exportAnalysisURL + "?analysisIds=" + analysisIds + "&toMailId=" + toMailId;
+				}
+			jQuery('#divMailStatus').html('Please wait mail is being sent...');
+			jQuery('#divMailStatus').dialog(
+					{
+						modal: true,
+						height: 150,
+						width: 400,
+						title: "Email Status",
+						show: 'fade',
+						hide: 'fade',
+						resizable: false,
+						 
+					});	
 
-function openPlotOptions() {
-	var selectedboxes = jQuery(".analysischeckbox:checked");
-	if (selectedboxes.length == 0) {
-		alert("No analyses are selected! Please select analyses to plot.");
-	}
-	else {
-		jQuery('#divPlotOptions').dialog("destroy");
-		jQuery('#divPlotOptions').dialog(
-			{
-				modal: false,
-				height: 250,
-				width: 400,
-				title: "Manhattan Plot Options",
-				show: 'fade',
-				hide: 'fade',
-				resizable: false,
-				buttons: {"Plot" : startPlotter}
+			jQuery.ajax(
+					{
+					// The link we are accessing.
+					url:exportAnalysisURL,
+					data:data,
+					// The type of request.
+					type: "post",
+					// The type of data that is getting returned.
+					dataType: "json",
+					error: function(){
+					jQuery('#divMailStatus').html('<message>Mail sending failed!!!</message>');
+						jQuery('#divMailStatus').dialog(
+								{
+									modal: true,
+									height: 150,
+									width: 400,
+									title: "Email Status",
+									show: 'fade',
+									hide: 'fade',
+									resizable: false,			 
+								});	 
+					},
+					beforeSend: function(){
+					},
+					complete: function(){
+						
+					},
+					success: function( data ){
+					if(data.status=='success')
+						{
+						jQuery('#divTomailIds').dialog("destroy");	
+						jQuery('#divMailStatus').html('<message>Mail sent successfully!!!</message>');
+						jQuery('#divMailStatus').dialog(
+								{
+									modal: true,
+									height: 150,
+									width: 400,
+									title: "Email Status",
+									show: 'fade',
+									hide: 'fade',
+									resizable: false,			 
+								});	
+						}
+					}
+
 			});
+		}
+		
 	}
 }
 
-//Globally prevent AJAX from being cached (mostly by IE)
-jQuery.ajaxSetup({
-	cache: false
-});
+//Remove P-value from active filters if P-value selected from inside the analysis results window
+function removepvalue(analysisId){
+	var pvalue=jQuery('#analysis_results_table_' + analysisId + '_cutoff').val();
+	for (index = 0; index < currentSearchTerms.length; ++index) {
+		value = currentSearchTerms[index];
+		if (value.substring(0, 7) === "PVALUE|" ) {
+		alert("P-value cutoff will be removed from Active filters. Please enter the P-value cutoff again");
+		removeSearchTerm(this,value);
+		}
+	}
+}
+

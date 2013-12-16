@@ -37,6 +37,7 @@ grails.project.dependency.resolution = {
     }
     log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
     repositories {
+	mavenLocal()
         grailsPlugins()
         grailsHome()
         grailsCentral()
@@ -52,13 +53,26 @@ grails.project.dependency.resolution = {
     }
 
     dependencies {
-        // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
+        // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.  
     }
-
 	plugins {
+        compile(':transmart-java:1.0-SNAPSHOT')
+        compile(':biomart-domain:1.0-SNAPSHOT')
+        compile(':search-domain:1.0-SNAPSHOT')
+        compile(':folder-management:1.0-SNAPSHOT')
+        compile(':transmart-gwas:1.0-SNAPSHOT')
+        compile(':transmart-workspace:1.0-SNAPSHOT')
+        compile(':spring-security-core:1.1.2')
         compile(':rdc-rmodules:0.1')
+        compile(':quartz:0.4.2')
+        compile(':mail:1.0')
         compile(':gex:0.1')
-    }
 }
 
+}
 
+//grails.plugin.location.transmartJava='C:\\Users\\davinewton\\Documents\\workspace-sts-2.6.1.RELEASE-pfizer\\transmartPfizer\\transmart-java'
+//grails.plugin.location.biomartDomain='C:\\Users\\davinewton\\Documents\\workspace-sts-2.6.1.RELEASE-pfizer\\transmartPfizer\\transmart-domain'
+//grails.plugin.location.searchDomain='C:\\Users\\davinewton\\Documents\\workspace-sts-2.6.1.RELEASE-pfizer\\transmartPfizer\\searchapp-domain'
+//grails.plugin.location.folderManagement='C:\\Users\\davinewton\\Documents\\workspace-sts-2.6.1.RELEASE-pfizer\\folder-management'
+//grails.plugin.location.transmartGwas='W:\\transmart\\pfizer\\transmartApp\\transmart-gwas'

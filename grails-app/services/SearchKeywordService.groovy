@@ -21,6 +21,7 @@ import bio.BioDataExternalCode
 import search.SearchKeyword
 import search.SearchKeywordTerm
 import search.GeneSignature
+import search.AuthUser
 
 /**
  * @author $Author: mmcduffie $
@@ -126,7 +127,7 @@ public class SearchKeywordService {
 			//Further hack: Alter fields depending on the category
 			if (sk.searchKeyword.dataCategory.equals("DISEASE") || sk.searchKeyword.dataCategory.equals("OBSERVATION")) {
 				m.put("categoryId", sk.searchKeyword.dataCategory)
-				m.put("id", sk.searchKeyword.keyword)
+				m.put("id", sk.searchKeyword.uniqueId)
 			}
 			else {
 				m.put("categoryId", sk.searchKeyword.dataCategory)

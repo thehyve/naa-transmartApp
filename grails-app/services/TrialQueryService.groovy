@@ -417,7 +417,7 @@ class TrialQueryService {
 			filter.add(it)
 		}
  
-		filter.add("STUDY_ID:" + trialNumber)
+		filter.add("STUDY_ID;" + trialNumber)
 		def nonfacetedQueryString = rwgController.createSOLRNonfacetedQueryString(filter)
  
 		String solrRequestUrl = rwgController.createSOLRQueryPath()
@@ -429,9 +429,9 @@ class TrialQueryService {
 		def analysisList = []
  
 		// retrieve the descriptions for each analysis
-		def results = bio.BioAssayAnalysis.executeQuery("select b.id, b.shortDescription, b.longDescription, b.name " +
-			" from bio.BioAssayAnalysis b" +
-			" where b.id in (" + analysisIds.join(',') +  ") ORDER BY b.longDescription")
+		def results = bio.BioAssayAnalysis.executeQuery("select b.id AS bioAssayAnalysis, b.shortDescription, b.longDescription, b.name,c.sensitiveDesc " +
+			" from bio.BioAssayAnalysis b LEFT JOIN b.ext c " +
+			" WHERE b.id in (" + analysisIds.join(',') +  ") ORDER BY b.longDescription")
  
 		// retrieve the analyses that are of type Time Course by checking the taxonomy
 		def timeCourseAnalyses = bio.BioAnalysisAttributeLineage.executeQuery("select b1.bioAnalysisAttribute.bioAssayAnalysisID from bio.BioAnalysisAttributeLineage b1" +
@@ -447,7 +447,7 @@ class TrialQueryService {
 			}
 			
 			// create a map for each record
-			def aMap = ['id':r[0], 'shortDescription':r[1], 'longDescription':r[2], 'name':r[3], 'isTimeCourse':isTimeCourse]
+			def aMap = ['id':r[0], 'shortDescription':r[1], 'longDescription':r[2], 'name':r[3], 'sensitiveDesc':r[4], 'isTimeCourse':isTimeCourse]
 					   
 			analysisList.add aMap
 		}

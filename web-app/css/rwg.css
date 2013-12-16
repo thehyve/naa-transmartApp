@@ -16,7 +16,7 @@ body {
   padding: 0;
   margin: 0;
   position: absolute;    
-  top: 252px;
+  top: 352px;
   left: 0px;
   bottom: 0px;
   overflow: auto;    
@@ -37,14 +37,14 @@ body {
 #active-search-div
 {
 font-size: 11px;
-    height: 96px;
+    height: 196px;
     left: 0;
     margin: 0;
     overflow: auto;
-    padding: 5px 0 5px 20px;
+    padding: 5px 0 5px 5px;
     position: absolute;
     top: 119px;
-    width: 280px;
+    width: 295px;
 }
 
 
@@ -52,7 +52,7 @@ font-size: 11px;
   padding: 0;
   margin: 0;
   position: absolute;    
-top: 58px;
+  top: 58px;
   left: 300px;
   right: 0;
   bottom: 0;
@@ -70,7 +70,7 @@ top: 58px;
 }
 #title-filter{
   position: absolute;    
-  top: 225px;
+  top: 325px;
   left: 0px;
   height:25px;
   overflow: hide;    
@@ -95,6 +95,11 @@ top: 58px;
 	  
 		
 }
+
+.textsmall {
+    font-size: 8pt;
+}
+
 .x-panel-header
 {
 	margin:0;
@@ -135,7 +140,6 @@ top: 58px;
 	color: #5e5e5e;
 	margin:0;
 	padding:0;
-	margin-left:-1.5em;
 	margin-top:0.5em;
 	margin-bottom:0.4em;
 
@@ -145,7 +149,6 @@ top: 58px;
 	
 	color:#868686;
 	padding-bottom: 0.2em;
-    margin-left: -10px;
     font-weight: bold;
     white-space:nowrap;
 }
@@ -174,7 +177,7 @@ top: 58px;
 .term
 {
 		margin-top:0.3em;
-		white-space:nowrap;
+		/*white-space:nowrap;*/
 		line-height: 1.4em;
 }
 
@@ -236,7 +239,25 @@ top: 58px;
 	height:100%;
 	overflow:auto;
 	}
-	
+
+.filtertypebox {
+    border-radius: 3px;
+    padding: 4px;
+    margin-bottom: 8px;
+    margin-right: 5px;
+}
+
+.filtertypetitle {
+    font-weight: bold;
+    font-size: 10px;
+    position: relative;
+    top: -4px;
+    left: -2px;
+}
+
+.filtertypebox.analysis { background-color: #EEEEFF; border: 1px solid #CCCCFF; }
+.filtertypebox.data { background-color: #FFEEEE; border: 1px solid #FFCCCC; }
+
 /***************************************************/
 /********** Override dynatree CSS rules ************/
 /***************************************************/
@@ -828,6 +849,13 @@ border-top: 1px solid #CCC;
 */
 }
 
+.diseaseHierarchy {
+    padding-left: 16px;
+    background-image: url('../images/elbow.png');
+    background-repeat: no-repeat;
+    background-position: 4px 0px;
+}
+
 
 /* Custom CSS for jQuery tabs used in analysis */
 .analysis-tabs { background: transparent; border: none; }
@@ -957,13 +985,21 @@ div.selected ul.selected li {
     white-space: nowrap;   
 }
 
-/* Override multiselect dimensions */
+/* Override multiselect dimensions and icons */
 select.multiselect {
 	width: 96%; height: 94%
 }
 
+.ui-multiselect .ui-icon-arrowthick-2-n-s.ui-icon {
+    background-image: none;
+}
+
 .ui-autocomplete .ui-menu-item a {
 	font-size: 8pt;	
+}
+
+#table-results-div {
+    padding: 0 8px;
 }
 
 .ajaxloading, #table-results-div.ajaxloading {

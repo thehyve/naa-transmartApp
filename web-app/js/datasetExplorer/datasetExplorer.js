@@ -401,6 +401,9 @@ Ext.onReady(function()
 								// alert('generate');
 								GLOBAL.CurrentSubsetIDs[1] = null;
 								GLOBAL.CurrentSubsetIDs[2] = null;
+
+								GLOBAL.currentReportCodes = [];
+                          	  	GLOBAL.currentReportStudy = [];
 								runAllQueries(getSummaryStatistics);
 
 								}
@@ -466,33 +469,6 @@ Ext.onReady(function()
 							}
 					),
 					new Ext.Toolbar.Separator(),
-					new Ext.Toolbar.Button(
-							{
-								id : 'savecomparsionbutton',
-								text : 'Save',
-								iconCls : 'savebutton',
-								disabled : false,
-								handler : function()
-								{
-								if(isSubsetEmpty(1) && isSubsetEmpty(2))
-								{
-									alert('Empty subsets found, need at least 1 valid subset to save a comparsion');
-									return;
-								}
-								if((GLOBAL.CurrentSubsetIDs[1] == null && ! isSubsetEmpty(1)) || (GLOBAL.CurrentSubsetIDs[2] == null && ! isSubsetEmpty(2)))
-								{
-									runAllQueries(function()
-											{
-										saveComparison();});
-								}
-								else
-								{
-									saveComparison();
-								}
-								return;
-								}
-							}
-					),
 					'->',
 					new Ext.Toolbar.Separator(),
 					new Ext.Toolbar.Button({
@@ -1331,7 +1307,7 @@ function createOntPanel()
 					region : 'north',
 					bodyStyle : 'background:#eee;padding: 10px;',
 					//html : shtml,
-					height : 130,
+					height : 135,
 					border : true,
 					split : false,
 					//autoScroll: true,
@@ -1928,11 +1904,14 @@ function getSubCategories(id_in, title_in, ontresponse)
 
 
 	// add a tree sorter in folder mode
-	new Tree.TreeSorter(ontTree,
+	var ontTreeSorter = new Tree.TreeSorter(ontTree,
 			{
 		folderSort : true
 			}
 	);
+    if (GLOBAL.pluginFolderManagement) {
+        ontTreeSorter = FM.getFileTreeSorter(ontTree);
+    }
 	ontTree.setRootNode(treeRoot);
 	ontTree.add(toolbar);
 	ontTabPanel.add(ontTree);
@@ -1991,6 +1970,7 @@ function setupDragAndDrop()
 
 			dts.notifyDrop = function(source, e, data)
 			{
+				 GLOBAL.currentSubsetsStudy=data.node.attributes.comment.substr(6);
 				if(source.tree.id == "previousQueriesTree")
 				{
 					getPreviousQueryFromID(data.node.attributes.id);
@@ -2947,6 +2927,10 @@ function buildAnalysis(nodein)
 				), // or a URL encoded string
 				success : function(result, request)
 				{
+
+				//Add the code we just dragged in to the report list.
+            	GLOBAL.currentReportCodes.push(node.attributes.id)
+            	GLOBAL.currentReportStudy.push(node.attributes.comment)
 				buildAnalysisComplete(result);
 				}
 			,
@@ -2971,6 +2955,8 @@ function buildAnalysisComplete(result)
 
 function updateAnalysisPanel(html, insert)
 {
+    var saveButtonHtml="<div id='reportSaveButton'><button style='float:right' type='button' onclick='saveCodeReport()'>Save Report</button></div>";
+    var printButtonHtml="<div id='printButton'><button style='float:right' type='button' onclick='print()'>Print or Save Results</button></div><br>";
 	/* if(insert)
    {
    var frame = analysisPanel.getFrame();
@@ -2988,6 +2974,13 @@ function updateAnalysisPanel(html, insert)
 	{
 		var body = analysisPanel.body;
 		body.insertHtml('afterBegin', html, false);
+
+        jQuery("#reportSaveButton").remove();
+        //jQuery("#printButton").remove();
+
+        //body.insertHtml('afterBegin', printButtonHtml, false);
+        body.insertHtml('afterBegin', saveButtonHtml, false);
+
 		body.scrollTo('top', 0, false);
 	}
 	else
