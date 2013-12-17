@@ -37,11 +37,7 @@ grails.project.dependency.resolution = {
         grailsPlugins()
         grailsHome()
         grailsCentral()
-
-        // uncomment the below to enable remote dependency resolution
-        // from public Maven repositories
-        //mavenLocal()
-        //mavenCentral()
+        mavenLocal()
         //mavenRepo "http://snapshots.repository.codehaus.org"
         //mavenRepo "http://repository.codehaus.org"
         //mavenRepo "http://download.java.net/maven/2/"
@@ -53,8 +49,17 @@ grails.project.dependency.resolution = {
   
     }
 	    plugins {
-        compile(':rdc-rmodules:0.1')
-        compile(':gex:0.1')
+               compile(':transmart-java:1.0-SNAPSHOT')
+               compile(':biomart-domain:1.0-SNAPSHOT')
+               compile(':search-domain:1.0-SNAPSHOT')
+               compile(':folder-management:1.0-SNAPSHOT')
+               compile(':transmart-gwas:1.0-SNAPSHOT')
+               compile(':transmart-workspace:1.0-SNAPSHOT')
+               compile(':spring-security-core:1.1.2')
+               compile(':rdc-rmodules:0.1')
+               compile(':quartz:0.4.2')
+               compile(':mail:1.0')
+               compile(':gex:0.1')
     }
 }
 
