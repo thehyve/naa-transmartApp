@@ -978,7 +978,7 @@ BEGIN
 	)
 	select v_bio_experiment_id
 		  ,'EXP:' || TrialId
-		  ,'Experiment'
+		  ,'BIO_EXPERIMENT'
 	from dual
 	where not exists
 		 (select 1 from biomart.bio_data_uid x

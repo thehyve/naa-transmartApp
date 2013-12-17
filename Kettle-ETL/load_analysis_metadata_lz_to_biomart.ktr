@@ -83,8 +83,8 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 ******************************************************************&#47;</note>
-      <xloc>47</xloc>
-      <yloc>2284</yloc>
+      <xloc>1649</xloc>
+      <yloc>862</yloc>
       <width>444</width>
       <heigth>197</heigth>
       <fontname>Microsoft Sans Serif</fontname>
@@ -120,6 +120,28 @@
       <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
       <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
       <attribute><code>PORT_NUMBER</code><attribute>${BIOMART_DB_PORT}</attribute></attribute>
+      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
+      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>N</attribute></attribute>
+      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
+    </attributes>
+  </connection>
+  <connection>
+    <name>FMAPP</name>
+    <server>${FMAPP_DB_SERVER}</server>
+    <type>ORACLE</type>
+    <access>Native</access>
+    <database>${FMAPP_DB_NAME}</database>
+    <port>${FMAPP_DB_PORT}</port>
+    <username>${FMAPP_DB_USER}</username>
+    <password>${FMAPP_DB_PWD}</password>
+    <servername/>
+    <data_tablespace/>
+    <index_tablespace/>
+    <attributes>
+      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
+      <attribute><code>PORT_NUMBER</code><attribute>${FMAPP_DB_PORT}</attribute></attribute>
       <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
       <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>N</attribute></attribute>
       <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
@@ -170,7 +192,7 @@
     </attributes>
   </connection>
   <order>
-  <hop> <from>No BIO_ASSAY_ANALYSIS_ID</from><to>Add new seq for bio_assay_analysis_id</to><enabled>Y</enabled> </hop>  <hop> <from>No BIO_ASSAY_ANALYSIS_ID</from><to>Insert &#47; Update BIO_ASSAY_ANALYSIS</to><enabled>Y</enabled> </hop>  <hop> <from>No BIO_ASSAY_ANALYSIS_EXT_ID</from><to>Add new seq for BIO_ASSAY_ANALYSIS_EXT_ID</to><enabled>Y</enabled> </hop>  <hop> <from>No BIO_ASSAY_ANALYSIS_EXT_ID</from><to>Insert&#47;Update BIO_ASSAY_ANALYSIS_EXT</to><enabled>Y</enabled> </hop>  <hop> <from>Set BIO_ASSAY_ANALYSIS_EXT_ID to new_ext_id</from><to>Remove new_ext_id</to><enabled>Y</enabled> </hop>  <hop> <from>Select fields for phenotype ids</from><to>Split phenotype ids</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup disease</from><to>Got disease</to><enabled>Y</enabled> </hop>  <hop> <from>Got disease</from><to>Insert BIO_DATA_DISEASE</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup observation</from><to>Got observation</to><enabled>Y</enabled> </hop>  <hop> <from>Got observation</from><to>Write invalid phenotype to log</to><enabled>Y</enabled> </hop>  <hop> <from>Got observation</from><to>Insert BIO_DATA_OBSERVATION</to><enabled>Y</enabled> </hop>  <hop> <from>Select values for expression platform ids</from><to>Split expression platform ids</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup GEX platform</from><to>Got gex platform</to><enabled>Y</enabled> </hop>  <hop> <from>Got gex platform</from><to>Insert BIO_DATA_PLATFORM for gex</to><enabled>Y</enabled> </hop>  <hop> <from>Got gex platform</from><to>Write invalid gex platform to log</to><enabled>Y</enabled> </hop>  <hop> <from>Got genotype platform</from><to>Write invalid genotype platform</to><enabled>Y</enabled> </hop>  <hop> <from>Add new seq for bio_assay_analysis_id</from><to>Set new_assay_id to number</to><enabled>Y</enabled> </hop>  <hop> <from>Set new_assay_id to number</from><to>Set BIO_ASSAY_ANALYSIS_ID to new_assay_id</to><enabled>Y</enabled> </hop>  <hop> <from>Add new seq for BIO_ASSAY_ANALYSIS_EXT_ID</from><to>Set new_ext_id to number</to><enabled>Y</enabled> </hop>  <hop> <from>Set new_ext_id to number</from><to>Set BIO_ASSAY_ANALYSIS_EXT_ID to new_ext_id</to><enabled>Y</enabled> </hop>  <hop> <from>Skip null phenotypes</from><to>No phenotype</to><enabled>Y</enabled> </hop>  <hop> <from>Split expression platform ids</from><to>Skip null gex platform</to><enabled>Y</enabled> </hop>  <hop> <from>Skip null gex platform</from><to>No gex platform</to><enabled>Y</enabled> </hop>  <hop> <from>Skip null genotype platform</from><to>No genotype platform</to><enabled>Y</enabled> </hop>  <hop> <from>Remove new_ext_id</from><to>Insert&#47;Update BIO_ASSAY_ANALYSIS_EXT</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup bio_assay_analysis_ext_id </from><to>No BIO_ASSAY_ANALYSIS_EXT_ID</to><enabled>Y</enabled> </hop>  <hop> <from>Split genotype platform ids</from><to>Skip null genotype platform</to><enabled>Y</enabled> </hop>  <hop> <from>Got genotype platform</from><to>Insert BIO_DATA_PLATFORM for genotype</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup BIO_ASSAY_ANALYSIS_ID</from><to>No BIO_ASSAY_ANALYSIS_ID</to><enabled>Y</enabled> </hop>  <hop> <from>Insert &#47; Update BIO_ASSAY_ANALYSIS</from><to>Set BIO_ASSAY_ANALYSIS_ID variable</to><enabled>Y</enabled> </hop>  <hop> <from>Remove new_assay_id</from><to>Insert &#47; Update BIO_ASSAY_ANALYSIS</to><enabled>Y</enabled> </hop>  <hop> <from>Insert&#47;Update BIO_ASSAY_ANALYSIS_EXT</from><to>Delete existing data in BIO_DATA_DISEASE</to><enabled>Y</enabled> </hop>  <hop> <from>Delete existing data in BIO_DATA_DISEASE</from><to>Delete existing data in BIO_DATA_PLATFORM</to><enabled>Y</enabled> </hop>  <hop> <from>Delete existing data in BIO_DATA_PLATFORM</from><to>Delete existing data in BIO_DATA_OBSERVATION</to><enabled>Y</enabled> </hop>  <hop> <from>Delete existing data in BIO_DATA_OBSERVATION</from><to>Select genotype platform ids</to><enabled>Y</enabled> </hop>  <hop> <from>Delete existing data in BIO_DATA_OBSERVATION</from><to>Select values for expression platform ids</to><enabled>Y</enabled> </hop>  <hop> <from>Delete existing data in BIO_DATA_OBSERVATION</from><to>Select fields for phenotype ids</to><enabled>Y</enabled> </hop>  <hop> <from>Get counts for audited steps</from><to>Join Rows (cartesian product) 2</to><enabled>Y</enabled> </hop>  <hop> <from>Block for auditing</from><to>Get counts for audited steps</to><enabled>Y</enabled> </hop>  <hop> <from>Set database name as study - analysis </from><to>Call cz_write_audit 2</to><enabled>Y</enabled> </hop>  <hop> <from>Set load_date</from><to>Join Rows (cartesian product) 2</to><enabled>Y</enabled> </hop>  <hop> <from>Increment step_number</from><to>Set database name as study - analysis </to><enabled>Y</enabled> </hop>  <hop> <from>Add constants 2</from><to>Sort by step_id</to><enabled>Y</enabled> </hop>  <hop> <from>Sort by step_id</from><to>Increment step_number</to><enabled>Y</enabled> </hop>  <hop> <from>Join Rows (cartesian product) 2</from><to>Add constants 2</to><enabled>Y</enabled> </hop>  <hop> <from>Set database name as study - analysis  unmapped</from><to>Call cz_write_audit unmapped</to><enabled>Y</enabled> </hop>  <hop> <from>Split phenotype ids</from><to>Skip null phenotypes</to><enabled>Y</enabled> </hop>  <hop> <from>Split phenotype into code and source</from><to>MeSH source</to><enabled>Y</enabled> </hop>  <hop> <from>MeSH source</from><to>Lookup disease</to><enabled>Y</enabled> </hop>  <hop> <from>Got disease</from><to>Remove BIO_DISEASE_ID</to><enabled>Y</enabled> </hop>  <hop> <from>Remove BIO_DISEASE_ID</from><to>Lookup observation</to><enabled>Y</enabled> </hop>  <hop> <from>MeSH source</from><to>Lookup observation</to><enabled>Y</enabled> </hop>  <hop> <from>Write invalid gex platform to log</from><to>Add gex log fields</to><enabled>Y</enabled> </hop>  <hop> <from>Add gex log fields</from><to>Step_desc for gex</to><enabled>Y</enabled> </hop>  <hop> <from>Step_desc for gex</from><to>Select gex log values</to><enabled>Y</enabled> </hop>  <hop> <from>Step_desc for genotype</from><to>Select genotype log values</to><enabled>Y</enabled> </hop>  <hop> <from>Add genotype log fields</from><to>Step_desc for genotype</to><enabled>Y</enabled> </hop>  <hop> <from>Write invalid genotype platform</from><to>Add genotype log fields</to><enabled>Y</enabled> </hop>  <hop> <from>Add audit constants unmapped</from><to>Set database name as study - analysis  unmapped</to><enabled>Y</enabled> </hop>  <hop> <from>Select genotype log values</from><to>Add audit constants unmapped</to><enabled>Y</enabled> </hop>  <hop> <from>Select gex log values</from><to>Add audit constants unmapped</to><enabled>Y</enabled> </hop>  <hop> <from>Step_desc for phenotype</from><to>Select phenotype log values</to><enabled>Y</enabled> </hop>  <hop> <from>Write invalid phenotype to log</from><to>Add phenotype log fields</to><enabled>Y</enabled> </hop>  <hop> <from>Add phenotype log fields</from><to>Step_desc for phenotype</to><enabled>Y</enabled> </hop>  <hop> <from>Make copy of phenotype</from><to>Split phenotype into code and source</to><enabled>Y</enabled> </hop>  <hop> <from>Select phenotype log values</from><to>Add audit constants unmapped</to><enabled>Y</enabled> </hop>  <hop> <from>Set BIO_ASSAY_ANALYSIS_ID to new_assay_id</from><to>Remove new_assay_id</to><enabled>Y</enabled> </hop>  <hop> <from>Get job_id, job_name</from><to>Write to log</to><enabled>Y</enabled> </hop>  <hop> <from>Write to log</from><to>Set load_date</to><enabled>Y</enabled> </hop>  <hop> <from>Select genotype platform ids</from><to>Split genotype platform ids</to><enabled>Y</enabled> </hop>  <hop> <from>Skip null genotype platform</from><to>Get unique snp platforms</to><enabled>Y</enabled> </hop>  <hop> <from>Skip null gex platform</from><to>Get unique gex platform</to><enabled>Y</enabled> </hop>  <hop> <from>Skip null phenotypes</from><to>Get unique phenotypes</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup genotype platform</from><to>Got genotype platform</to><enabled>Y</enabled> </hop>  <hop> <from>Get unique snp platforms</from><to>Add SNP platform_type</to><enabled>Y</enabled> </hop>  <hop> <from>Get unique gex platform</from><to>Add Gene Expression platform_type</to><enabled>Y</enabled> </hop>  <hop> <from>Add SNP platform_type</from><to>Trim snp platform</to><enabled>Y</enabled> </hop>  <hop> <from>Trim snp platform</from><to>Lookup genotype platform</to><enabled>Y</enabled> </hop>  <hop> <from>Add Gene Expression platform_type</from><to>Trim gex platform</to><enabled>Y</enabled> </hop>  <hop> <from>Trim gex platform</from><to>Lookup GEX platform</to><enabled>Y</enabled> </hop>  <hop> <from>Get unique phenotypes</from><to>Trim phenotype</to><enabled>Y</enabled> </hop>  <hop> <from>Trim phenotype</from><to>Make copy of phenotype</to><enabled>Y</enabled> </hop>  <hop> <from>Set load_date</from><to>Lookup BIO_ASSAY_ANALYSIS_ID</to><enabled>Y</enabled> </hop>  <hop> <from>Set BIO_ASSAY_ANALYSIS_ID variable</from><to>Lookup bio_experiment_id</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup bio_experiment_id</from><to>No BIO_EXPERIMENT_ID</to><enabled>Y</enabled> </hop>  <hop> <from>No BIO_EXPERIMENT_ID</from><to>Add new seq for bio_experiment_id</to><enabled>Y</enabled> </hop>  <hop> <from>Add new seq for bio_experiment_id</from><to>Set new_experiment_id to number</to><enabled>Y</enabled> </hop>  <hop> <from>Set new_experiment_id to number</from><to>Set BIO_EXPERIMENT_ID to new_experimen_id</to><enabled>Y</enabled> </hop>  <hop> <from>Set BIO_EXPERIMENT_ID to new_experimen_id</from><to>Set title</to><enabled>Y</enabled> </hop>  <hop> <from>Set title</from><to>Set metadata etl_id</to><enabled>Y</enabled> </hop>  <hop> <from>Set metadata etl_id</from><to>Insert &#47; Update bio_experiment</to><enabled>Y</enabled> </hop>  <hop> <from>Insert &#47; Update bio_experiment</from><to>Remove bio_experiment values</to><enabled>Y</enabled> </hop>  <hop> <from>Get lz_src_analysis_metadata for ETL_ID</from><to>Get job_id, job_name</to><enabled>Y</enabled> </hop>  <hop> <from>No BIO_EXPERIMENT_ID</from><to>Lookup bio_assay_analysis_ext_id </to><enabled>Y</enabled> </hop>  <hop> <from>Remove bio_experiment values</from><to>Lookup bio_assay_analysis_ext_id </to><enabled>Y</enabled> </hop>  </order>
+  <hop> <from>No BIO_ASSAY_ANALYSIS_ID</from><to>Add new seq for bio_assay_analysis_id</to><enabled>Y</enabled> </hop>  <hop> <from>No BIO_ASSAY_ANALYSIS_ID</from><to>Insert &#47; Update BIO_ASSAY_ANALYSIS</to><enabled>Y</enabled> </hop>  <hop> <from>No BIO_ASSAY_ANALYSIS_EXT_ID</from><to>Add new seq for BIO_ASSAY_ANALYSIS_EXT_ID</to><enabled>Y</enabled> </hop>  <hop> <from>No BIO_ASSAY_ANALYSIS_EXT_ID</from><to>Insert&#47;Update BIO_ASSAY_ANALYSIS_EXT</to><enabled>Y</enabled> </hop>  <hop> <from>Set BIO_ASSAY_ANALYSIS_EXT_ID to new_ext_id</from><to>Remove new_ext_id</to><enabled>Y</enabled> </hop>  <hop> <from>Select fields for phenotype ids</from><to>Split phenotype ids</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup disease</from><to>Got disease</to><enabled>Y</enabled> </hop>  <hop> <from>Got disease</from><to>Insert BIO_DATA_DISEASE</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup observation</from><to>Got observation</to><enabled>Y</enabled> </hop>  <hop> <from>Got observation</from><to>Write invalid phenotype to log</to><enabled>Y</enabled> </hop>  <hop> <from>Got observation</from><to>Insert BIO_DATA_OBSERVATION</to><enabled>Y</enabled> </hop>  <hop> <from>Select values for expression platform ids</from><to>Split expression platform ids</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup GEX platform</from><to>Got gex platform</to><enabled>Y</enabled> </hop>  <hop> <from>Got gex platform</from><to>Insert BIO_DATA_PLATFORM for gex</to><enabled>Y</enabled> </hop>  <hop> <from>Got gex platform</from><to>Write invalid gex platform to log</to><enabled>Y</enabled> </hop>  <hop> <from>Got genotype platform</from><to>Write invalid genotype platform</to><enabled>Y</enabled> </hop>  <hop> <from>Add new seq for bio_assay_analysis_id</from><to>Set new_assay_id to number</to><enabled>Y</enabled> </hop>  <hop> <from>Set new_assay_id to number</from><to>Set BIO_ASSAY_ANALYSIS_ID to new_assay_id</to><enabled>Y</enabled> </hop>  <hop> <from>Add new seq for BIO_ASSAY_ANALYSIS_EXT_ID</from><to>Set new_ext_id to number</to><enabled>Y</enabled> </hop>  <hop> <from>Set new_ext_id to number</from><to>Set BIO_ASSAY_ANALYSIS_EXT_ID to new_ext_id</to><enabled>Y</enabled> </hop>  <hop> <from>Skip null phenotypes</from><to>No phenotype</to><enabled>Y</enabled> </hop>  <hop> <from>Split expression platform ids</from><to>Skip null gex platform</to><enabled>Y</enabled> </hop>  <hop> <from>Skip null gex platform</from><to>No gex platform</to><enabled>Y</enabled> </hop>  <hop> <from>Skip null genotype platform</from><to>No genotype platform</to><enabled>Y</enabled> </hop>  <hop> <from>Remove new_ext_id</from><to>Insert&#47;Update BIO_ASSAY_ANALYSIS_EXT</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup bio_assay_analysis_ext_id </from><to>No BIO_ASSAY_ANALYSIS_EXT_ID</to><enabled>Y</enabled> </hop>  <hop> <from>Split genotype platform ids</from><to>Skip null genotype platform</to><enabled>Y</enabled> </hop>  <hop> <from>Got genotype platform</from><to>Insert BIO_DATA_PLATFORM for genotype</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup BIO_ASSAY_ANALYSIS_ID</from><to>No BIO_ASSAY_ANALYSIS_ID</to><enabled>Y</enabled> </hop>  <hop> <from>Insert &#47; Update BIO_ASSAY_ANALYSIS</from><to>Set BIO_ASSAY_ANALYSIS_ID variable</to><enabled>Y</enabled> </hop>  <hop> <from>Remove new_assay_id</from><to>Insert &#47; Update BIO_ASSAY_ANALYSIS</to><enabled>Y</enabled> </hop>  <hop> <from>Insert&#47;Update BIO_ASSAY_ANALYSIS_EXT</from><to>Delete existing data in BIO_DATA_DISEASE</to><enabled>Y</enabled> </hop>  <hop> <from>Delete existing data in BIO_DATA_DISEASE</from><to>Delete existing data in BIO_DATA_PLATFORM</to><enabled>Y</enabled> </hop>  <hop> <from>Delete existing data in BIO_DATA_PLATFORM</from><to>Delete existing data in BIO_DATA_OBSERVATION</to><enabled>Y</enabled> </hop>  <hop> <from>Delete existing data in BIO_DATA_OBSERVATION</from><to>Select genotype platform ids</to><enabled>Y</enabled> </hop>  <hop> <from>Delete existing data in BIO_DATA_OBSERVATION</from><to>Select values for expression platform ids</to><enabled>Y</enabled> </hop>  <hop> <from>Delete existing data in BIO_DATA_OBSERVATION</from><to>Select fields for phenotype ids</to><enabled>Y</enabled> </hop>  <hop> <from>Get counts for audited steps</from><to>Join Rows (cartesian product) 2</to><enabled>Y</enabled> </hop>  <hop> <from>Block for auditing</from><to>Get counts for audited steps</to><enabled>Y</enabled> </hop>  <hop> <from>Set database name as study - analysis </from><to>Call cz_write_audit 2</to><enabled>Y</enabled> </hop>  <hop> <from>Set load_date</from><to>Join Rows (cartesian product) 2</to><enabled>Y</enabled> </hop>  <hop> <from>Increment step_number</from><to>Set database name as study - analysis </to><enabled>Y</enabled> </hop>  <hop> <from>Add constants 2</from><to>Sort by step_id</to><enabled>Y</enabled> </hop>  <hop> <from>Sort by step_id</from><to>Increment step_number</to><enabled>Y</enabled> </hop>  <hop> <from>Join Rows (cartesian product) 2</from><to>Add constants 2</to><enabled>Y</enabled> </hop>  <hop> <from>Set database name as study - analysis  unmapped</from><to>Call cz_write_audit unmapped</to><enabled>Y</enabled> </hop>  <hop> <from>Split phenotype ids</from><to>Skip null phenotypes</to><enabled>Y</enabled> </hop>  <hop> <from>Split phenotype into code and source</from><to>MeSH source</to><enabled>Y</enabled> </hop>  <hop> <from>MeSH source</from><to>Lookup disease</to><enabled>Y</enabled> </hop>  <hop> <from>Got disease</from><to>Remove BIO_DISEASE_ID</to><enabled>Y</enabled> </hop>  <hop> <from>Remove BIO_DISEASE_ID</from><to>Lookup observation</to><enabled>Y</enabled> </hop>  <hop> <from>MeSH source</from><to>Lookup observation</to><enabled>Y</enabled> </hop>  <hop> <from>Write invalid gex platform to log</from><to>Add gex log fields</to><enabled>Y</enabled> </hop>  <hop> <from>Add gex log fields</from><to>Step_desc for gex</to><enabled>Y</enabled> </hop>  <hop> <from>Step_desc for gex</from><to>Select gex log values</to><enabled>Y</enabled> </hop>  <hop> <from>Step_desc for genotype</from><to>Select genotype log values</to><enabled>Y</enabled> </hop>  <hop> <from>Add genotype log fields</from><to>Step_desc for genotype</to><enabled>Y</enabled> </hop>  <hop> <from>Write invalid genotype platform</from><to>Add genotype log fields</to><enabled>Y</enabled> </hop>  <hop> <from>Add audit constants unmapped</from><to>Set database name as study - analysis  unmapped</to><enabled>Y</enabled> </hop>  <hop> <from>Select genotype log values</from><to>Add audit constants unmapped</to><enabled>Y</enabled> </hop>  <hop> <from>Select gex log values</from><to>Add audit constants unmapped</to><enabled>Y</enabled> </hop>  <hop> <from>Step_desc for phenotype</from><to>Select phenotype log values</to><enabled>Y</enabled> </hop>  <hop> <from>Write invalid phenotype to log</from><to>Add phenotype log fields</to><enabled>Y</enabled> </hop>  <hop> <from>Add phenotype log fields</from><to>Step_desc for phenotype</to><enabled>Y</enabled> </hop>  <hop> <from>Make copy of phenotype</from><to>Split phenotype into code and source</to><enabled>Y</enabled> </hop>  <hop> <from>Select phenotype log values</from><to>Add audit constants unmapped</to><enabled>Y</enabled> </hop>  <hop> <from>Set BIO_ASSAY_ANALYSIS_ID to new_assay_id</from><to>Remove new_assay_id</to><enabled>Y</enabled> </hop>  <hop> <from>Get job_id, job_name</from><to>Write to log</to><enabled>Y</enabled> </hop>  <hop> <from>Write to log</from><to>Set load_date</to><enabled>Y</enabled> </hop>  <hop> <from>Select genotype platform ids</from><to>Split genotype platform ids</to><enabled>Y</enabled> </hop>  <hop> <from>Skip null genotype platform</from><to>Get unique snp platforms</to><enabled>Y</enabled> </hop>  <hop> <from>Skip null gex platform</from><to>Get unique gex platform</to><enabled>Y</enabled> </hop>  <hop> <from>Skip null phenotypes</from><to>Get unique phenotypes</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup genotype platform</from><to>Got genotype platform</to><enabled>Y</enabled> </hop>  <hop> <from>Get unique snp platforms</from><to>Add SNP platform_type</to><enabled>Y</enabled> </hop>  <hop> <from>Get unique gex platform</from><to>Add Gene Expression platform_type</to><enabled>Y</enabled> </hop>  <hop> <from>Add SNP platform_type</from><to>Trim snp platform</to><enabled>Y</enabled> </hop>  <hop> <from>Trim snp platform</from><to>Lookup genotype platform</to><enabled>Y</enabled> </hop>  <hop> <from>Add Gene Expression platform_type</from><to>Trim gex platform</to><enabled>Y</enabled> </hop>  <hop> <from>Trim gex platform</from><to>Lookup GEX platform</to><enabled>Y</enabled> </hop>  <hop> <from>Get unique phenotypes</from><to>Trim phenotype</to><enabled>Y</enabled> </hop>  <hop> <from>Trim phenotype</from><to>Make copy of phenotype</to><enabled>Y</enabled> </hop>  <hop> <from>Set load_date</from><to>Lookup BIO_ASSAY_ANALYSIS_ID</to><enabled>Y</enabled> </hop>  <hop> <from>Set BIO_ASSAY_ANALYSIS_ID variable</from><to>Lookup bio_experiment_id</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup bio_experiment_id</from><to>No BIO_EXPERIMENT_ID</to><enabled>Y</enabled> </hop>  <hop> <from>No BIO_EXPERIMENT_ID</from><to>Add new seq for bio_experiment_id</to><enabled>Y</enabled> </hop>  <hop> <from>Add new seq for bio_experiment_id</from><to>Set new_experiment_id to number</to><enabled>Y</enabled> </hop>  <hop> <from>Set new_experiment_id to number</from><to>Set BIO_EXPERIMENT_ID</to><enabled>Y</enabled> </hop>  <hop> <from>Set BIO_EXPERIMENT_ID</from><to>Set title</to><enabled>Y</enabled> </hop>  <hop> <from>Set title</from><to>Set metadata etl_id</to><enabled>Y</enabled> </hop>  <hop> <from>Set metadata etl_id</from><to>Insert &#47; Update bio_experiment</to><enabled>Y</enabled> </hop>  <hop> <from>Insert &#47; Update bio_experiment</from><to>Remove bio_experiment values</to><enabled>Y</enabled> </hop>  <hop> <from>Get lz_src_analysis_metadata for ETL_ID</from><to>Get job_id, job_name</to><enabled>Y</enabled> </hop>  <hop> <from>No BIO_EXPERIMENT_ID</from><to>Lookup bio_data_uid</to><enabled>Y</enabled> </hop>  <hop> <from>Remove bio_experiment values</from><to>Lookup bio_data_uid</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup bio_data_uid</from><to>unique_id not found</to><enabled>Y</enabled> </hop>  <hop> <from>unique_id not found</from><to>Add bio_data_uid constants</to><enabled>Y</enabled> </hop>  <hop> <from>Add bio_data_uid constants</from><to>Set unique_id</to><enabled>Y</enabled> </hop>  <hop> <from>Set unique_id</from><to>Insert bio_data_uid</to><enabled>Y</enabled> </hop>  <hop> <from>Insert bio_data_uid</from><to>Remove bio_data_uid values</to><enabled>Y</enabled> </hop>  <hop> <from>unique_id not found</from><to>Lookup fm_folder</to><enabled>Y</enabled> </hop>  <hop> <from>Remove bio_data_uid values</from><to>Lookup fm_folder</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup fm_folder</from><to>No folder_id</to><enabled>Y</enabled> </hop>  <hop> <from>No folder_id</from><to>Get folder_id</to><enabled>Y</enabled> </hop>  <hop> <from>Get folder_id</from><to>Set folder_id to number</to><enabled>Y</enabled> </hop>  <hop> <from>Set folder_id to number</from><to>Set folder_id</to><enabled>Y</enabled> </hop>  <hop> <from>Set folder_id</from><to>Set folder constants</to><enabled>Y</enabled> </hop>  <hop> <from>Set folder constants</from><to>Insert fm_folder</to><enabled>Y</enabled> </hop>  <hop> <from>Insert fm_folder</from><to>Remove fm_folder constants</to><enabled>Y</enabled> </hop>  <hop> <from>No folder_id</from><to>Lookup fm_folder_association</to><enabled>Y</enabled> </hop>  <hop> <from>Remove fm_folder constants</from><to>Lookup fm_folder_association</to><enabled>Y</enabled> </hop>  <hop> <from>Lookup fm_folder_association</from><to>No object_uid</to><enabled>Y</enabled> </hop>  <hop> <from>No object_uid</from><to>Add fm_folder_association constants</to><enabled>Y</enabled> </hop>  <hop> <from>Add fm_folder_association constants</from><to>Set new_object_uid</to><enabled>Y</enabled> </hop>  <hop> <from>Set new_object_uid</from><to>Insert fm_folder_association</to><enabled>Y</enabled> </hop>  <hop> <from>Insert fm_folder_association</from><to>Remove fm_folder_association constants</to><enabled>Y</enabled> </hop>  <hop> <from>No object_uid</from><to>Lookup bio_assay_analysis_ext_id </to><enabled>Y</enabled> </hop>  <hop> <from>Remove fm_folder_association constants</from><to>Lookup bio_assay_analysis_ext_id </to><enabled>Y</enabled> </hop>  </order>
   <step>
     <name>Add Gene Expression platform_type</name>
     <type>Constant</type>
@@ -196,8 +218,8 @@
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>531</xloc>
-      <yloc>1471</yloc>
+      <xloc>533</xloc>
+      <yloc>1937</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -227,8 +249,8 @@
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>185</xloc>
-      <yloc>1488</yloc>
+      <xloc>187</xloc>
+      <yloc>1954</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -280,8 +302,50 @@
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>577</xloc>
-      <yloc>2068</yloc>
+      <xloc>579</xloc>
+      <yloc>2534</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Add bio_data_uid constants</name>
+    <type>Constant</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <fields>
+      <field>
+        <name>unique_id_prefix</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif>EXP:</nullif>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>bio_data_type</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif>BIO_EXPERIMENT</nullif>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+    </fields>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>408</xloc>
+      <yloc>745</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -364,8 +428,8 @@
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>198</xloc>
-      <yloc>1817</yloc>
+      <xloc>200</xloc>
+      <yloc>2283</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -406,8 +470,8 @@
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>572</xloc>
-      <yloc>1813</yloc>
+      <xloc>574</xloc>
+      <yloc>2279</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -434,8 +498,8 @@
       <max_value>999999999</max_value>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>552</xloc>
-      <yloc>762</yloc>
+      <xloc>616</xloc>
+      <yloc>1310</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -491,7 +555,7 @@
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
       <xloc>446</xloc>
-      <yloc>556</yloc>
+      <yloc>573</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -532,8 +596,36 @@
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1204</xloc>
-      <yloc>1936</yloc>
+      <xloc>1206</xloc>
+      <yloc>2402</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Get folder_id</name>
+    <type>Sequence</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+      <valuename>new_folder_id</valuename>
+      <use_database>Y</use_database>
+      <connection>FMAPP</connection>
+      <schema/>
+      <seqname>SEQ_FM_ID</seqname>
+      <use_counter>N</use_counter>
+      <counter_name/>
+      <start_at>1</start_at>
+      <increment_by>1</increment_by>
+      <max_value>999999999</max_value>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>420</xloc>
+      <yloc>914</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -638,8 +730,8 @@
     <auto_commit>Y</auto_commit>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1171</xloc>
-      <yloc>543</yloc>
+      <xloc>1567</xloc>
+      <yloc>308</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -700,8 +792,8 @@
     <auto_commit>Y</auto_commit>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>847</xloc>
-      <yloc>2167</yloc>
+      <xloc>849</xloc>
+      <yloc>2633</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -730,8 +822,8 @@
     </lookup>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>634</xloc>
-      <yloc>1047</yloc>
+      <xloc>636</xloc>
+      <yloc>1513</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -760,8 +852,8 @@
     </lookup>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>640</xloc>
-      <yloc>1207</yloc>
+      <xloc>642</xloc>
+      <yloc>1673</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -790,8 +882,8 @@
     </lookup>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>639</xloc>
-      <yloc>1126</yloc>
+      <xloc>641</xloc>
+      <yloc>1592</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -839,6 +931,21 @@
         </step>
       <step>
         <name>Insert &#47; Update bio_experiment</name>
+        <copyNr>0</copyNr>
+        <stepRequired>N</stepRequired>
+        </step>
+      <step>
+        <name>Insert bio_data_uid</name>
+        <copyNr>0</copyNr>
+        <stepRequired>N</stepRequired>
+        </step>
+      <step>
+        <name>Insert fm_folder_association</name>
+        <copyNr>0</copyNr>
+        <stepRequired>N</stepRequired>
+        </step>
+      <step>
+        <name>Insert fm_folder</name>
         <copyNr>0</copyNr>
         <stepRequired>N</stepRequired>
         </step>
@@ -969,6 +1076,7 @@ where etl_id = ${ETL_ID}
 
 
 
+
 </sql>
     <limit>0</limit>
     <lookup/>
@@ -1039,8 +1147,8 @@ where etl_id = ${ETL_ID}
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>724</xloc>
-      <yloc>1473</yloc>
+      <xloc>726</xloc>
+      <yloc>1939</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1101,8 +1209,8 @@ where etl_id = ${ETL_ID}
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>915</xloc>
-      <yloc>1459</yloc>
+      <xloc>917</xloc>
+      <yloc>1925</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1163,8 +1271,8 @@ where etl_id = ${ETL_ID}
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>371</xloc>
-      <yloc>1488</yloc>
+      <xloc>373</xloc>
+      <yloc>1954</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1191,8 +1299,8 @@ where etl_id = ${ETL_ID}
     </compare>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>922</xloc>
-      <yloc>1868</yloc>
+      <xloc>924</xloc>
+      <yloc>2334</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1219,8 +1327,8 @@ where etl_id = ${ETL_ID}
     </compare>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>380</xloc>
-      <yloc>1686</yloc>
+      <xloc>382</xloc>
+      <yloc>2152</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1247,8 +1355,8 @@ where etl_id = ${ETL_ID}
     </compare>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>656</xloc>
-      <yloc>1677</yloc>
+      <xloc>658</xloc>
+      <yloc>2143</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1275,8 +1383,8 @@ where etl_id = ${ETL_ID}
     </compare>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1196</xloc>
-      <yloc>1688</yloc>
+      <xloc>1198</xloc>
+      <yloc>2154</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1301,8 +1409,8 @@ where etl_id = ${ETL_ID}
       </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1163</xloc>
-      <yloc>365</yloc>
+      <xloc>1409</xloc>
+      <yloc>205</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1438,8 +1546,8 @@ where etl_id = ${ETL_ID}
     </lookup>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>673</xloc>
-      <yloc>651</yloc>
+      <xloc>770</xloc>
+      <yloc>648</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1490,8 +1598,8 @@ where etl_id = ${ETL_ID}
     </lookup>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>924</xloc>
-      <yloc>1954</yloc>
+      <xloc>926</xloc>
+      <yloc>2420</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1542,8 +1650,8 @@ where etl_id = ${ETL_ID}
     </lookup>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1351</xloc>
-      <yloc>1686</yloc>
+      <xloc>1353</xloc>
+      <yloc>2152</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1594,8 +1702,8 @@ where etl_id = ${ETL_ID}
     </lookup>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>399</xloc>
-      <yloc>1788</yloc>
+      <xloc>401</xloc>
+      <yloc>2254</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1646,8 +1754,54 @@ where etl_id = ${ETL_ID}
     </lookup>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>752</xloc>
-      <yloc>1796</yloc>
+      <xloc>754</xloc>
+      <yloc>2262</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Insert bio_data_uid</name>
+    <type>InsertUpdate</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>BIOMART</connection>
+    <commit>100</commit>
+    <update_bypassed>N</update_bypassed>
+    <lookup>
+      <schema/>
+      <table>BIO_DATA_UID</table>
+      <key>
+        <name>BIO_EXPERIMENT_ID</name>
+        <field>BIO_DATA_ID</field>
+        <condition>=</condition>
+        <name2/>
+      </key>
+      <value>
+        <name>BIO_DATA_ID</name>
+        <rename>BIO_EXPERIMENT_ID</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>UNIQUE_ID</name>
+        <rename>new_unique_id</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>UNIQUE_ID</name>
+        <rename>bio_data_type</rename>
+        <update>Y</update>
+      </value>
+    </lookup>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>542</xloc>
+      <yloc>826</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1737,8 +1891,8 @@ where etl_id = ${ETL_ID}
     </lookup>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>260</xloc>
-      <yloc>856</yloc>
+      <xloc>324</xloc>
+      <yloc>1404</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1867,8 +2021,8 @@ where etl_id = ${ETL_ID}
     </lookup>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>653</xloc>
-      <yloc>1595</yloc>
+      <xloc>655</xloc>
+      <yloc>2061</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1908,8 +2062,49 @@ where etl_id = ${ETL_ID}
     </lookup>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>255</xloc>
-      <yloc>653</yloc>
+      <xloc>270</xloc>
+      <yloc>1201</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Lookup bio_data_uid</name>
+    <type>DBLookup</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>BIOMART</connection>
+    <cache>N</cache>
+    <cache_load_all>N</cache_load_all>
+    <cache_size>0</cache_size>
+    <lookup>
+      <schema/>
+      <table>BIO_DATA_UID</table>
+      <orderby/>
+      <fail_on_multiple>N</fail_on_multiple>
+      <eat_row_on_failure>N</eat_row_on_failure>
+      <key>
+        <name>BIO_EXPERIMENT_ID</name>
+        <field>BIO_DATA_ID</field>
+        <condition>=</condition>
+        <name2/>
+      </key>
+      <value>
+        <name>UNIQUE_ID</name>
+        <rename>UNIQUE_ID</rename>
+        <default/>
+        <type>String</type>
+      </value>
+    </lookup>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>260</xloc>
+      <yloc>654</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1949,8 +2144,8 @@ where etl_id = ${ETL_ID}
     </lookup>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>525</xloc>
-      <yloc>451</yloc>
+      <xloc>253</xloc>
+      <yloc>504</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1990,8 +2185,49 @@ where etl_id = ${ETL_ID}
     </lookup>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>918</xloc>
-      <yloc>1770</yloc>
+      <xloc>920</xloc>
+      <yloc>2236</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Lookup fm_folder</name>
+    <type>DBLookup</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>FMAPP</connection>
+    <cache>N</cache>
+    <cache_load_all>N</cache_load_all>
+    <cache_size>0</cache_size>
+    <lookup>
+      <schema/>
+      <table>FM_FOLDER</table>
+      <orderby/>
+      <fail_on_multiple>N</fail_on_multiple>
+      <eat_row_on_failure>N</eat_row_on_failure>
+      <key>
+        <name>STUDY_ID</name>
+        <field>FOLDER_NAME</field>
+        <condition>=</condition>
+        <name2/>
+      </key>
+      <value>
+        <name>FOLDER_ID</name>
+        <rename>FOLDER_ID</rename>
+        <default/>
+        <type>Number</type>
+      </value>
+    </lookup>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>261</xloc>
+      <yloc>825</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -2037,8 +2273,8 @@ where etl_id = ${ETL_ID}
     </lookup>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>378</xloc>
-      <yloc>1590</yloc>
+      <xloc>380</xloc>
+      <yloc>2056</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -2084,8 +2320,8 @@ where etl_id = ${ETL_ID}
     </lookup>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1053</xloc>
-      <yloc>1687</yloc>
+      <xloc>1055</xloc>
+      <yloc>2153</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -2116,8 +2352,8 @@ where etl_id = ${ETL_ID}
 </calculation>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1110</xloc>
-      <yloc>1587</yloc>
+      <xloc>1112</xloc>
+      <yloc>2053</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -2144,8 +2380,8 @@ where etl_id = ${ETL_ID}
     </compare>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>918</xloc>
-      <yloc>1683</yloc>
+      <xloc>920</xloc>
+      <yloc>2149</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -2172,8 +2408,8 @@ where etl_id = ${ETL_ID}
     </compare>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>257</xloc>
-      <yloc>766</yloc>
+      <xloc>277</xloc>
+      <yloc>1311</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -2217,7 +2453,7 @@ where etl_id = ${ETL_ID}
            <schema_name/>
            </partitioning>
 <send_true_to>Add new seq for bio_experiment_id</send_true_to>
-<send_false_to>Lookup bio_assay_analysis_ext_id </send_false_to>
+<send_false_to>Lookup bio_data_uid</send_false_to>
     <compare>
 <condition>
  <negated>N</negated>
@@ -2228,8 +2464,8 @@ where etl_id = ${ETL_ID}
     </compare>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>253</xloc>
-      <yloc>557</yloc>
+      <xloc>257</xloc>
+      <yloc>577</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -2246,8 +2482,8 @@ where etl_id = ${ETL_ID}
            </partitioning>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>203</xloc>
-      <yloc>1406</yloc>
+      <xloc>205</xloc>
+      <yloc>1872</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -2264,8 +2500,8 @@ where etl_id = ${ETL_ID}
            </partitioning>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>524</xloc>
-      <yloc>1401</yloc>
+      <xloc>526</xloc>
+      <yloc>1867</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -2282,8 +2518,8 @@ where etl_id = ${ETL_ID}
            </partitioning>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1054</xloc>
-      <yloc>1376</yloc>
+      <xloc>1056</xloc>
+      <yloc>1842</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -2302,8 +2538,30 @@ where etl_id = ${ETL_ID}
       <remove>        <name>BIO_DISEASE_ID</name>
       </remove>    </fields>     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1055</xloc>
-      <yloc>1868</yloc>
+      <xloc>1057</xloc>
+      <yloc>2334</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Remove bio_data_uid values</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <fields>        <select_unspecified>N</select_unspecified>
+      <remove>        <name>new_unique_id</name>
+      </remove>      <remove>        <name>unique_id_prefix</name>
+      </remove>      <remove>        <name>bio_data_type</name>
+      </remove>    </fields>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>415</xloc>
+      <yloc>825</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -2326,8 +2584,8 @@ where etl_id = ${ETL_ID}
       </remove>      <remove>        <name>metadata_prefix</name>
       </remove>    </fields>     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>465</xloc>
-      <yloc>652</yloc>
+      <xloc>615</xloc>
+      <yloc>650</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -2346,8 +2604,8 @@ where etl_id = ${ETL_ID}
       <remove>        <name>new_assay_id</name>
       </remove>    </fields>     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>450</xloc>
-      <yloc>359</yloc>
+      <xloc>453</xloc>
+      <yloc>362</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -2366,8 +2624,8 @@ where etl_id = ${ETL_ID}
       <remove>        <name>new_ext_id</name>
       </remove>    </fields>     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>530</xloc>
-      <yloc>856</yloc>
+      <xloc>594</xloc>
+      <yloc>1404</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -2409,8 +2667,8 @@ where etl_id = ${ETL_ID}
       </field>        <select_unspecified>N</select_unspecified>
     </fields>     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>907</xloc>
-      <yloc>1226</yloc>
+      <xloc>909</xloc>
+      <yloc>1692</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -2452,8 +2710,8 @@ where etl_id = ${ETL_ID}
       </field>        <select_unspecified>N</select_unspecified>
     </fields>     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>200</xloc>
-      <yloc>1969</yloc>
+      <xloc>202</xloc>
+      <yloc>2435</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -2495,8 +2753,8 @@ where etl_id = ${ETL_ID}
       </field>        <select_unspecified>N</select_unspecified>
     </fields>     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>366</xloc>
-      <yloc>1248</yloc>
+      <xloc>368</xloc>
+      <yloc>1714</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -2538,8 +2796,8 @@ where etl_id = ${ETL_ID}
       </field>        <select_unspecified>N</select_unspecified>
     </fields>     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>574</xloc>
-      <yloc>1965</yloc>
+      <xloc>576</xloc>
+      <yloc>2431</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -2581,8 +2839,8 @@ where etl_id = ${ETL_ID}
       </field>        <select_unspecified>N</select_unspecified>
     </fields>     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>997</xloc>
-      <yloc>2026</yloc>
+      <xloc>999</xloc>
+      <yloc>2492</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -2624,8 +2882,8 @@ where etl_id = ${ETL_ID}
       </field>        <select_unspecified>N</select_unspecified>
     </fields>     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>644</xloc>
-      <yloc>1273</yloc>
+      <xloc>646</xloc>
+      <yloc>1739</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -2648,8 +2906,8 @@ where etl_id = ${ETL_ID}
       </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>817</xloc>
-      <yloc>854</yloc>
+      <xloc>881</xloc>
+      <yloc>1402</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -2706,13 +2964,13 @@ where etl_id = ${ETL_ID}
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
       <xloc>249</xloc>
-      <yloc>456</yloc>
+      <yloc>439</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
 
   <step>
-    <name>Set BIO_EXPERIMENT_ID to new_experimen_id</name>
+    <name>Set BIO_EXPERIMENT_ID</name>
     <type>SetValueField</type>
     <description/>
     <distribute>Y</distribute>
@@ -2729,8 +2987,8 @@ where etl_id = ${ETL_ID}
       </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>913</xloc>
-      <yloc>554</yloc>
+      <xloc>765</xloc>
+      <yloc>573</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -2775,8 +3033,8 @@ where etl_id = ${ETL_ID}
 </calculation>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1167</xloc>
-      <yloc>449</yloc>
+      <xloc>1559</xloc>
+      <yloc>206</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -2807,8 +3065,8 @@ where etl_id = ${ETL_ID}
 </calculation>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>576</xloc>
-      <yloc>2166</yloc>
+      <xloc>578</xloc>
+      <yloc>2632</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -2863,8 +3121,8 @@ where etl_id = ${ETL_ID}
 </calculation>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>823</xloc>
-      <yloc>652</yloc>
+      <xloc>910</xloc>
+      <yloc>651</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -2925,8 +3183,8 @@ where etl_id = ${ETL_ID}
         <storage_type/>
       </meta>    </fields>     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>662</xloc>
-      <yloc>555</yloc>
+      <xloc>620</xloc>
+      <yloc>573</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -2956,8 +3214,8 @@ where etl_id = ${ETL_ID}
         <storage_type/>
       </meta>    </fields>     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>820</xloc>
-      <yloc>761</yloc>
+      <xloc>884</xloc>
+      <yloc>1309</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -2991,7 +3249,7 @@ where etl_id = ${ETL_ID}
         <currency/>
         <decimal/>
         <group/>
-        <nullif>BIO_CLINICAL_TRIAL</nullif>
+        <nullif>Experiment</nullif>
         <length>-1</length>
         <precision>-1</precision>
       </field>
@@ -3009,8 +3267,40 @@ where etl_id = ${ETL_ID}
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>930</xloc>
-      <yloc>651</yloc>
+      <xloc>910</xloc>
+      <yloc>572</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Set unique_id</name>
+    <type>Calculator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+       <calculation><field_name>new_unique_id</field_name>
+<calc_type>ADD</calc_type>
+<field_a>unique_id_prefix</field_a>
+<field_b>STUDY_ID</field_b>
+<field_c/>
+<value_type>String</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask/>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>541</xloc>
+      <yloc>744</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -3037,8 +3327,8 @@ where etl_id = ${ETL_ID}
     </compare>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>369</xloc>
-      <yloc>1406</yloc>
+      <xloc>371</xloc>
+      <yloc>1872</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -3065,8 +3355,8 @@ where etl_id = ${ETL_ID}
     </compare>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>648</xloc>
-      <yloc>1401</yloc>
+      <xloc>650</xloc>
+      <yloc>1867</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -3093,8 +3383,8 @@ where etl_id = ${ETL_ID}
     </compare>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>911</xloc>
-      <yloc>1384</yloc>
+      <xloc>913</xloc>
+      <yloc>1850</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -3125,8 +3415,8 @@ where etl_id = ${ETL_ID}
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1160</xloc>
-      <yloc>287</yloc>
+      <xloc>1284</xloc>
+      <yloc>204</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -3150,8 +3440,8 @@ where etl_id = ${ETL_ID}
    <delimiter_is_regex>N</delimiter_is_regex>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>649</xloc>
-      <yloc>1338</yloc>
+      <xloc>651</xloc>
+      <yloc>1804</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -3175,8 +3465,8 @@ where etl_id = ${ETL_ID}
    <delimiter_is_regex>N</delimiter_is_regex>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>367</xloc>
-      <yloc>1328</yloc>
+      <xloc>369</xloc>
+      <yloc>1794</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -3200,8 +3490,8 @@ where etl_id = ${ETL_ID}
    <delimiter_is_regex>N</delimiter_is_regex>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>906</xloc>
-      <yloc>1314</yloc>
+      <xloc>908</xloc>
+      <yloc>1780</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -3244,8 +3534,8 @@ where etl_id = ${ETL_ID}
         <trimtype>both</trimtype>
       </field>    </fields>     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>919</xloc>
-      <yloc>1588</yloc>
+      <xloc>921</xloc>
+      <yloc>2054</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -3276,8 +3566,8 @@ where etl_id = ${ETL_ID}
 </calculation>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>199</xloc>
-      <yloc>1895</yloc>
+      <xloc>201</xloc>
+      <yloc>2361</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -3308,8 +3598,8 @@ where etl_id = ${ETL_ID}
 </calculation>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>573</xloc>
-      <yloc>1891</yloc>
+      <xloc>575</xloc>
+      <yloc>2357</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -3340,8 +3630,8 @@ where etl_id = ${ETL_ID}
 </calculation>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1178</xloc>
-      <yloc>2006</yloc>
+      <xloc>1180</xloc>
+      <yloc>2472</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -3373,8 +3663,8 @@ where etl_id = ${ETL_ID}
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>531</xloc>
-      <yloc>1567</yloc>
+      <xloc>533</xloc>
+      <yloc>2033</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -3406,8 +3696,8 @@ where etl_id = ${ETL_ID}
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1097</xloc>
-      <yloc>1461</yloc>
+      <xloc>1099</xloc>
+      <yloc>1927</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -3439,8 +3729,8 @@ where etl_id = ${ETL_ID}
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>186</xloc>
-      <yloc>1590</yloc>
+      <xloc>188</xloc>
+      <yloc>2056</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -3472,8 +3762,8 @@ Unable to map genotype platform</logmessage>
       </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>198</xloc>
-      <yloc>1738</yloc>
+      <xloc>200</xloc>
+      <yloc>2204</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -3505,8 +3795,8 @@ Unable to map gene expression platform</logmessage>
       </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>570</xloc>
-      <yloc>1747</yloc>
+      <xloc>572</xloc>
+      <yloc>2213</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -3542,8 +3832,8 @@ Unable to map phenotype</logmessage>
       </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1203</xloc>
-      <yloc>1824</yloc>
+      <xloc>1205</xloc>
+      <yloc>2290</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -3582,6 +3872,460 @@ Unable to map phenotype</logmessage>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
       <xloc>684</xloc>
       <yloc>51</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>unique_id not found</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+<send_true_to>Add bio_data_uid constants</send_true_to>
+<send_false_to>Lookup fm_folder</send_false_to>
+    <compare>
+<condition>
+ <negated>N</negated>
+ <leftvalue>UNIQUE_ID</leftvalue>
+ <function>IS NULL</function>
+ <rightvalue/>
+ </condition>
+    </compare>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>261</xloc>
+      <yloc>747</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>No folder_id</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+<send_true_to>Get folder_id</send_true_to>
+<send_false_to>Lookup fm_folder_association</send_false_to>
+    <compare>
+<condition>
+ <negated>N</negated>
+ <leftvalue>FOLDER_ID</leftvalue>
+ <function>IS NULL</function>
+ <rightvalue/>
+ </condition>
+    </compare>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>263</xloc>
+      <yloc>914</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Set folder_id to number</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <fields>        <select_unspecified>N</select_unspecified>
+      <meta>        <name>new_folder_id</name>
+        <rename>new_folder_id</rename>
+        <type>Number</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask/>
+        <date_format_lenient>false</date_format_lenient>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>    </fields>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>538</xloc>
+      <yloc>913</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Set folder_id</name>
+    <type>SetValueField</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <fields>
+      <field>
+        <name>FOLDER_ID</name>
+        <replaceby>new_folder_id</replaceby>
+        </field>
+      </fields>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>659</xloc>
+      <yloc>912</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Set folder constants</name>
+    <type>Constant</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <fields>
+      <field>
+        <name>folder_level</name>
+        <type>Number</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif>1</nullif>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>folder_type</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif>STUDY</nullif>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>active_ind</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif>1</nullif>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+    </fields>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>662</xloc>
+      <yloc>991</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Insert fm_folder</name>
+    <type>InsertUpdate</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>FMAPP</connection>
+    <commit>100</commit>
+    <update_bypassed>Y</update_bypassed>
+    <lookup>
+      <schema/>
+      <table>FM_FOLDER</table>
+      <key>
+        <name>STUDY_ID</name>
+        <field>FOLDER_NAME</field>
+        <condition>=</condition>
+        <name2/>
+      </key>
+      <value>
+        <name>FOLDER_ID</name>
+        <rename>new_folder_id</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>FOLDER_NAME</name>
+        <rename>STUDY_ID</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>FOLDER_LEVEL</name>
+        <rename>folder_level</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>FOLDER_TYPE</name>
+        <rename>folder_type</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>ACTIVE_IND</name>
+        <rename>active_ind</rename>
+        <update>Y</update>
+      </value>
+    </lookup>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>543</xloc>
+      <yloc>993</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Remove fm_folder constants</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <fields>        <select_unspecified>N</select_unspecified>
+      <remove>        <name>folder_type</name>
+      </remove>      <remove>        <name>folder_level</name>
+      </remove>      <remove>        <name>active_ind</name>
+      </remove>      <remove>        <name>new_folder_id</name>
+      </remove>    </fields>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>425</xloc>
+      <yloc>996</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Lookup fm_folder_association</name>
+    <type>DBLookup</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>FMAPP</connection>
+    <cache>N</cache>
+    <cache_load_all>N</cache_load_all>
+    <cache_size>0</cache_size>
+    <lookup>
+      <schema/>
+      <table>FM_FOLDER_ASSOCIATION</table>
+      <orderby/>
+      <fail_on_multiple>N</fail_on_multiple>
+      <eat_row_on_failure>N</eat_row_on_failure>
+      <key>
+        <name>FOLDER_ID</name>
+        <field>FOLDER_ID</field>
+        <condition>=</condition>
+        <name2/>
+      </key>
+      <value>
+        <name>OBJECT_UID</name>
+        <rename>OBJECT_UID</rename>
+        <default/>
+        <type>String</type>
+      </value>
+    </lookup>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>264</xloc>
+      <yloc>997</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>No object_uid</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+<send_true_to>Add fm_folder_association constants</send_true_to>
+<send_false_to>Lookup bio_assay_analysis_ext_id </send_false_to>
+    <compare>
+<condition>
+ <negated>N</negated>
+ <leftvalue>OBJECT_UID</leftvalue>
+ <function>IS NULL</function>
+ <rightvalue/>
+ </condition>
+    </compare>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>265</xloc>
+      <yloc>1082</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Add fm_folder_association constants</name>
+    <type>Constant</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <fields>
+      <field>
+        <name>object_uid_prefix</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif>EXP:</nullif>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>object_type</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif>bio.Experiment</nullif>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+    </fields>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>430</xloc>
+      <yloc>1081</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Set new_object_uid</name>
+    <type>Calculator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+       <calculation><field_name>new_object_uid</field_name>
+<calc_type>ADD</calc_type>
+<field_a>object_uid_prefix</field_a>
+<field_b>STUDY_ID</field_b>
+<field_c/>
+<value_type>String</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask/>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>628</xloc>
+      <yloc>1086</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Insert fm_folder_association</name>
+    <type>InsertUpdate</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>FMAPP</connection>
+    <commit>100</commit>
+    <update_bypassed>Y</update_bypassed>
+    <lookup>
+      <schema/>
+      <table>FM_FOLDER_ASSOCIATION</table>
+      <key>
+        <name>FOLDER_ID</name>
+        <field>FOLDER_ID</field>
+        <condition>=</condition>
+        <name2/>
+      </key>
+      <value>
+        <name>FOLDER_ID</name>
+        <rename>FOLDER_ID</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>OBJECT_UID</name>
+        <rename>new_object_uid</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>OBJECT_TYPE</name>
+        <rename>object_type</rename>
+        <update>Y</update>
+      </value>
+    </lookup>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>625</xloc>
+      <yloc>1162</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Remove fm_folder_association constants</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <fields>        <select_unspecified>N</select_unspecified>
+      <remove>        <name>object_uid_prefix</name>
+      </remove>      <remove>        <name>object_type</name>
+      </remove>      <remove>        <name>new_object_uid</name>
+      </remove>    </fields>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>481</xloc>
+      <yloc>1201</yloc>
       <draw>Y</draw>
       </GUI>
     </step>

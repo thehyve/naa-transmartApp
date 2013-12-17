@@ -358,7 +358,7 @@ BEGIN
 	)
 	select distinct b.bio_experiment_id
 	      ,'EXP:' || m.study_id
-		  ,'EXP'
+		  ,'BIO_EXPERIMENT'
 	from biomart.bio_experiment b
 		,lt_src_study_metadata m
 	where m.study_id is not null
@@ -370,6 +370,46 @@ BEGIN
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Inserted trial data into BIOMART bio_data_uid',SQL%ROWCOUNT,stepCt,'Done');
 	commit;
+	
+	--	insert study into fmapp.fm_folder
+	
+	insert into fmapp.fm_folder
+	(folder_name 
+	,folder_level      
+	,folder_type
+	,active_ind
+	)
+	select distinct m.study_id
+		  ,1
+		  ,'STUDY'
+		  ,'1'
+	from lt_src_study_metadata m
+	where not exists
+		  (select 1 from fmapp.fm_folder x
+		   where x.folder_name = m.study_id);
+	stepCt := stepCt + 1;
+	cz_write_audit(jobId,databaseName,procedureName,'Insert trial/study into fmapp.fm_folder',SQL%ROWCOUNT,stepCt,'Done');
+	commit;
+	
+	--	insert fm_folder_association
+	
+	insert into fmapp.fm_folder_association
+	(folder_id
+	,object_uid
+	,object_type
+	)
+	select distinct ff.folder_id
+		  ,'EXP:' || m.study_id
+		  ,'bio.Experiment'
+	from lt_src_study_metadata m
+		,fmapp.fm_folder ff
+	where ff.folder_name = m.study_id
+	  and not exists
+	     (select 1 from fmapp.fm_folder_association x
+		  where ff.folder_id = x.folder_id);
+	stepCt := stepCt + 1;
+	cz_write_audit(jobId,databaseName,procedureName,'Insert trial/study into fmapp.fm_folder_asociation',SQL%ROWCOUNT,stepCt,'Done');
+	commit;	
 
 	--	delete existing compound data for study, compound list may change
 	
