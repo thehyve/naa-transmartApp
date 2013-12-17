@@ -31,7 +31,8 @@ class UrlMappings {
 		  }
 	  }
       "/"(controller:'userLanding', action:'index')
-	  "500"(view:'/error')
+	  "500"(controller: 'error')
+      "404"(controller: 'error', action: 'notFound')
 	  "/transmart/dataExport/getJobs"(controller:"dataExport", action:"getJobs")
       "/webservice/$action?"(controller:"gwasWeb")
 	  //"/transmart/exportData"(controller:"dataExport", action:"processExport")
