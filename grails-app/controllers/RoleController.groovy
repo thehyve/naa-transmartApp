@@ -24,6 +24,8 @@
  * @version $Revision: 9178 $
  */
 
+import search.Role;
+
 /**
  * Authority Controller.
  */

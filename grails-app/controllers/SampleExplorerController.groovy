@@ -20,7 +20,7 @@
 
 import com.recomdata.snp.SnpData
 import grails.converters.JSON
-
+import com.recomdata.transmart.domain.searchapp.AccessLog
 
 /**
  * Class for controlling the Sample Explorer page.

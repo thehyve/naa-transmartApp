@@ -25,17 +25,28 @@
                    <img alt="" src="${resource(dir:'images',file:'view_detailed.png')}" />
                </span>
                <span class="result-trial-name"> ${experimentresult.key.accession}</span></a>: ${experimentresult.key.title}
+
+               <g:ifPlugin name="folder-management">
+	               <span class="result-analysis-label">
+		               <g:set var="ts" value="${Calendar.instance.time.time}" />
+		               <a id="toggleFile_${experimentresult.key.id}" href="#" onclick="javascript:toggleFileDiv('${experimentresult.key.id}', '${createLink(controller:'fmFolder',action:'getFolderFiles',params:[id:experimentresult.key.id,trialNumber:experimentresult.key.id,unqKey:ts])}');">
+		                <img alt="expand/collapse" id="imgFileExpand_${experimentresult.key.id}" src="${resource(dir:'images',file:'down_arrow_small2.png')}" style="display: inline;"/>
+		    				  Files
+		               </a>
+	               </span>
+	               <div id="${experimentresult.key.id}_files" name="${experimentresult.key.id}" class="detailexpand"></div>
+               </g:ifPlugin>
+
+
                <span class="result-analysis-label">
-               <g:set var="ts" value="${Calendar.instance.time.time}" />
-               <a id="toggleDetail_${experimentresult.key.id}" href="#" onclick="javascript:toggleDetailDiv('${experimentresult.key.id}', '${createLink(controller:'RWG',action:'getTrialAnalysis',params:[id:experimentresult.key.id,trialNumber:experimentresult.key.id,unqKey:ts])}');">
-                <img alt="expand/collapse" id="imgExpand_${experimentresult.key.id}" src="${resource(dir:'images',file:'down_arrow_small2.png')}" style="display: inline;"/>                  
-                      <%--${experimentresult.value}
-                      <g:if test="${experimentresult.value > 1}">analyses found</g:if>
-    				  <g:else>analysis found</g:else>--%>
-    				  Analyses
-               </a>
+                   <g:set var="ts" value="${Calendar.instance.time.time}" />
+                   <a id="toggleDetail_${experimentresult.key.id}" href="#" onclick="javascript:toggleDetailDiv('${experimentresult.key.id}', '${createLink(controller:'RWG',action:'getTrialAnalysis',params:[id:experimentresult.key.id,trialNumber:experimentresult.key.id,unqKey:ts])}');">
+                    <img alt="expand/collapse" id="imgExpand_${experimentresult.key.id}" src="${resource(dir:'images',file:'down_arrow_small2.png')}" style="display: inline;"/>
+                          Analyses
+                   </a>
                </span>
                <div id="${experimentresult.key.id}_detail" name="${experimentresult.key.id}" class="detailexpand"></div>
+
         </div> 
     </g:each>
 </div>

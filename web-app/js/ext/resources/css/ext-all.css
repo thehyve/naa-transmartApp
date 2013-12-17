@@ -637,13 +637,6 @@ td.x-date-mp-sep{border-right:1px solid #c5d2df;}
 .x-box-br{background:transparent url(../images/default/box/corners.gif) no-repeat right -24px;}
 .x-box-tl,.x-box-bl{padding-left:8px;overflow:hidden;}
 .x-box-tr,.x-box-br{padding-right:8px;overflow:hidden;}
-.x-box-blue .x-box-bl,.x-box-blue .x-box-br,.x-box-blue .x-box-tl,.x-box-blue .x-box-tr{background-image:url(../images/default/box/corners-blue.gif);}
-.x-box-blue .x-box-bc,.x-box-blue .x-box-mc,.x-box-blue .x-box-tc{background-image:url(../images/default/box/tb-blue.gif);}
-.x-box-blue .x-box-mc{background-color:#c3daf9;}
-.x-box-blue .x-box-mc h3{color:#17385b;}
-.x-box-blue .x-box-ml{background-image:url(../images/default/box/l-blue.gif);}
-.x-box-blue .x-box-mr{background-image:url(../images/default/box/r-blue.gif);}
-
 #x-debug-browser .x-tree .x-tree-node a span{color:#222297;font-size:11px;padding-top:2px;font-family:"monotype","courier new",sans-serif;line-height:18px;}
 #x-debug-browser .x-tree a i{color:#FF4545;font-style:normal;}
 #x-debug-browser .x-tree a em{color:#999;}

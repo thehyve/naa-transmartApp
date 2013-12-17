@@ -25,6 +25,7 @@ import org.codehaus.groovy.grails.commons.ConfigurationHolder;
 
 import i2b2.SnpProbeSortedDef;
 
+
 /**
  * $Id: I2b2HelperService.groovy 11303 2011-12-23 06:05:17Z mkapoor $
  */
@@ -80,6 +81,9 @@ import org.Hibernate.*;
 
 import com.recomdata.db.DBHelper;
 import com.recomdata.export.*;
+
+import search.AuthUser;
+import search.AuthUserSecureAccess
 
 /**
  * ResNetService that will provide an .rnef file for Jubilant data

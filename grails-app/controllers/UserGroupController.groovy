@@ -22,6 +22,10 @@ import groovy.sql.Sql;
 import command.UserGroupCommand;
 import grails.converters.*;
 
+import search.AuthUser;
+import search.UserGroup;
+import search.Principal;
+
 class UserGroupController {
 	def dataSource ;
 
@@ -218,7 +222,7 @@ def removeUserFromGroups =
                     	render(template:'addremove',model:[userGroupInstance:userGroupInstance, usersToAdd: searchForUsersNotInGroup(params.id.toLong(), fl.searchtext) ])
                 }
                 else {
-                	render(template:'addremove',model:[userGroupInstance:userGroupInstance, , usersToAdd: searchForUsersNotInGroup(params.id.toLong(), fl.searchtext) ])
+                	render(template:'addremove',model:[userGroupInstance:userGroupInstance, usersToAdd: searchForUsersNotInGroup(params.id.toLong(), fl.searchtext) ])
                 }
             }
             else {
@@ -255,7 +259,7 @@ def removeUserFromGroups =
                     	render(template:'addremove',model:[userGroupInstance:userGroupInstance, usersToAdd: searchForUsersNotInGroup(params.id.toLong(), fl.searchtext) ])
                 }
                 else {
-                	render(template:'addremove',model:[userGroupInstance:userGroupInstance, , usersToAdd: searchForUsersNotInGroup(params.id.toLong(), fl.searchtext) ])
+                	render(template:'addremove',model:[userGroupInstance:userGroupInstance, usersToAdd: searchForUsersNotInGroup(params.id.toLong(), fl.searchtext) ])
                 }
             }
             else {
@@ -295,7 +299,7 @@ def removeUserFromGroups =
 
 	 def getGroupsWithUser(userid)
 		{
-		return UserGroup.executeQuery('Select g FROM UserGroup g, IN (g.members) m WHERE m.id=?)', userid);
+		return UserGroup.executeQuery('Select g FROM UserGroup g, IN (g.members) m WHERE m.id=?', userid);
 		}
 
 		def getGroupsWithoutUser(userid, insearchtext)

@@ -26,6 +26,8 @@ import grails.converters.JSON
 
 class DiseaseController {
 
+    def diseaseService
+
 	/**
 	 * Find the top 15 diseases with a case-insensitive LIKE
 	 */
@@ -50,4 +52,29 @@ class DiseaseController {
 		
 		render itemlist as JSON;
 	}
+
+    def getMeshLineage = {
+        try {
+            def paramMap = params
+            def code = params.code
+            def disease = Disease.findByMeshCode(code)
+            def hierarchy = diseaseService.getMeshLineage(disease)
+
+            //Return the list of disease names and codes, and a parsed lineage for convenience
+            def diseases = [];
+            def path = "";
+            for (dis in hierarchy) {
+                if (dis != null) {
+                    diseases.add([code: dis.meshCode, name: dis.disease])
+                }
+            }
+            def returnData = [diseases: diseases]
+            render returnData as JSON
+        }
+        catch (Exception e) {
+            e.printStackTrace()
+            render(status: 500, text: e.getMessage())
+        }
+    }
+
 }

@@ -1,7 +1,15 @@
-CREATE OR REPLACE PROCEDURE TM_CZ.I2B2_LOAD_EQTL_TOP50 AS 
+create or replace 
+PROCEDURE                   I2B2_LOAD_EQTL_TOP50 AS 
 BEGIN
 
+BEGIN
 execute immediate ('drop table biomart.tmp_analysis_count_eqtl');
+EXCEPTION
+   WHEN OTHERS THEN
+      IF SQLCODE != -942 THEN
+         RAISE;
+      END IF;
+END;
 
 execute immediate ('create table biomart.tmp_analysis_count_eqtl as
 select count(*) as total, bio_assay_analysis_id
@@ -23,8 +31,14 @@ select 1 from biomart.tmp_analysis_count_eqtl  a where a.bio_assay_analysis_id =
 --where bio_assay_analysis_id = 419842521
 --order by p_value asc;
 
-
+BEGIN
 execute immediate ('drop table biomart.tmp_analysis_eqtl_top500');
+EXCEPTION
+   WHEN OTHERS THEN
+      IF SQLCODE != -942 THEN
+         RAISE;
+      END IF;
+END;
 
 execute immediate ('create table biomart.tmp_analysis_eqtl_top500 
 as
@@ -51,7 +65,14 @@ a.rnum <=500');
 execute immediate ('create index BIOMART.t_a_ge_t500_idx on BIOMART.TMP_ANALYSIS_eqtl_TOP500(RS_ID) tablespace "INDX"');
 execute immediate ('create index BIOMART.t_a_gae_t500_idx on BIOMART.TMP_ANALYSIS_eqtl_TOP500(bio_assay_analysis_id) tablespace "INDX"');
 
+BEGIN
 execute immediate ('drop table biomart.bio_asy_analysis_eqtl_top50 cascade constraints');
+EXCEPTION
+   WHEN OTHERS THEN
+      IF SQLCODE != -942 THEN
+         RAISE;
+      END IF;
+END;
 
 execute immediate ('create table biomart.BIO_ASY_ANALYSIS_eqtl_TOP50
 as 
@@ -59,7 +80,8 @@ SELECT baa.bio_assay_analysis_id,
 baa.analysis_name AS analysis, info.chrom AS chrom, info.pos AS pos,
 gmap.gene_name AS rsgene, DATA.rs_id AS rsid,
 DATA.p_value AS pvalue, DATA.log_p_value AS logpvalue, data.gene as gene,
-DATA.ext_data AS extdata , DATA.rnum
+DATA.ext_data AS extdata , DATA.rnum,
+info.exon_intron as intronexon, info.recombination_rate as recombinationrate, info.regulome_score as regulome
 FROM biomart.tmp_analysis_eqtl_top500 DATA 
 JOIN biomart.bio_assay_analysis baa 
 ON baa.bio_assay_analysis_id = DATA.bio_assay_analysis_id
@@ -73,4 +95,3 @@ execute immediate ('create index BIOMART.B_ASY_eqtl_T50_IDX1 on BIOMART.BIO_ASY_
 execute immediate ('create index BIOMART.B_ASY_eqtl_T50_IDX2 on BIOMART.BIO_ASY_ANALYSIS_eqtl_TOP50(ANALYSIS) parallel tablespace "INDX"');
 
 END I2B2_LOAD_EQTL_TOP50;
-/

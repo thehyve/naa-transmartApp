@@ -57,7 +57,7 @@
 			</div>
 	
 			<div class="paginateButtons">
-				<g:paginate total="${Requestmap.count()}" />
+				<g:paginate total="${search.Requestmap.count()}" />
 			</div>
 	
 		</div>

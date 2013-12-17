@@ -33,6 +33,7 @@ class UrlMappings {
       "/"(controller:'userLanding', action:'index')
 	  "500"(view:'/error')
 	  "/transmart/dataExport/getJobs"(controller:"dataExport", action:"getJobs")
+      "/webservice/$action?"(controller:"gwasWeb")
 	  //"/transmart/exportData"(controller:"dataExport", action:"processExport")
 	}
 }

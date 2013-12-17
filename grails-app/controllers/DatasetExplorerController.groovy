@@ -17,9 +17,9 @@
  *
  ******************************************************************/
   
-
+import com.recomdata.transmart.domain.searchapp.Subset;
 import grails.converters.*
-
+import search.AuthUser
 
 class DatasetExplorerController {
 	def springSecurityService
@@ -50,7 +50,16 @@ class DatasetExplorerController {
 					qid2=s.queryID2;
 				}
 			}
-			
+			def savedSubsetId = params["sId"]
+			log.trace("SavedComparison Controller found saved comparison id="+savedSubsetId)
+			if(savedSubsetId!=null && savedSubsetId!=""){
+				def savedSubset = Subset.get(savedSubsetId)
+				if(savedSubset){
+					restorecomparison=true
+					qid1=savedSubset.queryID1
+					qid2=savedSubset.queryID2
+				}
+			}
 			//Grab i2b2 credentials from the config file
 			def i2b2Domain = grailsApplication.config.com.recomdata.i2b2.subject.domain
 			def i2b2ProjectID = grailsApplication.config.com.recomdata.i2b2.subject.projectid
