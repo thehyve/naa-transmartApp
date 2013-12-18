@@ -25,7 +25,7 @@ import org.codehaus.groovy.grails.commons.ConfigurationHolder
 class ErrorController {
 
     def index = {
-        try {
+            try {
             def exception = request.exception
             def emailAddress = ConfigurationHolder.config.grails.mail.error.alert
             def emailHtml = g.render(template: 'email', model: [exception: exception])

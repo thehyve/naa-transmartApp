@@ -16,5 +16,5 @@
 <hr />
 <h2>Stacktrace</h2>
 <div class="stack">
-    <g:each in="${exception.stackTraceLines}">${it.encodeAsHTML()}</g:each>
+    <g:each in="${exception.stackTraceLines}">${it.encodeAsHTML()}<br/></g:each>
 </div>

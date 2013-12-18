@@ -3961,7 +3961,7 @@ function searchByName()
 	);
 }
 
-function getSummaryStatistics()
+function getSummaryStatistics(callback, callbackParams)
 {
 	Ext.Ajax.request(
 			{
@@ -3969,7 +3969,7 @@ function getSummaryStatistics()
 				method : 'POST',
 				success : function(result, request)
 				{
-				getSummaryStatisticsComplete(result);
+				getSummaryStatisticsComplete(result, callback, callbackParams);
 				}
 			,
 			failure : function(result, request)
@@ -4037,7 +4037,7 @@ function buildColumnModel(fields)
 	return new Ext.grid.ColumnModel(con);
 }
 
-function getSummaryStatisticsComplete(result, request)
+function getSummaryStatisticsComplete(result, callback, callbackParams)
 {
 	// analysisPanel.body.update(result.responseText, true, null);
 	// analysisPanel.getFrame().update(result.responseText, true, null);
@@ -4046,6 +4046,9 @@ function getSummaryStatisticsComplete(result, request)
 	updateAnalysisPanel(result.responseText, false);
 	getSummaryGridData();
 	getExportButtonSecurity();
+    if (callback != null) {
+        callback(callbackParams);
+    }
 }
 
 
