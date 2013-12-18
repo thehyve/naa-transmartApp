@@ -30,6 +30,12 @@
 import grails.plugins.springsecurity.SecurityConfigType
 
 grails.config.locations = []
+
+// Configuration for running in development
+def devConfigFiles = new File("./grails-app/conf/dev").listFiles()
+devConfigFiles?.each {file -> grails.config.locations << "file:${file.getPath()}"}
+
+// Configuration for running in production
 def defaultConfigFiles = [
 	"${userHome}/.grails/${appName}Config/Config.groovy",
 	"${userHome}/.grails/${appName}Config/RModulesConfig.groovy",
@@ -188,9 +194,9 @@ log4j = {
 	// example for sending stacktraces to my tomcatLog file
 	error tomcatLog:'StackTrace'
 	debug tomcatLog:'grails.app.task', 'grails.app.controller', 'grails.app.service'
-	
+
 	// set level for my messages; this uses the root logger (and thus the tomcatLog file)
 	}
 	}
-	
+
 }
