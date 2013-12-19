@@ -19,6 +19,7 @@ AS
     v_GWAS_staged				int;
     v_EQTL_staged				int;
 	v_gwas_indx					int;
+	v_eqtl_indx					int;
 	v_max_ext_flds				int;
     
     BEGIN    
@@ -87,7 +88,8 @@ AS
 									   ,table_name
 								 from all_indexes 
 					    		 where owner = 'BIOMART' 
-								   and table_name = 'BIO_ASSAY_ANALYSIS_GWAS')
+								   and table_name in ('BIO_ASSAY_ANALYSIS_GWAS','BIO_ASY_ANALYSIS_GWAS_TOP50') 
+								   and partitioned = 'NO' )
 				loop
 					v_sqlText := 'alter index ' || gwas_idx.index_name || ' unusable';
 					stepCt := stepCt + 1;
@@ -181,6 +183,24 @@ AS
 			--	EQTL data
 			v_EQTL_staged := 1;
 			
+			if v_eqtl_indx = 0 then
+				--	disable indexes if loading eqtl data
+				for eqtl_idx in (select index_name
+									   ,table_name
+								 from all_indexes 
+					    		 where owner = 'BIOMART' 
+								   and table_name = 'BIO_ASY_ANALYSIS_EQTL_TOP50' )
+				loop
+					v_sqlText := 'alter index ' || eqtl_idx.index_name || ' unusable';
+					stepCt := stepCt + 1;
+					cz_write_audit(jobId,databaseName,procedureName,'Disabling index ' || eqtl_idx.index_name || ' on ' || eqtl_idx.table_name,SQL%ROWCOUNT,stepCt,'Done');
+					execute immediate(v_sqlText);
+					stepCt := stepCt + 1;
+					cz_write_audit(jobId,databaseName,procedureName,'Disabling complete',SQL%ROWCOUNT,stepCt,'Done');       
+				end loop;
+				v_eqtl_indx := 1;
+			end if;
+			
 			--	delete existing data from bio_assay_analysis_eqtl
 			delete from biomart.bio_assay_analysis_eqtl g
 			where g.bio_assay_analysis_id = v_bio_assay_analysis_id;
@@ -260,7 +280,7 @@ AS
 							   ,table_name
 						 from all_indexes 
 						 where owner = 'BIOMART' 
-						   and table_name = 'BIO_ASSAY_ANALYSIS_GWAS')
+						   and table_name In ('BIO_ASSAY_ANALYSIS_GWAS','BIO_ASY_ANALYSIS_GWAS_TOP50') )
 		loop
 			v_sqlText := 'alter index ' || gwas_idx.index_name || ' rebuild';
 			stepCt := stepCt + 1;
@@ -275,7 +295,29 @@ AS
         cz_write_audit(jobId, databaseName, procedureName, 'No staged data - run terminating normally',0,stepCt,'Done');
         cz_end_audit(jobId, 'Success');
 	end if;
+
+    --    rebuild indexes if loading EQTL data
+    
+    if v_eqtl_staged = 1 then
+		for eqtl_idx in (select index_name 
+							   ,table_name
+						 from all_indexes 
+						 where owner = 'BIOMART' 
+						   and table_name = 'BIO_ASY_ANALYSIS_EQTL_TOP50')
+		loop
+			v_sqlText := 'alter index ' || eqtl_idx.index_name || ' rebuild';
+			stepCt := stepCt + 1;
+			cz_write_audit(jobId,databaseName,procedureName,'Rebuilding index ' || eqtl_idx.index_name || ' on ' || eqtl_idx.table_name,SQL%ROWCOUNT,stepCt,'Done');
+			execute immediate(v_sqlText);
+			stepCt := stepCt + 1;
+			cz_write_audit(jobId,databaseName,procedureName,'Rebuilding complete',SQL%ROWCOUNT,stepCt,'Done');       
+		end loop;
+	end if;
 	
+	if v_eqtl_staged = 0 and v_eqtl_staged = 0 then
+        cz_write_audit(jobId, databaseName, procedureName, 'No staged data - run terminating normally',0,stepCt,'Done');
+        cz_end_audit(jobId, 'Success');
+	end if;	
 	--	check if any data left in staging tables, ususally indicated no bio_assay_analysis record in biomart
 	
 	select count(*) into v_exists

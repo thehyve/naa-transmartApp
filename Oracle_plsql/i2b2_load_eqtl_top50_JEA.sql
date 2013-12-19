@@ -39,6 +39,7 @@ BEGIN
 	cz_write_audit(jobId,databaseName,procedureName,'Delete data for analysis from biomart.bio_asy_analysis_eqtls_top50',SQL%ROWCOUNT,stepCt,'Done');
 	commit; 
 	
+/*
 	--	disable indexes 
 
 	for eqtl_idx in (select index_name
@@ -54,6 +55,7 @@ BEGIN
 		stepCt := stepCt + 1;
 		cz_write_audit(jobId,databaseName,procedureName,'Disabling complete',0,stepCt,'Done');       
 	end loop;
+*/
 	
 	--	insert analysis into bio_asy_analysis_eqtl_top50
 	
@@ -112,12 +114,13 @@ BEGIN
 		 where b.rnum < 500) a	  
 	inner join deapp.de_rc_snp_info info 
 		  on  a.rsid = info.rs_id 
-		  and hg_version='19'
-	left outer join deapp.de_snp_gene_map gmap 
-		 on  gmap.snp_name = a.rsid;
+		  and hg_version='19';
     stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Insert data for analysis from biomart.bio_asy_analysis_eaqtl_top50',SQL%ROWCOUNT,stepCt,'Done');
 	commit; 
+
+/*
+	--	rebuild indexes
 	
 	for eqtl_idx in (select index_name 
 							   ,table_name
@@ -132,6 +135,7 @@ BEGIN
 			stepCt := stepCt + 1;
 			cz_write_audit(jobId,databaseName,procedureName,'Rebuilding complete',SQL%ROWCOUNT,stepCt,'Done');       
 		end loop;
+*/
 
 	cz_write_audit(jobId,databaseName,procedureName,'End ' || procedureName,0,stepCt,'Done');
     stepCt := stepCt + 1;

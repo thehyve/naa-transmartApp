@@ -402,15 +402,16 @@ BEGIN
 	,attribute_1
     ,attribute_2
 	,node_type
+	,orig_category_cd
 	)
-	select distinct topNode || regexp_replace(replace(replace(replace(replace(replace(replace(
-	       category_cd,'PLATFORM',title),'ATTR1',attribute_1),'ATTR2',attribute_2),'TISSUETYPE',tissue_type),'+','\'),'_',' ') || '\','(\\){2,}', '\') 
+	select distinct topNode || regexp_replace(replace(replace(replace(replace(replace(replace(category_cd,'+','\'),'PLATFORM',title),'ATTR1',coalesce(attribute_1,'')),'ATTR2',coalesce(attribute_2,'')),'TISSUETYPE',coalesce(tissue_type,'')),'_',' ') || '\','(\\){2,}', '\')
 		  ,category_cd
 		  ,platform as platform
 		  ,tissue_type
 		  ,attribute_1 as attribute_1
           ,attribute_2 as attribute_2
 		  ,'LEAF'
+		  ,category_cd
 	from  wt_mrna_node_values;
 		   
     stepCt := stepCt + 1;
@@ -427,9 +428,10 @@ BEGIN
 	,attribute_1
     ,attribute_2
 	,node_type
+	,orig_category_cd
 	)
-	select distinct topNode || regexp_replace(replace(replace(replace(replace(replace(replace(
-	       substr(category_cd,1,instr(category_cd,'PLATFORM')+8),'PLATFORM',title),'ATTR1',attribute_1),'ATTR2',attribute_2),'TISSUETYPE',tissue_type),'+','\'),'_',' ') || '\',
+	select distinct topNode || regexp_replace(replace(replace(replace(replace(replace(
+	       substr(replace(category_cd,'+','\'),1,instr(category_cd,'PLATFORM')+8),'PLATFORM',title),'ATTR1',attribute_1),'ATTR2',attribute_2),'TISSUETYPE',tissue_type),'_',' ') || '\',
 		   '(\\){2,}', '\')
 		  ,substr(category_cd,1,instr(category_cd,'PLATFORM')+8)
 		  ,platform as platform
@@ -437,6 +439,7 @@ BEGIN
 		  ,case when instr(substr(category_cd,1,instr(category_cd,'PLATFORM')+8),'ATTR1') > 1 then attribute_1 else null end as attribute_1
           ,case when instr(substr(category_cd,1,instr(category_cd,'PLATFORM')+8),'ATTR2') > 1 then attribute_2 else null end as attribute_2
 		  ,'PLATFORM'
+		  ,category_cd
 	from  wt_mrna_node_values;
 		   
     stepCt := stepCt + 1;
@@ -453,9 +456,10 @@ BEGIN
     ,attribute_1
 	,attribute_2
 	,node_type
+	,orig_category_cd
 	)
-	select distinct topNode || regexp_replace(replace(replace(replace(replace(replace(replace(
-	       substr(category_cd,1,instr(category_cd,'ATTR1')+5),'PLATFORM',title),'ATTR1',attribute_1),'ATTR2',attribute_2),'TISSUETYPE',tissue_type),'+','\'),'_',' ') || '\',
+	select distinct topNode || regexp_replace(replace(replace(replace(replace(replace(
+	       substr(replace(category_cd,'+','\'),1,instr(category_cd,'ATTR1')+5),'PLATFORM',title),'ATTR1',attribute_1),'ATTR2',attribute_2),'TISSUETYPE',tissue_type),'_',' ') || '\',
 		   '(\\){2,}', '\')
 		  ,substr(category_cd,1,instr(category_cd,'ATTR1')+5)
 		  ,case when instr(substr(category_cd,1,instr(category_cd,'ATTR1')+5),'PLATFORM') > 1 then platform else null end as platform
@@ -463,6 +467,7 @@ BEGIN
 		  ,attribute_1 as attribute_1
           ,case when instr(substr(category_cd,1,instr(category_cd,'ATTR1')+5),'ATTR2') > 1 then attribute_2 else null end as attribute_2
 		  ,'ATTR1'
+		  ,category_cd
 	from  wt_mrna_node_values
 	where category_cd like '%ATTR1%'
 	  and attribute_1 is not null;
@@ -481,9 +486,10 @@ BEGIN
     ,attribute_1
 	,attribute_2
 	,node_type
+	,orig_category_cd
 	)
-	select distinct topNode || regexp_replace(replace(replace(replace(replace(replace(replace(
-	       substr(category_cd,1,instr(category_cd,'ATTR2')+5),'PLATFORM',title),'ATTR1',attribute_1),'ATTR2',attribute_2),'TISSUETYPE',tissue_type),'+','\'),'_',' ') || '\',
+	select distinct topNode || regexp_replace(replace(replace(replace(replace(replace(
+	       substr(replace(category_cd,'+','\'),1,instr(category_cd,'ATTR2')+5),'PLATFORM',title),'ATTR1',attribute_1),'ATTR2',attribute_2),'TISSUETYPE',tissue_type),'_',' ') || '\',
 		   '(\\){2,}', '\')
 		  ,substr(category_cd,1,instr(category_cd,'ATTR2')+5)
 		  ,case when instr(substr(category_cd,1,instr(category_cd,'ATTR2')+5),'PLATFORM') > 1 then platform else null end as platform
@@ -491,6 +497,7 @@ BEGIN
           ,case when instr(substr(category_cd,1,instr(category_cd,'ATTR2')+5),'ATTR1') > 1 then attribute_1 else null end as attribute_1
 		  ,attribute_2 as attribute_2
 		  ,'ATTR2'
+		  ,category_cd
 	from  wt_mrna_node_values
 	where category_cd like '%ATTR2%'
 	  and attribute_2 is not null;
@@ -509,9 +516,10 @@ BEGIN
 	,attribute_1
     ,attribute_2
 	,node_type
+	,orig_category_cd
 	)
-	select distinct topNode || regexp_replace(replace(replace(replace(replace(replace(replace(
-	       substr(category_cd,1,instr(category_cd,'TISSUETYPE')+10),'PLATFORM',title),'ATTR1',attribute_1),'ATTR2',attribute_2),'TISSUETYPE',tissue_type),'+','\'),'_',' ') || '\',
+	select distinct topNode || regexp_replace(replace(replace(replace(replace(replace(
+	       substr(replace(category_cd,'+','\'),1,instr(category_cd,'TISSUETYPE')+10),'PLATFORM',title),'ATTR1',attribute_1),'ATTR2',attribute_2),'TISSUETYPE',tissue_type),'_',' ') || '\',
 		   '(\\){2,}', '\')
 		  ,substr(category_cd,1,instr(category_cd,'TISSUETYPE')+10)
 		  ,case when instr(substr(category_cd,1,instr(category_cd,'TISSUETYPE')+10),'PLATFORM') > 1 then platform else null end as platform
@@ -519,6 +527,7 @@ BEGIN
 		  ,case when instr(substr(category_cd,1,instr(category_cd,'TISSUETYPE')+10),'ATTR1') > 1 then attribute_1 else null end as attribute_1
           ,case when instr(substr(category_cd,1,instr(category_cd,'TISSUETYPE')+10),'ATTR2') > 1 then attribute_2 else null end as attribute_2
 		  ,'TISSUETYPE'
+		  ,category_cd
 	from  wt_mrna_node_values
 	where category_cd like '%TISSUETYPE%';
 		   
@@ -758,31 +767,35 @@ BEGIN
 		  on regexp_replace(TrialID || ':' || a.site_id || ':' || a.subject_id,'(::){1,}', ':') = b.sourcesystem_cd
 		inner join wt_mrna_nodes ln
 			on a.platform = ln.platform
+			and a.category_cd = ln.orig_category_cd
 			and a.tissue_type = ln.tissue_type
 			and nvl(a.attribute_1,'@') = nvl(ln.attribute_1,'@')
 			and nvl(a.attribute_2,'@') = nvl(ln.attribute_2,'@')
 			and ln.node_type = 'LEAF'
-                        and ln.category_cd=a.category_cd    --added by HZ 12/11/13
 		inner join wt_mrna_nodes pn
 			on a.platform = pn.platform
+			and a.category_cd = pn.orig_category_cd
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'PLATFORM')+8),'TISSUETYPE') > 1 then a.tissue_type else '@' end = nvl(pn.tissue_type,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'PLATFORM')+8),'ATTR1') > 1 then a.attribute_1 else '@' end = nvl(pn.attribute_1,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'PLATFORM')+8),'ATTR2') > 1 then a.attribute_2 else '@' end = nvl(pn.attribute_2,'@')
 			and pn.node_type = 'PLATFORM'	  
 		left outer join wt_mrna_nodes ttp
 			on a.tissue_type = ttp.tissue_type
+			and a.category_cd = ttp.orig_category_cd
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'TISSUETYPE')+10),'PLATFORM') > 1 then a.platform else '@' end = nvl(ttp.platform,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'TISSUETYPE')+10),'ATTR1') > 1 then a.attribute_1 else '@' end = nvl(ttp.attribute_1,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'TISSUETYPE')+10),'ATTR2') > 1 then a.attribute_2 else '@' end = nvl(ttp.attribute_2,'@')
 			and ttp.node_type = 'TISSUETYPE'		  
 		left outer join wt_mrna_nodes a1
 			on a.attribute_1 = a1.attribute_1
+			and a.category_cd = a1.orig_category_cd
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR1')+5),'PLATFORM') > 1 then a.platform else '@' end = nvl(a1.platform,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR1')+5),'TISSUETYPE') > 1 then a.tissue_type else '@' end = nvl(a1.tissue_type,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR1')+5),'ATTR2') > 1 then a.attribute_2 else '@' end = nvl(a1.attribute_2,'@')
 			and a1.node_type = 'ATTR1'		  
 		left outer join wt_mrna_nodes a2
-			on a.attribute_2 = a1.attribute_2
+			on a.attribute_2 = a2.attribute_2
+			and a.category_cd = a2.orig_category_cd
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR2')+5),'PLATFORM') > 1 then a.platform else '@' end = nvl(a2.platform,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR2')+5),'TISSUETYPE') > 1 then a.tissue_type else '@' end = nvl(a2.tissue_type,'@')
 			and case when instr(substr(a.category_cd,1,instr(a.category_cd,'ATTR2')+5),'ATTR1') > 1 then a.attribute_1 else '@' end = nvl(a2.attribute_1,'@')
@@ -888,6 +901,34 @@ BEGIN
     
 	--Update I2b2 for correct data type
 	
+	update i2b2 a
+	set c_columndatatype = 'T'
+		,c_metadataxml = null
+        ,c_visualattributes=(
+			with upd as (select x.c_fullname, min(x.node_type) as node_type
+			from (select distinct leaf_node as c_fullname
+						,case when node_type = 'LEAF' then '1' else '2' end as node_type 
+				  from tm_wz.wt_mrna_nodes
+				  union
+				  select topNode as c_fullname
+						,'0' as node_type 
+				  from dual) x group by x.c_fullname)
+			select case when u.node_type = '0' then 'FAS'
+					when u.node_type = '1' then 'LAH'
+					else 'FA'
+               end
+			from upd u
+			where a.c_fullname = u.c_fullname)
+	where a.c_fullname in 
+		 (select distinct leaf_node as c_fullname 
+		  from tm_wz.wt_mrna_nodes
+		  union
+		  select topNode as c_fullname from dual);
+	stepCt := stepCt + 1;
+	cz_write_audit(jobId,databaseName,procedureName,'Update visual attributes in I2B2METADATA i2b2',SQL%ROWCOUNT,stepCt,'Done');
+	commit;
+	
+/*	
 	update i2b2 t
 	set c_columndatatype = 'T', c_metadataxml = null, c_visualattributes='FA'
 	where t.c_basecode in (select distinct x.concept_cd from wt_mrna_nodes x);
@@ -896,6 +937,7 @@ BEGIN
 	cz_write_audit(jobId,databaseName,procedureName,'Initialize data_type and xml in i2b2',SQL%ROWCOUNT,stepCt,'Done');
 	commit;
 	
+
 	update i2b2
 	SET c_columndatatype = 'N',
       --Static XML String
@@ -912,7 +954,7 @@ BEGIN
 	cz_write_audit(jobId,databaseName,procedureName,'Update c_columndatatype and c_metadataxml for numeric data types in I2B2METADATA i2b2',SQL%ROWCOUNT,stepCt,'Done');
 	commit;
   
-/*
+
 	--UPDATE VISUAL ATTRIBUTES for Leaf Active (Default is folder)
 	update i2b2 a
     set c_visualattributes = 'LA'
@@ -921,7 +963,6 @@ BEGIN
       from i2b2 b
       where b.c_fullname like (a.c_fullname || '%'))
       and c_fullname like '%' || topNode || '%';
-*/
 
 	--UPDATE VISUAL ATTRIBUTES for Leaf Active (Default is folder)
 	update i2b2 a
@@ -935,6 +976,7 @@ BEGIN
 	cz_write_audit(jobId,databaseName,procedureName,'Update visual attributes for leaf nodes in I2B2METADATA i2b2',SQL%ROWCOUNT,stepCt,'Done');
   
 	COMMIT;
+	*/
     
   --Build concept Counts
   --Also marks any i2B2 records with no underlying data as Hidden, need to do at Trial level because there may be multiple platform and there is no longer

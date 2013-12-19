@@ -40,6 +40,7 @@ BEGIN
 	cz_write_audit(jobId,databaseName,procedureName,'Delete data for analysis from biomart.bio_asy_analysis_gwas_top50',SQL%ROWCOUNT,stepCt,'Done');
 	commit; 
 	
+/*
 	--	disable indexes 
 
 	for gwas_idx in (select index_name
@@ -55,6 +56,7 @@ BEGIN
 		stepCt := stepCt + 1;
 		cz_write_audit(jobId,databaseName,procedureName,'Disabling complete',0,stepCt,'Done');       
 	end loop;
+*/
 	
 	--	insert analysis into bio_asy_analysis_gwas_top50
 	
@@ -77,7 +79,7 @@ BEGIN
 		  ,a.analysis
 		  ,info.chrom
 		  ,info.pos
-		  ,gmap.gene_name AS rsgene
+		  ,info.gene_name AS rsgene
 		  ,a.rsid
 		  ,a.pvalue
 		  ,a.logpvalue
@@ -107,9 +109,7 @@ BEGIN
 		 where b.rnum < 500) a	  
 	inner join deapp.de_rc_snp_info info 
 		  on  a.rsid = info.rs_id 
-		  and hg_version='19'
-	left outer join deapp.de_snp_gene_map gmap 
-		 on  gmap.snp_name = a.rsid;
+		  and hg_version='19';
     stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Insert data for analysis from biomart.bio_asy_analysis_gwas_top50',0,stepCt,'Done');
 	commit; 
