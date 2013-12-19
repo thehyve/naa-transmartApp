@@ -19,14 +19,11 @@
   
 
 package com.recomdata.transmart.plugin
-
-import grails.converters.JSON;
-
-import org.hibernate.Hibernate
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import com.recomdata.plugins.PluginDescriptor
+import grails.converters.JSON
+import org.hibernate.Hibernate
+import org.json.JSONArray
+import org.json.JSONObject
 
 class PluginService {
 
@@ -94,6 +91,32 @@ class PluginService {
 
 		//return pluginInstance?.modules
 	}
+
+	def getPluginsAsJSON() {
+		def c = Plugin.createCriteria()
+		def plugins = c {
+			eq('active', true)
+			order('id', 'asc')
+		}
+
+		def result = new JSONObject()
+		def pluginsJSON = new JSONArray()
+
+		result.put("count", plugins.size())
+
+		for (plugin in plugins) {
+			def pluginJSON = new JSONObject()
+			pluginJSON.put("id", plugin.getId())
+			pluginJSON.put("name", plugin.getName())
+			pluginJSON.put("defaultLink", plugin.getDefaultLink())
+			pluginsJSON.put(pluginJSON)
+		}
+		result.put('plugins', pluginsJSON)
+
+		result.put('success', true)
+
+		return result
+	}
 	
 	def getPluginModulesAsJSON(pluginName) {
 		def pluginInstance = Plugin.findByName(pluginName)
@@ -142,7 +165,7 @@ class PluginService {
 	
 	def findPluginModuleById(moduleId) {
 		def pluginModuleInstance = PluginModule.get(moduleId)
-		
+
 		return pluginModuleInstance
 	}
 	

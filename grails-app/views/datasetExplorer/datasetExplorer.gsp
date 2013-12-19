@@ -29,7 +29,7 @@
  <meta http-equiv="X-UA-Compatible" content="IE=8">   
    %{--<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8">--}%
 
-    <LINK REL="SHORTCUT ICON"
+<LINK REL="SHORTCUT ICON"
 	HREF="${resource(dir:'images', file:'i2b2_hive.ico')}">
 <LINK REL="ICON"
 	HREF="${resource(dir:'images', file:'i2b2_hive.ico')}">
@@ -56,7 +56,7 @@ src="${resource(dir:'js', file:'ext/ext-all.js')}"></script>
 <script type="text/javascript" src="${resource(dir:'js/jQuery/validate', file:'additional-methods.min.js')}"></script>
 
 <script type="text/javascript" src="${resource(dir:'js/jQuery/multiselect', file: 'jquery.multiselect.min.js')}"></script>
-
+	
 <script type="text/javascript" src="${resource(dir:'js/jQuery', file:'jquery.tablesorter.min.js')}"></script>
 <script type="text/javascript" src="${resource(dir:'js/jQuery', file:'jquery.dataTables.columnFilter.js')}"></script>
 
@@ -71,7 +71,7 @@ src="${resource(dir:'js', file:'ext/ext-all.js')}"></script>
 <%--<script type="text/javascript" src="${resource(dir:'js/jQuery/flot', file: 'jquery.flot.time.js')}"></script>--%>
 
 <script type="text/javascript" src="${resource(dir:'js/jsTree', file:'jquery.jstree.js')}"></script>
-
+  
 <script type="text/javascript" src="${resource(dir:'js', file:'ajax_queue.js')}"></script> 
 
 
@@ -82,6 +82,7 @@ src="${resource(dir:'js', file:'ext/ext-all.js')}"></script>
 <script type="text/javascript"
 	src="${resource(dir:'js/ext-ux', file:'miframe.js')}"></script>
 <script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'i2b2common.js')}"></script>
+<script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'dataAnalysisTools.js')}"></script>
 <script type="text/javascript"
 	src="${resource(dir:'js/datasetExplorer', file: 'requests.js')}"></script>
 <script type="text/javascript"
@@ -104,39 +105,33 @@ src="${resource(dir:'js', file:'ext/ext-all.js')}"></script>
 	<!--src="${resource(dir:'js', file:'bioheatmap.js')}"></script>-->
     <!--Datatable styling and scripts-->
     <link rel="stylesheet" type="text/css" href="${resource(dir:'css', file:'jquery.dataTables.css')}">
-    
+	
 	<!-- Include Ext stylesheets here: -->
 	<link rel="stylesheet" type="text/css" href="${resource(dir:'js/ext/resources/css', file:'ext-all.css')}">
 	<link rel="stylesheet" type="text/css" href="${resource(dir:'js/ext/resources/css', file:'xtheme-gray.css')}">
 	<!-- Include JQuery stylesheets here: -->
 	<link rel="stylesheet" type="text/css" href="${resource(dir:'css/jQueryUI/smoothness', file:'jquery-ui-1.8.17.custom.css')}">
-
+	
     <!-- jQuery Multiselect widget stylesheets -->
     <link rel="stylesheet" type="text/css" href="${resource(dir:'css/jQueryUI/multiselect', file:'jquery.multiselect.css')}">
 
 	<script type="text/javascript" src="${resource(dir:'js', file:'browserDetect.js')}"></script>
-
-
-
+	
 	<link rel="stylesheet" type="text/css" href="${resource(dir:'css', file:'datasetExplorer.css')}">
 	<script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'datasetExplorer.js')}"></script>
     <script type="text/javascript" src="${resource(dir:'js', file:'ColVis.js')}"></script>
     <script type="text/javascript" src="${resource(dir:'js', file:'ColReorderWithResize.js')}"></script>
     <script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'workflowValidationFunctions.js')}"></script>
-    <script type="text/javascript" src="${resource(dir:'js', file:'advancedWorkflowFunctions.js')}"></script>
-
+	<script type="text/javascript" src="${resource(dir:'js', file:'advancedWorkflowFunctions.js')}"></script>
 	<script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'highDimensionData.js')}"></script>
-	<script type="text/javascript" src="${resource(dir:'js', file:'utilitiesMenu.js')}"></script>
-	<!-- <script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'dataAnalysisTools.js')}"></script>  -->
-		
-		
-	
+    <script type="text/javascript" src="${resource(dir:'js', file:'utilitiesMenu.js')}"></script>
+	<script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'dataAnalysisTools.js')}"></script>
 
-	<!-- Combo-handled YUI JS files: --> 
+	<!-- Combo-handled YUI JS files: -->
 	<script type="text/javascript" src="http://yui.yahooapis.com/combo?2.9.0/build/yahoo/yahoo-min.js&2.9.0/build/get/get-min.js"></script> 
 	<style>
 		.ui-progressbar-value { background-image: url(images/pbar-ani.gif); }
-	</style>
+	</style> 
 
     <g:ifPlugin name="folder-management">
         <g:render template="/folderManagementUrls" plugin="folderManagement"/>
@@ -168,10 +163,10 @@ src="${resource(dir:'js', file:'ext/ext-all.js')}"></script>
 	var pageInfo = {
 		basePath :"${request.getContextPath()}"
 	}
-
+	
     var helpURL = '${grailsApplication.config.com.recomdata.searchtool.adminHelpURL}';
     var hasPluginFolderManagement = <g:ifPlugin name="folder-management" true="true" false="false"/>;
-
+	 
 	/******************************************************************************/
 	//Global Variables
 	GLOBAL = {
@@ -258,7 +253,7 @@ src="${resource(dir:'js', file:'ext/ext-all.js')}"></script>
 	</g:else>
 	<IFRAME src="${gplogout}" width="1" height="1" scrolling="no" frameborder="0" id="gplogin"></IFRAME>
 	<IFRAME src="${gplogout}" width="1" height="1" scrolling="no" frameborder="0" id="altgplogin"></IFRAME>
-
+		
     <div id="saveReportDialog" style="display:none;font: 11px arial,tahoma,helvetica,sans-serif;font-weight:normal;">
         <br />
         Report Name : <input id='txtReportName' type='text' title="Report Name" /> <br />

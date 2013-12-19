@@ -133,7 +133,7 @@ a.toplink1:hover{
 .printbutton{
 	background-image:url(../images/printer.png ) !important;
 	}
-
+	
 .x-tree-node-collapsed .x-tree-node-icon.studyicon {
     background-image: url(../images/study.png);
 }
@@ -359,7 +359,7 @@ table.tablesorterAnalysisResults thead tr th, table.tablesorter tfoot tr th {
 	white-space: nowrap;	
 }
 table.tablesorterAnalysisResults thead tr .header {
-	background-image: (../images/bg.gif);
+	background-image: url(../images/bg.gif);
 	background-repeat: no-repeat;
 	background-position: center right;
 	cursor: pointer;
