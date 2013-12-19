@@ -168,6 +168,12 @@ var g_d2hContextIds = new Array();
 
  g_d2hContextIds["1331"]="Documents/uploadinganalysisdat.htm";
 
+ g_d2hContextIds["5656"]="Documents/fileupload.htm";
+
+ g_d2hContextIds["5657"]="Documents/creatingagenersidlist.htm";
+
+ g_d2hContextIds["5658"]="Documents/workspace.htm";
+
  g_d2hContextIds["1062"]="Documents/usingdatasetexplorer.htm";
 
  g_d2hContextIds["1297"]="Documents/usingthefilterbrowse.htm";

@@ -87,9 +87,12 @@
         <topic url="Documents/viewingagenesignaturedefinition.htm" window="right" />
         <topic url="Documents/analysisdataupload.htm" window="right" />
         <topic url="Documents/uploadinganalysisdat.htm" window="right" />
+        <topic url="Documents/fileupload.htm" window="right" />
         <topic url="Documents/filetemplates.htm" window="right" />
         <topic url="Documents/handlinganuploadfail.htm" window="right" />
         <topic url="Documents/glossary1.htm" window="right" />
         <topic url="Documents/readthedocumentationinpdf.htm" window="right" />
+        <topic url="Documents/workspace.htm" window="right" />
+        <topic url="Documents/creatingagenersidlist.htm" window="right" />
     </topics>
 </root>

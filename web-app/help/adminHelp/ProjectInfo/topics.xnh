@@ -94,4 +94,7 @@
     <topic id="91" tId="311" url="Documents/viewingsearchresults.htm" target="right"><![CDATA[Viewing Search Results]]><contextids><item id="1311" /></contextids></topic>
     <topic id="92" tId="200" url="Documents/viewingthenumericvaluesassociatedwithaconcept.htm" target="right"><![CDATA[Viewing the Numeric Values Associated with a Concept]]><contextids><item id="1420" /></contextids></topic>
     <topic id="93" tId="198" url="Documents/visualaidstohelpyouselectthecriteria.htm" target="right"><![CDATA[Visual Aids to Help You Select the Criteria]]><contextids><item id="1070" /></contextids></topic>
+    <topic id="94" tId="565" url="Documents/fileupload.htm" target="right"><![CDATA[File Upload]]><contextids><item id="5656" /></contextids></topic>
+    <topic id="95" tId="566" url="Documents/creatingagenersidlist.htm" target="right"><![CDATA[Creating a Gene/RSID List]]><contextids><item id="5657" /></contextids></topic>
+    <topic id="96" tId="567" url="Documents/workspace.htm" target="right"><![CDATA[The Workspace]]><contextids><item id="5658" /></contextids></topic>
 </topics>
