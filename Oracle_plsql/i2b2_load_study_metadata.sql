@@ -18,8 +18,9 @@ AS
 * See the License for the specific language governing permissions and
 * limitations under the License.
 ******************************************************************/
-
-  
+  -------------------------------------------------------------
+    --HZ 20140130 added folder association
+  -------------------------------------------------------------
 	--Audit variables
 	newJobFlag INTEGER(1);
 	databaseName VARCHAR(100);
@@ -358,7 +359,7 @@ BEGIN
 	)
 	select distinct b.bio_experiment_id
 	      ,'EXP:' || m.study_id
-		  ,'BIO_EXPERIMENT'
+		  ,'EXP'
 	from biomart.bio_experiment b
 		,lt_src_study_metadata m
 	where m.study_id is not null
@@ -370,46 +371,6 @@ BEGIN
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Inserted trial data into BIOMART bio_data_uid',SQL%ROWCOUNT,stepCt,'Done');
 	commit;
-	
-	--	insert study into fmapp.fm_folder
-	
-	insert into fmapp.fm_folder
-	(folder_name 
-	,folder_level      
-	,folder_type
-	,active_ind
-	)
-	select distinct m.study_id
-		  ,1
-		  ,'STUDY'
-		  ,'1'
-	from lt_src_study_metadata m
-	where not exists
-		  (select 1 from fmapp.fm_folder x
-		   where x.folder_name = m.study_id);
-	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Insert trial/study into fmapp.fm_folder',SQL%ROWCOUNT,stepCt,'Done');
-	commit;
-	
-	--	insert fm_folder_association
-	
-	insert into fmapp.fm_folder_association
-	(folder_id
-	,object_uid
-	,object_type
-	)
-	select distinct ff.folder_id
-		  ,'EXP:' || m.study_id
-		  ,'bio.Experiment'
-	from lt_src_study_metadata m
-		,fmapp.fm_folder ff
-	where ff.folder_name = m.study_id
-	  and not exists
-	     (select 1 from fmapp.fm_folder_association x
-		  where ff.folder_id = x.folder_id);
-	stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Insert trial/study into fmapp.fm_folder_asociation',SQL%ROWCOUNT,stepCt,'Done');
-	commit;	
 
 	--	delete existing compound data for study, compound list may change
 	
@@ -626,12 +587,12 @@ BEGIN
 				)
 				select b.bio_experiment_id
 					  ,c.bio_taxonomy_id
-					  ,'METADATA:' || study_disease_array(i).study_id
+					  ,'METADATA:' || study_taxonomy_array(i).study_id
 				from biomart.bio_experiment b
 					,biomart.bio_taxonomy c
 				where upper(tmp_organism) = upper(c.taxon_name) 
 				  and tmp_organism is not null
-				  and b.accession = study_disease_array(i).study_id
+				  and b.accession = study_taxonomy_array(i).study_id
 				  and not exists
 						 (select 1 from biomart.bio_data_taxonomy x
 						  where b.bio_experiment_id = x.bio_data_id
@@ -856,7 +817,7 @@ BEGIN
 		--	Create i2b2_tags
 
 	delete from i2b2_tags
-	where upper(tag_type) = 'Trial';
+	where tag_type = 'Trial';
 	
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Delete existing Trial tags in i2b2_tags',SQL%ROWCOUNT,stepCt,'Done');
@@ -962,7 +923,46 @@ BEGIN
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Insert ad_hoc metadata into BIOMART BIO_AD_HOC_PROPERTY',SQL%ROWCOUNT,stepCt,'Done');
 	commit;
-	
+	    --    insert study into fmapp.fm_folder
+    
+    insert into fmapp.fm_folder
+    (folder_name 
+    ,folder_level      
+    ,folder_type
+    ,active_ind
+    )
+    select m.study_id
+          ,1
+          ,'STUDY'
+          ,'1'
+    from lt_src_study_metadata m
+    where not exists
+          (select 1 from fmapp.fm_folder x
+           where x.folder_name = m.study_id);
+    stepCt := stepCt + 1;
+    cz_write_audit(jobId,databaseName,procedureName,'Insert trial/study into fmapp.fm_folder',SQL%ROWCOUNT,stepCt,'Done');
+    commit;
+    
+    --    insert fm_folder_association
+    
+    insert into fmapp.fm_folder_association
+    (folder_id
+    ,object_uid
+    ,object_type
+    )
+    select ff.folder_id
+          ,'EXP:' || m.study_id
+          ,'bio.Experiment'
+    from fmapp.fm_folder ff,
+       lt_src_study_metadata m
+    where folder_name = m.study_id
+      and not exists
+         (select 1 from fmapp.fm_folder_association x
+          where ff.folder_id = x.folder_id);
+    stepCt := stepCt + 1;
+    cz_write_audit(jobId,databaseName,procedureName,'Insert trial/study into fmapp.fm_folder_asociation',SQL%ROWCOUNT,stepCt,'Done');
+    commit;          
+
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'End i2b2_load_study_metadata',SQL%ROWCOUNT,stepCt,'Done');
 	commit;
@@ -1058,4 +1058,3 @@ END;
 	commit;		
 */
 /
-
