@@ -15,7 +15,7 @@ AS
   jobID number(18,0);
   stepCt number(18,0);
   b_analysis_id number(18,0);
-  etl_id number(18,0);
+  etlid number(18,0);
   pExists        int;
   data_type VARCHAR(50);
   
@@ -61,7 +61,7 @@ BEGIN
       raise ANALYSES_NOTFOUND;
     end if;
      
-    select bio_assay_analysis_id, ETL_ID_SOURCE, bio_assay_data_type into b_analysis_id, etl_id, data_type 
+    select bio_assay_analysis_id, ETL_ID_SOURCE, bio_assay_data_type into b_analysis_id, etlid, data_type 
       from biomart.bio_assay_analysis WHERE analysis_name=old_name and ETL_ID=study_id;
    
     -- update bio_asy_analysis_gwas_top50 if GWAS
@@ -87,8 +87,7 @@ BEGIN
     --Update tm_lz.lz_src_analsis_metadata table
     update TM_LZ.LZ_SRC_ANALYSIS_METADATA 
       set ANALYSIS_NAME = new_name
-      where
-        ETL_ID=etl_id;
+      where ETL_ID=etlid;
     stepCt := stepCt + 1;
     cz_write_audit(jobId,databaseName,procedureName,'Update lz_src_analysis_metadata ',SQL%ROWCOUNT,stepCt,'Done'); 
 
