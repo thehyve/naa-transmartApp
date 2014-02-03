@@ -55,7 +55,7 @@
 			<div id="utilitiesMenu">
 				<ul id="utilitiesMenuList">
 					<li><a href="#" onclick="jQuery('#utilitiesMenu').hide(); popupWindow('${grailsApplication.config.com.recomdata.searchtool.adminHelpURL}', '_help')">Help</a></li>
-					<li><a onclick="jQuery('#utilitiesMenu').hide();" href="mailto:${grailsApplication.config.com.recomdata.searchtool.contactUs}">Contact Us</a></li>
+					<li><a onclick="jQuery('#utilitiesMenu').hide();" href="${grailsApplication.config.com.recomdata.searchtool.contactUs}">Contact Us</a></li>
 					<li><a href="#" onclick="jQuery('#utilitiesMenu').hide(); alert('${grailsApplication.config.com.recomdata.searchtool.appTitle}', 'Build Version: ${buildNumber} - ${buildId}')">About</a></li>
 				<!--  
 					<li class="utilMenuSeparator"><span class="utilMenuSeparator">&nbsp;</span></li>

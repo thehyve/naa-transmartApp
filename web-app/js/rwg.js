@@ -1570,9 +1570,10 @@ function updateLineplot(analysisID){
 //collapse all of the open analyses
 function collapseAllAnalyses(){
 		
-	while (openAnalyses.length>0){
+	//while (openAnalyses.length>0){
+	for (var v = 0; v < openAnalyses.length; v++) {
 		//each time showVisualization is called, the current analysis is removed from openAnalyses
-		showVisualization(openAnalyses[0], false);
+		showVisualization(openAnalyses[v], false);
 	}
 }
 
@@ -1583,7 +1584,9 @@ function collapseAllStudies() {
 	for (var i = 0; i < openstudyelements.length; i++) {
 		var studyelement = openstudyelements[i];
 		var studyId = jQuery(studyelement).attr('name');
-		toggleDetailDiv(studyId, ''); //No URL needed when collapsing
+		var divId = jQuery(studyelement).attr('id');
+		if (divId.indexOf("detail")!=-1)
+			toggleDetailDiv(studyId, ''); //No URL needed when collapsing
 	}
 }
 
@@ -1594,7 +1597,9 @@ function expandAllStudies() {
 		var studyelement = jQuery(closedstudyelements[i]);
 		var studyId = studyelement.attr('name');
 		var key = new Date().getTime(); //Key to prevent AJAX caching
-		toggleDetailDiv(studyId, getStudyAnalysesUrl + "?id=" + studyId + "&trialNumber=" + studyId + "&unqKey=" + key);
+		var divId = jQuery(studyelement).attr('id');
+		if (divId.indexOf("detail")!=-1)
+			toggleDetailDiv(studyId, getStudyAnalysesUrl + "?id=" + studyId + "&trialNumber=" + studyId + "&unqKey=" + key);
 	}
 }
 
