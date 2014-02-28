@@ -26,6 +26,7 @@ import org.codehaus.groovy.grails.commons.ConfigurationHolder;
 import i2b2.SnpProbeSortedDef;
 
 
+
 /**
  * $Id: I2b2HelperService.groovy 11303 2011-12-23 06:05:17Z mkapoor $
  */
@@ -84,6 +85,7 @@ import com.recomdata.export.*;
 
 import search.AuthUser;
 import search.AuthUserSecureAccess
+import search.SecureObject;
 
 /**
  * ResNetService that will provide an .rnef file for Jubilant data
@@ -4638,6 +4640,34 @@ class I2b2HelperService {
 		def children=getChildPathsWithTokensFromParentKey(concept_key);
 		return getAccess(children, user);
 	}
+	/* checks user access for a GWAS study  ZHANH101*/
+	def getGWASAccess (study_id, user) {  
+		
+		//def level=getLevelFromKey(concept_key);
+		def admin=false;
+		for (role in user.authorities)
+		{
+			if (isAdminRole(role)) {
+				admin=true;
+				return 'Admin'; //just set everything to admin and return it all
+			}
+		}
+		if(!admin) //if not admin merge the data from the two maps
+		{
+			def tokens=getSecureTokensWithAccessForUser(user);
+			//tokens.each{ k, v -> log.debug( "${k}:${v}") }
+			if(tokens.containsKey("EXP:"+study_id)) //null tokens are assumed to be unlocked
+			{
+					return tokens["EXP:"+study_id]; //found access for this token so put in access level
+			}
+			else {
+					return "Locked"; //didn't find authorization for this token
+				}
+			
+		}
+	
+		return null;
+	}
 	
 	/**
 	 * Checks an arbitrary list of paths with tokens against users access list map (merge)
@@ -4810,6 +4840,22 @@ class I2b2HelperService {
 		return ls;
 	}
 	
+	def getExperimentSecureStudyList(){  //ZHANH101
+		
+		StringBuilder s = new StringBuilder();
+		s.append("SELECT so.bioDataUniqueId, so.bioDataId FROM SecureObject so Where so.dataType='Experiment'")
+		def t=[:];
+		//return access levels for the children of this path that have them
+		def results = SecureObject.executeQuery(s.toString());
+		for (row in results){
+			def token = row[0];
+			def dataid = row[1];
+			token=token.replaceFirst("EXP:","")
+			log.info(token+":"+dataid);
+			t.put(token,dataid);
+		}
+		return t;
+	}
 	
 	def listToIN(List<String> list) {
 		StringBuilder sb=new StringBuilder();

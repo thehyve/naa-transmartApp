@@ -21,15 +21,13 @@ import bio.BioMarkerCorrelationMV
 import org.apache.commons.codec.binary.Base64
 
 import RWGVisualizationDAO
-
 import grails.converters.*				// so we can render as JSON
-
+import search.AuthUser;
 import search.SearchKeyword
 import search.SearchTaxonomy
 import search.SearchTaxonomyRels
 import search.GeneSignature
 import search.GeneSignatureItem
-
 import groovy.time.TimeCategory;
 import groovy.time.TimeDuration;
 import groovyx.net.http.HTTPBuilder
@@ -41,8 +39,10 @@ class RWGController {
 	def searchService
 	def searchKeywordService	
 	def springSecurityService
+	def i2b2HelperService
 	
     def index = {}
+	
 
 	/**
 	 * START: Methods for the faceted search filter
@@ -412,7 +412,7 @@ class RWGController {
    def executeSOLRFacetedQuery = {solrRequestUrl, solrQueryParams, returnAnalysisIds ->
 	   
 	   println (solrQueryParams)
-	   
+	
 	   JSONObject facetCounts = new JSONObject()
 	   //solrQueryParams = "q=(*:*)"
 	   //solrQueryParams = solrQueryParams.substring(0, solrQueryParams.lastIndexOf(")")+1)
@@ -443,7 +443,7 @@ class RWGController {
 		   
 		   if (returnAnalysisIds) {
 			   
-			   //outputFormattedXml(xml)
+			//   outputFormattedXml(xml)
 			   def analysisIds = xml.result.doc.str.findAll{it.@name == 'ANALYSIS_ID'}
 			   solrConnection.disconnect()
 			   def ids = []
@@ -486,7 +486,7 @@ class RWGController {
    
    /**
    *  pretty prints the GPathResult NodeChild
-   *
+   */
   def outputFormattedXml(node) {
 	  def xml = new StreamingMarkupBuilder().bind {
 		  mkp.declareNamespace("":node.namespaceURI())
@@ -505,7 +505,7 @@ class RWGController {
    
 	  println result.writer.toString()
   }
-  */
+  
 
    /**
    * Create the SOLR query string for the faceted query
@@ -538,7 +538,7 @@ class RWGController {
 	   String solrScheme = grailsApplication.config.com.rwg.solr.scheme
 	   String solrHost = grailsApplication.config.com.rwg.solr.host
 	   String solrPath = grailsApplication.config.com.rwg.solr.path
-	   log.debug("SOLR"+ solrScheme+solrHost+solrPath);
+	   log.debug("SOLR "+ solrScheme+solrHost+solrPath);
 	   String solrRequestUrl = new URI(solrScheme, solrHost, solrPath, "", "").toURL()
 	   
 	   return solrRequestUrl
@@ -693,7 +693,7 @@ class RWGController {
 	   String solrRequestUrl = createSOLRQueryPath()
 	   String solrQueryString = /${nonfacetedQueryString}/
 	   def analysisIds = executeSOLRFacetedQuery(solrRequestUrl, solrQueryString, true)
-	   
+	  
 	   session['solrAnalysisIds'] = analysisIds
 	   render(status: 200, text: analysisIds.join(","))
    }
@@ -757,9 +757,10 @@ class RWGController {
        JSONObject facetCounts = executeSOLRFacetedQuery(solrRequestUrl, solrQueryString, false)
 
 	   def studyCounts = facetCounts['STUDY_ID']
-	   
+
 	   // retrieve the html string for the results template	   
-	   def html = loadSearchResults(studyCounts, startTime)	   
+	   def html = loadSearchResults(studyCounts, startTime)	 
+
 	   // create a return json object containing both the facet counts to load into tree and html to load into results section
 	   JSONObject ret = new JSONObject()
 	   ret.put('facetCounts', facetCounts)
@@ -788,7 +789,6 @@ class RWGController {
 
 	   return solrGenesField
    }
-
       
    /**
    * Load the initial facet results for the tree (no filters)
@@ -850,8 +850,11 @@ class RWGController {
 	   def total = 0								// Running total of analysis to show in the top banner
 
 	   def studyWithResultsFound = false   
-	   
-   	   for (studyId in studyCounts.keys().sort()) {
+	   def user=AuthUser.findByUsername(springSecurityService.getPrincipal().username)
+	   def secObjs=i2b2HelperService.getExperimentSecureStudyList()
+
+	  for (studyId in studyCounts.keys().sort()) {	  
+	    	 
 		   def c = studyCounts[studyId].toInteger()
 
 		   if (c > 0)  {
@@ -863,12 +866,24 @@ class RWGController {
 			   def experiment = exp.get	{
 				   eq("id", expNumber)
 			   }
+			   
 			   if (experiment == null)	{
 				   log.warn "Unable to find an experiment for ${expNumber}"
 			   }
 			   else  {
-				   exprimentAnalysis.put((experiment), c)
-				   total += c
+				  if(secObjs.containsKey(experiment.accession)){
+					  if(!i2b2HelperService.getGWASAccess(experiment.accession, user).equals("Locked")){
+						  exprimentAnalysis.put((experiment), c)
+     					   total += c
+					  }
+				   else {
+					   log.warn "Restrict access for ${expNumber}"
+				   }
+				  }
+				  else{
+					  exprimentAnalysis.put((experiment), c)
+					   total += c
+				  }
 			   }
 			   
 			   /*
@@ -886,6 +901,9 @@ class RWGController {
 			   */
 		   }
 	   }
+		if(exprimentAnalysis.size()==0){ 
+			studyWithResultsFound =false
+		}
 	   // capture html as a string that will be passed back in JSON object
 	   def html
 	   if (!studyWithResultsFound)	{
@@ -901,8 +919,20 @@ class RWGController {
    def getTrialAnalysis = {	   
 	   new AccessLog(username: springSecurityService.getPrincipal().username,
 		   event:"Loading trial analysis", eventmessage:params.trialNumber, accesstime:new Date()).save()
-
-	   def analysisList = trialQueryService.querySOLRTrialAnalysis(params, session.solrSearchFilter)
+		   
+      def user=AuthUser.findByUsername(springSecurityService.getPrincipal().username)
+	  def secObjs=i2b2HelperService.getExperimentSecureStudyList()
+	   
+	  def analysisList = trialQueryService.querySOLRTrialAnalysis(params, session.solrSearchFilter)
+	   for(analysis in analysisList){
+		   analysis.canExport=true
+		   if(secObjs.containsKey(analysis.study)){
+			   def token=i2b2HelperService.getGWASAccess(analysis.study,user)
+		    	if(token.equals("VIEW") || token.equals("Locked")){
+					analysis.canExport=false
+				}
+		   }
+	   }
 	   render(template:'/RWG/analysis', model:[aList:analysisList], plugin: "biomartForGit")
    }
  

@@ -22,8 +22,10 @@ package transmartapp
 
 import bio.Experiment;
 import grails.converters.JSON
-
+import search.AuthUser
 class ExperimentController {
+	def i2b2HelperService
+	def springSecurityService
 
 	/**
 	 * Find the top 20 experiments with a case-insensitive LIKE
@@ -74,16 +76,28 @@ class ExperimentController {
 	def browseExperimentsMultiSelect = {
 
         def experiments
-
+		
+		//ZHANH101
+		def user=AuthUser.findByUsername(springSecurityService.getPrincipal().username)
+		def secObjs=i2b2HelperService.getExperimentSecureStudyList()
+		
         if (params.type) {
-            experiments = Experiment.findAllByType(params.type)
-            experiments = getSortedList(experiments)
+            experiments = Experiment.findAllByType(params.type)			
+		//	experiments = getSortedList(experiments)
         }
         else {
             experiments = Experiment.list()
-            experiments = getSortedList(experiments)
+        //    experiments = getSortedList(experiments)
         }
-
+		for(Iterator it2=experiments.iterator(); it2.hasNext(); ){
+			def experiment=it2.next();
+			if(secObjs.containsKey(experiment.accession)){
+				if(i2b2HelperService.getGWASAccess(experiment.accession, user).equals("Locked")){
+					it2.remove()
+				}
+			}  
+		}
+		  experiments = getSortedList(experiments)
 		render(template:'browseMulti',model:[experiments:experiments])
 	}
 	

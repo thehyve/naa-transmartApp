@@ -24,11 +24,17 @@
  * @version $Revision: 10098 $
  */
 
+import java.awt.event.ItemEvent;
+
 import com.recomdata.util.DomainObjectExcelHelper;
 import com.recomdata.util.ExcelGenerator;
 import com.recomdata.util.ExcelSheet;
+
 import bio.Experiment
+
 import com.recomdata.util.ElapseTimer;
+
+import search.AuthUser
 
 class ExperimentAnalysisController {
 
@@ -38,7 +44,9 @@ class ExperimentAnalysisController {
 	def searchService
 	def experimentAnalysisTEAService
 	def formLayoutService
-
+    def i2b2HelperService
+	def springSecurityService
+	
 	// session attribute
 	static def TEA_PAGING_DATA = "analListPaging"
 
@@ -261,14 +269,20 @@ class ExperimentAnalysisController {
 	* This will render a UI where the user can pick an experiment from a list of all the experiments in the system. Selection of multiple studies is allowed.
 	*/
    def browseAnalysisMultiSelect = {
-	   
-	   def analyses = bio.BioAssayAnalysis.executeQuery("select id, name from BioAssayAnalysis b order by b.name");
-	   
+	   //ZHANH101
+	   def user=AuthUser.findByUsername(springSecurityService.getPrincipal().username)
+	   def secObjs=i2b2HelperService.getExperimentSecureStudyList()
+	
+	   //END
+	  // def analyses = bio.BioAssayAnalysis.executeQuery("select id, name from BioAssayAnalysis b order by b.name");
+	   def analyses = bio.BioAssayAnalysis.executeQuery("select id, name, etlId from BioAssayAnalysis b order by b.name");
 	  /* analyses.sort({a, b ->
 		   def aname = a[1] ?: ""
 		   def bname = b[1] ?: ""
 		   return aname.trim().compareToIgnoreCase(bname.trim());
 	   })*/
+	   
+	   analyses=analyses.findAll{!secObjs.containsKey(it[2]) || !i2b2HelperService.getGWASAccess(it[2], user).equals("Locked") }
 	   
 	   render(template:'browseMulti',model:[analyses:analyses])
    }
