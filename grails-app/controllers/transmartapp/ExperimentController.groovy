@@ -34,9 +34,11 @@ class ExperimentController {
 		def paramMap = params
 		def value = params.term.toUpperCase();
         def studyType = params.studyType?.toUpperCase();
-		
+		def user=AuthUser.findByUsername(springSecurityService.getPrincipal().username)
+		def secObjs=i2b2HelperService.getExperimentSecureStudyList()
 		def experiments = Experiment.executeQuery("SELECT accession, title FROM Experiment e WHERE upper(e.title) LIKE '%' || :term || '%' AND upper(e.type) = :studyType", [term: value, studyType: studyType], [max: 20]);
-
+		experiments=experiments.findAll{!secObjs.containsKey(it[0]) || !i2b2HelperService.getGWASAccess(it[0], user).equals("Locked") }
+		
         def category = "STUDY"
         def categoryDisplay = "Study"
         if (studyType.equals('I2B2')) {
@@ -57,7 +59,9 @@ class ExperimentController {
 	def browseExperimentsSingleSelect = {
 
         def experiments
-
+		def user=AuthUser.findByUsername(springSecurityService.getPrincipal().username)
+		def secObjs=i2b2HelperService.getExperimentSecureStudyList()
+		
         if (params.type) {
             experiments = Experiment.findAllByType(params.type)
             experiments = getSortedList(experiments)
@@ -66,7 +70,7 @@ class ExperimentController {
             experiments = Experiment.list()
             experiments = getSortedList(experiments)
         }
-
+		experiments=experiments.findAll{!secObjs.containsKey(it.accession) || !i2b2HelperService.getGWASAccess(it.accession, user).equals("Locked") }
         render(template:'browseSingle',model:[experiments:experiments])
 	}
 	

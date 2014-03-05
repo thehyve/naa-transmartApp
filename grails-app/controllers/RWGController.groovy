@@ -852,7 +852,7 @@ class RWGController {
 	   def studyWithResultsFound = false   
 	   def user=AuthUser.findByUsername(springSecurityService.getPrincipal().username)
 	   def secObjs=i2b2HelperService.getExperimentSecureStudyList()
-
+      secObjs.each{ k, v -> log.debug( "${k}:${v}") }
 	  for (studyId in studyCounts.keys().sort()) {	  
 	    	 
 		   def c = studyCounts[studyId].toInteger()
@@ -930,6 +930,7 @@ class RWGController {
 			   def token=i2b2HelperService.getGWASAccess(analysis.study,user)
 		    	if(token.equals("VIEW") || token.equals("Locked")){
 					analysis.canExport=false
+					log.debug("Can not export "+analysis.study)
 				}
 		   }
 	   }
