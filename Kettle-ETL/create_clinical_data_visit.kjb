@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <job>
-  <name>create_clinical_data</name>
+  <name>create_clinical_data_visit</name>
     <description/>
     <extended_description/>
     <job_version/>
@@ -347,7 +347,7 @@
       <type>TRANS</type>
       <specification_method>filename</specification_method>
       <trans_object_id/>
-      <filename>${Internal.Job.Filename.Directory}&#47;run_i2b2_load_clinical_data_forvisit.ktr</filename>
+      <filename>${Internal.Job.Filename.Directory}&#47;run_i2b2_load_clinical_data_visit.ktr</filename>
       <transname/>
       <arg_from_previous>N</arg_from_previous>
       <params_from_previous>N</params_from_previous>

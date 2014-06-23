@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE TM_CZ."I2B2_LOAD_CLINICAL_DATA_FORVISIT" 
+CREATE OR REPLACE PROCEDURE TM_CZ."I2B2_LOAD_CLINICAL_DATA_VISIT" 
 (
   trial_id             IN    VARCHAR2
  ,top_node            in  varchar2
@@ -531,8 +531,8 @@ BEGIN
               then regexp_replace(topNode || replace(a.category_path,'DATALABEL',a.data_label) || '\' || a.data_value || '\','(\\){2,}', '\')
               when a.category_path like '%VISITNAME%'
               then regexp_replace(topNode || replace(a.category_path,'VISITNAME',a.visit_name) || '\'  || a.data_label || '\' || a.data_value || '\','(\\){2,}', '\')
-              when a.category_path like '%VISITLST%'
-              then REGEXP_REPLACE(topNode ||  replace(a.category_path,'VISITLST','') || '\'  || a.data_label || '\'|| a.data_value || '\' || a.visit_name || '\' ,
+              when a.category_path like '%VISITLAST%'
+              then REGEXP_REPLACE(topNode ||  replace(a.category_path,'VISITLAST','') || '\'  || a.data_label || '\'|| a.data_value || '\' || a.visit_name || '\' ,
                    '(\\){2,}', '\') 
               else REGEXP_REPLACE(topNode || a.category_path || 
                    '\'  || a.data_label || '\'|| a.visit_name || '\' || a.data_value || '\' ,
@@ -545,8 +545,8 @@ BEGIN
               then regexp_replace(topNode || replace(a.category_path,'DATALABEL',a.data_label) || '\','(\\){2,}', '\')
               when a.category_path like '%VISITNAME%'
               then regexp_replace(topNode || replace(a.category_path,'VISITNAME',a.visit_name) || '\' || a.data_label || '\','(\\){2,}', '\')
-              when a.category_path like '%VISITLST%'
-              then REGEXP_REPLACE(topNode ||  replace(a.category_path,'VISITLST','') || '\' || a.data_label || '\' || a.visit_name || '\' ,
+              when a.category_path like '%VISITLAST%'
+              then REGEXP_REPLACE(topNode ||  replace(a.category_path,'VISITLAST','') || '\' || a.data_label || '\' || a.visit_name || '\' ,
                    '(\\){2,}', '\') 
               else REGEXP_REPLACE(topNode || a.category_path || 
                    '\' || a.visit_name || '\' || a.data_label || '\',
