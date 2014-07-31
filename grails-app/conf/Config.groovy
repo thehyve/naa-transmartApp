@@ -35,7 +35,7 @@ grails.config.locations = []
 def devConfigFiles = new File("./grails-app/conf/dev").listFiles()
 devConfigFiles?.each {file -> grails.config.locations << "file:${file.getPath()}"}
 
-// Configuration for running in production
+// Configuration for running in production - ${userHome}/ or /hpc/gwasuser/
 def defaultConfigFiles = [
 	"${userHome}/.grails/${appName}Config/Config.groovy",
 	"${userHome}/.grails/${appName}Config/RModulesConfig.groovy",
