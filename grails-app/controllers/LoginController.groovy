@@ -98,6 +98,7 @@ class LoginController {
 				log.debug("We have found user: ${ud.username}")
 				springSecurityService.reauthenticate(ud.username)
 				redirect uri: SpringSecurityUtils.securityConfig.successHandler.defaultTargetUrl
+				return
 
 			}else{
 				log.info("can not find the user:"+guestuser);
@@ -107,12 +108,13 @@ class LoginController {
 		{
 			springSecurityService.reauthenticate(cUser)
 			redirect uri: SpringSecurityUtils.securityConfig.successHandler.defaultTargetUrl
-
+			return
 		}
 
 
 		if (springSecurityService.isLoggedIn()) {
 			redirect uri: SpringSecurityUtils.securityConfig.successHandler.defaultTargetUrl
+			return
 		} else	{
 			String ivUrl = grailsApplication.config.com.recomdata.searchtool.identityVaultURL
 			boolean ivLogin = ivUrl.length() > 5
@@ -122,11 +124,14 @@ class LoginController {
 			if (!ivLogin || forcedFormLogin) {
 				log.info("Proceeding with form login")
 				render view: 'auth', model: [postUrl: request.contextPath + SpringSecurityUtils.securityConfig.apf.filterProcessesUrl]
+				return
 			} else {
 				log.info("Proceeding with Identity Vault login")
 				redirect(url: ivUrl)
+				return
 			}
 			render view: 'auth', model: [postUrl: request.contextPath + SpringSecurityUtils.securityConfig.apf.filterProcessesUrl]
+			return
 		}
 	}
 
