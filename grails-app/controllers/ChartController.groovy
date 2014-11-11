@@ -258,11 +258,11 @@ class ChartController {
             String filename2 = ServletUtilities.saveChartAsJPEG(chart2, 245, 180, info2, request.getSession());
             String graphURL2 = request.getContextPath() + "/chart/displayChart?filename=" + filename2;
 
-        PrintWriter pw = new PrintWriter(response.getOutputStream());
+            PrintWriter pw = new PrintWriter(response.getOutputStream());
             pw.write("<img src='" + graphURL2 + "' width=245 height=180 border=0 usemap='#" + filename2 + "'>");
             ChartUtilities.writeImageMap(pw, filename2, info2, false);
-        pw.flush();
-    }
+            pw.flush();
+        }
     }
 
     /**
@@ -305,7 +305,7 @@ class ChartController {
                 //logMessage("child key:"+c);
                 renderConceptAnalysisNew(c, result_instance_id1, result_instance_id2, pw, request);
                 pw.write("<hr>");
-    }
+            }
 
 
         }
@@ -408,7 +408,7 @@ class ChartController {
             it.indexOf("SECURITY") <= -1
         }.each {
             concepts[it] = getConceptAnalysis(concept: it, subsets: subsets)
-        }
+            }
 
         // for (int i = 0; i < keys.size(); i++)
         for (k in uniqueConcepts) {
@@ -440,213 +440,66 @@ class ChartController {
         pw.flush();
     }
 
-    private def getConceptAnalysis (Map args) {
-
-        // Retrieving function parameters
-        def subsets = args.subsets ?: null
-        def concept = args.concept ?: null
-
-        // We create our result holder and initiate it from subsets
-        def result = [:]
-        subsets.each { k, v ->
-            result[k] = [:]
-            v.exists == null ?: (result[k].exists = v.exists)
-            v.instance == null ?: (result[k].instance = v.instance)
-        }
-
-        // We retrieve the basics
-        result.commons.conceptCode = i2b2HelperService.getConceptCodeFromKey(concept);
-        result.commons.conceptName = i2b2HelperService.getShortNameFromKey(concept);
-
-        if (i2b2HelperService.isValueConceptCode(result.commons.conceptCode)) {
-
-            result.commons.type = 'value'
-
-            // Lets prepare our subset shared diagrams, we will fill them later
-            HistogramDataset conceptHistoHandle = new HistogramDataset();
-            DefaultBoxAndWhiskerCategoryDataset conceptPlotHandle = new DefaultBoxAndWhiskerCategoryDataset();
-
-            result.findAll { n, p ->
-                p.exists
-            }.each { n, p ->
-
-                // Getting the concept data
-                p.conceptData = (double [])i2b2HelperService.getConceptDistributionDataForValueConceptFromCode(result.commons.conceptCode, p.instance).toArray()
-                p.conceptStats = BoxAndWhiskerCalculator.calculateBoxAndWhiskerStatistics(Arrays.asList(ArrayUtils.toObject(p.conceptData)))
-                conceptHistoHandle.addSeries("Subset $n", p.conceptData, 10, StatHelper.min(p.conceptData), StatHelper.max(p.conceptData));
-                conceptPlotHandle.add(p.conceptStats, "Series $n", "Subset $n")
-            }
-
-            // Lets build our concept diagrams now that we have all the points in
-            subsets.commons.conceptHisto = getSVGChart(type: 'histogram', data: conceptHistoHandle)
-            subsets.commons.conceptPlot = getSVGChart(type: 'boxplot', data: conceptPlotHandle)
-
-        } else {
-
-            result.commons.type = 'traditional'
-
-            result.findAll { n, p ->
-                p.exists
-            }.each { n, p ->
-
-                // Getting the concept data
-                p.conceptData = i2b2HelperService.getConceptDistributionDataForConcept(concept, p.instance)
-                p.conceptBar = getSVGChart(type: 'bar', data: p.conceptData, size: [width: 400, height: p.conceptData.size() * 15 + 80])
-
-            }
-        }
-
-        return result
-    }
-
-    private def getSVGChart(Map args) {
-
-        // Retrieving function parameters
-        def type = args.type ?: null
-        def data = args.data ?: [:]
-        def size = args.size ?: [:]
-
-        def width = size?.width ?: 300
-        def height = size?.height ?: 300
-
-        SVGGraphics2D renderer = new SVGGraphics2D(width, height);
-
-        switch (type) {
-            case 'histogram':
-
-                JFreeChart chart = ChartFactory.createHistogram("", null, "Count", data, PlotOrientation.VERTICAL, true, true, false)
-                chart.draw(renderer, new Rectangle(0, 0, width, height), new ChartRenderingInfo(new StandardEntityCollection()));
-                break;
-
-            case 'boxplot':
-
-                JFreeChart chart = ChartFactory.createBoxAndWhiskerChart("", "", "Value", data, false)
-                chart.draw(renderer, new Rectangle(0, 0, width, height), new ChartRenderingInfo(new StandardEntityCollection()));
-                break;
-
-            case 'pie':
-
-                JFreeChart chart = createConceptAnalysisPieChart(hashMapToPieDataset(data, "Race"), "Race");
-                chart.draw(renderer, new Rectangle(0, 0, width, height), new ChartRenderingInfo(new StandardEntityCollection()));
-                break;
-
-            case 'bar':
-
-                JFreeChart chart = createConceptAnalysisBarChart(hashMapToCategoryDataset(data, "Subset"), "Subset");
-                chart.draw(renderer, new Rectangle(0, 0, width, height), new ChartRenderingInfo(new StandardEntityCollection()));
-                break;
-        }
-
-        renderer.getSVGDocument()
-    }
-
-
-    def basicGrid = {
-        def result_instance_id1 = params.result_instance_id1;
-        def result_instance_id2 = params.result_instance_id2;
-
-        /*which subsets are present? */
-        boolean s1 = true;
-        boolean s2 = true;
-        if (result_instance_id1 == "" || result_instance_id1 == null) {
-            s1 = false;
-        }
-        if (result_instance_id2 == "" || result_instance_id2 == null) {
-            s2 = false;
-        }
-
-        PrintWriter pw = new PrintWriter(response.getOutputStream());
-        ExportTableNew table = new ExportTableNew();
-        if (s1) {
-            i2b2HelperService.addAllPatientDemographicDataForSubsetToTable(table, result_instance_id1, "subset1");
-        }
-        log.trace("added demographic data for first subset")
-        if (s2) {
-            i2b2HelperService.addAllPatientDemographicDataForSubsetToTable(table, result_instance_id2, "subset2");
-        }
-        List<String> keys = i2b2HelperService.getConceptKeysInSubsets(result_instance_id1, result_instance_id2);
-
-            Set<String> uniqueConcepts = i2b2HelperService.getDistinctConceptSet(result_instance_id1, result_instance_id2);
-
-            log.debug("Unique concepts: " + uniqueConcepts);
-            log.debug("keys: " + keys)
-
-            for (int i = 0; i < keys.size(); i++) {
-            log.trace("adding concept data for " + keys.get(i));
-            if (s1) {
-                i2b2HelperService.addConceptDataToTable(table, keys.get(i), result_instance_id1);
-            }
-            if (s2) {
-                i2b2HelperService.addConceptDataToTable(table, keys.get(i), result_instance_id2);
-            }
-        }
-        pw.write(table.toJSONObject().toString(5));
-        pw.flush();
-        request.getSession().setAttribute("gridtable", table);
-    }
-
     def analysisGrid = {
+
         String concept_key = params.concept_key;
         def result_instance_id1 = params.result_instance_id1;
         def result_instance_id2 = params.result_instance_id2;
 
         /*which subsets are present? */
-        boolean s1 = true;
-        boolean s2 = true;
-        if (result_instance_id1 == "" || result_instance_id1 == null) {
-            s1 = false;
-        }
-        if (result_instance_id2 == "" || result_instance_id2 == null) {
-            s2 = false;
-        }
+        boolean s1 = (result_instance_id1 == "" || result_instance_id1 == null) ? false : true;
+        boolean s2 = (result_instance_id2 == "" || result_instance_id2 == null) ? false : true;
 
         def al = new AccessLog(username: springSecurityService.getPrincipal().username, event: "DatasetExplorer-Grid Analysis Drag", eventmessage: "RID1:" + result_instance_id1 + " RID2:" + result_instance_id2 + " Concept:" + concept_key, accesstime: new java.util.Date())
         al.save()
+
         //XXX: session is a questionable place to store this because it breaks multi-window/tab nav
         ExportTableNew table = (ExportTableNew) request.getSession().getAttribute("gridtable");
         if (table == null) {
+
             table = new ExportTableNew();
-            if (s1) {
-                i2b2HelperService.addAllPatientDemographicDataForSubsetToTable(table, result_instance_id1, "subset1");
-            }
-            if (s2) {
-                i2b2HelperService.addAllPatientDemographicDataForSubsetToTable(table, result_instance_id2, "subset2");
+            if (s1) i2b2HelperService.addAllPatientDemographicDataForSubsetToTable(table, result_instance_id1, "subset1");
+            if (s2) i2b2HelperService.addAllPatientDemographicDataForSubsetToTable(table, result_instance_id2, "subset2");
+
+        List<String> keys = i2b2HelperService.getConceptKeysInSubsets(result_instance_id1, result_instance_id2);
+        Set<String> uniqueConcepts = i2b2HelperService.getDistinctConceptSet(result_instance_id1, result_instance_id2);
+
+        log.debug("Unique concepts: " + uniqueConcepts);
+		log.debug("keys: " + keys)
+
+        for (int i = 0; i < keys.size(); i++) {
+
+            log.trace("adding concept data for " + keys.get(i));
+                if (s1) i2b2HelperService.addConceptDataToTable(table, keys.get(i), result_instance_id1);
+                if (s2) i2b2HelperService.addConceptDataToTable(table, keys.get(i), result_instance_id2);
             }
         }
         PrintWriter pw = new PrintWriter(response.getOutputStream());
 
-        // need to modify to try looking for equivalent concepts on both subsets
+        if (concept_key && !concept_key.isEmpty()) {
+
         String parentConcept = i2b2HelperService.lookupParentConcept(i2b2HelperService.keyToPath(concept_key));
-        log.debug("parent concept: " + parentConcept);
-
             Set<String> cconcepts = i2b2HelperService.lookupChildConcepts(parentConcept, result_instance_id1, result_instance_id2);
-            def conceptKeys = [];
-            def prefix = concept_key.substring(0, concept_key.indexOf("\\", 2));
 
-            if (!cconcepts.isEmpty()) {
-            //
-                for (cc in cconcepts) {
-                    def ck = prefix + i2b2HelperService.getConceptPathFromCode(cc);
-                    conceptKeys.add(ck);
-                }
-        } else {
-                conceptKeys.add(concept_key);
-        }
+        def conceptKeys = [];
+        def prefix = concept_key.substring(0, concept_key.indexOf("\\", 2));
 
-        //	println(prefix);
-        log.debug("child concepts: " + cconcepts);
-//		println("org concept key:"+concept_key);
-            for (ck in conceptKeys) {
-            //	println("new conceptkeys:"+ck);
-            if (s1) {
-                i2b2HelperService.addConceptDataToTable(table, ck, result_instance_id1);
+        if (!cconcepts.isEmpty()) {
+            for (cc in cconcepts) {
+                def ck = prefix + i2b2HelperService.getConceptPathFromCode(cc);
+                conceptKeys.add(ck);
             }
-            if (s2) {
-                i2b2HelperService.addConceptDataToTable(table, ck, result_instance_id2);
+            } else
+            conceptKeys.add(concept_key);
+
+        for (ck in conceptKeys) {
+                if (s1) i2b2HelperService.addConceptDataToTable(table, ck, result_instance_id1);
+                if (s2) i2b2HelperService.addConceptDataToTable(table, ck, result_instance_id2);
             }
         }
         pw.write(table.toJSONObject().toString(5));
         pw.flush();
+
         request.getSession().setAttribute("gridtable", table);
     }
 
