@@ -423,8 +423,8 @@ class ChartController {
         }
 
             // Lets build our concept diagrams now that we have all the points in
-            subsets.commons.conceptHisto = getSVGChart(type: 'histogram', data: conceptHistoHandle)
-            subsets.commons.conceptPlot = getSVGChart(type: 'boxplot', data: conceptPlotHandle)
+            result.commons.conceptHisto = getSVGChart(type: 'histogram', data: conceptHistoHandle)
+            result.commons.conceptPlot = getSVGChart(type: 'boxplot', data: conceptPlotHandle)
 
         } else {
 
