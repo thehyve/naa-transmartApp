@@ -488,9 +488,9 @@ class ChartService {
                     }
                     renderLegend = true
                 } else {
-                    data.each { k, v ->
-                        if (k) set.setValue(v, '', k)
-                    }
+                data.each { k, v ->
+                    if (k) set.setValue(v, '', k)
+                }
                 }
 
                 chart = ChartFactory.createBarChart(title, "", "", set, PlotOrientation.HORIZONTAL, renderLegend, true, false)
