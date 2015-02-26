@@ -19,7 +19,7 @@
   
 
 STATE = {
-		Dragging: false,
+        Dragging: false,
 		Target: null,
 		QueryRequestCounter: 0
 }
@@ -128,49 +128,49 @@ function Value(mode, operator, highlowselect, lowvalue, highvalue, units)
 
 function convertNodeToConcept(node)
 {
-	var value=new Value();
-	var level=node.attributes.level;
+    var value=new Value();
+    var level=node.attributes.level;
 	var name=node.text;
-	var key=node.id;
-	var tooltip=node.attributes.qtip;
-	var tablename=node.attributes.tablename;
-	var dimcode=node.attributes.dimcode;
-	var comment=node.attributes.comment;
-	var normalunits=node.attributes.normalunits;
-	var oktousevalues=node.attributes.oktousevalues;
-	var visualattributes=node.attributes.visualattributes;
+    var key=node.id;
+    var tooltip=node.attributes.qtip;
+    var tablename=node.attributes.tablename;
+    var dimcode=node.attributes.dimcode;
+    var comment=node.attributes.comment;
+    var normalunits=node.attributes.normalunits;
+    var oktousevalues=node.attributes.oktousevalues;
+    var visualattributes=node.attributes.visualattributes;
 
-	//Each node has a type (Categorical, Continuous, High Dimensional Data) that we need to populate. For now we will use the icon class.
-	var nodeType = node.attributes.iconCls
-	
-	if(oktousevalues=="Y"){value.mode="novalue";} //default to novalue
-	
+    //Each node has a type (Categorical, Continuous, High Dimensional Data) that we need to populate. For now we will use the icon class.
+    var nodeType = node.attributes.iconCls
+
+    if(oktousevalues=="Y"){value.mode="novalue";} //default to novalue
+    
 	var myConcept=new Concept(name, key, level, tooltip, tablename, dimcode, comment, normalunits, oktousevalues, value, nodeType, visualattributes);
-	return myConcept;
+    return myConcept;
 }
 function createPanelItemNew(panel, concept)
 {
-	var li=document.createElement('div'); //was li
-	//convert all object attributes to element attributes so i can get them later (must be a way to keep them in object?)
-	li.setAttribute('conceptname',concept.name);
-	li.setAttribute('conceptid', concept.key);
-	li.setAttribute('conceptlevel',concept.level);
-	li.setAttribute('concepttooltip', concept.tooltip);
-	li.setAttribute('concepttablename',concept.tablename);
-	li.setAttribute('conceptdimcode',concept.dimcode);
-	li.setAttribute('conceptcomment', concept.comment);
-	li.setAttribute('normalunits',concept.normalunits);
-	li.setAttribute('setvaluemode',concept.value.mode);
-	li.setAttribute('setvalueoperator',concept.value.operator);
-	li.setAttribute('setvaluehighlowselect',concept.value.highlowselect);
-	li.setAttribute('setvaluehighvalue',concept.value.highvalue);
-	li.setAttribute('setvaluelowvalue',concept.value.lowvalue);
-	li.setAttribute('setvalueunits',concept.value.units);
-	li.setAttribute('oktousevalues',concept.oktousevalues);
-	li.setAttribute('setnodetype',concept.nodeType);
-	li.setAttribute('visualattributes',concept.visualattributes);
+    var li=document.createElement('div'); //was li
+    //convert all object attributes to element attributes so i can get them later (must be a way to keep them in object?)
+    li.setAttribute('conceptname',concept.name);
+    li.setAttribute('conceptid', concept.key);
+    li.setAttribute('conceptlevel',concept.level);
+    li.setAttribute('concepttooltip', concept.tooltip);
+    li.setAttribute('concepttablename',concept.tablename);
+    li.setAttribute('conceptdimcode',concept.dimcode);
+    li.setAttribute('conceptcomment', concept.comment);
+    li.setAttribute('normalunits',concept.normalunits);
+    li.setAttribute('setvaluemode',concept.value.mode);
+    li.setAttribute('setvalueoperator',concept.value.operator);
+    li.setAttribute('setvaluehighlowselect',concept.value.highlowselect);
+    li.setAttribute('setvaluehighvalue',concept.value.highvalue);
+    li.setAttribute('setvaluelowvalue',concept.value.lowvalue);
+    li.setAttribute('setvalueunits',concept.value.units);
+    li.setAttribute('oktousevalues',concept.oktousevalues);
+    li.setAttribute('setnodetype',concept.nodeType);
+    li.setAttribute('visualattributes',concept.visualattributes);
 	li.className="conceptUnselected";
-	
+    
 	//Create a shortname
 	var splits=concept.key.split("\\");
 	var shortname="";
@@ -181,17 +181,17 @@ function createPanelItemNew(panel, concept)
 	else shortname=splits[splits.length-1];
 	li.setAttribute('conceptshortname',shortname);
 	
-	//Create a setvalue description
-	var valuetext="";
-	if(typeof(concept.value.mode)!="undefined")
-		{
-		valuetext=getSetValueText(concept.value.mode, concept.value.operator, concept.value.highlowselect, concept.value.highvalue, concept.value.lowvalue, concept.value.units);
-		li.setAttribute('conceptsetvaluetext',valuetext);
-		}
-	else
-		{
-		li.setAttribute('conceptsetvaluetext','');
-		}	
+    //Create a setvalue description
+    var valuetext="";
+    if(typeof(concept.value.mode)!="undefined")
+        {
+        valuetext=getSetValueText(concept.value.mode, concept.value.operator, concept.value.highlowselect, concept.value.highvalue, concept.value.lowvalue, concept.value.units);
+        li.setAttribute('conceptsetvaluetext',valuetext);
+        }
+    else
+        {
+        li.setAttribute('conceptsetvaluetext','');
+        }
 	//Create the node
 	var text=document.createTextNode(shortname+" "+valuetext); //used to be name
 	li.appendChild(text);
@@ -209,16 +209,16 @@ function createPanelItemNew(panel, concept)
     }
 
 	return li;
-}
+    }
 
 function getSubsetFromPanel(panel)
 {
     return panel.id.substr(16,1);
-}
-
+    }
+    
 function createPanelItem(subset,panelNumber, level, name, key, tooltip, tablename, dimcode, comment, normalunits, oktousevalues,
 	setvaluemode, setvalueoperator, setvaluehighlowselect, setvaluelowvalue, setvaluehighvalue, setvalueunits)
-{
+    {
 var panel=document.getElementById("queryCriteriaDiv"+subset+"_"+panelNumber);
 var li=document.createElement('div'); //was li
 	//convert all object attributes to element attributes so i can get them later (must be a way to keep them in object?)
@@ -245,7 +245,7 @@ var li=document.createElement('div'); //was li
 	if(typeof(oktousevalues)!="undefined")
 		li.setAttribute('oktousevalues', oktousevalues);
 	li.className="conceptUnselected";
-	
+        
 	//Create a shortname
 	var splits=tooltip.split("\\");
 	var shortname="";
@@ -255,24 +255,24 @@ var li=document.createElement('div'); //was li
 	}
 	else shortname=splits[splits.length-1];
 	li.setAttribute('conceptshortname',shortname);
-	
+        
 	//Create a setvalue description
 	var valuetext="";
 	if(typeof(setvaluemode)!="undefined")
 		{
 		valuetext=getSetValueText(setvaluemode, setvalueoperator, setvaluehighlowselect, setvaluehighvalue, setvaluelowvalue, setvalueunits);
 		li.setAttribute('conceptsetvaluetext',valuetext);
-		}
-	else
-		{
+    }
+    else
+    {
 		li.setAttribute('conceptsetvaluetext','');
-		}	
-	//Create the node
+    }
+    //Create the node
 	var text=document.createTextNode(shortname+" "+valuetext); //used to be name
 	li.appendChild(text);
-	panel.appendChild(li);
-	Ext.get(li).addListener('click',conceptClick);
-	Ext.get(li).addListener('contextmenu',conceptRightClick);
+    panel.appendChild(li);
+    Ext.get(li).addListener('click',conceptClick);
+    Ext.get(li).addListener('contextmenu',conceptRightClick);
 	new Ext.ToolTip({ target:li, html:key, dismissDelay:10000 });
 	invalidateSubset(subset);
 	return li;
@@ -287,56 +287,56 @@ function getSetValueText(mode, operator, highlowselect, highvalue, lowvalue, uni
 {
 var highlowselecttext;
 switch(highlowselect)
-	{
-	case "H":
-		highlowselecttext="HIGH";
-		break;
-	case "L":
-		highlowselecttext="LOW";
-		break;
-	case "N":
-		highlowselecttext="NORMAL";
-		break;
-	}
-	
+    {
+    case "H":
+        highlowselecttext="HIGH";
+        break;
+    case "L":
+        highlowselecttext="LOW";
+        break;
+    case "N":
+        highlowselecttext="NORMAL";
+        break;
+    }
+    
 var text=" ";
-	if(mode=='numeric')
-		{
-		if(operator!='BETWEEN')
-		 {
-			switch (operator)
-			{
-			case "LT":
-			  text=text+"<";
-			  break
-			case "LE":
-			 text=text+"<=";
-			  break
-			case "EQ":
-			  text=text+"=";
-			  break
-			case "GT":
-			  text=text+">";
-			  break
-			case "GE":
-			 text=text+">=";
-			  break
-		 	}
-		text=text+lowvalue;
-		}
-		else 
-		{
+    if(mode=='numeric')
+        {
+        if(operator!='BETWEEN')
+         {
+            switch (operator)
+            {
+            case "LT":
+              text=text+" < ";
+              break
+            case "LE":
+             text=text+" <= ";
+              break
+            case "EQ":
+              text=text+" = ";
+              break
+            case "GT":
+              text=text+" > ";
+              break
+            case "GE":
+             text=text+" >= ";
+              break
+             }
+        text=text+lowvalue;
+        }
+        else 
+        {
 		 text=text+"between "+lowvalue+" and "+highvalue
-		}
-	  }
-	  else if(mode=='highlow')
-	  	{
+        }
+      }
+      else if(mode=='highlow')
+          {
 	  text=text+"High/Low-"+highlowselecttext;  
-	  	}
-	  else 
-	  	{
-	  	text="";
-	  	}
+          }
+      else 
+          {
+          text="";
+          }
 	return text;
 }
 
@@ -413,131 +413,131 @@ if(el.dom.className=="queryGroupInclude")
 
 function conceptClick(event)
 {
-selectConcept(this.dom);
+    selectConcept(this.dom);
 }
 
 function selectConcept(concept)
 {
 resetSelected(); //clear any selected concept in any panel in any subset
-selectedConcept=concept; //select this one
-selectedDiv=concept.parentNode;
+    selectedConcept=concept; //select this one
+    selectedDiv=concept.parentNode;
 selectedConcept.className="conceptSelected";
 }
 
 function conceptRightClick(event)
 {
-	var conceptnode=this.dom;
+    var conceptnode=this.dom;
 	selectConcept(conceptnode);
-	var conceptid=this.dom.attributes.concepttooltip.nodeValue; //change to id later
-	var comment=this.dom.attributes.conceptcomment.nodeValue;
+    var conceptid=this.dom.attributes.concepttooltip.nodeValue; //change to id later
+    var comment=this.dom.attributes.conceptcomment.nodeValue;
 
-	if (!this.contextMenuConcepts) {
-	this.contextMenuConcepts = new Ext.menu.Menu({
-	id: 'contextMenuConcepts',
-	items: [{
-	text: 'Delete', handler: function(){
-										selectedDiv.removeChild(selectedConcept);
-										invalidateSubset(getSubsetFromPanel(selectedDiv));
-										
-										}
-	},{id: 'setvaluemenu', text: 'Set Value', handler:function(){showSetValueDialog();}},
-	{
-	text: 'Show Definition', handler:function(){ showConceptInfoDialog(conceptid, conceptid, comment);}
-	}
-	]
-	}); 
-	}
-	var xy = event.getXY();
-	this.contextMenuConcepts.showAt(xy);
-	var m=Ext.getCmp('setvaluemenu');
-	if(this.dom.attributes.oktousevalues.nodeValue!='Y')
-		m.hide(); 
-		//alert('you cant set value');
-	else 
-		m.show();
-	return false;
+    if (!this.contextMenuConcepts) {
+    this.contextMenuConcepts = new Ext.menu.Menu({
+    id: 'contextMenuConcepts',
+    items: [{
+    text: 'Delete', handler: function(){
+                                        selectedDiv.removeChild(selectedConcept);
+                                        invalidateSubset(getSubsetFromPanel(selectedDiv));
+                                        
+                                        }
+    },{id: 'setvaluemenu', text: 'Set Value', handler:function(){showSetValueDialog();}},
+    {
+    text: 'Show Definition', handler:function(){ showConceptInfoDialog(conceptid, conceptid, comment);}
+    }
+    ]
+    }); 
+    }
+    var xy = event.getXY();
+    this.contextMenuConcepts.showAt(xy);
+    var m=Ext.getCmp('setvaluemenu');
+    if(this.dom.attributes.oktousevalues.nodeValue!='Y')
+        m.hide(); 
+        //alert('you cant set value');
+    else 
+        m.show();
+    return false;
 }
 
 function setValue(conceptnode, setvaluemode, setvalueoperator, setvaluehighlowselect, setvaluehighvalue, setvaluelowvalue, setvalueunits)
 {
-	conceptnode.setAttribute('setvaluemode',setvaluemode);
-	conceptnode.setAttribute('setvalueoperator',setvalueoperator);
-	conceptnode.setAttribute('setvaluehighlowselect',setvaluehighlowselect);
-	conceptnode.setAttribute('setvaluehighvalue',setvaluehighvalue);
-	conceptnode.setAttribute('setvaluelowvalue',setvaluelowvalue);
-	conceptnode.setAttribute('setvalueunits',setvalueunits);
-	var valuetext="";
-	valuetext=getSetValueText(setvaluemode, setvalueoperator, setvaluehighlowselect, setvaluehighvalue, setvaluelowvalue, setvalueunits);
-	conceptnode.setAttribute('conceptsetvaluetext',valuetext);
+    conceptnode.setAttribute('setvaluemode',setvaluemode);
+    conceptnode.setAttribute('setvalueoperator',setvalueoperator);
+    conceptnode.setAttribute('setvaluehighlowselect',setvaluehighlowselect);
+    conceptnode.setAttribute('setvaluehighvalue',setvaluehighvalue);
+    conceptnode.setAttribute('setvaluelowvalue',setvaluelowvalue);
+    conceptnode.setAttribute('setvalueunits',setvalueunits);
+    var valuetext="";
+    valuetext=getSetValueText(setvaluemode, setvalueoperator, setvaluehighlowselect, setvaluehighvalue, setvaluelowvalue, setvalueunits);
+    conceptnode.setAttribute('conceptsetvaluetext',valuetext);
 	var conceptshortname=conceptnode.getAttribute("conceptshortname");
 	//alert(conceptshortname+" "+valuetext);
 	Ext.get(conceptnode.id).update(conceptshortname+" "+valuetext);
 	//conceptnode.update(conceptshortname+" "+valuetext);
-	var subset=getSubsetFromPanel(conceptnode.parentNode);
-	invalidateSubset(subset);
+    var subset=getSubsetFromPanel(conceptnode.parentNode);
+    invalidateSubset(subset);
 }
 
 function showSetValueDialog()
-{		
-		var conceptnode=selectedConcept; //not dragging so selected concept is what im updating
-		setvaluewin.setHeight(200); //set height back to old closed
-		setvaluewin.setPosition(100, 100);
-		Ext.get("setvaluechartsPanel1").update("");
-		Ext.get("setvaluechartsPanel2").update("");
+{
+        var conceptnode=selectedConcept; //not dragging so selected concept is what im updating
+        setvaluewin.setHeight(200); //set height back to old closed
+        setvaluewin.setPosition(100, 100);
+        Ext.get("setvaluechartsPanel1").update("");
+        Ext.get("setvaluechartsPanel2").update("");
         setvaluewin.show(viewport);
         var mode=conceptnode.getAttribute('setvaluemode');
         var test=document.getElementsByName("setValueMethod");
         if(mode!=null)
-       		{
-				setCheckedValue(test, mode)
-        		setValueMethodChanged(mode);
-        	}
+               {
+                setCheckedValue(test, mode)
+                setValueMethodChanged(mode);
+            }
         else //default to numeric
-        {	
-        	if(test.length>0)
-        		{
-				setCheckedValue(test, "numeric"); //numeric
-        		setValueMethodChanged("numeric");
-        		}
-        	}
+        {    
+            if(test.length>0)
+                {
+                setCheckedValue(test, "numeric"); //numeric
+                setValueMethodChanged("numeric");
+                }
+            }
         
         var highvalue=conceptnode.getAttribute('setvaluehighvalue');
         if(highvalue!=null)
-        		document.getElementById("setValueHighValue").value=highvalue;
+                document.getElementById("setValueHighValue").value=highvalue;
         else
-        	document.getElementById("setValueHighValue").value="";
-        		
+            document.getElementById("setValueHighValue").value="";
+                
         var lowvalue=conceptnode.getAttribute('setvaluelowvalue');
         var blah=document.getElementById("setValueLowValue");
         if(lowvalue!=null)
-        		blah.value=lowvalue;
+                blah.value=lowvalue;
         else
-        	blah.value="";
-        		
+            blah.value="";
+                
         var units=conceptnode.getAttribute('setvalueunits');
         if(units!=null)
-        		document.getElementById("setValueUnits").value=units;
-        		
+                document.getElementById("setValueUnits").value=units;
+                
         var operator=conceptnode.getAttribute('setvalueoperator');
         if(operator!=null)
-        		{
-        		document.getElementById("setValueOperator").value=operator;
-        		setValueOperatorChanged(operator);
-        		}
-        		
+                {
+                document.getElementById("setValueOperator").value=operator;
+                setValueOperatorChanged(operator);
+                }
+                
         else
-        	{
-        		document.getElementById("setValueOperator").value="LT";
-        		setValueOperatorChanged("LT");
-        		}
+            {
+                document.getElementById("setValueOperator").value="LT";
+                setValueOperatorChanged("LT");
+                }
        
         var highlowselect=conceptnode.getAttribute('setvaluehighlowselect');
         if(highlowselect!=null)
-        		document.getElementById("setValueHighLowSelect").value=highlowselect;
-        		
-      	var unitsinput=document.getElementById("setValueUnits");
-      	var option = new Option(conceptnode.getAttribute('normalunits'),conceptnode.getAttribute('normalunits'));  
-      	unitsinput.options[0]=option;   
+                document.getElementById("setValueHighLowSelect").value=highlowselect;
+                
+          var unitsinput=document.getElementById("setValueUnits");
+          var option = new Option(conceptnode.getAttribute('normalunits'),conceptnode.getAttribute('normalunits'));  
+          unitsinput.options[0]=option;
 }
 
 
@@ -547,9 +547,9 @@ function setValueDialogComplete(mode, operator, highlowselect, highvalue, lowval
 var conceptnode=selectedConcept;
 setValue(conceptnode, mode, operator, highlowselect, highvalue, lowvalue, units);
 if(STATE.Dragging==true){
-	STATE.Dragging=false;
-	moveSelectedConceptFromHoldingToTarget();
-	}
+    STATE.Dragging=false;
+    moveSelectedConceptFromHoldingToTarget();
+    }
 }
 
 function moveSelectedConceptFromHoldingToTarget()
@@ -557,17 +557,17 @@ function moveSelectedConceptFromHoldingToTarget()
 	var node=selectedConcept;
 	STATE.Target.appendChild(node);
 	var subset=STATE.Target.id.substr(16,1);
-	invalidateSubset(subset);
-	STATE.Target=null;	
+    invalidateSubset(subset);
+    STATE.Target=null;
 }
 
 function invalidateSubset(subset)
 {
 if(GLOBAL.CurrentSubsetIDs[subset]!=null) //check if its already been invalidated so i dont call again (otherwise I clear ap and grid too many times)
-	{
-	GLOBAL.CurrentSubsetIDs[subset]=null; //invalidate the subset
-	clearAnalysisPanel();
-	}
+    {
+    GLOBAL.CurrentSubsetIDs[subset]=null; //invalidate the subset
+    clearAnalysisPanel();
+    }
 }
 
 function clearAnalysisPanel()
@@ -585,30 +585,30 @@ updateAnalysisPanel(cleartxt, false);
 function clearGrid()
 {
 Ext.Ajax.request(
-    	    {
-    	        url: pageInfo.basePath+"/chart/clearGrid",
-    	        method: 'POST',                                       
-    	        //success: function(result, request){showConceptDistributionHistogramComplete(result);},
-    	        //failure: function(result, request){showConceptDistributionHistogramComplete(result);},
-    	        timeout: '300000',
-    	        params: Ext.urlEncode({charttype:"cleargrid"})
-    	    });
-    	    if(typeof(grid)!='undefined')
-    	    { 
-    	   	if(grid!=null){ 
-    	    	grid.destroy();
-    	    	grid=null;
-    	    }
-    	   }
+            {
+                url: pageInfo.basePath+"/chart/clearGrid",
+                method: 'POST',
+                //success: function(result, request){showConceptDistributionHistogramComplete(result);},
+                //failure: function(result, request){showConceptDistributionHistogramComplete(result);},
+                timeout: '300000',
+                params: Ext.urlEncode({charttype:"cleargrid"})
+            });
+            if(typeof(grid)!='undefined')
+            { 
+               if(grid!=null){ 
+                grid.destroy();
+                grid=null;
+            }
+           }
 }
 
 function createNClusterSelector() {
-	alert("Heatmap type: " + GLOBAL.HeatmapType);
-	if (GLOBAL.HeatmapType == 'KMeans') {
-		GLOBAL.nClusters = 2;
-		var nclusters = new Ext.form.NumberField({
-			allowDecimals: false,
-			allowNegative: false,
+    alert("Heatmap type: " + GLOBAL.HeatmapType);
+    if (GLOBAL.HeatmapType == 'KMeans') {
+        GLOBAL.nClusters = 2;
+        var nclusters = new Ext.form.NumberField({
+            allowDecimals: false,
+    		allowNegative: false,
 			minValue: 1,
 			maxValue: 100,
 			name: "Number of clusters",
@@ -1800,29 +1800,9 @@ function isSubsetEmpty(subset)
 }
 
 function showConceptDistributionHistogram(){
-var conceptnode=selectedConcept; 
-/*var cdhwindow=Ext.getCmp('cdhwindow');
-if(cdhwindow==null)
-{
-cdhwindow = new Ext.Window({
-                id: 'cdhwindow',
-                title: 'Histogram',
-            	layout:'fit',
-                width:250,
-                height:180,
-                closable: true,
-     			closeAction:'hide',  
-                plain: true,
-                modal: false,
-                border:false,
-                resizable: false
-            });
-}
-     cdhwindow.show();
-     cdhwindow.el.alignTo(setvaluewin.el, "tl-bl");
-     cdhwindow.body.update("");*/
-     //*run the current query
-     var concept_key=conceptnode.getAttribute('conceptid');
+
+    var concept_key = selectedConcept.getAttribute('conceptid');
+
      Ext.Ajax.request(
     	    {
     	        url: pageInfo.basePath+"/chart/conceptDistribution",
@@ -1830,52 +1810,22 @@ cdhwindow = new Ext.Window({
     	        success: function(result, request){showConceptDistributionHistogramComplete(result);},
     	        failure: function(result, request){showConceptDistributionHistogramComplete(result);},
     	        timeout: '300000',
-    	        params: Ext.urlEncode({charttype:"conceptdistribution",
-    	        		 			   concept_key: concept_key})
+            params: Ext.urlEncode({concept_key: concept_key})
     	    });   
 }
 
 function showConceptDistributionHistogramComplete(result)
 {
-/*Ext.getCmp("cdhwindow").body.update(result.responseText);*/
 setvaluewin.setHeight(390);
+
+    if (result == null)
+        return Ext.get("setvaluechartsPanel1").update("<div class='x-mask-loading'><div class='conceptDistributionPlaceholder'/></div>");
+
 Ext.get("setvaluechartsPanel1").update(result.responseText);
 }
 
-
 function showConceptDistributionHistogramForSubset()
 {
-/*var cdhswindow=Ext.getCmp('cdhswindow');
-if(cdhswindow==null)
-{
-cdhswindow = new Ext.Window({
-                id: 'cdhswindow',
-                title: 'Histogram for Subset',
-            	layout:'fit',
-                width:250,
-                height:180,
-                closable: true,
-     			closeAction:'hide',  
-                plain: true,
-                modal: false,
-                border:false,
-                resizable: false
-            });
-}
-     cdhswindow.show();
-     cdhswindow.el.alignTo(setvaluewin.el, "tr-br");
-     cdhswindow.body.update("");*/
-
-var conceptnode=selectedConcept; 
-var concept_key=conceptnode.getAttribute('conceptid');
-
-var subset;
-if(conceptnode.parentNode.id=="hiddenDragDiv") //was dragging so get target panel
-	{
-	 subset=getSubsetFromPanel(STATE.Target);
-	 }
-else{subset=getSubsetFromPanel(conceptnode.parentNode);} //wasn't dragging so get selected panel
-var result_instance_id1=GLOBAL.CurrentSubsetIDs[subset];
 
 Ext.Ajax.request(
     	    {
@@ -1884,15 +1834,17 @@ Ext.Ajax.request(
     	        success: function(result, request){showConceptDistributionHistogramForSubsetComplete(result);},
     	        failure: function(result, request){showConceptDistrubutionHistogramForSubsetComplete(result);},
     	        timeout: '300000',
-    	        params: Ext.urlEncode({ charttype: "conceptdistributionforsubset",
-    	        		  				concept_key: concept_key, 
-    	        		  				result_instance_id1: result_instance_id1})
+            params: Ext.urlEncode({concept_key: concept_key, result_instance_id1: GLOBAL.CurrentSubsetIDs[getSubsetFromPanel(selectedDiv)]})
     	    }); 
 }
+
 function showConceptDistributionHistogramForSubsetComplete(result)
 {
-/*Ext.getCmp("cdhswindow").body.update(result.responseText);*/
 setvaluewin.setHeight(390);
+
+    if (result == null)
+        return Ext.get("setvaluechartsPanel2").update("<div class='x-mask-loading'><div class='conceptDistributionPlaceholder'/></div>");
+
 Ext.get("setvaluechartsPanel2").update(result.responseText);
 }
 
@@ -1945,7 +1897,7 @@ function getTreeNodeFromJsonNode(concept)
         var visualattributes    =   null;
         var sourcesystemcdnode  =   null;
         var sourcesystemcd      =   null;
-
+ 		
     level				= concept.level;
     key					= concept.key;
     name				= concept.name;
@@ -1990,7 +1942,7 @@ function getTreeNodeFromJsonNode(concept)
     } else if (visualattributes.indexOf('EDITABLE') != -1) {
         iconCls = 'eleaficon';
         tcls = 'eleafclass';
-	    }
+	}
 
     if (visualattributes.indexOf('PROGRAM') != '-1') {
         iconCls="programicon";
@@ -2000,7 +1952,7 @@ function getTreeNodeFromJsonNode(concept)
         iconCls="studyicon";
     }
 
-
+    
 	    //set whether expanded or not.
 	    var autoExpand=false;
 		// Crude string check to bold this node if it's appeared as an actual search result (leaf)
@@ -2074,12 +2026,12 @@ function getTreeNodeFromJSON(concept)
             draggable = false;
          }
          else if(nodetype == 'L' || nodetype == 'M') // leaf - dragable
-         {
+{
             leaf = true;
             draggable = true;
          }
          var newnode = new Tree.AsyncTreeNode(
-         {
+	{
         	accession: name,
             text : name,
             draggable : draggable,
@@ -2096,50 +2048,50 @@ function getTreeNodeFromJSON(concept)
          );
   		   newnode.addListener('contextmenu',ontologyRightClick);
   		   return newnode;
-  }
-
+	}
+	
 
 
 function setTreeNodeSecurity(newnode, access)
 {
 if(access!=undefined)
-  			{
+    {
   			if(access=='Locked')
   			{
   			//newnode.setText(child.text+" <b>Locked</b>");
   			newnode.attributes.access='locked';
   			newnode.disable();
   			newnode.on('beforeload', function(node){alert("Access to this node has been restricted. Please contact your administrator for access."); return false});		
-  			}
+    }
   		   }
 }
-
+    
 
 
 function getValue(node, defaultvalue)
 {
  	var result=defaultvalue;
 	if(node!=null && node!=undefined)
-		{
+    {
 		if(node.firstChild!=null && node.firstChild!=undefined)
-			{
+        {
 			result=node.firstChild.nodeValue;
-			}
-	}
+        }
+        }
 return result;
-}
+        }
 
 
 function showInfo(url) {
 	showInfoInner(url, 600, 500);
-}
-
+    }
+    
 
 function showInfoInner(url, w, h)
-{
+    {
 	
    if( ! this.infowin)
-   {
+        {
        infowin = new Ext.Window(
       {
          id : 'infowin',
@@ -2158,13 +2110,13 @@ function showInfoInner(url, w, h)
             handler : function()
             {
                infowin.hide();
-            }
-         }
+        }
+        }
          ],
          resizable : false
-      }
+        }
       );
-   }
+    }    
 
    infowin.show();
    infowin.load({
@@ -2191,7 +2143,7 @@ for(i=GLOBAL.NumOfQueryCriteriaGroupsAtStart+1;i<=GLOBAL.NumOfQueryCriteriaGroup
     var e=document.getElementById("qcr"+i);
     e.style.display="none";
 	}
-	
+    
 }
 
 function showCriteriaGroup(i)
