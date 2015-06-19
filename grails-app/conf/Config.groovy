@@ -259,3 +259,9 @@ remove this line */
 /*
 // MetaCore plugin
 com.thomsonreuters.transmart.metacoreAnalyticsEnable=true */
+
+// Added by the Spring Security OAuth2 Provider plugin:
+grails.plugin.springsecurity.oauthProvider.clientLookup.className = 'org.transmart.oauth2.Client'
+grails.plugin.springsecurity.oauthProvider.authorizationCodeLookup.className = 'org.transmart.oauth2.AuthorizationCode'
+grails.plugin.springsecurity.oauthProvider.accessTokenLookup.className = 'org.transmart.oauth2.AccessToken'
+grails.plugin.springsecurity.oauthProvider.refreshTokenLookup.className = 'org.transmart.oauth2.RefreshToken'
