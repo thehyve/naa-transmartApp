@@ -207,7 +207,7 @@ public class SearchKeywordService {
             m.put("category", sk.searchKeyword.displayDataCategory)
             m.put("categoryId", sk.searchKeyword.dataCategory)
 
-			if ("GENE_OR_SNP".equals(category) || ("SNP".equals(category))) {
+			if ("GENE_OR_SNP".equals(category) || ("SNP".equals(category)) || m.get("category").equals("SNP")) {
 				m.put("id", sk.searchKeyword.id)
 			} else {
 				m.put("id", sk.searchKeyword.uniqueId)

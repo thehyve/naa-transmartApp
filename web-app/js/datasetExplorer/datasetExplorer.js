@@ -764,6 +764,9 @@ Ext.onReady(function () {
             }).fail(def.reject);
             return def;
         }
+        
+
+        if(!Math.log10){ Math.log10 = function (x) { return Math.log(x) / Math.log(10); }}
 
         // DALLIANCE
         // =======
@@ -776,8 +779,11 @@ Ext.onReady(function () {
                     loadMetaCoreEnrichment(resultsTabPanel);
                 });
             }
+            loadPlugin('gex', "/gexAnalysis/loadScripts", function () {
+	        });
         });
-
+        
+       
         if (GLOBAL.galaxyEnabled == 'true') {
            resultsTabPanel.add(GalaxyPanel);
         }
@@ -1017,6 +1023,7 @@ Ext.onReady(function () {
 			);
 			setvaluewin.show();
 			setvaluewin.hide();
+			
 		}
 
 
@@ -1343,7 +1350,9 @@ function loginComplete() {
     }
 
     projectDialogComplete();
-	
+ // get the urls to the other important cells
+//	GLOBAL.ONTUrl = oDomDoc.selectSingleNode("//cell_data[@id='ONT']/url").firstChild.nodeValue;
+//	GLOBAL.CRCUrl = oDomDoc.selectSingleNode("//cell_data[@id='CRC']/url").firstChild.nodeValue;
 	// Login GenePattern server. The login process should be completed by the time a user starts GenePattern tasks.
 	genePatternLogin();
 }

@@ -463,7 +463,7 @@
     <body>
     
         <div id="header-div" class="header-div">        
-            <g:render template="/layouts/commonheader" model="['app':'rwg', 'utilitiesMenu':'true']" />
+            <g:render template="/layouts/commonheader" model="['app':'datasetExplorer', 'utilitiesMenu':'true']" />
         </div>
 		 
 		<div id="sidebar" style="border-right:5px solid;border-color:#EDEEF6">

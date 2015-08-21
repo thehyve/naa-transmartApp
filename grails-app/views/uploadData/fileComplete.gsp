@@ -68,7 +68,7 @@
         <br/>
         <a href="${createLink([action:'index',controller:'uploadData'])}">Upload another file</a>
         <br/><br/>
-        <a href="${createLink([action:'index',controller:'RWG'])}">Return to the search page</a>
+        <a href="${createLink([action:'index',controller:'datasetExplorer'])}">Return to the search page</a>
     </div>
 
 </div>

@@ -214,7 +214,7 @@ class DataExportService {
                             case "GSEA.GCT & .CLS":
                                 geneExpressionDataService.getGCTAndCLSData(studyList, studyDir, "mRNA.GCT", jobDataMap.get("jobName"), resultInstanceIdMap, pivotData, gplIds)
                                 break;
-                            case "SNP.PED, .MAP & .CNV":
+                            case "SNP.PED .MAP .CNV":
                                 retVal = snpDataService.getData(studyDir, "snp.trans", jobDataMap.get("jobName"), resultInstanceIdMap[subset])
                                 snpDataService.getDataByPatientByProbes(studyDir, resultInstanceIdMap[subset], jobDataMap.get("jobName"))
                                 break;

@@ -111,7 +111,7 @@ public class FileWriterUtil {
 			outputFile =  new File((null == dataTypeFolderDir) ? dataTypeNameDir : dataTypeFolderDir, fileName);
 		}
 		BufferedWriter bufWriter = new BufferedWriter(new FileWriter(outputFile), 1024 * 64000);
-		writer = new CSVWriter(bufWriter, separator);
+		writer = new CSVWriter(bufWriter, separator, CSVWriter.NO_QUOTE_CHARACTER);
 	}
 	/**
 	 * @param fileName

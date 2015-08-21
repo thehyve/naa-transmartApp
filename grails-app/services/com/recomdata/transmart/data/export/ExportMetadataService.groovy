@@ -151,7 +151,7 @@ class ExportMetadataService {
             for (i in 1..2) {
                 def files = []
                 if (key == 'SNP') {
-                    files.add(createJSONFileObject('.PED, .MAP & .CNV', 'Processed Data',
+                    files.add(createJSONFileObject('.PED .MAP .CNV', 'Processed Data',
                             finalMap["subset${i}"][key],
                             null, null))
                     files.add(createJSONFileObject('.CEL', 'Raw Data', finalMap["subset${i}"][key + '_CEL'], null,

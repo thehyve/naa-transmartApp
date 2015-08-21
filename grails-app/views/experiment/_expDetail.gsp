@@ -19,15 +19,133 @@
 
 <g:set var="overlayDiv" value="metaData_div" />
 <script type="text/javascript">
-var analysisCount = 1
-var assayCount = 3
-
-    $j(document).ready(function() 
+   $j(document).ready(function() 
     {     
-        var dt1 = new dataTableWrapper('gridViewWrapper1', 'gridViewTable1', 'Analysis (' + analysisCount + ")");
+        var analysisCount = 1;
+		var assayCount = 3; 
+		
+		function resizeAccordion() {
+	
+			var windowHeight = jQuery(window).height();
+			jQuery('#sidebar').height(jQuery(window).height()-30);
+			jQuery('#main').height(jQuery(window).height()-30);
+			var ypos = jQuery('#program-explorer').offset()['top'];
+			
+			var targetHeight = windowHeight - ypos - 60;
+			jQuery('#results-div').height(targetHeight);
+			jQuery('#welcome').height(windowHeight - 90);
+			
+			if (jQuery('#sidebar:visible').size() > 0) {
+				jQuery('#main').width(jQuery('body').width() - jQuery('#sidebar').width() - 12);
+			}
+			else {
+				jQuery('#main').width("100%");
+			}
+	
+	
+			jQuery('#box-search').width(jQuery('#program-explorer').width());
+		}
+
+		function updateExportCount() {
+			var checkboxes = jQuery('#exporttable input:checked');
+			
+			if (checkboxes.size() == 0) {
+				jQuery('#exportbutton').text('No files to export').addClass('disabled');
+			}
+			else {
+				jQuery('#exportbutton').removeClass('disabled').text('Export selected files (' + checkboxes.size() + ')');
+			}
+		}
+
+		function dataTableWrapper (containerId, tableId, title, sort, pageSize)
+		{
+		
+		    var data;
+		    var gridPanelHeaderTips;
+		    
+		    function setupWrapper()
+		    {
+		        var gridContainer =  $j('#' + containerId);
+		        gridContainer.html('<table id=\'' + tableId + '\'></table></div>');
+		         }
+		
+		    function overrideSort() {
+		
+		        $j.fn.dataTableExt.oSort['numeric-pre']  = function(a) {
+		            
+		            var floatA = parseFloat(a);
+		            var returnValue;
+		            
+		            if (isNaN(floatA))
+		                returnValue = Number.MAX_VALUE * -1;    //Emptys will go to top for -1, bottom for +1   
+		                else
+		                    returnValue = floatA;
+		            
+		                return returnValue;
+		            };
+		
+		    };
+		
+		    this.loadData = function(dataIn) {
+		
+		
+		        setupWrapper();
+		        
+		        data = dataIn;
+		        setupGridData(data, sort, pageSize);
+		        
+		        gridPanelHeaderTips = data.headerToolTips.slice(0);
+		
+		        //Add the callback for when the grid is redrawn
+		        data.fnDrawCallback = function( oSettings ) {
+		            
+		            //Hide the pagination if both directions are disabled.
+		            if (jQuery('#' + tableId + '_paginate .paginate_disabled_previous').size() > 0 && jQuery('#' + tableId + '_paginate .paginate_disabled_next').size() > 0) {
+		            	jQuery('#' + tableId + '_paginate').hide();
+		            }
+		        };
+		
+		        data.fnInitComplete = function() {this.fnAdjustColumnSizing();};
+		
+		        //$j('#' + tableId).dataTable(data);
+		
+		        //$j(window).bind('resize', function () {
+		        //    if($j('#' + tableId).dataTable().oSettings){
+		        //        $j('#' + tableId).dataTable().fnAdjustColumnSizing();
+		        //    }
+		        //  } );
+		        
+		         $j("#" + containerId + " div.gridTitle").html(data.iTitle);                  
+		
+		    };
+		    
+		
+		    function setupGridData(data, sort, pageSize)
+		    {
+		        data.bAutoWidth = true;
+		        data.bScrollAutoCss = true;
+		//        data.sScrollY = 400;
+		        data.sScrollX = "100%";
+		        data.bDestroy = true;
+		        data.bProcessing = true;
+		        data.bLengthChange = false;
+		        data.bScrollCollapse = false;
+		        data.iDisplayLength = 10;
+		        if (pageSize != null && pageSize > 0) {
+		        	data.iDisplayLength = pageSize;
+		        }
+		        if (sort != null) {
+		 			data.aaSorting = sort;
+		 		}
+		        data.sDom = '<"top"<"gridTitle">Rrt><"bottom"p>' //WHO DESIGNED THIS
+		    }
+		
+		}
+		
+        var dt1 = new dataTableWrapper('gridViewWrapper1', 'gridViewTable1', 'Analysis (' + analysisCount + ')', [[2, "asc"]], 25);
         dt1.loadData(${jSONForGrid});
 
-        var dt2 = new dataTableWrapper('gridViewWrapper2', 'gridViewTable2', 'Assays (' + assayCount + ')');
+        var dt2 = new dataTableWrapper('gridViewWrapper2', 'gridViewTable2', 'Assays (' + assayCount + ')', [[2, "asc"]], 25);
         dt2.loadData(${jSONForGrid1});
         
      });
@@ -40,13 +158,13 @@ var assayCount = 3
 <div style="margin:10px;padding:10px;">
 <h3 class="rdc-h3">${experimentInstance?.title}</h3>
 <div style="line-height:14px;font-family:arial,​tahoma,​helvetica,​sans-serif; font-size: 12px;">
- <g:if test="${experimentInstance?.description.length() > 325000}">
+ <g:if test="${experimentInstance?.description != null && experimentInstance?.description.length() > 325000}">
                        ${(experimentInstance?.description).substring(0,324000)}&nbsp;&nbsp;
                        <a href=# >...See more</a>
                        </g:if>
-                       <g:else>
-                        ${experimentInstance?.description}
-                        </g:else></div>
+                       <g:elseif test="${experimentInstance?.description != null}">
+                       ${experimentInstance?.description}
+                       </g:elseif></div>
 <div style="height:20px;"></div>
 
 <div style="width:800px; border:2px solid #DDD; border-radius:8px;-moz-border-radius: 8px;">

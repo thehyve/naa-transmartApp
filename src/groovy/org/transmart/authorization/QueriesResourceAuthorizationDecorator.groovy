@@ -12,6 +12,7 @@ import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.User
+import org.codehaus.groovy.grails.commons.ApplicationHolder
 
 import javax.annotation.Resource
 
@@ -27,7 +28,12 @@ class QueriesResourceAuthorizationDecorator
 
     @Autowired
     QueriesResource delegate
-
+	
+	
+	def grailsApplication = ApplicationHolder.application
+	def ctx = grailsApplication.mainContext
+	def springSecurityService = ctx.springSecurityService
+	
     @Override
     QueryResult runQuery(QueryDefinition definition) throws InvalidRequestException {
         if (!user.canPerform(BUILD_COHORT, definition)) {
@@ -55,6 +61,23 @@ class QueriesResourceAuthorizationDecorator
     @Override
     QueryResult getQueryResultFromId(Long id) throws NoSuchResourceException {
         def res = delegate.getQueryResultFromId id
+		def springUser
+		
+		try{
+			springUser = springSecurityService.principal.username
+			
+		}
+		catch (Exception e) {
+			//e.printStackTrace();
+		}
+		
+		try {
+			if (springUser != null)
+				log.debug("user.username = "+user.username+" | res.username = "+res.username+" | springUser = "+springUser)
+		}
+		catch (Exception e){
+			e.printStackTrace()
+		}
 
         if (!user.canPerform(READ, res)) {
             throw new AccessDeniedException("Denied ${user.username} access " +

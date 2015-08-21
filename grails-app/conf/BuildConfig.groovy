@@ -18,6 +18,15 @@ grails.project.fork = [
         console: forkSettingsOther]
 
 grails.project.war.file = "target/${appName}.war"
+grails.plugin.location.'gex'='../tranSMART-Analyst-Module'
+grails.plugin.location.'transmart-rest-api'='../transmart-rest-api'
+grails.plugin.location.'search-domain' = '../transmart-extensions/search-domain'
+grails.plugin.location.'biomart-domain' = '../transmart-extensions/biomart-domain'
+grails.plugin.location.'transmart-core' = '../transmart-core-db'
+grails.plugin.location.'transmart-gwas' = '../transmart-gwas-plugin'
+grails.plugin.location.'folder-management' = '../folder-management-plugin'
+
+
 
 /* we need at least servlet-api 2.4 because of HttpServletResponse::setCharacterEncoding */
 grails.servlet.version = "2.5"
@@ -40,8 +49,17 @@ grails.project.dependency.resolution = {
 
     if (!dm) {
         repositories {
-            grailsCentral()
-            mavenCentral()
+			//mavenCentral()
+			//mavenLocal()
+			//grailsHome()
+			//grailsCentral()
+			//grailsPlugins()
+			
+			grailsPlugins()
+			grailsHome()
+			grailsCentral()
+			mavenLocal()
+            
 
             mavenRepo "https://repo.transmartfoundation.org/content/repositories/public/"
             mavenRepo "https://repo.thehyve.nl/content/repositories/public/"
@@ -66,11 +84,12 @@ grails.project.dependency.resolution = {
         compile "org.apache.lucene:lucene-highlighter:2.4.0"
         compile 'commons-net:commons-net:3.3' // used for ftp transfers
         compile 'org.apache.commons:commons-math:2.2' //>2MB lib briefly used in ChartController
-        compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.5.1', {
-            excludes 'groovy', 'nekohtml'
-        }
+		compile ('org.codehaus.groovy.modules.http-builder:http-builder:0.6') {
+			excludes 'groovy'
+	    }
         compile 'org.rosuda:Rserve:1.7.3'
         compile 'com.google.guava:guava:14.0.1'
+		
 
         /* we need at least servlet-api 2.4 because of HttpServletResponse::setCharacterEncoding */
         compile "javax.servlet:servlet-api:$grails.servlet.version" /* delete from the WAR afterwards */
@@ -112,7 +131,7 @@ grails.project.dependency.resolution = {
         build ':tomcat:7.0.52.1'
 
         compile ':hibernate:3.6.10.10'
-        compile ':quartz:1.0-RC2'
+        runtime ':quartz:1.0-RC2'
         // Not compatible with spring security 3.2 yet
         //compile ':spring-security-kerberos:0.1'
         compile ':spring-security-ldap:2.0-RC2'
@@ -126,29 +145,22 @@ grails.project.dependency.resolution = {
 
         // support for static code analysis - see codenarc.reports property below
         compile ":codenarc:0.21"
+		//compile(':gex:0.1')
+		
 
         if (!dm) {
-            compile ':rdc-rmodules:1.2.2-SNAPSHOT'
-            runtime ':transmart-core:1.2.2-SNAPSHOT'
-            compile ':transmart-gwas:1.2.2-SNAPSHOT'
-            //// already included in transmart-gwas
-            //compile ':transmart-legacy-db:1.2.2-SNAPSHOT'
-            //// already included in transmart-gwas
-            //compile ':folder-management:1.2.2-SNAPSHOT'
-            //// already included in transmart-gwas, folder-management
-            //compile ':search-domain:1.2.2-SNAPSHOT'
-            //// already included in search-domain, transmart-gwas,
-            //                       folder-management
-            //compile ':biomart-domain:1.2.2-SNAPSHOT'
-            //// already included in biomart-domain
-            //compile ':transmart-java:1.2.2-SNAPSHOT'
+            compile ':rdc-rmodules:1.2.2'
+            runtime ':transmart-core:1.2.2'
+			runtime ':transmart-rest-api:1.2.2'
+            compile ':transmart-gwas:1.2.2'
             runtime ':dalliance-plugin:0.2-SNAPSHOT'
             runtime ':transmart-mydas:0.1-SNAPSHOT'
-            runtime ':transmart-rest-api:0.1-SNAPSHOT'
-            runtime ':blend4j-plugin:1.2.2-SNAPSHOT'
-            runtime ':transmart-metacore-plugin:1.2.2-SNAPSHOT'
+            
+            runtime ':blend4j-plugin:1.2.2'
+            runtime ':transmart-metacore-plugin:1.2.2'
 
-            test ':transmart-core-db-tests:1.2.2-SNAPSHOT'
+            //test ':transmart-core-db-tests:1.2.2'
+
         } else {
             dm.internalDependencies delegate
         }
@@ -161,7 +173,7 @@ grails.project.dependency.resolution = {
 dm?.with {
     configureInternalPlugin 'compile', 'rdc-rmodules'
     configureInternalPlugin 'runtime', 'transmart-core'
-    configureInternalPlugin 'test',    'transmart-core-db-tests'
+    //configureInternalPlugin 'test',    'transmart-core-db-tests'
     configureInternalPlugin 'compile', 'transmart-gwas'
     configureInternalPlugin 'compile', 'transmart-java'
     configureInternalPlugin 'compile', 'biomart-domain'
@@ -173,6 +185,7 @@ dm?.with {
     configureInternalPlugin 'runtime', 'transmart-rest-api'
     configureInternalPlugin 'runtime', 'blend4j-plugin'
     configureInternalPlugin 'runtime', 'transmart-metacore-plugin'
+	//configureInternalPlugin 'compile', 'gex'
 }
 
 dm?.inlineInternalDependencies grails, grailsSettings

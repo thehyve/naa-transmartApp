@@ -12,7 +12,8 @@ class UserLandingController {
                 accesstime: new Date()).save()
         def skip_disclaimer = grailsApplication.config.com.recomdata?.skipdisclaimer ?: false;
         if (skip_disclaimer) {
-            redirect(uri: '/RWG');
+			//redirect(uri: '/RWG')
+			redirect(uri: '/DatasetExplorer') // berubh
         } else {
             redirect(uri: '/userLanding/disclaimer.gsp')
         }
@@ -20,7 +21,8 @@ class UserLandingController {
     def agree = {
         new AccessLog(username: springSecurityService.getPrincipal().username, event: "Disclaimer accepted",
                 accesstime: new Date()).save()
-        redirect(uri: '/RWG')
+        //redirect(uri: '/RWG')
+		redirect(uri: '/DatasetExplorer') // berubh
     }
 
     def disagree = {

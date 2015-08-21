@@ -67,38 +67,110 @@ class LoginController {
 	/**
 	 * Show the login page.
 	 */
+//	def auth = {
+//		nocache response
+//		
+//		def guestAutoLogin = grailsApplication.config.com.recomdata.guestAutoLogin;
+//		boolean guestLoginEnabled = (guestAutoLogin == 'true' || guestAutoLogin.is(true))
+//        log.info("enabled guest login")
+//        //log.info("requet:"+request.getQueryString())
+//		boolean forcedFormLogin = request.getQueryString() != null
+//		log.info("User is forcing the form login? : " + forcedFormLogin)
+//		
+//		// if enabled guest and not forced login
+//		if(guestLoginEnabled && !forcedFormLogin){
+//				log.info("proceeding with auto guest login")
+//				def guestuser = grailsApplication.config.com.recomdata.guestUserName;
+//
+//				UserDetails ud = userDetailsService.loadUserByUsername(guestuser)
+//				if(ud!=null){
+//					log.debug("We have found user: ${ud.username}")
+//					springSecurityService.reauthenticate(ud.username)
+//					redirect uri: SpringSecurityUtils.securityConfig.successHandler.defaultTargetUrl
+//
+//				}else{
+//					log.info("can not find the user:"+guestuser);
+//				}
+//			}
+//
+//        /*if (springSecurityService.isLoggedIn()) {
+//			redirect uri: SpringSecurityUtils.securityConfig.successHandler.defaultTargetUrl
+//		} else	{
+//            render view: 'auth', model: [postUrl: request.contextPath + SpringSecurityUtils.securityConfig.apf.filterProcessesUrl]
+//        }*/
+//        render view: 'auth', model: [postUrl: request.contextPath + SpringSecurityUtils.securityConfig.apf.filterProcessesUrl]
+//	}
+	
+	/**
+	 * Show the login page.
+	 */
 	def auth = {
 		nocache response
-		
+
 		def guestAutoLogin = grailsApplication.config.com.recomdata.guestAutoLogin;
-		boolean guestLoginEnabled = (guestAutoLogin == 'true' || guestAutoLogin.is(true))
-        log.info("enabled guest login")
-        //log.info("requet:"+request.getQueryString())
+		boolean guestLoginEnabled = ('true'==guestAutoLogin)
+		log.info("enabled guest login")
+		//log.info("requet:"+request.getQueryString())
 		boolean forcedFormLogin = request.getQueryString() != null
 		log.info("User is forcing the form login? : " + forcedFormLogin)
-		
+		String header=SpringSecurityUtils.securityConfig.successHandler.principalRequestHeader;
+		String cUser=null
+		if (header!=null && !header.isEmpty())
+			cUser=request.getHeader(header)
+
 		// if enabled guest and not forced login
 		if(guestLoginEnabled && !forcedFormLogin){
-				log.info("proceeding with auto guest login")
-				def guestuser = grailsApplication.config.com.recomdata.guestUserName;
+			log.info("proceeding with auto guest login")
+			def guestuser = grailsApplication.config.com.recomdata.guestUserName;
 
-				UserDetails ud = userDetailsService.loadUserByUsername(guestuser)
-				if(ud!=null){
-					log.debug("We have found user: ${ud.username}")
-					springSecurityService.reauthenticate(ud.username)
-					redirect uri: SpringSecurityUtils.securityConfig.successHandler.defaultTargetUrl
+			UserDetails ud = userDetailsService.loadUserByUsername(guestuser)
+			if(ud!=null){
+				log.debug("We have found user: ${ud.username}")
+				springSecurityService.reauthenticate(ud.username)
+				redirect uri: SpringSecurityUtils.securityConfig.successHandler.defaultTargetUrl
+				return
 
-				}else{
-					log.info("can not find the user:"+guestuser);
-				}
+			}else{
+				log.info("can not find the user:"+guestuser);
 			}
-
-        /*if (springSecurityService.isLoggedIn()) {
+		}
+		else if (cUser!=null)
+		{
+			springSecurityService.reauthenticate(cUser)
+			
+			// Futur fix for correctly dealing with redirection when login via SSO is done before. More testing is needed before this can be included in the codebase.
+			/*
+			savedrequest savedrequest = new httpsessionrequestcache().getrequest(request, response);
+			//string requesturl = savedrequest.getfullrequesturl();
+			string targeturl = savedrequest.getredirecturl();
+			if (targeturl !=null)
+			redirect uri: targeturl
+			else
+				redirect uri: springsecurityutils.securityconfig.successhandler.defaulttargeturl
+			return
+			*/
+			
 			redirect uri: SpringSecurityUtils.securityConfig.successHandler.defaultTargetUrl
+			
+			
+			
+			return
+		}
+
+
+		if (springSecurityService.isLoggedIn()) {
+			redirect uri: SpringSecurityUtils.securityConfig.successHandler.defaultTargetUrl
+			return
 		} else	{
-            render view: 'auth', model: [postUrl: request.contextPath + SpringSecurityUtils.securityConfig.apf.filterProcessesUrl]
-        }*/
-        render view: 'auth', model: [postUrl: request.contextPath + SpringSecurityUtils.securityConfig.apf.filterProcessesUrl]
+			log.info("User is forcing the form login? : " + forcedFormLogin)
+			if (forcedFormLogin) {
+				log.info("Proceeding with form login")
+				render view: 'auth', model: [postUrl: request.contextPath + SpringSecurityUtils.securityConfig.apf.filterProcessesUrl]
+				return
+			} 
+			render view: 'auth', model: [postUrl: request.contextPath + SpringSecurityUtils.securityConfig.apf.filterProcessesUrl]
+			return
+		}
 	}
 
 	/**

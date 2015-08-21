@@ -227,15 +227,18 @@ class SnpDataService {
 	
 	def private Map writeMAPFiles(studyDir, fileName, jobName, resultInstanceId) {
 		def groovy.sql.Sql sql = null
-		def FileWriterUtil writerUtil = null
+		//def FileWriterUtil writerUtil = null
 		def output = null
 		def buffer = new byte[1000]
+		
+		def writeUtilHM = new HashMap<String,FileWriterUtil>()
+		
 		try {
 			//def subjectIds = i2b2HelperService.getSubjects(resultInstanceId)
 			
 			def platform = plinkService.getStudyInfoByResultInstanceId(resultInstanceId)[0];
 			if (StringUtils.isNotEmpty(platform)) {
-				String query = """ SELECT probe_def FROM de_snp_probe_sorted_def
+				String query = """ SELECT probe_def, chrom FROM de_snp_probe_sorted_def
 				WHERE chrom != 'ALL' and probe_def is not null and platform_name=?""";
 				
 				sql = new groovy.sql.Sql(dataSource);
@@ -250,15 +253,28 @@ class SnpDataService {
 					def dataTypeName = 'SNP'
 					def dataTypeFolder = "Processed_data"
 					char separator = '\t'
-					def snpFileName = 'SNPData.MAP'
 					
-					writerUtil = new FileWriterUtil(studyDir, snpFileName, jobName, dataTypeName, dataTypeFolder, separator);
+					
+					//writerUtil = new FileWriterUtil(studyDir, snpFileName, jobName, dataTypeName, dataTypeFolder, separator);
 					snpMapDataRows.each { row ->
 						java.sql.Clob clob = (java.sql.Clob) row.PROBE_DEF;
 						// change probe_def format from "SNP  chr  position" to "chr  SNP position"
 						clob.getAsciiStream().getText().eachLine {
 							def items = it.split()
-							if (null != items && items?.length == 3) writerUtil?.writeLine([items[1], items[0], items[2]] as String[])
+							if (null != items && items?.length == 3) {
+								def FileWriterUtil writerUtil = null
+								def snpFileName = 'SNPData_chr-'+items[1]+'.map'
+								
+								if (writeUtilHM.containsKey(items[1])){
+									writerUtil = writeUtilHM.get(items[1])
+								}
+								else {
+									writerUtil = new FileWriterUtil(studyDir, snpFileName, jobName, dataTypeName, dataTypeFolder, separator);
+									writeUtilHM.put(items[1], writerUtil)
+								}
+								
+								writerUtil?.writeLine([items[1], items[0], items[2]] as String[])
+							}
 						}
 					}
 				}
@@ -269,7 +285,13 @@ class SnpDataService {
 		}
 		finally {
 			sql?.close()
-			writerUtil?.finishWriting()
+			//writerUtil?.finishWriting()
+			writeUtilHM.each{
+				entry ->
+				def FileWriterUtil writerUtil = writeUtilHM.get(entry.key)
+				writerUtil?.finishWriting()
+				//key, value -> print key;
+			}
 		}
 	}
 
@@ -277,10 +299,17 @@ class SnpDataService {
 		def subjectIds = i2b2HelperService.getSubjectsAsList(resultInstanceId)
 		def patientConceptCdPEDFileMap = [:]
 		def groovy.sql.Sql sql = null
-		def FileWriterUtil writerUtil = null
+		//def FileWriterUtil writerUtil = null
 		def buffer = new byte[1000]
 		def snpDataRows = null
-
+		def snpFileName = 'SNPData.PED'
+		
+		def writeUtilHM = new HashMap<String,FileWriterUtil>()
+		
+		def firstPatient = 1
+		
+		
+		
 		subjectIds.each { subjectId ->
 			def snpDataBySampleQry = """SELECT t1.PATIENT_NUM, t1.CHROM, t1.PED_BY_PATIENT_CHR, 
 												case t2.PATIENT_GENDER
@@ -302,6 +331,8 @@ class SnpDataService {
 				sql = new groovy.sql.Sql(dataSource);
 
 				def dataTypeName = "SNP"
+				def FileWriterUtil writerUtil = null
+				
 				snpDataRows = []
 				sql.eachRow(snpDataBySampleQry?.toString(), [subjectId]) { row ->
 					snpDataRows.add(['FAMILY_ID':row.SUBJECT_ID?.toString(),
@@ -317,7 +348,7 @@ class SnpDataService {
 				if (snpDataRows?.size() > 0) {
 					String familyId = null
 					String patientNum = null
-					//String chromosome = null
+					String chromosome = null
 					Clob pedByPatientChrClob = null
 					String patientGender = null
 					String conceptCd = null
@@ -325,37 +356,76 @@ class SnpDataService {
 					def patientId = getPatientId(subjectId)
 					def dataTypeFolder = "Processed_data"
 					char separator = '\t'
-					def snpFileName = 'SNPData_'+patientId+'.PED'
-					writerUtil = new FileWriterUtil(studyDir, snpFileName, jobName, dataTypeName, dataTypeFolder, separator);
-					writerUtil?.writeLine([
-						'FAMILY ID',
-						'PATIENT ID',
-						'GENDER',
-						'MATERNAL ID',
-						'PATERNAL ID',
-						'CHROMOSOME DATA']
-					as String[])
+					//def snpFileName = 'SNPData_'+patientId+'.PED'
+					
 					
 					snpDataRows.each { row ->
 						familyId = row.FAMILY_ID?.toString()
 						patientNum = row.PATIENT_NUM?.toString()
-						//chromosome = row.CHROM?.toString()
+						chromosome = row.CHROM?.toString()
 						pedByPatientChrClob = (Clob) row.PED_BY_PATIENT_CHR
 						patientGender = row.PATIENT_GENDER?.toString()
 						conceptCd = row.CONCEPT_CD?.toString()
+						
+						snpFileName = 'SNPData_chr-'+chromosome+'.ped'
 	
 						//store the map between patient_conceptcd and the file created for it
 						if (null == patientConceptCdPEDFileMap.get(patientNum+'_'+conceptCd)) {
 							patientConceptCdPEDFileMap.put(patientNum+'_'+conceptCd, writerUtil?.outputFile?.name)
 						}
+						
+						if (writeUtilHM.containsKey(chromosome)){
+							writerUtil = writeUtilHM.get(chromosome)
+						}
+						else {
+							writerUtil = new FileWriterUtil(studyDir, snpFileName, jobName, dataTypeName, dataTypeFolder, separator);
+							writerUtil?.writeLine([
+								'FAMILY ID',
+								'PATIENT ID',
+								'GENDER',
+								'MATERNAL ID',
+								'PATERNAL ID',
+								//'CHROMOSOME',
+								'PHENOTYPE',
+								'CHROMOSOME DATA']
+							as String[])
+							writeUtilHM.put(chromosome, writerUtil)
+						}
+						
+						
+						
+//						if (writerUtil == null) {
+//							writerUtil = new FileWriterUtil(studyDir, snpFileName, jobName, dataTypeName, dataTypeFolder, separator);
+//							writerUtil?.writeLine([
+//								'FAMILY ID',
+//								'PATIENT ID',
+//								'GENDER',
+//								'MATERNAL ID',
+//								'PATERNAL ID',
+//								'CHROMOSOME',
+//								'CHROMOSOME DATA']
+//							as String[])
+//						}
 	
 						def strVal = writerUtil?.getClobAsString(pedByPatientChrClob)
+//						def newStrVal = new String()
+//						for (int i = 0; i < strVal.size(); i++){
+//							if (!strVal.getAt(i).equals(" "))
+//								//newStrVal.append(strVal.getAt(i)).append(" ")
+//								newStrVal = newStrVal + strVal.getAt(i) + " "
+//						}
+//						strVal = newStrVal
+						strVal = strVal.replace(" ", "")
+						strVal = strVal.replace("", " ")
+						
 						writerUtil?.writeLine([
 							familyId,
 							patientId,
 							patientGender,
 							'0',
-							'0',
+							'0', 
+							//chromosome,
+							'-9',
 							strVal]
 						as String[])
 	
@@ -369,10 +439,22 @@ class SnpDataService {
 					}
 				}
 			} finally {
-				//Close existing file and flush out the contents
-				writerUtil?.finishWriting()
 				snpDataRows = null
 			}
+		}
+		
+		try{
+			//Close existing file and flush out the contents
+			//writerUtil?.finishWriting()
+			writeUtilHM.each{
+				entry ->
+				def FileWriterUtil writerUtil = writeUtilHM.get(entry.key)
+				writerUtil?.finishWriting()
+				//key, value -> print key;
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace()
 		}
 
 		return patientConceptCdPEDFileMap

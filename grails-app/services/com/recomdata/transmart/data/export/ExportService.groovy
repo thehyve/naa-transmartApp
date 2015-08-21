@@ -35,6 +35,7 @@ import org.transmart.authorization.CurrentUserBeanProxyFactory
 import org.transmart.searchapp.AccessLog
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.users.User
+import org.transmartproject.core.users.UsersResource
 
 import javax.annotation.Resource
 import java.util.regex.Matcher
@@ -49,6 +50,7 @@ class ExportService {
 	def jobResultsService
 	def asyncJobService
 	def quartzScheduler
+	def UsersResource usersResourceService
 
     @Resource(name = CurrentUserBeanProxyFactory.BEAN_BAME)
     def currentUser
@@ -242,7 +244,8 @@ class ExportService {
 		//This adds a step to the job to create a file link as the plugin output.
 		jdm.put("renderSteps",["FILELINK":""]);
 				
-        jdm.put("userInContext", currentUser.targetSource.target)
+		def user = usersResourceService.getUserFromUsername(userName)
+        jdm.put("userInContext", user) // added to support updated rest-api provided gy Genedata
 
         def jobDetail = new JobDetail(params.jobName, params.analysis, GenericJobExecutor.class)
         jobDetail.setJobDataMap(jdm)

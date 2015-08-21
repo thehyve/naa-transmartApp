@@ -25,7 +25,7 @@ function addTimeoutDialog(heartbeatURL, logoutURL)	{
         
     // This is the idle timeout plugin
     jQuery.idleTimeout('#timeout-div', 'div.ui-dialog-buttonpane button:first', {
-    	idleAfter: 1500,	 				// user is considered idle after 25 minutes of no movement (1500 seconds)
+    	idleAfter: 150000,	 				// user is considered idle after 25 minutes of no movement (1500 seconds)
         pollingInterval: 300,  				// how often we check for heartbeat (5 minutes - 300 seconds) to ensure the server session does not timeout
         keepAliveURL: heartbeatURL,			// this URL will respond with the text shown below
         serverResponseEquals: 'ALIVE',  	// the response from heartbeat must equal this text

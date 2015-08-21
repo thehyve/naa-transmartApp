@@ -330,7 +330,7 @@ DataExport.prototype.prepareOutString = function (files, subset, dataTypeId, met
 DataExport.prototype.createSelectBoxHtml = function (file, subset, dataTypeId, platform) {
     outStr = '';
     if (platform) {
-        outStr += file.dataFormat + ' is available for </br/>' + platform.gplTitle + ": " + platform.fileDataCount + ' patients';
+        outStr += file.dataFormat + ' is available for </br/>' + platform.gplTitle + ": " + platform.fileDataCount + ' samples';//' patients';
         outStr += '<br/> Export (' + file.fileType + ')&nbsp;&nbsp;';
         outStr += '<input type="checkbox" name="SubsetDataTypeFileType"';
         outStr += ' value="{subset: ' + subset + ', dataTypeId: ' + dataTypeId + ', fileType: ' + file.fileType + ', gplId: ' + platform.gplId + '}"';
