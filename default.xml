@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
     <remote name="thehyve" fetch="ssh://git@github.com/thehyve/" />
-    <default remote=“thehyve" revision="master" sync-c="true" sync-j="4" />
+    <default remote="thehyve" revision="master" sync-c="true" sync-j="4" />
 
-    <project name=“naa-transmartApp” path=“transmartApp” />
+    <project name="naa-transmartApp" path="transmartApp" />
 
 </manifest>
