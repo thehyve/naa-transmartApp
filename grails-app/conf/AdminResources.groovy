@@ -7,4 +7,8 @@ modules = {
         resource url: '/js/usergroup.js'
         resource url: '/js/utilitiesMenu.js'
     }
+
+    oauthAdmin {
+        resource url: '/js/oauthAdmin.js'
+    }
 }

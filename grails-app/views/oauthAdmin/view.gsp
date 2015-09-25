@@ -2,6 +2,8 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta name="layout" content="admin"/>
+    %{--include js lib for box plot dynamically--}%
+    <r:require modules="oauthAdmin"/>
     <title>View Client Applications</title>
 </head>
 
@@ -29,6 +31,7 @@
                     <li>_GRANT_TYPE_4_</li>
                 </ol>
             </div>
+
             <div class="adm-input-group">
                 <label>Redirect URI</label>
                 <span  class="adm-view-val">_REDIRECT_URI_</span>

@@ -14,7 +14,7 @@
         </p>
 
         <div class="adm-list-toolbar">
-            <button>Create Application Client</button>
+            <a href="create">Create Application Client</a>
         </div>
 
         <hr style="margin: 10px 0 10px 0;">
@@ -35,7 +35,7 @@
                 <td>r-client</td>
                 <td>
                     <a href="edit">Edit</a>
-                    <a href="#delete">Delete</a>
+                    <a href="delete">Delete</a>
                 </td>
             </tr>
             <tr>

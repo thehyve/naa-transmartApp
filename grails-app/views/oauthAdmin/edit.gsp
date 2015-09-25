@@ -13,13 +13,13 @@
 
         <div class="adm-input-group">
             <label for="mgr-oauth-client-id">Client ID</label>
-            <input type="text" name="mgr-oauth-client-id" id="mgr-oauth-client-id" value="_VAL_CLIENT_ID_" required>
+            <input type="text" name="mgr-oauth-client-id" id="mgr-oauth-client-id" value="_VAL_CLIENT_ID_" required maxlength="128">
         </div>
 
         <div  class="adm-input-group">
             <label for="mgr-oauth-client-id">Client Secret</label>
             <input type="text" name="mgr-oauth-client-id" id="mgr-oauth-client-secret" value="_VAL_CLIENT_SECRET_"
-                   required>
+                   required maxlength="512">
         </div>
 
         <div  class="adm-input-group">
@@ -32,7 +32,7 @@
 
         <div class="adm-input-group">
             <label for="mgr-oauth-redirect-uri">Redirect URI</label>
-            <input type="text" name="mgr-oauth-client-id" id="mgr-oauth-redirect-uri"> <button>Add</button>
+            <input type="text" name="mgr-oauth-client-id" id="mgr-oauth-redirect-uri" maxlength="2083"> <button>Add</button>
         </div>
 
         <div class="adm-toolbar-btm">
