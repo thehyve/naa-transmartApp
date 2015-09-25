@@ -161,9 +161,11 @@ tr.even .pluginPropertiesBox {
     text-align: right;
 }
 
-.adm-frm input[type=checkbox], .adm-frm input[type=text] {
+.adm-frm input[type=checkbox], .adm-frm input[type=text], .adm-view-val {
     margin-left: 20px;
 }
+
+.adm-frm ol {margin-left: 164px;}
 
 .adm-frm input[type=checkbox] {
     display: inline-block;
