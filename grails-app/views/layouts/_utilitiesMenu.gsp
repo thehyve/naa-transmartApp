@@ -102,6 +102,8 @@ span.utilMenuSeparator {
 <g:set var="buildId"><g:meta name="environment.BUILD_ID"/></g:set>
 <div id="utilitiesMenu">
     <ul id="utilitiesMenuList">
+        <li><g:link controller="userApplications" action="list">Connected Applications</g:link></li>
+        <li class="utilMenuSeparator"><span class="utilMenuSeparator">&nbsp;</span></li>
         <li><a href="#" onclick="jQuery('#utilitiesMenu').hide();
         popupWindow('${grailsApplication.config.com.recomdata.searchtool.adminHelpURL}', '_help')">Help</a></li>
         <li><a onclick="jQuery('#utilitiesMenu').hide();"
@@ -112,7 +114,5 @@ span.utilMenuSeparator {
         <li class="utilMenuSeparator"><span class="utilMenuSeparator">&nbsp;</span></li>
         <li><a onclick="jQuery('#utilitiesMenu').hide();"
                href="${createLink(controller: 'login', action: 'forceAuth')}">Log Out</a></li>
-        <!-- <li class="utilMenuSeparator"><span class="utilMenuSeparator">&nbsp;</span></li>
-					<li><a onclick="jQuery('#utilitiesMenu').hide();" href="${createLink(controller: 'logout')}">Log Out</a></li> -->
     </ul>
 </div>
