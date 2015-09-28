@@ -2,12 +2,12 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta name="layout" content="admin"/>
-    <title>Create Client Applications</title>
+    <title>Add Client Application</title>
 </head>
 
 <body>
 <div class="body">
-    <h1>Create New Client Application</h1>
+    <h1>Add Client Application</h1>
 
     <form action="_ACTION_PLACE_HOLDER_" class="adm-frm">
 

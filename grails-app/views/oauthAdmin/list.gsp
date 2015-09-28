@@ -10,11 +10,11 @@
         <h1>Connected Client Applications</h1>
 
         <p>
-            Managed connected applications.
+            Manage and configure application's client secrets and id's.
         </p>
 
         <div class="adm-list-toolbar">
-            <a href="create">Create Application Client</a>
+            <a href="create">Add Application Client</a>
         </div>
 
         <hr style="margin: 10px 0 10px 0;">

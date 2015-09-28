@@ -7,7 +7,7 @@
 
 <body>
 <div class="body">
-    <h1>Edit New Client Application</h1>
+    <h1>Edit Client Application</h1>
 
     <form action="_ACTION_PLACE_HOLDER_" class="adm-frm">
 
