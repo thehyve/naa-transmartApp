@@ -2,43 +2,94 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta name="layout" content="admin"/>
-    <title>Edit Client Applications</title>
+    <title>Edit client applications</title>
 </head>
 
 <body>
 <div class="body">
-    <h1>Edit Client Application</h1>
+    <h1>Edit client application</h1>
 
-    <form action="_ACTION_PLACE_HOLDER_" class="adm-frm">
+	<g:if test="${flash.message}">
+	<div class="message">${flash.message}</div>
+	</g:if>
+	<g:hasErrors bean="${client}">
+	<div class="errors">
+	<g:renderErrors bean="${client}" as="list" />
+	</div>
+	</g:hasErrors>
 
-        <div class="adm-input-group">
+    <g:form action="save" class="adm-frm">
+    
+	    <input type="hidden" name="id" value="${client.id}" />
+
+        <div class="dialog">
+
+        <div class="adm-input-group ${hasErrors(bean:client,field:'clientId','errors')}">
             <label for="mgr-oauth-client-id">Client ID</label>
-            <input type="text" name="mgr-oauth-client-id" id="mgr-oauth-client-id" value="_VAL_CLIENT_ID_" required maxlength="128">
+            <input type="text" id="clientId" name="clientId" required maxlength="128" value="${client.clientId?.encodeAsHTML()}"/>
+        </div>
+
+        <div  class="adm-input-group ${hasErrors(bean:client,field:'clientSecret','errors')}">
+            <label for="mgr-oauth-client-secret">Client secret</label>
+            <input type="text" id="clientSecret" name="clientSecret" required maxlength="512" value="${client.clientSecret?.encodeAsHTML()}"/>
         </div>
 
         <div  class="adm-input-group">
-            <label for="mgr-oauth-client-id">Client Secret</label>
-            <input type="text" name="mgr-oauth-client-id" id="mgr-oauth-client-secret" value="_VAL_CLIENT_SECRET_"
-                   required maxlength="512">
-        </div>
-
-        <div  class="adm-input-group">
-            <label>OAuth Grant Type </label>
-            <div><input type="checkbox" value="grant-auth-code"> Auth Code</div>
-            <div><input type="checkbox" value="grant-implicit-grant"> Implicit Grant</div>
-            <div><input type="checkbox" value="grant-password"> Password</div>
-            <div><input type="checkbox" value="grant-refresh-token"> Refresh Grant</div>
+            <label>OAuth grant type </label>
+            <div class="checklist">
+            <div>
+                <input type="checkbox" name="authorizedGrantTypes" 
+                    id="grant-auth-code" value=" authorization_code" 
+                    ${('authorization_code' in client.authorizedGrantTypes) ? 'checked' : ''} /> 
+                <label for="grant-auth-code">Authorization code</label>
+            </div>
+            <div>
+                <input type="checkbox" name="authorizedGrantTypes" 
+                    id="grant-implicit-grant" value="implicit" 
+                    ${('implicit' in client.authorizedGrantTypes) ? 'checked' : ''} /> 
+                <label for="grant-implicit-grant">Implicit grant</label>
+            </div>
+            <div>
+                <input type="checkbox" name="authorizedGrantTypes" 
+                    id="grant-password" value="password"
+                    ${('password' in client.authorizedGrantTypes) ? 'checked' : ''} /> 
+                <label for="grant-password">Password</label>
+            </div>
+            <div>
+                <input type="checkbox" name="authorizedGrantTypes" 
+                    id="grant-refresh-token" value="refresh_token"
+                    ${('refresh_token' in client.authorizedGrantTypes) ? 'checked' : ''} />
+                <label for="grant-refresh-token">Refresh token</label>
+            </div>
+            </div>
         </div>
 
         <div class="adm-input-group">
-            <label for="mgr-oauth-redirect-uri">Redirect URI</label>
-            <input type="text" name="mgr-oauth-client-id" id="mgr-oauth-redirect-uri" maxlength="2083"> <button>Add</button>
+            <label for="mgr-oauth-redirect-uri">Redirect URIs</label>
+            <div style="display: inline-block;">
+            <div id="uris">
+            <g:each in="${client.redirectUris}" status="i" var="uri">
+                <input type="text" name="redirectUris[${i}]" id="mgr-oauth-redirect-uri[${i}]" value="${uri?.encodeAsHTML()}"/><br />
+            </g:each>
+            </div>
+            <script type="application/javascript">
+            var uriCount = ${client.redirectUris.size()};
+            function newUriField() {
+                return $("<input type='text' name='redirectUris[" + (uriCount++) + "]' maxlength='2083'>");
+            }
+            jQuery('#uris').append(newUriField());
+            </script>
+            <a onclick="javascript:jQuery('#uris').append(newUriField());">Add</a>
+            </div>
         </div>
 
-        <div class="adm-toolbar-btm">
-            <input type="submit" value="Create">
+        <div class="buttons">
+            <span class="button"><g:actionSubmit class="save" value="Save" /></span>
         </div>
-    </form>
+    
+        </div>
+        
+    </g:form>
 
 </div>
 </body>

@@ -2,74 +2,68 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta name="layout" content="admin"/>
-    <title>Manage Client Applications</title>
+    <title>Manage client applications</title>
 </head>
 
 <body>
     <div class="body">
-        <h1>Connected Client Applications</h1>
+        <h1>Connected client applications</h1>
 
         <p>
-            Manage and configure application's client secrets and id's.
+            Manage and configure application's client secrets and IDs.
         </p>
 
+        <g:if test="${flash.message}">
+            <div class="message">${flash.message}</div>
+        </g:if>
+
+
         <div class="adm-list-toolbar">
-            <a href="create">Add Application Client</a>
+            <a href="create">Add application client</a>
         </div>
 
-        <hr style="margin: 10px 0 10px 0;">
-
-        <table>
+        <table class="list">
             <thead>
             <tr>
-                <th>#</th>
-                <th>Client ID</th>
-                <th>Client Secret</th>
+                <g:sortableColumn property="id" title="#" />
+                <g:sortableColumn property="clientId" title="Client ID" />
+                <g:sortableColumn property="clientSecret" title="Client secret" />
+                <g:sortableColumn property="redirectUris" title="Redirect URIs" />
+                <g:sortableColumn property="authorizedGrantTypes" title="Authorized grant types " />
                 <th>&nbsp;</th>
             </tr>
             </thead>
             <tbody>
-            <tr>
-                <td>1</td>
-                <td>r-client</td>
-                <td>r-client</td>
-                <td>
-                    <a href="edit">Edit</a>
-                    <a href="delete">Delete</a>
-                </td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td>r-client</td>
-                <td>r-client</td>
-                <td>
-                    <a href="edit">Edit</a>
-                    <a href="#delete">Delete</a>
-                </td>
-            </tr>
-            <tr style="background-color: #CDCDCD;">
-                <td>3</td>
-                <td>r-client</td>
-                <td>r-client</td>
-                <td>
-                    <a href="view">View</a>
-                </td>
-            </tr>
-            <tr>
-                <td>4</td>
-                <td>r-client</td>
-                <td>r-client</td>
-                <td>
-                    <a href="edit">Edit</a>
-                    <a href="#delete">Delete</a>
-                </td>
-            </tr>
+            <g:each in="${clients}" status="i" var="client">
+	            <tr class="${(i % 2) == 0 ? 'odd' : 'even'} ${(client.clientId in configClientIds) ? 'configclient' : ''}">
+	                <td>${client.id}</td>
+	                <td><code>${client.clientId}</code></td>
+	                <td><code>${client.clientSecret}</code></td>
+	                <td>
+                    <g:each in="${client.redirectUris}" status="j" var="uri">
+                        <code>${uri}</code><g:if test="${j!=client.redirectUris.size()}"><br /></g:if>
+                    </g:each>
+	                </td>
+                    <td>
+                    <g:each in="${client.authorizedGrantTypes}" status="j" var="grantType">
+                        <code>${grantType}</code><g:if test="${j!=client.authorizedGrantTypes.size()}"><br /></g:if>
+                    </g:each>
+                    </td>
+	                <td>
+	                   <g:link action="view" id="${client.id}">View</g:link>
+	                   <g:if test="${!(client.clientId in configClientIds)}">
+	                   <g:link action="edit" id="${client.id}">Edit</g:link>
+	                   <g:link action="delete" id="${client.id}">Delete</g:link>
+	                   </g:if>
+	                </td>
+                </tr>
+            </g:each>
             </tbody>
         </table>
 
         <p>
             <h3>Notes:</h3>
-            Clients in grey texts are configured in Config.grails. To configure it, you have to edit it directly
+            Clients in <span class="configclient">colour</span> are configured in <code>Config.grails</code>. To configure it, you have to edit it directly
             in the file.
         </p>
     </div>
