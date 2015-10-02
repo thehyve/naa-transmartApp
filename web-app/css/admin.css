@@ -159,13 +159,18 @@ tr.even .pluginPropertiesBox {
     display: inline-block;
     width: 140px;
     text-align: right;
+    vertical-align: top;
+}
+
+.checklist label {
+	text-align: left;
 }
 
 .adm-frm input[type=checkbox], .adm-frm input[type=text], .adm-view-val {
     margin-left: 20px;
 }
 
-.adm-frm ol {margin-left: 164px;}
+.adm-frm ol { display: inline-block;}
 
 .adm-frm input[type=checkbox] {
     display: inline-block;
@@ -182,4 +187,21 @@ tr.even .pluginPropertiesBox {
 .adm-toolbar-btm, .adm-list-toolbar{
     margin-top: 25px;
     text-align: right;
+}
+
+.configclient {
+	background-color: #edeef6; /* #fa4; */
+}
+
+table.list {
+	border-collapse: collapse;
+}
+
+table.list td, table.list th {
+	vertical-align: top;
+}
+
+table.list td {
+    padding: 5px;
+	border-bottom: 1px solid black;
 }
