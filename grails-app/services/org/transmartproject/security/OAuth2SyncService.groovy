@@ -68,14 +68,16 @@ class OAuth2SyncService {
         def allClientIds = clients.collect { Map m -> m['clientId'] }.findAll()
 
         int n = 0
-        n = Client.where {
-            ne 'clientId', '__BOGUS' // hack to avoid empty WHERE clause
-            if (allClientIds) {
+        if (!allClientIds.empty) {
+            // Do we have to clear the collections on Client before?
+            n = Client.where {
                 not {
                     'in' 'clientId', allClientIds
                 }
-            }
-        }.deleteAll()
+            }.deleteAll()
+        } else {
+            n = Client.executeUpdate('DELETE FROM Client')
+        }
 
         if (n != 0) {
             log.warn("Deleted $n OAuth2 clients")
