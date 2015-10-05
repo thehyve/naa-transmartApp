@@ -61,10 +61,10 @@
             </tbody>
         </table>
 
+        <h3>Notes:</h3>
         <p>
-            <h3>Notes:</h3>
-            Clients in <span class="configclient">colour</span> are configured in <code>Config.grails</code>. To configure it, you have to edit it directly
-            in the file.
+        Clients in <span class="configclient">colour</span> are configured in <code>Config.grails</code>. To configure it, you have to edit it directly
+        in the file.
         </p>
     </div>
 </body>
