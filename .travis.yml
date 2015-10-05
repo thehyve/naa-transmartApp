@@ -5,7 +5,6 @@ jdk:
 
 before_install:
     - mkdir -p ~/.m2
-    - bash -c '{ curl http://files.thehyve.net/caches/grails_2.3.5_mvncache.tar.gz  | tar -C ~/.m2 -xzf -; } || true'
     - git clone --depth 1 git://github.com/thehyve/transmart-travis.git ~/ts-travis
     - source ~/ts-travis/init.sh
     - source ~/ts-travis/grails_inline.sh
@@ -14,15 +13,13 @@ before_install:
     - cp .travis.BuildConfig.groovy ~/.grails/transmartConfig/BuildConfig.groovy
 
 install:
-    - maybe_build_maven_dep $(travis_get_owner)/transmart-core-api core-api
-    - maybe_make_inline_grails_dep $(travis_get_owner)/transmart-core-db core-db . transmart-core-db-tests
-    - maybe_make_inline_grails_dep $(travis_get_owner)/Rmodules Rmodules
-    - maybe_make_inline_grails_dep $(travis_get_owner)/transmart-gwas-plugin transmart-gwas
-    - maybe_make_inline_grails_dep $(travis_get_owner)/folder-management-plugin folder-management
-    - maybe_make_inline_grails_dep $(travis_get_owner)/transmart-extensions transmart-extensions transmart-java search-domain biomart-domain
-    - maybe_make_inline_grails_dep $(travis_get_owner)/transmart-rest-api transmart-rest-api
-    - maybe_make_inline_grails_dep $(travis_get_owner)/blend4j-plugin blend4j-plugin
-    - maybe_make_inline_grails_dep $(travis_get_owner)/transmart-metacore-plugin transmart-metacore-plugin
+    - maybe_build_maven_dep $(travis_get_owner)/${PREFIX}transmart-core-api core-api
+    - make_inline_grails_dep $(travis_get_owner)/${PREFIX}transmart-core-db "$DEFAULT_BRANCH" core-db . transmart-core-db-tests
+    - make_inline_grails_dep $(travis_get_owner)/${PREFIX}Rmodules "$DEFAULT_BRANCH" Rmodules
+    - make_inline_grails_dep $(travis_get_owner)/${PREFIX}transmart-gwas "$DEFAULT_BRANCH" transmart-gwas
+    - make_inline_grails_dep $(travis_get_owner)/${PREFIX}folder-management-plugin "$DEFAULT_BRANCH" folder-management
+    - make_inline_grails_dep $(travis_get_owner)/${PREFIX}transmart-extensions "$DEFAULT_BRANCH" transmart-extensions transmart-java search-domain biomart-domain
+    - make_inline_grails_dep $(travis_get_owner)/${PREFIX}transmart-rest-api "$DEFAULT_BRANCH" transmart-rest-api
 
 script:
     - grails refresh-dependencies --non-interactive
@@ -30,8 +27,5 @@ script:
     - grails war
 
 notifications:
-  hipchat:
-    rooms:
-      secure: "fdLLuPbpAjUDsuDRU4aFDnmvdPpw7VIrrBB7AOnSMSla4O3Mf4GAxhf35kuo8t2uBDHktqo8aETTkchZCzlDu1GyVREQJGkQv/SjBwa5PE9H262j6YMXW36rXWzkWruXMala6f1UQdQnU+8+ddbUNcyrgxxI6UzwBXDdIzDJa8k="
     on_success: change
     on_failure: always

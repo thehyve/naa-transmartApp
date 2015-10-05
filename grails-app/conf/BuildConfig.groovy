@@ -80,7 +80,7 @@ grails.project.dependency.resolution = {
 	    }
         compile 'org.rosuda:Rserve:1.7.3'
         compile 'com.google.guava:guava:14.0.1'
-		
+        compile 'net.sf.ehcache:ehcache:2.9.0'
 
         /* we need at least servlet-api 2.4 because of HttpServletResponse::setCharacterEncoding */
         compile "javax.servlet:servlet-api:$grails.servlet.version" /* delete from the WAR afterwards */
@@ -122,17 +122,18 @@ grails.project.dependency.resolution = {
         build ':tomcat:7.0.52.1'
 
         compile ':hibernate:3.6.10.10'
-        runtime ':quartz:1.0-RC2'
+        compile ':cache-ehcache:1.0.5'
+        compile ':quartz:1.0-RC2'
         // Not compatible with spring security 3.2 yet
         //compile ':spring-security-kerberos:0.1'
         compile ':spring-security-ldap:2.0-RC2'
-        compile ':spring-security-core:2.0-RC4'
-        compile ':spring-security-oauth2-provider:1.0.5.2'
+        compile ':spring-security-core:2.0-RC5'
+        compile ':spring-security-oauth2-provider:2.0-RC4'
 
         runtime ':prototype:1.0'
         runtime ':jquery:1.7.1'
 
-        runtime ':resources:1.2.1'
+        runtime ':resources:1.2.7'
 
         // support for static code analysis - see codenarc.reports property below
         compile ":codenarc:0.21"
