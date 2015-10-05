@@ -2,71 +2,53 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta name="layout" content="utilities"/>
-    <title>Manage Client Applications</title>
+    <title>Manage client applications</title>
 </head>
 
 <body>
 <div class="body">
-    <h1>User's Connected Application Settings</h1>
+    <h1>User's connected application settings</h1>
 
     <p>
         You have granted the following applications access
         to your account.
     </p>
 
+    <g:if test="${flash.message}">
+        <div class="message">${flash.message}</div>
+    </g:if>
+
     <div class="adm-list-toolbar">
-        <a href="revokeAll">Revoke All</a>
+        <g:remoteLink before="return confirm('Are you sure you want to revoke all access tokens?');" action="revokeAll">Revoke all</g:remoteLink>
     </div>
 
-    <hr style="margin: 10px 0 10px 0;">
-
-    <table>
+    <table class="list">
         <thead>
         <tr>
             <th>#</th>
-            <th>Client ID</th>
-            <th>Application Label</th>
-            <th>Create Date</th>
-            <th>Status</th>
+            <g:sortableColumn property="clientId" title="Client ID" />
+            <g:sortableColumn property="tokenType" title="Type" />
+            <g:sortableColumn property="expiration" title="Expiry date" />
+            <g:sortableColumn property="username" title="Username" />
             <th>&nbsp;</th>
         </tr>
         </thead>
         <tbody>
-        <tr>
-            <td>1</td>
-            <td>r-client</td>
-            <td>VUMC RInterface</td>
-            <td>2015-09-31 19:50</td>
-            <td>Active</td>
+        <g:each in="${tokens}" status="i" var="token">
+        <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
+            <td>${token.id}</td>
+            <td>${token.clientId}</td>
+            <td>${token.tokenType}</td>
+            <td>${token.expiration}</td>
+            <td>${token.username}</td>
             <td>
-                <a href="revoke">Revoke</a>
+                <g:remoteLink before="return confirm('Are you sure you want to revoke the access token?');" 
+                    action="revoke" id="${token.id}">Revoke</g:remoteLink>
             </td>
         </tr>
-        <tr>
-            <td>2</td>
-            <td>r-client</td>
-            <td>University of Eindhoven RInterface</td>
-            <td>2015-10-03 20:55</td>
-            <td>Active</td>
-            <td>
-                <a href="revoke">Revoke</a>
-            </td>
-        </tr>
-        <tr>
-            <td>3</td>
-            <td>galaxy</td>
-            <td>University of Eindhoven Galaxy client</td>
-            <td>2015-10-03 20:55</td>
-            <td>Active</td>
-            <td>
-                <a href="revoke">Revoke</a>
-            </td>
-        </tr>
+        </g:each>
         </tbody>
     </table>
-    <p>
-    <hr style="margin: 10px 0 10px 0;">
-</p>
 </div>
 </body>
 </html>
