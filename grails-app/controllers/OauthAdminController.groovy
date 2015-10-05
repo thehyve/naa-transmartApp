@@ -1,9 +1,15 @@
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured
+import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.transmart.oauth2.Client
+
 
 @Secured(['ROLE_ADMIN'])
 class OauthAdminController {
 
+    @Autowired
+    private TokenStore tokenStore
+    
     def springSecurityService
 
     def grailsApplication
@@ -85,7 +91,17 @@ class OauthAdminController {
     def delete = {
         def client = findClient(params.id)
         
-        //TODO: remove associated tokens from tokenStore
+        log.info 'Removing client with client ID ${params.id}'
+        
+        // Remove associated tokens from tokenStore
+        def tokens = tokenStore.findTokensByClientId(params.id)
+        tokens.each { token -> 
+            log.info 'Removing refresh token and access token...'
+            if (token.refreshToken) {
+                tokenStore.removeRefreshToken(token.refreshToken)
+            }
+            tokenStore.removeAccessToken(token)
+        }
         
         client.delete()
     }
