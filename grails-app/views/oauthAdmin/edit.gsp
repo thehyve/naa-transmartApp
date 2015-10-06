@@ -25,12 +25,12 @@
         <div class="dialog">
 
         <div class="adm-input-group ${hasErrors(bean:client,field:'clientId','errors')}">
-            <label for="mgr-oauth-client-id">Client ID</label>
+            <label for="clientId">Client ID</label>
             <input type="text" id="clientId" name="clientId" required maxlength="128" value="${client.clientId?.encodeAsHTML()}"/>
         </div>
 
         <div  class="adm-input-group ${hasErrors(bean:client,field:'clientSecret','errors')}">
-            <label for="mgr-oauth-client-secret">Client secret</label>
+            <label for="clientSecret">Client secret</label>
             <input type="text" id="clientSecret" name="clientSecret" required maxlength="512" value="${client.clientSecret?.encodeAsHTML()}"/>
         </div>
 
