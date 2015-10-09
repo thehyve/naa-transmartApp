@@ -270,3 +270,5 @@ grails.plugin.springsecurity.oauthProvider.clientLookup.className = 'org.transma
 grails.plugin.springsecurity.oauthProvider.authorizationCodeLookup.className = 'org.transmart.oauth2.AuthorizationCode'
 grails.plugin.springsecurity.oauthProvider.accessTokenLookup.className = 'org.transmart.oauth2.AccessToken'
 grails.plugin.springsecurity.oauthProvider.refreshTokenLookup.className = 'org.transmart.oauth2.RefreshToken'
+
+grails.plugin.springsecurity.oauthProvider.tokenServices.tokenEnhancerBeanNames = ['customTokenEnhancer']

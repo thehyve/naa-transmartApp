@@ -60,6 +60,11 @@
 			<div class='fheader'>Please Confirm</div>
 			<div>You hereby authorize <b>${applicationContext.getBean('clientDetailsService')?.loadClientByClientId(params.client_id)?.clientId ?: 'n/a'}</b> to access your protected resources.</div>
 			<form method='POST' id='confirmationForm' class='cssform'>
+                <p>
+                    <% label = applicationContext.getBean('tokenLabelService')?.find(params.client_id)?.label ?: 'bla' %>
+                    <label for="label">Label</label>
+                    <input name="label" type="text" value="<%=label%>"/>
+                </p>
 				<p>
 					<input name='user_oauth_approval' type='hidden' value='true' />
 					<label><input name="authorize" value="Authorize" type="submit" /></label>

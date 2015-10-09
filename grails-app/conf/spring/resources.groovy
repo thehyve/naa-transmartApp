@@ -18,13 +18,12 @@
  ******************************************************************/
 
 
-import com.google.common.collect.ImmutableMap
+import grails.plugin.springsecurity.SpringSecurityUtils
+
 import org.apache.log4j.Logger
 import org.codehaus.groovy.grails.commons.spring.DefaultBeanConfiguration
 import org.springframework.beans.factory.config.CustomScopeConfigurer
 import org.springframework.security.core.session.SessionRegistryImpl
-// plugin is not functional at this point
-//import org.springframework.security.extensions.kerberos.web.SpnegoAuthenticationProcessingFilter
 import org.springframework.security.web.DefaultRedirectStrategy
 import org.springframework.security.web.access.AccessDeniedHandlerImpl
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler
@@ -34,9 +33,15 @@ import org.transmart.authorization.CurrentUserBeanFactoryBean
 import org.transmart.authorization.CurrentUserBeanProxyFactory
 import org.transmart.authorization.QueriesResourceAuthorizationDecorator
 import org.transmart.marshallers.MarshallerRegistrarService
+import org.transmart.oauth2.CustomAuthorizationEndpoint
+import org.transmart.oauth2.CustomTokenEnhancer
 import org.transmart.spring.QuartzSpringScope
 import org.transmartproject.core.users.User
 import org.transmartproject.export.HighDimExporter
+import org.transmartproject.security.CustomTokenServices
+import org.transmartproject.security.CustomGormTokenStoreService
+
+import com.google.common.collect.ImmutableMap
 
 def logger = Logger.getLogger('com.recomdata.conf.resources')
 
@@ -132,4 +137,42 @@ beans = {
             return {}
         }
     }
+    
+    customTokenEnhancer(CustomTokenEnhancer)
+
+    SpringSecurityUtils.loadSecondaryConfig 'DefaultOAuth2ProviderSecurityConfig'
+    
+    String userApprovalEndpointUrl = SpringSecurityUtils.securityConfig.oauthProvider.userApprovalEndpointUrl
+    String errorEndpointUrl = SpringSecurityUtils.securityConfig.oauthProvider.errorEndpointUrl
+    
+    /* Register authorization endpoint */
+    oauth2AuthorizationEndpoint(CustomAuthorizationEndpoint) {
+        tokenGranter = ref('oauth2AuthorizationEndpointTokenGranter')
+        authorizationCodeServices = ref('authorizationCodeServices')
+        clientDetailsService = ref('clientDetailsService')
+        redirectResolver = ref('redirectResolver')
+        userApprovalHandler = ref('userApprovalHandler')
+        OAuth2RequestFactory = ref('oauth2RequestFactory')
+        OAuth2RequestValidator = ref('oauth2RequestValidator')
+
+        // The URL where the user approves the grant
+        userApprovalPage = userApprovalEndpointUrl
+
+        // The URL the user is directed to in case of an error
+        errorPage = errorEndpointUrl
+    }
+
+    tokenStore(CustomGormTokenStoreService)
+    
+    tokenServices(CustomTokenServices) {
+        tokenEnhancer = ref("tokenEnhancer")
+        tokenStore = ref("tokenStore")
+        clientDetailsService = ref("clientDetailsService")
+        accessTokenValiditySeconds = SpringSecurityUtils.securityConfig.oauthProvider.tokenServices.accessTokenValiditySeconds
+        refreshTokenValiditySeconds = SpringSecurityUtils.securityConfig.oauthProvider.tokenServices.refreshTokenValiditySeconds
+        reuseRefreshToken = SpringSecurityUtils.securityConfig.oauthProvider.tokenServices.reuseRefreshToken
+        supportRefreshToken = SpringSecurityUtils.securityConfig.oauthProvider.tokenServices.supportRefreshToken
+    }
+    
+
 }

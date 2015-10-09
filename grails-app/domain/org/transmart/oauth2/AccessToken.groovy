@@ -2,7 +2,7 @@ package org.transmart.oauth2
 
 class AccessToken {
 
-    String authenticationKey
+    //String authenticationKey
     byte[] authentication
 
     String username
@@ -25,7 +25,7 @@ class AccessToken {
         expiration nullable: false
         scope nullable: false
         refreshToken nullable: true
-        authenticationKey nullable: false, blank: false, unique: true
+        //authenticationKey nullable: false, blank: false, unique: true
         authentication nullable: false, minSize: 1, maxSize: 1024 * 4
         additionalInformation nullable: true
     }
