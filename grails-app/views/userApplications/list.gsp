@@ -43,8 +43,7 @@
                 <g:formatDate date="${token.expiration}" format="dd-MM-yyyy hh:mm" />
             </td>
             <% 
-                def expiration = Long.valueOf(token.additionalInformation['refreshTokenExpiration'])
-                def refreshTokenExpiration = expiration ? new Date(expiration) : null
+                def refreshTokenExpiration = refreshTokenExpiration[token.id]
             %>
             <td class="${(refreshTokenExpiration && refreshTokenExpiration < new Date()) ? 'expired' : ''}">
                 <g:formatDate date="${refreshTokenExpiration}" format="dd-MM-yyyy hh:mm" />
