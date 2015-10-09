@@ -16,6 +16,11 @@ class UserApplicationsController {
         
         log.info 'Fetching access tokens for ' + principal.username
         def tokens = AccessToken.findAll { username == principal.username }
+        def result = []
+        tokens.each { 
+            def t = tokenStore.readAccessToken(it.value)
+            it.additionalInformation['refreshTokenExpiration'] = t.refreshToken.expiration.time.toString()
+        }
         render view: 'list', model: [tokens: tokens]
     }
     

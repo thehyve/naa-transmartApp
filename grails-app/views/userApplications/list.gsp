@@ -27,9 +27,10 @@
         <tr>
             <th>#</th>
             <g:sortableColumn property="clientId" title="Client ID" />
-            <g:sortableColumn property="tokenType" title="Type" />
-            <g:sortableColumn property="expiration" title="Expiry date" />
+            <g:sortableColumn property="expiration" title="Access token expiry" />
+            <g:sortableColumn property="refreshToken.expiration" title="Refresh token expiry" />
             <g:sortableColumn property="username" title="Username" />
+            <g:sortableColumn property="tokenType" title="Type" />
             <th>&nbsp;</th>
         </tr>
         </thead>
@@ -38,9 +39,18 @@
         <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
             <td>${token.id}</td>
             <td>${token.clientId}</td>
-            <td>${token.tokenType}</td>
-            <td>${token.expiration}</td>
+            <td class="${(token.expiration < new Date()) ? 'expired' : ''}">
+                <g:formatDate date="${token.expiration}" format="dd-MM-yyyy hh:mm" />
+            </td>
+            <% 
+                def expiration = Long.valueOf(token.additionalInformation['refreshTokenExpiration'])
+                def refreshTokenExpiration = expiration ? new Date(Long.valueOf(expiration)) : null
+            %>
+            <td class="${(refreshTokenExpiration && refreshTokenExpiration < new Date()) ? 'expired' : ''}">
+                <g:formatDate date="${refreshTokenExpiration}" format="dd-MM-yyyy hh:mm" />
+            </td>
             <td>${token.username}</td>
+            <td>${token.tokenType}</td>
             <td>
                 <g:remoteLink before="return confirm('Are you sure you want to revoke the access token?');" 
                     action="revoke" id="${token.id}">Revoke</g:remoteLink>
