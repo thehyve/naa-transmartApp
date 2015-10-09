@@ -79,7 +79,7 @@ class OAuth2SyncService {
             c.delete()
             n++
         }
-        
+
         if (n != 0) {
             log.warn("Deleted $n OAuth2 clients")
         }
