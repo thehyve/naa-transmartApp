@@ -78,7 +78,16 @@ class OauthAdminController {
             client = new Client()
         }
         copyProperties(client, params)
-        
+
+        def redirectUris = []
+        client.redirectUris.each {
+            def uri = it.trim()
+            if (uri) {
+                redirectUris += uri
+            }
+        }
+        client.redirectUris = redirectUris
+                
         if (client.save()) {
             log.info 'client saved: ' + client.id
             redirect (action: 'view', id: client.id)

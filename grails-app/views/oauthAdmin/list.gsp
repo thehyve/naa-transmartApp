@@ -19,7 +19,7 @@
 
 
         <div class="adm-list-toolbar">
-            <a href="create">Add application client</a>
+            <a href="create">Create application client</a>
         </div>
 
         <table class="list">
