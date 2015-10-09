@@ -38,7 +38,7 @@
 	            <tr class="${(i % 2) == 0 ? 'odd' : 'even'} ${(client.clientId in configClientIds) ? 'configclient' : ''}">
 	                <td>${client.id}</td>
 	                <td><code>${client.clientId}</code></td>
-	                <td><code>${client.clientSecret}</code></td>
+	                <td><em class="remark">(hashed)</em></td>
 	                <td>
                     <g:each in="${client.redirectUris}" status="j" var="uri">
                         <code>${uri}</code><g:if test="${j!=client.redirectUris.size()}"><br /></g:if>

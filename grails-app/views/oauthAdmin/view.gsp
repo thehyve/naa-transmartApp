@@ -2,8 +2,6 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta name="layout" content="admin"/>
-    %{--include js lib for box plot dynamically--}%
-    <r:require modules="oauthAdmin"/>
     <title>View client applications</title>
 </head>
 
@@ -19,7 +17,7 @@
 
             <div class="adm-input-group">
                 <label>Client secret</label>
-                <span class="adm-view-val">${client.clientSecret}</span>
+                <span class="adm-view-val"><em class="remark">(hashed)</em></span>
             </div>
 
             <div class="adm-input-group">

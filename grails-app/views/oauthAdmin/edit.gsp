@@ -29,9 +29,12 @@
             <input type="text" id="clientId" name="clientId" required maxlength="128" value="${client.clientId?.encodeAsHTML()}"/>
         </div>
 
-        <div  class="adm-input-group ${hasErrors(bean:client,field:'clientSecret','errors')}">
+        <div class="adm-input-group ${hasErrors(bean:client,field:'clientSecret','errors')}">
             <label for="clientSecret">Client secret</label>
-            <input type="text" id="clientSecret" name="clientSecret" required maxlength="512" value="${client.clientSecret?.encodeAsHTML()}"/>
+            <div style="display: inline-block;">
+            <input type="text" id="clientSecret" name="clientSecret" ${client.clientSecret ? '':'required'} maxlength="512" value=""/>
+            <g:if test="${client.clientSecret}"><br /><em class="remark adm-view-val">Not changed if empty.</em></g:if>
+            </div>
         </div>
 
         <div  class="adm-input-group">
@@ -75,15 +78,17 @@
             <script type="application/javascript">
             var uriCount = ${client.redirectUris.size()};
             function newUriField() {
-                return $("<input type='text' name='redirectUris[" + (uriCount++) + "]' maxlength='2083'>");
+                return $("<input type='text' name='redirectUris[" + (uriCount++) + "]' maxlength='2083'><br />");
             }
             jQuery('#uris').append(newUriField());
             </script>
-            <a onclick="javascript:jQuery('#uris').append(newUriField());">Add</a>
+            <p style="text-align: right;">
+                <input onclick="javascript:jQuery('#uris').append(newUriField());" type="button" value="Add row" />
+            </p>
             </div>
         </div>
 
-        <div class="buttons">
+        <div class="buttons" style="text-align: right;">
             <span class="button"><g:actionSubmit class="save" value="Save" /></span>
         </div>
     

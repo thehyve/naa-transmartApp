@@ -77,6 +77,12 @@ class OauthAdminController {
         } else {
             client = new Client()
         }
+        
+        params.clientSecret = params.clientSecret?.trim()
+        if (!params.clientSecret) {
+            params.remove('clientSecret')
+        }
+        
         copyProperties(client, params)
 
         def redirectUris = []
