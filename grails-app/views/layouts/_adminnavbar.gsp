@@ -87,6 +87,22 @@ Access Log
 </div>
 
 <div class='navbarBox'>
+    <div class="navcontainer1">
+        <h1 class="panelHeader">
+            OAuth Applications
+        </h1>
+        <ul class="navlist">
+            <li>
+                <span class="adminMenuButton"><g:link class="list" controller="oauthAdmin" action="list">Connected Applications</g:link></span>
+            </li>
+            <li>
+                <span class="adminMenuButton"><g:link class="create" controller="oauthAdmin" action="create">Create Application Client</g:link></span>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class='navbarBox'>
 <div class="navcontainer1">
 <h1 class="panelHeader">
  Access Control
