@@ -55,15 +55,15 @@
     <script type="text/javascript" src="${resource(dir: 'js/utils', file: 'json2.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js/utils', file: 'dynamicLoad.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer', file: 'highDimensionData.js')}"></script>
+    <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer', file:'highDimensionalFilter.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js', file: 'utilitiesMenu.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer', file: 'gridView.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer', file: 'datasetExplorer.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js', file: 'rwgsearch.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js', file: 'advancedWorkflowFunctions.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer', file: 'highDimensionData.js')}"></script>
     <script type="text/javascript" src="${resource(dir:'js', file:'utilitiesMenu.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js/Galaxy', file: 'galaxyExport.js')}"></script>
-    <script type="text/javascript" src="${resource(plugin: 'transmart-ewb', dir: 'js', file: 'ewb.js')}"></script>
+    %{--<script type="text/javascript" src="${resource(plugin: 'transmart-ewb', dir: 'js', file: 'ewb.js')}"></script>--}%
     <script type="text/javascript" src="//yui.yahooapis.com/combo?2.9.0/build/yahoo/yahoo-min.js&2.9.0/build/get/get-min.js"></script>
 
     <tmpl:/RWG/urls/>
@@ -191,6 +191,19 @@
 
     var helpURL = '${grailsApplication.config.com.recomdata.searchtool.adminHelpURL}';
 </script>
+
+<style>
+    #dialog-form {
+        font-family: Arial, "sans serif";
+        font-size: 1em;
+    }
+    #dialog-form label, #dialog-form input { display:block; }
+    #dialog-form input.text, #dialog-form select { margin-bottom:12px; width:95%; padding: .4em; }
+    fieldset { padding:0; border:0; margin-top:25px; }
+    .ui-dialog .ui-state-error { padding: .3em; }
+    .validateTips { border: 1px solid transparent; padding: 0.3em; }
+</style>
+
 <div id="header-div"><g:render template="/layouts/commonheader" model="['app': 'datasetExplorer']"/></div>
 <div id="main"></div>
 <h3 id="test">Loading ...</h3>
@@ -209,6 +222,21 @@
 </g:else>
 <IFRAME src="${gplogout}" width="1" height="1" scrolling="no" frameborder="0" id="gplogin"></IFRAME>
 <IFRAME src="${gplogout}" width="1" height="1" scrolling="no" frameborder="0" id="altgplogin"></IFRAME>
+
+<div id="dialog-form" title="SNP Filtering">
+    <form>
+        <fieldset>
+            <label for="filterType">Filter Type</label>
+            <g:select name="filterType" from="['SNP Identifier', 'Gene', 'Genomic Region']"></g:select>
+
+            <label for="filterKeyword">Keyword</label>
+            <input type="text" name="filterKeyword" id="filterKeyword" value="" class="text ui-widget-content ui-corner-all">
+
+            <!-- Allow form submission with keyboard without duplicating the dialog button -->
+            <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+        </fieldset>
+    </form>
+</div>
 
 <div id="saveReportDialog" style="display:none;font: 11px arial,tahoma,helvetica,sans-serif;font-weight:normal;">
     <br/>

@@ -586,18 +586,18 @@ Ext.onReady(function () {
                     split : true,
                     height : 90,
                     layout : 'fit',
-                listeners: {
-                        activate : function(p) {
-                        if (isSubsetQueriesChanged(p.subsetQueries) || !Ext.get('dataTypesGridPanel')) {
-                            p.body.mask("Loading...", 'x-mask-loading');
-                            runAllQueries(getDatadata, p);
-                             return;
-                        }
+                    listeners: {
+                            activate : function(p) {
+                            if (isSubsetQueriesChanged(p.subsetQueries) || !Ext.get('dataTypesGridPanel')) {
+                                p.body.mask("Loading...", 'x-mask-loading');
+                                runAllQueries(getDatadata, p);
+                                 return;
+                            }
                         },
                     'afterLayout': {
-                        fn: function (el) {
-                            onWindowResize();
-                        }
+                            fn: function (el) {
+                                onWindowResize();
+                            }
                         }
                     },
                     collapsible : true                        

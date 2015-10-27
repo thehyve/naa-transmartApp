@@ -33,6 +33,7 @@ CustomGridPanel.prototype.dropZonesChecker = function () {
 
     // init row element checker task
     var checkTask = {
+
         run: function () {
 
             // init rows array
@@ -40,10 +41,83 @@ CustomGridPanel.prototype.dropZonesChecker = function () {
 
             // check if view already have rows represent the number of records
             for (var i = 1; i <= _this.records.length; i++) {
+
+                var recordData = _this.records[i - 1].data;
                 var _rowEl = _this.getView().getRow(i);
-                rows.push(_rowEl)
+
+                rows.push(_rowEl);
+
                 var _dtgI = new Ext.dd.DropTarget(_rowEl, {ddGroup: 'makeQuery'});
-                _dtgI.notifyDrop = dropOntoVariableSelection;
+
+                var isWrongNode = function(rd, data) {
+                    return rd.subset1.ontologyTermKeys
+                        && rd.subset1.ontologyTermKeys.indexOf(data.node.id) < 0
+                        && rd.subset2.ontologyTermKeys
+                        && rd.subset2.ontologyTermKeys.indexOf(data.node.id) < 0
+                            //TODO We could check for folders
+                        || (data.node.attributes.visualattributes.indexOf('HIGH_DIMENSIONAL') >= 0
+                        && rd.dataTypeId == 'CLINICAL');
+                };
+
+                var getDropHandler = function (target, rd) {
+
+                    return function (source, e, data) {
+
+                        if (isWrongNode(rd, data)) {
+                            return false;
+                        }
+
+                        // RIZA' CODE TO BE HERE
+                        // ===========================
+                        // TODO Please refactor this ..
+
+                        var dialog = jQuery( "#dialog-form" ).dialog({
+                            autoOpen: false,
+                            height: 300,
+                            width: 350,
+                            modal: true,
+                            buttons: {
+                                "Apply": function () {
+                                    //`this` is used inside function `dropOntoVariableSelection` function
+                                    target.dropOntoVariableSelection = dropOntoVariableSelection;
+                                    jQuery(target.el.dom).find('input[name=download_dt]').prop('checked', true);
+                                    dialog.dialog( "close" );
+                                },
+                                Cancel: function() {
+                                    dialog.dialog( "close" );
+                                }
+                            },
+                            close: function() {
+                                //form[ 0 ].reset();
+                                //allFields.removeClass( "ui-state-error" );
+                            }
+                        });
+
+                        dialog.dialog( "open" );
+
+
+                        return target.dropOntoVariableSelection(source, e, data);
+                    };
+                };
+
+                _dtgI.notifyDrop = getDropHandler(_dtgI, recordData);
+
+                var getEnterHandler = function(target, rd) {
+                    return function(dd, e, data) {
+                        if(target.overClass){
+                            target.el.addClass(target.overClass);
+                        }
+                        return isWrongNode(rd, data) ? target.dropNotAllowed : target.dropAllowed;
+                    };
+                };
+                _dtgI.notifyEnter = getEnterHandler(_dtgI, recordData);
+
+                var getOverHandler = function(target, rd) {
+                    return function(dd, e, data) {
+                        return isWrongNode(rd, data) ? target.dropNotAllowed : target.dropAllowed;
+                    };
+                };
+                _dtgI.notifyOver = getOverHandler(_dtgI, recordData);
             }
 
             // stop runner when it's already found the elements
@@ -54,14 +128,14 @@ CustomGridPanel.prototype.dropZonesChecker = function () {
         },
 
         interval: 500 // repeat every 0.5 seconds
-    }
+    };
 
     // Need to have a task runner since there's no other way to retrieve
     // row elements after they're rendered.
 
     var runner = new Ext.util.TaskRunner();  // define a runner
     runner.start(checkTask); // start the task
-}
+};
 
 /**********************************************************************************************************************/
 
@@ -76,9 +150,9 @@ function getDatadata() {
 
     // load export metadata
     dataExport.exportMetaDataStore.load({
-            params: {result_instance_id1: GLOBAL.CurrentSubsetIDs[1], result_instance_id2: GLOBAL.CurrentSubsetIDs[2]},
-            scope: dataExport,
-            callback: dataExport.displayResult
+        params: {result_instance_id1: GLOBAL.CurrentSubsetIDs[1], result_instance_id2: GLOBAL.CurrentSubsetIDs[2]},
+        scope: dataExport,
+        callback: dataExport.displayResult
     });
 }
 
@@ -108,29 +182,29 @@ var DataExport = function() {
         ret.proxy.addListener('loadexception', function(dummy, dummy2, response) {
             if (response.status != 200) {
                 var responseText,
-                    parsedResponseText
-                responseText = response.responseText
+                    parsedResponseText;
+                responseText = response.responseText;
                 try {
-                    parsedResponseText = JSON.parse(responseText)
+                    parsedResponseText = JSON.parse(responseText);
                     if (parsedResponseText.message) {
-                        responseText = parsedResponseText.message
+                        responseText = parsedResponseText.message;
                     }
                 } catch (syntaxError) {}
                 exportListFetchErrorHandler(response.status, responseText);
             }
         });
         return ret;
-    }
+    };
 
     var exportListFetchErrorHandler = function(status, text) {
         Ext.Msg.alert('Status', "Error fetching export metadata.<br/>Status " +
-                status + "<br/>Message: " + text);
-    }
+        status + "<br/>Message: " + text);
+    };
 
     // let's create export metadata json store
     this.exportMetaDataStore = _getExportMetadataStore();
 
-}
+};
 
 /**
  * Display data to be exported
@@ -161,13 +235,13 @@ DataExport.prototype.displayResult = function (records, options, success) {
                             tooltip:'Click for Data Export help',
                             iconCls: "contextHelpBtn",
                             handler: function(event, toolEl, panel){
-                                D2H_ShowHelp("1456",helpURL,"wndExternal",CTXT_DISPLAY_FULLHELP );
+                                D2H_ShowHelp("1312",helpURL,"wndExternal",CTXT_DISPLAY_FULLHELP );
                             }
                         }
                     )]
             }
         );
-    }
+    };
 
     /**
      * Get data types grid panel component
@@ -212,7 +286,7 @@ DataExport.prototype.displayResult = function (records, options, success) {
         });
 
         return _grid;
-    }
+    };
 
     // Display data when success and records contains data
     if (success && (_this.records.length > 0)) {
@@ -240,7 +314,7 @@ DataExport.prototype.displayResult = function (records, options, success) {
     }
     // unmask data export panel
     analysisDataExportPanel.body.unmask();
-}
+};
 
 /**
  *
@@ -447,7 +521,7 @@ DataExport.prototype.createDataExportJob = function (gridPanel) {
             analysis: "DataExport"
         }
     });
-}
+};
 
 /**
  * Get export parameters to be sent to the backend
@@ -476,7 +550,7 @@ DataExport.prototype.getExportParams = function (gridPanel, selectedFiles) {
             }
         }
         return _returnVal;
-    } //
+    }; //
 
     /**
      * Check if a particular data type is selected
@@ -488,7 +562,7 @@ DataExport.prototype.getExportParams = function (gridPanel, selectedFiles) {
     var _checkDataType = function (file, type) {
         var _typeRegex = new RegExp(type);
         return _typeRegex.test(file);
-    }
+    };
 
     /**
      * Get concept paths
@@ -506,7 +580,7 @@ DataExport.prototype.getExportParams = function (gridPanel, selectedFiles) {
 
         return _concept_path_arr;
 
-    } //
+    }; //
 
     if (gridPanel.records.length > 0) {
 
@@ -544,7 +618,7 @@ DataExport.prototype.getExportParams = function (gridPanel, selectedFiles) {
     }
 
     return params;
-}
+};
 
 /**
  * Run data export job
@@ -558,8 +632,8 @@ DataExport.prototype.runDataExportJob = function (result, gridPanel) {
     var messages = {
         cancelMsg: "Your Job has been cancelled.",
         backgroundMsg: "Your job has been put into background process. Please check the job status in " +
-            "the 'Export Jobs' tab."
-    }
+        "the 'Export Jobs' tab."
+    };
 
     showJobStatusWindow(result, messages);
 
@@ -582,15 +656,15 @@ DataExport.prototype.runDataExportJob = function (result, gridPanel) {
             method: 'POST',
             timeout: '1800000',
             params: Ext.urlEncode(
-            {
-                result_instance_id1: GLOBAL.CurrentSubsetIDs[1],
-                result_instance_id2: GLOBAL.CurrentSubsetIDs[2],
-                analysis: 'DataExport',
-                jobName: jobName,
-                selectedSubsetDataTypeFiles: selectedSubsetDataTypeFiles,
-                selection : JSON.stringify(_exportParams)
-            }) // or a URL encoded string
+                {
+                    result_instance_id1: GLOBAL.CurrentSubsetIDs[1],
+                    result_instance_id2: GLOBAL.CurrentSubsetIDs[2],
+                    analysis: 'DataExport',
+                    jobName: jobName,
+                    selectedSubsetDataTypeFiles: selectedSubsetDataTypeFiles,
+                    selection : JSON.stringify(_exportParams)
+                }) // or a URL encoded string
         });
 
     checkJobStatus(jobName);
-}
+};
