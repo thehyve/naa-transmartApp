@@ -31,6 +31,65 @@ CustomGridPanel.prototype.dropZonesChecker = function () {
 
     var _this = this;
 
+    /**
+     * Check if node can be dropped onto export data drop zones
+     * @param gridRow
+     * @param data
+     * @returns {*|boolean}
+     * @private
+     */
+    var _isWrongNode = function(gridRow, data) {
+        return gridRow.subset1.ontologyTermKeys
+            && gridRow.subset1.ontologyTermKeys.indexOf(data.node.id) < 0
+            && gridRow.subset2.ontologyTermKeys
+            && gridRow.subset2.ontologyTermKeys.indexOf(data.node.id) < 0
+                //TODO We could check for folders
+            || (data.node.attributes.visualattributes.indexOf('HIGH_DIMENSIONAL') >= 0
+            && gridRow.dataTypeId == 'CLINICAL');
+    };
+
+    /**
+     * Generate jQuery UI High Dimensional filter by identifier dialog
+     * @param id
+     * @private
+     */
+    var _createIdentifierDialog = function (id) {
+
+        var _dialog =  jQuery(id).dialog({
+                autoOpen: false,
+                height: 300,
+                width: 350,
+                modal: true,
+                buttons: {
+                    "Apply": function () {
+
+                        // TODO Check if this is really necessary
+                        // ----------------------
+                        // jQuery(_this.el.dom).find('input[name=download_dt]').prop('checked', true);
+                        // ----------------------
+
+                        var _data = _dialog.dropTarget.dropData;
+
+                        _data.node.attributes.oktousevalues = "N";
+                        createPanelItemNew( _dialog.dropTarget.el, convertNodeToConcept(_data.node));
+
+                        _dialog.dialog( "close" );
+                    },
+                    "Cancel": function() {
+                        _dialog.dialog( "close" );
+                    }
+                },
+                close: function() {
+                    //form[ 0 ].reset();
+                    //allFields.removeClass( "ui-state-error" );
+                }
+            });
+        return _dialog;
+    };
+
+
+    var dialog = _createIdentifierDialog('#dialog-form');
+
     // init row element checker task
     var checkTask = {
 
@@ -44,77 +103,37 @@ CustomGridPanel.prototype.dropZonesChecker = function () {
 
                 var recordData = _this.records[i - 1].data;
                 var _rowEl = _this.getView().getRow(i);
-
                 rows.push(_rowEl);
 
                 var _dtgI = new Ext.dd.DropTarget(_rowEl, {ddGroup: 'makeQuery'});
+                _dtgI.recordData = _this.records[i - 1].data;
 
-                var isWrongNode = function(rd, data) {
-                    return rd.subset1.ontologyTermKeys
-                        && rd.subset1.ontologyTermKeys.indexOf(data.node.id) < 0
-                        && rd.subset2.ontologyTermKeys
-                        && rd.subset2.ontologyTermKeys.indexOf(data.node.id) < 0
-                            //TODO We could check for folders
-                        || (data.node.attributes.visualattributes.indexOf('HIGH_DIMENSIONAL') >= 0
-                        && rd.dataTypeId == 'CLINICAL');
+
+                var _notifyDropF = function (source, e, data) {
+                    var _dropTarget = this; // this is the drop target
+                    if (!_isWrongNode(_dropTarget.recordData, data)) {
+                        _dropTarget.dropData = data;
+                        dialog.dropTarget = _dropTarget;
+                        dialog.dialog("open");
+                        return true;
+                    }
                 };
-
-                var getDropHandler = function (target, rd) {
-
-                    return function (source, e, data) {
-
-                        if (isWrongNode(rd, data)) {
-                            return false;
-                        }
-
-                        // RIZA' CODE TO BE HERE
-                        // ===========================
-                        // TODO Please refactor this ..
-
-                        var dialog = jQuery( "#dialog-form" ).dialog({
-                            autoOpen: false,
-                            height: 300,
-                            width: 350,
-                            modal: true,
-                            buttons: {
-                                "Apply": function () {
-                                    //`this` is used inside function `dropOntoVariableSelection` function
-                                    target.dropOntoVariableSelection = dropOntoVariableSelection;
-                                    jQuery(target.el.dom).find('input[name=download_dt]').prop('checked', true);
-                                    dialog.dialog( "close" );
-                                },
-                                Cancel: function() {
-                                    dialog.dialog( "close" );
-                                }
-                            },
-                            close: function() {
-                                //form[ 0 ].reset();
-                                //allFields.removeClass( "ui-state-error" );
-                            }
-                        });
-
-                        dialog.dialog( "open" );
-
-
-                        return target.dropOntoVariableSelection(source, e, data);
-                    };
-                };
-
-                _dtgI.notifyDrop = getDropHandler(_dtgI, recordData);
+                _dtgI.notifyDrop = _notifyDropF;
 
                 var getEnterHandler = function(target, rd) {
                     return function(dd, e, data) {
                         if(target.overClass){
                             target.el.addClass(target.overClass);
                         }
-                        return isWrongNode(rd, data) ? target.dropNotAllowed : target.dropAllowed;
+                        return _isWrongNode(rd, data) ? target.dropNotAllowed : target.dropAllowed;
                     };
                 };
+
                 _dtgI.notifyEnter = getEnterHandler(_dtgI, recordData);
 
                 var getOverHandler = function(target, rd) {
                     return function(dd, e, data) {
-                        return isWrongNode(rd, data) ? target.dropNotAllowed : target.dropAllowed;
+                        return _isWrongNode(rd, data) ? target.dropNotAllowed : target.dropAllowed;
                     };
                 };
                 _dtgI.notifyOver = getOverHandler(_dtgI, recordData);
