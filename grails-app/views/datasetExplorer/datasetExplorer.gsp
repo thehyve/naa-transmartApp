@@ -224,10 +224,11 @@
 <IFRAME src="${gplogout}" width="1" height="1" scrolling="no" frameborder="0" id="altgplogin"></IFRAME>
 
 <div id="dialog-form" title="SNP Filtering">
-    <form>
+    <div id="loadingPleaseWait">Loading please wait ..</div>
+    <form id="filterForm">
         <fieldset>
             <label for="filterType">Filter Type</label>
-            <g:select name="filterType" from="['SNP Identifier', 'Gene', 'Genomic Region']"></g:select>
+            <g:select id="filterType" name="filterType" from="['SNP Identifier', 'Gene', 'Genomic Region']"></g:select>
 
             <label for="filterKeyword">Keyword</label>
             <input type="text" name="filterKeyword" id="filterKeyword" value="" class="text ui-widget-content ui-corner-all">

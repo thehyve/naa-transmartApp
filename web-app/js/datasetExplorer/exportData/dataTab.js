@@ -48,6 +48,36 @@ CustomGridPanel.prototype.dropZonesChecker = function () {
             && gridRow.dataTypeId == 'CLINICAL');
     };
 
+    var _isSNPNode = function (data) {
+        var _keys = Object.keys(data);
+        return _keys.indexOf('snp_lz') > 0 ? true : false;
+    };
+
+    /**
+     * Stuff to be invoked when a node is dropped into a drop zone.
+     * @param data
+     * @param el
+     * @private
+     */
+    var _dropOntoVariableSelection = function (data, el) {
+        data.node.attributes.oktousevalues = "N";
+        createPanelItemNew(el, convertNodeToConcept(data.node));
+    };
+
+    /**
+     * Get high dimensional node info.
+     * @param data
+     * @returns {{}}
+     * @private
+     */
+    var _getHDNodeInfo = function( data) {
+        return jQuery.ajax({
+           url : pageInfo.basePath + "/HighDimension/nodeDetails",
+           method : 'POST',
+           data : 'conceptKeys=' + encodeURIComponent(data.node.attributes.id)
+       });
+    };
+
     /**
      * Generate jQuery UI High Dimensional filter by identifier dialog
      * @param id
@@ -68,25 +98,27 @@ CustomGridPanel.prototype.dropZonesChecker = function () {
                         // jQuery(_this.el.dom).find('input[name=download_dt]').prop('checked', true);
                         // ----------------------
 
-                        var _data = _dialog.dropTarget.dropData;
+                        console.log(jQuery( "#filterType").val());
+                        console.log(jQuery( "#filterKeyword").val());
 
-                        _data.node.attributes.oktousevalues = "N";
-                        createPanelItemNew( _dialog.dropTarget.el, convertNodeToConcept(_data.node));
+                        _dialog.dropTarget.allFields = jQuery([])
+                            .add(jQuery( "#filterType"))
+                            .add(jQuery( "#filterKeyword"));
 
                         _dialog.dialog( "close" );
                     },
+
                     "Cancel": function() {
                         _dialog.dialog( "close" );
                     }
                 },
                 close: function() {
-                    //form[ 0 ].reset();
-                    //allFields.removeClass( "ui-state-error" );
+                    var _data = _dialog.dropTarget.dropData;
+                    _dropOntoVariableSelection(_data, _dialog.dropTarget.el);
                 }
             });
         return _dialog;
     };
-
 
     var dialog = _createIdentifierDialog('#dialog-form');
 
@@ -108,16 +140,48 @@ CustomGridPanel.prototype.dropZonesChecker = function () {
                 var _dtgI = new Ext.dd.DropTarget(_rowEl, {ddGroup: 'makeQuery'});
                 _dtgI.recordData = _this.records[i - 1].data;
 
-
+                /**
+                 * Notify drop function
+                 * @param source
+                 * @param e
+                 * @param data
+                 * @returns {boolean}
+                 * @private
+                 */
                 var _notifyDropF = function (source, e, data) {
+
                     var _dropTarget = this; // this is the drop target
+
                     if (!_isWrongNode(_dropTarget.recordData, data)) {
+
                         _dropTarget.dropData = data;
+
                         dialog.dropTarget = _dropTarget;
                         dialog.dialog("open");
+                        jQuery('#filterForm').hide();
+                        jQuery('#loadingPleaseWait').show();
+
+                        _getHDNodeInfo(data)
+                            .done(function (d) {
+                                if (_isSNPNode(d)) { // TODO refactor to match dropped & drop zone
+                                    jQuery('#filterForm').show();
+                                    jQuery('#loadingPleaseWait').hide();
+                                } else {
+                                    console.log('Not snp ... ');
+                                    dialog.dialog("close");
+                                }
+                            })
+                            .fail(function (msg) {
+                                console.error('Something wrong when checking the node ...', msg);
+                                dialog.dialog("close");
+                            });
+
                         return true;
+                    } else {
+                        return false;
                     }
                 };
+
                 _dtgI.notifyDrop = _notifyDropF;
 
                 var getEnterHandler = function(target, rd) {
