@@ -5,8 +5,10 @@ import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
+import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint;
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.assayconstraints.PlatformConstraint
+import org.transmartproject.db.dataquery.highdim.dataconstraints.PropertyDataConstraint
 import org.transmartproject.export.HighDimExporter
 
 class HighDimExportService {
@@ -25,7 +27,9 @@ class HighDimExportService {
         Collection<String> conceptPaths =   args.conceptPaths
         String studyDir =                   args.studyDir
         String format =                     args.format
-
+        List<Map> filters =                 args.filters // See {@link DataExportController#getgetExportFilters()} for a description.
+        
+        log.debug 'ExportHighDimData args = ' + args
 
         if (jobIsCancelled(jobName)) {
             return null
@@ -47,6 +51,12 @@ class HighDimExportService {
                 subconstraints:
                     [(AssayConstraint.ONTOLOGY_TERM_CONSTRAINT): conceptPaths.collect {[concept_key: it]}])
 
+        // Add dataconstraints
+        def dataConstraints = []
+        filters.eachWithIndex { Map filter, i ->
+            dataConstraints << dataTypeResource.createDataConstraint(filter, "filter_${i}")
+        }
+
         // Setup class to export the data
         HighDimExporter exporter = highDimExporterRegistry.getExporterForFormat( format )
         Projection projection = dataTypeResource.createProjection( exporter.projection )
@@ -56,7 +66,7 @@ class HighDimExportService {
 
         // Retrieve the data itself
         TabularResult<AssayColumn, DataRow<Map<String, String>>> tabularResult =
-                dataTypeResource.retrieveData(assayconstraints, [], projection)
+                dataTypeResource.retrieveData(assayconstraints, dataConstraints, projection)
 
         // Start exporting
         try {

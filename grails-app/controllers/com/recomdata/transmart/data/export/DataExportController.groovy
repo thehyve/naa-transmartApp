@@ -102,10 +102,34 @@ class DataExportController {
     def runDataExport() {
         checkParamResultInstanceIds()
 
+        params.filters = getExportFilters()
+        log.debug 'DataExportController.runDataExport: params = ' + params
+
         def jsonResult = exportService.exportData(params, springSecurityService.getPrincipal().username)
 
         response.setContentType("text/json")
         response.outputStream << jsonResult.toString()
+    }
+
+    /**
+     * Ensures that the <code>filters</code> parameter is in the right format:
+     * list of filter elements, each of which is a map with a <code>property</code>
+     * field and a <code>values</code> field.
+     * The <code>property</code> field selects a database column, as specified in the domain class in 
+     * transmart-core-db that is being queried.
+     * E.g., {@link SnpDataByProbeCoreDb} for SNP data. Use, e.g., <code>snpInfo.name</code> to filter
+     * for SNP name.
+     * The <code>values</code> field contains a value or a list of values.
+     * @return
+     */
+    protected List<Map> getExportFilters() {
+        List<Map> filters = params.filters ? params.filters.collect {
+            Map filter ->
+            [   property:   filter.property as String,
+                values:     filter.values.collect { it as String }
+            ]
+        } : []
+        filters
     }
 
     private void checkParamResultInstanceIds() {

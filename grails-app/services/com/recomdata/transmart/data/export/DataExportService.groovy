@@ -137,7 +137,8 @@ class DataExportService {
                                             conceptPaths: selection[subset][selectedFile].selector,
                                             dataType: selectedFile,
                                             format: format,
-                                            studyDir: studyDir
+                                            studyDir: studyDir,
+                                            filters: jobDataMap.filters
                                     )
                                 }
                                 log.info "Exported " + selectedFile + " using core api"

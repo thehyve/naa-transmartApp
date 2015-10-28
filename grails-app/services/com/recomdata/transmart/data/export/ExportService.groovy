@@ -222,6 +222,7 @@ class ExportService {
         jdm.put("result_instance_ids", resultInstanceIdHashMap)
         jdm.selection = params.selection
         jdm.highDimDataTypes = getHighDimDataTypesAndFormats(checkboxList)
+        jdm.filters = params.filters // pass export filters. See {@link DataExportController#getgetExportFilters()} for a description.
 		jdm.put("subsetSelectedPlatformsByFiles", getsubsetSelectedPlatformsByFiles(checkboxList))
 		jdm.put("checkboxList", checkboxList);
         def checkedPlatforms = [ params.selectedSubsetDataTypeFiles ].flatten().collect { JSON.parse(it) }
