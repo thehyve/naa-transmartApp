@@ -50,7 +50,7 @@ CustomGridPanel.prototype.dropZonesChecker = function () {
 
     var _isSNPNode = function (data) {
         var _keys = Object.keys(data);
-        return _keys.indexOf('snp_lz') > 0 ? true : false;
+        return _keys.indexOf('snp_lz') < 0 ? false : true;
     };
 
     /**
@@ -138,7 +138,7 @@ CustomGridPanel.prototype.dropZonesChecker = function () {
                 rows.push(_rowEl);
 
                 var _dtgI = new Ext.dd.DropTarget(_rowEl, {ddGroup: 'makeQuery'});
-                _dtgI.recordData = _this.records[i - 1].data;
+                _dtgI.recordData = recordData;
 
                 /**
                  * Notify drop function
@@ -152,34 +152,34 @@ CustomGridPanel.prototype.dropZonesChecker = function () {
 
                     var _dropTarget = this; // this is the drop target
 
-                    if (!_isWrongNode(_dropTarget.recordData, data)) {
-
-                        _dropTarget.dropData = data;
-
-                        dialog.dropTarget = _dropTarget;
-                        dialog.dialog("open");
-                        jQuery('#filterForm').hide();
-                        jQuery('#loadingPleaseWait').show();
-
-                        _getHDNodeInfo(data)
-                            .done(function (d) {
-                                if (_isSNPNode(d)) { // TODO refactor to match dropped & drop zone
-                                    jQuery('#filterForm').show();
-                                    jQuery('#loadingPleaseWait').hide();
-                                } else {
-                                    console.log('Not snp ... ');
-                                    dialog.dialog("close");
-                                }
-                            })
-                            .fail(function (msg) {
-                                console.error('Something wrong when checking the node ...', msg);
-                                dialog.dialog("close");
-                            });
-
-                        return true;
-                    } else {
+                    if (_isWrongNode(_dropTarget.recordData, data)) {
                         return false;
                     }
+
+                    _dropTarget.dropData = data;
+
+                    dialog.dropTarget = _dropTarget;
+                    dialog.dialog("open");
+                    jQuery('#filterForm').hide();
+                    jQuery('#loadingPleaseWait').show();
+
+                    _getHDNodeInfo(data)
+                        .done(function (d) {
+                            console.log('Done with response ', d);
+                            if (_isSNPNode(d)) { // TODO refactor to match dropped & drop zone
+                                jQuery('#filterForm').show();
+                                jQuery('#loadingPleaseWait').hide();
+                            } else {
+                                console.log('Not snp ... ');
+                                dialog.dialog("close");
+                            }
+                        })
+                        .fail(function (msg) {
+                            console.error('Something wrong when checking the node ...', msg);
+                            dialog.dialog("close");
+                        });
+
+                    return true;
                 };
 
                 _dtgI.notifyDrop = _notifyDropF;
