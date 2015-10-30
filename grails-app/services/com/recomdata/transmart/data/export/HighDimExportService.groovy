@@ -5,7 +5,7 @@ import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
-import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint;
+import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.assayconstraints.PlatformConstraint
 import org.transmartproject.db.dataquery.highdim.dataconstraints.PropertyDataConstraint
@@ -53,8 +53,15 @@ class HighDimExportService {
 
         // Add dataconstraints
         def dataConstraints = []
-        filters.eachWithIndex { Map filter, i ->
-            dataConstraints << dataTypeResource.createDataConstraint(filter, "filter_${i}")
+        filters.each { Map filter ->
+            if (filter.type == DataConstraint.CHROMOSOME_SEGMENT_CONSTRAINT) {
+                dataConstraints << dataTypeResource.createDataConstraint(filter.data, DataConstraint.CHROMOSOME_SEGMENT_CONSTRAINT)
+            } else {
+                Map data = filter.data
+                data.each { k, v ->
+                    dataConstraints << new PropertyDataConstraint(property: k, values: v)
+                }
+            }
         }
 
         // Setup class to export the data

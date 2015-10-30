@@ -113,20 +113,32 @@ class DataExportController {
 
     /**
      * Ensures that the <code>filters</code> parameter is in the right format:
-     * list of filter elements, each of which is a map with a <code>property</code>
-     * field and a <code>values</code> field.
-     * The <code>property</code> field selects a database column, as specified in the domain class in 
-     * transmart-core-db that is being queried.
-     * E.g., {@link SnpDataByProbeCoreDb} for SNP data. Use, e.g., <code>snpInfo.name</code> to filter
-     * for SNP name.
-     * The <code>values</code> field contains a value or a list of values.
-     * @return
+     * list of filter elements, each of which is a map with a <code>type</code>
+     * field and a <code>data</code> field.
+     * The <code>type</code> is one of <code>chromosome_segment</code> or <code>data</code>.
+     * If the type is <code>data</code>, the <code>data</code> field maps database columns, 
+     * as specified in the domain class in transmart-core-db that is being queried, to a value 
+     * or a collection of values. E.g., {@link SnpDataByProbeCoreDb} is used for SNP data. 
+     * Use, e.g., <code>snpInfo.name</code> to filter for SNP name.
+     * If a collection of values is specified, the filter matches if the value in the database
+     * is in the collection.
+     * For type <code>chromosome_segment</code>, the <code>data</code> map should contains values
+     * for <code>chromosome</code>, <code>start</code>, and <code>end</code>.
+     * 
+     * The filters are combined conjunctively, i.e., only elements are selected that match all filters.
+     * 
+     * Example filter specification:
+     * <code>   [ type: 'data', data: ['snpInfo.name': 'rs12890222'] ],
+     *          [ type: 'chromosome_segment', data: [ chromosome: 'X', start: 100, end: 1000] ]
+     * </code>
+     * 
+     * @return The list of filters.
      */
     protected List<Map> getExportFilters() {
         List<Map> filters = params.filters ? params.filters.collect {
             Map filter ->
-            [   property:   filter.property as String,
-                values:     filter.values.collect { it as String }
+            [   type:   filter.type as String,
+                data:   filter.data
             ]
         } : []
         filters
