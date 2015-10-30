@@ -39,18 +39,23 @@ CustomGridPanel.prototype.dropZonesChecker = function () {
      * @private
      */
     var _isWrongNode = function(gridRow, data) {
-        return gridRow.subset1.ontologyTermKeys
-            && gridRow.subset1.ontologyTermKeys.indexOf(data.node.id) < 0
-            && gridRow.subset2.ontologyTermKeys
-            && gridRow.subset2.ontologyTermKeys.indexOf(data.node.id) < 0
-                //TODO We could check for folders
-            || (data.node.attributes.visualattributes.indexOf('HIGH_DIMENSIONAL') >= 0
-            && gridRow.dataTypeId == 'CLINICAL');
+        var _visualAttr = data.node.attributes.visualattributes;
+        var _dropHDToClinical =  _visualAttr.indexOf('HIGH_DIMENSIONAL') >= 0 && gridRow.dataTypeId === 'CLINICAL';
+        var _dropClinicalToHD =  _visualAttr.indexOf('HIGH_DIMENSIONAL') < 0 && gridRow.dataTypeId !== 'CLINICAL';
+        console.log(_visualAttr);
+        console.log( gridRow.dataTypeId);
+        console.log(_dropClinicalToHD);
+        return _dropClinicalToHD || _dropHDToClinical;
     };
 
-    var _isSNPNode = function (data) {
+    var _isCorrectHD = function (data, gridRow) {
+
+        console.log(data)
+        console.log(gridRow)
         var _keys = Object.keys(data);
-        return _keys.indexOf('snp_lz') < 0 ? false : true;
+        console.log( _keys);
+        // return _keys.indexOf('snp_lz') < 0 ? false : true;
+        return _keys[0] === gridRow.dataTypeId;
     };
 
     /**
@@ -87,34 +92,69 @@ CustomGridPanel.prototype.dropZonesChecker = function () {
 
         var _dialog =  jQuery(id).dialog({
                 autoOpen: false,
-                height: 300,
                 width: 350,
                 modal: true,
-                buttons: {
-                    "Apply": function () {
+                buttons: [
+                    {
+                        id : 'dialog-apply-btn',
+                        text : 'Apply',
+                        click : function () {
 
-                        // TODO Check if this is really necessary
-                        // ----------------------
-                        // jQuery(_this.el.dom).find('input[name=download_dt]').prop('checked', true);
-                        // ----------------------
+                            // ---------------------------------------
+                            // TODO Check if this is really necessary
+                            // ---------------------------------------
+                            //
+                            // jQuery(_this.el.dom).find('input[name=download_dt]').prop('checked', true);
+                            // ---------------------------------------
 
-                        console.log(jQuery( "#filterType").val());
-                        console.log(jQuery( "#filterKeyword").val());
+                            var _filterKeyword = jQuery( "#filterKeyword").val();
+                            var _filter = {
+                                type: '',
+                                data: {}
+                            }; // init filter obj
 
-                        _dialog.dropTarget.allFields = jQuery([])
-                            .add(jQuery( "#filterType"))
-                            .add(jQuery( "#filterKeyword"));
+                            if (jQuery( "#filterType").val() === 'SNP Identifier') {
+                                _filter.type = 'data';
+                                _filter.data = _filterKeyword.split(',');
+                            } else if (jQuery( "#filterType").val() === 'Gene') {
+                                _filter.type = 'gene';
+                                _filter.data =  _filterKeyword.split(',');
+                            } else if (jQuery( "#filterType").val() === 'Genomic Region') {
+                                _filter.type = 'chromosome_segment';
+                                _filter.data.snpInfo.name = _filterKeyword;
+                            }
 
-                        _dialog.dialog( "close" );
+                            console.log(jQuery( "#filterType").val());
+                            console.log(jQuery( "#filterKeyword").val());
+
+                            _dt.dropData.node.attributes.filter = {
+                                type : 'data',
+                                data : {
+
+                                }
+                            };
+
+                            _dialog.dropTarget.allFields = jQuery([])
+                                .add(jQuery( "#filterType"))
+                                .add(jQuery( "#filterKeyword"));
+
+                            _dialog.dialog("close");
+                        }
                     },
-
-                    "Cancel": function() {
-                        _dialog.dialog( "close" );
+                    {
+                        id : 'dialog-cancel-btn',
+                        text : 'Cancel',
+                        click : function () {
+                            _dialog.dialog( "close" );
+                        }
                     }
-                },
+                ],
                 close: function() {
-                    var _data = _dialog.dropTarget.dropData;
-                    _dropOntoVariableSelection(_data, _dialog.dropTarget.el);
+                    var _dt = _dialog.dropTarget;
+                    _dt.dropData.node.attributes
+                    if (Object.keys(_dt.dropData.details).indexOf(_dt.recordData.dataTypeId) >= 0 ) {
+                        _dropOntoVariableSelection(_dt.dropData, _dt.el);
+                    }
                 }
             });
         return _dialog;
@@ -156,28 +196,38 @@ CustomGridPanel.prototype.dropZonesChecker = function () {
                         return false;
                     }
 
-                    _dropTarget.dropData = data;
+                    if (data.node.attributes.visualattributes.indexOf('HIGH_DIMENSIONAL') >= 0 && _dropTarget.dataTypeId !== 'CLINICAL') {
+                        _dropTarget.dropData = data;
 
-                    dialog.dropTarget = _dropTarget;
-                    dialog.dialog("open");
-                    jQuery('#filterForm').hide();
-                    jQuery('#loadingPleaseWait').show();
+                        dialog.dropTarget = _dropTarget;
+                        dialog.dialog("open");
 
-                    _getHDNodeInfo(data)
-                        .done(function (d) {
-                            console.log('Done with response ', d);
-                            if (_isSNPNode(d)) { // TODO refactor to match dropped & drop zone
-                                jQuery('#filterForm').show();
-                                jQuery('#loadingPleaseWait').hide();
-                            } else {
-                                console.log('Not snp ... ');
+                        jQuery('#filterForm').hide();
+                        jQuery('#loadingPleaseWait').show();
+                        jQuery('#dialog-apply-btn').button('disable');
+                        jQuery('#dialog-cancel-btn').button('disable');
+
+                        _getHDNodeInfo(data)
+                            .done(function (d) {
+                                console.log('Done with response ', d);
+                                _dropTarget.dropData.details = d;
+
+                                if (_isCorrectHD(d, _dropTarget.recordData)) { // TODO refactor to match dropped & drop zone
+                                    jQuery('#filterForm').show();
+                                    jQuery('#loadingPleaseWait').hide();
+                                    jQuery('#dialog-apply-btn').button('enable');
+                                    jQuery('#dialog-cancel-btn').button('enable');
+                                } else {
+                                    dialog.dialog("close");
+                                }
+                            })
+                            .fail(function (msg) {
+                                console.error('Something wrong when checking the node ...', msg);
                                 dialog.dialog("close");
-                            }
-                        })
-                        .fail(function (msg) {
-                            console.error('Something wrong when checking the node ...', msg);
-                            dialog.dialog("close");
-                        });
+                            });
+                    } else {
+                        _dropOntoVariableSelection(data, _dropTarget.el);
+                    }
 
                     return true;
                 };
@@ -200,6 +250,7 @@ CustomGridPanel.prototype.dropZonesChecker = function () {
                         return _isWrongNode(rd, data) ? target.dropNotAllowed : target.dropAllowed;
                     };
                 };
+
                 _dtgI.notifyOver = getOverHandler(_dtgI, recordData);
             }
 
@@ -733,6 +784,32 @@ DataExport.prototype.runDataExportJob = function (result, gridPanel) {
 
     var _exportParams = this.getExportParams(gridPanel, selectedSubsetDataTypeFiles);
 
+console.log(_exportParams);
+console.log(JSON.stringify(_exportParams));
+   //
+   //var _runDataExp = jQuery.ajax({
+   //     url: pageInfo.basePath + "/dataExport/runDataExport",
+   //     method: 'POST',
+   //     timeout: '1800000',
+   //     data: {
+   //         result_instance_id1: GLOBAL.CurrentSubsetIDs[1],
+   //         result_instance_id2: GLOBAL.CurrentSubsetIDs[2],
+   //         analysis: 'DataExport',
+   //         jobName: jobName,
+   //         selectedSubsetDataTypeFiles: selectedSubsetDataTypeFiles
+   //         //selection : _exportParams
+   //     }
+   // })
+   //    .done(function () {
+   //        checkJobStatus(jobName);
+   //    })
+   //    .fail(function (jqXHR, status, err) {
+   //         console.error('jqXHR', jqXHR);
+   //         console.error('status', status);
+   //         console.error('err', err);
+   //    });
+
+
     Ext.Ajax.request(
         {
             url: pageInfo.basePath + "/dataExport/runDataExport",
@@ -749,5 +826,5 @@ DataExport.prototype.runDataExportJob = function (result, gridPanel) {
                 }) // or a URL encoded string
         });
 
-    checkJobStatus(jobName);
+
 };

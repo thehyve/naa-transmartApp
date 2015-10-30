@@ -100,6 +100,11 @@ class DataExportController {
      * Method that will run a data export and is called asynchronously from the datasetexplorer -> Data Export tab
      */
     def runDataExport() {
+        log.debug 'DataExportController.runDataExport: params = ' + params
+        params.filters = [
+                [ type: 'data', data: ['snpInfo.name': 'rs12890222'] ],
+                [ type: 'chromosome_segment', data: [ chromosome: 'X', start: 100, end: 1000] ]
+        ]
         checkParamResultInstanceIds()
 
         params.filters = getExportFilters()
