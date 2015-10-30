@@ -1,17 +1,19 @@
 package org.transmartproject.export
 
+import javax.annotation.PostConstruct
+
+import org.apache.commons.lang.NotImplementedException
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.NoSuchResourceException
 
-import javax.annotation.PostConstruct
-
-class TabSeparatedExporter implements HighDimExporter {
+class TabSeparatedExporter implements HighDimTabularResultExporter {
     final static String SEPARATOR = "\t"
 
     @Autowired
