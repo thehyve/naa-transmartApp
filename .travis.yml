@@ -13,7 +13,7 @@ before_install:
     - cp .travis.BuildConfig.groovy ~/.grails/transmartConfig/BuildConfig.groovy
 
 install:
-    - maybe_build_maven_dep $(travis_get_owner)/${PREFIX}transmart-core-api core-api
+    - build_maven_dep $(travis_get_owner)/${PREFIX}transmart-core-api master core-api
     - make_inline_grails_dep $(travis_get_owner)/${PREFIX}transmart-core-db "$DEFAULT_BRANCH" core-db . transmart-core-db-tests
     - make_inline_grails_dep $(travis_get_owner)/${PREFIX}Rmodules "$DEFAULT_BRANCH" Rmodules
     - make_inline_grails_dep $(travis_get_owner)/${PREFIX}transmart-gwas "$DEFAULT_BRANCH" transmart-gwas
