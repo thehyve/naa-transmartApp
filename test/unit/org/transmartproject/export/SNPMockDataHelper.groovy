@@ -7,8 +7,8 @@ import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
-import org.transmartproject.db.dataquery.highdim.snp_lz.SnpLzCell
-import org.transmartproject.db.dataquery.highdim.snp_lz.SnpLzRow
+//import org.transmartproject.db.dataquery.highdim.snp_lz.SnpLzCell
+//import org.transmartproject.db.dataquery.highdim.snp_lz.SnpLzRow
 import org.transmartproject.db.dataquery.highdim.snp_lz.SnpSubjectSortedDef
 
 class SNPMockDataHelper extends MockTabularResultHelper {
@@ -131,16 +131,17 @@ class SNPMockDataHelper extends MockTabularResultHelper {
             Map<String,Object> snpProperties) {
             
         def cells = data.collect { assay, celldata ->
-            new SnpLzCell(
-                (double)celldata.probabilityA1A1,
-                (double)celldata.probabilityA1A2,
-                (double)celldata.probabilityA2A2,
-                (char)celldata.likelyAllele1,
-                (char)celldata.likelyAllele2,
-                (double)celldata.minorAlleleDose)
+            Object cell = mock(Object)
+            cell.probabilityA1A1.returns((double)celldata.probabilityA1A1).stub()
+            cell.probabilityA1A2.returns((double)celldata.probabilityA1A2).stub()
+            cell.probabilityA2A2.returns((double)celldata.probabilityA2A2).stub()
+            cell.likelyAllele1.returns((char)celldata.likelyAllele1).stub()
+            cell.likelyAllele2.returns((char)celldata.likelyAllele2).stub()
+            cell.minorAlleleDose.returns((double)celldata.minorAlleleDose).stub()
+            cell
         }
         
-        SnpLzRow row = mock(SnpLzRow)
+        DataRow row = mock(DataRow)
         row.snpName.returns(snpProperties.snpName).stub()
         row.chromosome.returns(snpProperties.chromosome).stub()
         row.position.returns(snpProperties.position).stub()
