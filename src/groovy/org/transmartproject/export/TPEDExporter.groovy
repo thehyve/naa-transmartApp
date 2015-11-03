@@ -8,8 +8,8 @@ import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn;
 import org.transmartproject.core.dataquery.highdim.projections.Projection
-import org.transmartproject.db.dataquery.highdim.snp_lz.SnpLzCell
-import org.transmartproject.db.dataquery.highdim.snp_lz.SnpLzRow
+//import org.transmartproject.db.dataquery.highdim.snp_lz.SnpLzCell
+//import org.transmartproject.db.dataquery.highdim.snp_lz.SnpLzRow
 
 /**
  * Export for Single Nucleotide Polymorphism (SNP) data.
@@ -58,7 +58,7 @@ class TPEDExporter implements HighDimTabularResultExporter {
     }
 
     @Override
-    public void export(TabularResult<AssayColumn, SnpLzRow> data, Projection projection,
+    public void export(TabularResult /*<AssayColumn, SnpLzRow>*/ data, Projection projection,
             OutputStream outputStream) {
         export( data, projection, outputStream, { false } )
     }
@@ -66,7 +66,7 @@ class TPEDExporter implements HighDimTabularResultExporter {
     static final int default_distance = 0 // Genetic distance (morgans)
             
     @Override
-    public void export(TabularResult<AssayColumn, SnpLzRow> data, Projection projection,
+    public void export(TabularResult /*<AssayColumn, SnpLzRow>*/ data, Projection projection,
             OutputStream outputStream, Closure isCancelled) {
         log.info "Started exporting to ${format}..."
         def startTime = System.currentTimeMillis()
@@ -77,7 +77,7 @@ class TPEDExporter implements HighDimTabularResultExporter {
       
         def i = 1
         outputStream.withWriter( "UTF-8" ) { out ->
-            for (SnpLzRow row: data) {
+            for (/*SnpLzRow*/ Object row: data) {
                 if (isCancelled() ) {
                     return
                 }
@@ -94,7 +94,7 @@ class TPEDExporter implements HighDimTabularResultExporter {
                 out << ' '
                 out << position
                 
-                for (SnpLzCell cell: row) {
+                for (/*SnpLzCell*/ Object cell: row) {
                     out << ' '
                     out << cell.likelyAllele1   // most likely value for allele1
                     out << ' '
