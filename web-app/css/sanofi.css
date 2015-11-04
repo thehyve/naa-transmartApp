@@ -302,6 +302,7 @@ table.menuDetail th.menuVisited {
 	position: relative;
     width: 105px;
 	padding: 0px 4px;
+	font-size: 10px;
 }
 
 #cartcount {

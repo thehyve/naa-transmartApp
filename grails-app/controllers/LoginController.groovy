@@ -23,6 +23,7 @@
  * @version $Revision: 10098 $
  */
 import grails.plugin.springsecurity.SpringSecurityUtils
+import org.apache.catalina.authenticator.SavedRequest
 import org.springframework.security.authentication.AccountExpiredException
 import org.springframework.security.authentication.CredentialsExpiredException
 import org.springframework.security.authentication.DisabledException
@@ -32,6 +33,8 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.transmart.searchapp.AccessLog
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache
+import org.transmart.searchapp.AuthUser
 
 /**
  * Login Controller
@@ -136,25 +139,33 @@ class LoginController {
 		}
 		else if (cUser!=null)
 		{
-			springSecurityService.reauthenticate(cUser)
+			def userInBd = AuthUser.findByUsername(cUser)
 			
-			// Futur fix for correctly dealing with redirection when login via SSO is done before. More testing is needed before this can be included in the codebase.
-			/*
-			savedrequest savedrequest = new httpsessionrequestcache().getrequest(request, response);
-			//string requesturl = savedrequest.getfullrequesturl();
-			string targeturl = savedrequest.getredirecturl();
-			if (targeturl !=null)
-			redirect uri: targeturl
-			else
-				redirect uri: springsecurityutils.securityconfig.successhandler.defaulttargeturl
-			return
-			*/
+			if (userInBd == null) {
+				render(view: 'noUserFound', model: [userName: cUser])
+				return
+			}
+			else {
 			
-			redirect uri: SpringSecurityUtils.securityConfig.successHandler.defaultTargetUrl
+				springSecurityService.reauthenticate(cUser)
+				
+				// Fix for correctly dealing with redirection when login via SSO is done before. More testing is needed before this can be included in the codebase.
+				SavedRequest savedRequest = new HttpSessionRequestCache().getRequest(request, response);
+				//string requesturl = savedrequest.getfullrequesturl();
+				String targetUrl = savedRequest.getRequestURL()
+				if (targetUrl !=null)
+					redirect uri: targetUrl
+				else
+					redirect uri: SpringSecurityUtils.securityConfig.successHandler.defaultTargetUrl
+				return
+			
+			}
+			
+			//redirect uri: SpringSecurityUtils.securityConfig.successHandler.defaultTargetUrl
 			
 			
 			
-			return
+			//return
 		}
 
 

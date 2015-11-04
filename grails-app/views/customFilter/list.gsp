@@ -40,7 +40,7 @@
 		<g:render template="/layouts/commonheader" model="['app':'customfilters']" />
         <div style="padding: 20px 10px 10px 10px;">
             <%topicID="1017" %>
-			<a HREF='JavaScript:D2H_ShowHelp(<%=topicID%>,helpURL,"wndExternal",CTXT_DISPLAY_FULLHELP )'>
+			<a HREF='JavaScript:D2H_ShowHelp(<%=topicID%>,'${grailsApplication.config.com.recomdata.searchtool.adminHelpURL}',"wndExternal",CTXT_DISPLAY_FULLHELP )'>
 				<img src="${resource(dir:'images',file:'help/helpbutton.jpg')}" alt="Help" border=0 width=18pt style="margin-top:1pt;margin-bottom:1pt;margin-right:18pt;float:right"/>
 			</a>
             <h1 style="font-weight:bold; font-size:10pt; padding-bottom:5px; color: #006DBA;">

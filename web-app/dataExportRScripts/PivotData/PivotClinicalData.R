@@ -23,11 +23,11 @@
 #Parse the i2b2 output file and create input files for Cox/Survival Curve.
 ###########################################################################
 
-PivotClinicalData.pivot <- function(input.dataFile, snpDataExists, multipleStudies, study) {
+PivotClinicalData.pivot <- function(input.dataFile,
+               snpDataExists=FALSE, multipleStudies=FALSE, study) {
   message("entering PivotClinicalData.pivot")
   df <- read.delim(input.dataFile, as.is=TRUE, check.names=FALSE)
   message(sprintf("read %d records from %s", nrow(df), input.dataFile))
-  
    if (snpDataExists) {
     snpPEDFileData <- unique(subset(df[c("PATIENT.ID", "SNP.PED.File")], SNP.PED.File != ""))
     colnames(snpPEDFileData) <- c("PATIENT.ID", "SNP.PED.File")
@@ -36,21 +36,15 @@ PivotClinicalData.pivot <- function(input.dataFile, snpDataExists, multipleStudi
   dt <- tapply(as.character(df[,"VALUE"]), list(df[,"PATIENT ID"], df[,"CONCEPT PATH"]), function (z) paste(z,collapse=","))
   dt <- cbind(rownames(dt), dt)
   colnames(dt)[1] <- "PATIENT ID"
-  
   if (snpDataExists) {
     dt <- merge(dt, snpPEDFileData, by="PATIENT.ID", all.x=TRUE)
     colnames(finalData)[ncol(finalData)] <- c("SNP PED File")
   }
-  
   filename <- "clinical_i2b2trans.txt"
-  
   if (multipleStudies)
     filename <- paste(study, "_clinical_i2b2trans.txt")
-    
   write.table(dt, filename, row.names=FALSE, sep="\t", quote=FALSE)
   message(sprintf("wrote file %s (%d x %d dimension)", filename, nrow(dt), ncol(dt)))
-  file.remove(input.dataFile)
-  message(sprintf("removed input file %s", input.dataFile))
-  message("exiting PivotClinicalData.pivot")
-  ret <- list(df=df, dt=dt)
+ message("exiting PivotClinicalData.pivot")
+ ret <- list(df=df, dt=dt)
 }
