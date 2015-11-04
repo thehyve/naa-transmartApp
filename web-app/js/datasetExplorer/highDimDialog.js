@@ -164,7 +164,7 @@ HighDimDialog = (function() {
 
     highDimDialog.createGeneAutocomplete = function (el) {
 
-        console.log('highDimDialog.createGeneAutocomplete');
+        console.log('highDimDialog.createGeneAutocomplete', el);
 
         var split = function ( val ) {
             return val.split( /,\s*/ );
@@ -179,7 +179,17 @@ HighDimDialog = (function() {
             return d.rows;
         };
 
-        var _geneAutocomplete = function(request,response) {
+        var _autocomplete = function(type,request,response) {
+        	var search = extractLast(request.term)
+        	console.log('_geneAutocomplete: type = ' + type + ', search = ' + search);
+            jQuery.get(pageInfo.basePath + "/filterAutocomplete/autocomplete/" + type, {
+                callback: '_displayExportAutocomplete',
+                search: search
+            }, function (data) {
+            	console.log('_geneAutocomplete: data = ' + data);
+                response(data);
+            });
+        	/*
             jQuery.get(pageInfo.basePath + "/search/loadSearchPathways", {
                 callback: '_displayExportAutocomplete',
                 query: extractLast(request.term)
@@ -187,11 +197,20 @@ HighDimDialog = (function() {
                 response(eval(data));
 
             });
+            */
         };
+        
+        var _typedAutocomplete = function(type) {
+        	console.log('creating autocompleter for type ' + type);
+        	return function(request,response) {
+        		return _autocomplete(type,request,response);
+        	}
+        }
 
         // Convert input text into autocomplete when user select filter type gene
         // ----
-        if (el.value === 'genes' ) {
+        console.log('filter for ' + el.value)
+        //if (el.value === 'genes' ) {
             jQuery("#filterKeyword")
                 //don't navigate away from the field on tab when selecting an item
                 .bind( "keydown", function( event ) {
@@ -201,7 +220,7 @@ HighDimDialog = (function() {
                     }
                 })
                 .autocomplete({
-                    source: _geneAutocomplete,
+                    source: _typedAutocomplete(el.value),
                     minLength: 2,
                     search: function() {
                         // custom minLength
@@ -220,7 +239,7 @@ HighDimDialog = (function() {
                         // remove the current input
                         terms.pop();
                         // add the selected item
-                        terms.push( ui.item.keyword );
+                        terms.push( ui.item.value );
                         // add placeholder to get the comma-and-space at the end
                         terms.push( "" );
                         this.value = terms.join( ", " );
@@ -231,13 +250,13 @@ HighDimDialog = (function() {
                 console.log(item);
                 return jQuery('<li></li>')
                     .data('item.autocomplete', item)
-                    .append('<a><span style="color: #0000FF"> ' + item.display + '</span> &raquo; <strong>' +
+                    .append('<a><span style="color: #0000FF"> ' + item.label + '</span> &raquo; <strong>' +
                     item.keyword + '</strong> ' + item.synonyms + '</a>')
                     .appendTo(ul);
             };
-        } else {
-            jQuery("#filterKeyword").empty();
-        }
+        //} else {
+        //    jQuery("#filterKeyword").empty();
+        //}
     };
 
     return highDimDialog;
