@@ -91,6 +91,7 @@ HighDimDialog = (function() {
         return _dialog;
     };
 
+
     highDimDialog.createPanelItemNew = function (panel, concept, filter) {
 
         var li = document.createElement('div'); //was li
@@ -159,10 +160,84 @@ HighDimDialog = (function() {
         return li;
     };
 
-    highDimDialog.showFilterDialog = function () {
-        // TODO show filter dialog
-        alert(' Gonna show the window');
 
+
+    highDimDialog.createGeneAutocomplete = function (el) {
+
+        console.log('highDimDialog.createGeneAutocomplete');
+
+        var split = function ( val ) {
+            return val.split( /,\s*/ );
+        };
+
+        var extractLast = function ( term ) {
+            return split( term ).pop();
+        };
+
+        var _displayExportAutocomplete = function (d) {
+            //console.log('_displayExportAutocomplete', d);
+            return d.rows;
+        };
+
+        var _geneAutocomplete = function(request,response) {
+            jQuery.get(pageInfo.basePath + "/search/loadSearchPathways", {
+                callback: '_displayExportAutocomplete',
+                query: extractLast(request.term)
+            }, function (data) {
+                response(eval(data));
+
+            });
+        };
+
+        // Convert input text into autocomplete when user select filter type gene
+        // ----
+        if (el.value === 'genes' ) {
+            jQuery("#filterKeyword")
+                //don't navigate away from the field on tab when selecting an item
+                .bind( "keydown", function( event ) {
+                    if ( event.keyCode === jQuery.ui.keyCode.TAB &&
+                        jQuery( this ).autocomplete( "instance" ).menu.active ) {
+                        event.preventDefault();
+                    }
+                })
+                .autocomplete({
+                    source: _geneAutocomplete,
+                    minLength: 2,
+                    search: function() {
+                        // custom minLength
+                        var term = extractLast( this.value );
+                        if ( term.length < 2 ) {
+                            return false;
+                        }
+                    },
+                    focus: function() {
+                        // prevent value inserted on focus
+                        return false;
+                    },
+                    select: function( event, ui ) {
+
+                        var terms = split( this.value );
+                        // remove the current input
+                        terms.pop();
+                        // add the selected item
+                        terms.push( ui.item.keyword );
+                        // add placeholder to get the comma-and-space at the end
+                        terms.push( "" );
+                        this.value = terms.join( ", " );
+                        return false;
+                    }
+                })
+                .data('autocomplete')._renderItem = function(ul, item) {
+                console.log(item);
+                return jQuery('<li></li>')
+                    .data('item.autocomplete', item)
+                    .append('<a><span style="color: #0000FF"> ' + item.display + '</span> &raquo; <strong>' +
+                    item.keyword + '</strong> ' + item.synonyms + '</a>')
+                    .appendTo(ul);
+            };
+        } else {
+            jQuery("#filterKeyword").empty();
+        }
     };
 
     return highDimDialog;
