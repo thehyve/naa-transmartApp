@@ -48,6 +48,8 @@
     <script type="text/javascript" src="${resource(dir: 'js', file: 'myJobs.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer', file: 'reports.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer', file: 'workspace.js')}"></script>
+    <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer', file:'highDimDialog.js')}"></script>
+    <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer/exportData', file: 'exportDropTarget.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer/exportData', file: 'dataTab.js')}"></script>
     <script type="text/javascript" src="${resource(dir:'js/datasetExplorer/exportData', file: 'exportJobsTab.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js', file: 'fixconsole.js')}"></script>
@@ -55,7 +57,6 @@
     <script type="text/javascript" src="${resource(dir: 'js/utils', file: 'json2.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js/utils', file: 'dynamicLoad.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer', file: 'highDimensionData.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer', file:'highDimensionalFilter.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js', file: 'utilitiesMenu.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer', file: 'gridView.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer', file: 'datasetExplorer.js')}"></script>
@@ -228,8 +229,11 @@
     <form id="filterForm">
         <fieldset>
             <label for="filterType">Filter Type</label>
-            <g:select id="filterType" name="filterType" from="['SNP Identifier', 'Gene', 'Genomic Region']"></g:select>
-
+            <select id="filterType" onchange="createGeneAutocomplete(this);" >
+                <option value="snps">SNP Identifiers</option>
+                <option value="genes">Genes</option>
+                <option value="chromosome_segment">Genomic Region</option>
+            </select>
             <label for="filterKeyword">Keyword</label>
             <input type="text" name="filterKeyword" id="filterKeyword" value="" class="text ui-widget-content ui-corner-all">
 

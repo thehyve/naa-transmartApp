@@ -31,137 +31,6 @@ CustomGridPanel.prototype.dropZonesChecker = function () {
 
     var _this = this;
 
-    /**
-     * Check if node can be dropped onto export data drop zones
-     * @param gridRow
-     * @param data
-     * @returns {*|boolean}
-     * @private
-     */
-    var _isWrongNode = function(gridRow, data) {
-        var _visualAttr = data.node.attributes.visualattributes;
-        var _dropHDToClinical =  _visualAttr.indexOf('HIGH_DIMENSIONAL') >= 0 && gridRow.dataTypeId === 'CLINICAL';
-        var _dropClinicalToHD =  _visualAttr.indexOf('HIGH_DIMENSIONAL') < 0 && gridRow.dataTypeId !== 'CLINICAL';
-        console.log(_visualAttr);
-        console.log( gridRow.dataTypeId);
-        console.log(_dropClinicalToHD);
-        return _dropClinicalToHD || _dropHDToClinical;
-    };
-
-    var _isCorrectHD = function (data, gridRow) {
-
-        console.log(data)
-        console.log(gridRow)
-        var _keys = Object.keys(data);
-        console.log( _keys);
-        // return _keys.indexOf('snp_lz') < 0 ? false : true;
-        return _keys[0] === gridRow.dataTypeId;
-    };
-
-    /**
-     * Stuff to be invoked when a node is dropped into a drop zone.
-     * @param data
-     * @param el
-     * @private
-     */
-    var _dropOntoVariableSelection = function (data, el) {
-        data.node.attributes.oktousevalues = "N";
-        createPanelItemNew(el, convertNodeToConcept(data.node));
-    };
-
-    /**
-     * Get high dimensional node info.
-     * @param data
-     * @returns {{}}
-     * @private
-     */
-    var _getHDNodeInfo = function( data) {
-        return jQuery.ajax({
-           url : pageInfo.basePath + "/HighDimension/nodeDetails",
-           method : 'POST',
-           data : 'conceptKeys=' + encodeURIComponent(data.node.attributes.id)
-       });
-    };
-
-    /**
-     * Generate jQuery UI High Dimensional filter by identifier dialog
-     * @param id
-     * @private
-     */
-    var _createIdentifierDialog = function (id) {
-
-        var _dialog =  jQuery(id).dialog({
-                autoOpen: false,
-                width: 350,
-                modal: true,
-                buttons: [
-                    {
-                        id : 'dialog-apply-btn',
-                        text : 'Apply',
-                        click : function () {
-
-                            // ---------------------------------------
-                            // TODO Check if this is really necessary
-                            // ---------------------------------------
-                            //
-                            // jQuery(_this.el.dom).find('input[name=download_dt]').prop('checked', true);
-                            // ---------------------------------------
-
-                            var _filterKeyword = jQuery( "#filterKeyword").val();
-                            var _filter = {
-                                type: '',
-                                data: {}
-                            }; // init filter obj
-
-                            if (jQuery( "#filterType").val() === 'SNP Identifier') {
-                                _filter.type = 'data';
-                                _filter.data = _filterKeyword.split(',');
-                            } else if (jQuery( "#filterType").val() === 'Gene') {
-                                _filter.type = 'gene';
-                                _filter.data =  _filterKeyword.split(',');
-                            } else if (jQuery( "#filterType").val() === 'Genomic Region') {
-                                _filter.type = 'chromosome_segment';
-                                _filter.data.snpInfo.name = _filterKeyword;
-                            }
-
-                            console.log(jQuery( "#filterType").val());
-                            console.log(jQuery( "#filterKeyword").val());
-
-                            _dt.dropData.node.attributes.filter = {
-                                type : 'data',
-                                data : {
-
-                                }
-                            };
-
-                            _dialog.dropTarget.allFields = jQuery([])
-                                .add(jQuery( "#filterType"))
-                                .add(jQuery( "#filterKeyword"));
-
-                            _dialog.dialog("close");
-                        }
-                    },
-                    {
-                        id : 'dialog-cancel-btn',
-                        text : 'Cancel',
-                        click : function () {
-                            _dialog.dialog( "close" );
-                        }
-                    }
-                ],
-                close: function() {
-                    var _dt = _dialog.dropTarget;
-                    _dt.dropData.node.attributes
-                    if (Object.keys(_dt.dropData.details).indexOf(_dt.recordData.dataTypeId) >= 0 ) {
-                        _dropOntoVariableSelection(_dt.dropData, _dt.el);
-                    }
-                }
-            });
-        return _dialog;
-    };
-
-    var dialog = _createIdentifierDialog('#dialog-form');
-
     // init row element checker task
     var checkTask = {
 
@@ -180,78 +49,10 @@ CustomGridPanel.prototype.dropZonesChecker = function () {
                 var _dtgI = new Ext.dd.DropTarget(_rowEl, {ddGroup: 'makeQuery'});
                 _dtgI.recordData = recordData;
 
-                /**
-                 * Notify drop function
-                 * @param source
-                 * @param e
-                 * @param data
-                 * @returns {boolean}
-                 * @private
-                 */
-                var _notifyDropF = function (source, e, data) {
-
-                    var _dropTarget = this; // this is the drop target
-
-                    if (_isWrongNode(_dropTarget.recordData, data)) {
-                        return false;
-                    }
-
-                    if (data.node.attributes.visualattributes.indexOf('HIGH_DIMENSIONAL') >= 0 && _dropTarget.dataTypeId !== 'CLINICAL') {
-                        _dropTarget.dropData = data;
-
-                        dialog.dropTarget = _dropTarget;
-                        dialog.dialog("open");
-
-                        jQuery('#filterForm').hide();
-                        jQuery('#loadingPleaseWait').show();
-                        jQuery('#dialog-apply-btn').button('disable');
-                        jQuery('#dialog-cancel-btn').button('disable');
-
-                        _getHDNodeInfo(data)
-                            .done(function (d) {
-                                console.log('Done with response ', d);
-                                _dropTarget.dropData.details = d;
-
-                                if (_isCorrectHD(d, _dropTarget.recordData)) { // TODO refactor to match dropped & drop zone
-                                    jQuery('#filterForm').show();
-                                    jQuery('#loadingPleaseWait').hide();
-                                    jQuery('#dialog-apply-btn').button('enable');
-                                    jQuery('#dialog-cancel-btn').button('enable');
-                                } else {
-                                    dialog.dialog("close");
-                                }
-                            })
-                            .fail(function (msg) {
-                                console.error('Something wrong when checking the node ...', msg);
-                                dialog.dialog("close");
-                            });
-                    } else {
-                        _dropOntoVariableSelection(data, _dropTarget.el);
-                    }
-
-                    return true;
-                };
-
+                var _notifyDropF = ExportDropTarget.notifyDropF;
                 _dtgI.notifyDrop = _notifyDropF;
-
-                var getEnterHandler = function(target, rd) {
-                    return function(dd, e, data) {
-                        if(target.overClass){
-                            target.el.addClass(target.overClass);
-                        }
-                        return _isWrongNode(rd, data) ? target.dropNotAllowed : target.dropAllowed;
-                    };
-                };
-
-                _dtgI.notifyEnter = getEnterHandler(_dtgI, recordData);
-
-                var getOverHandler = function(target, rd) {
-                    return function(dd, e, data) {
-                        return _isWrongNode(rd, data) ? target.dropNotAllowed : target.dropAllowed;
-                    };
-                };
-
-                _dtgI.notifyOver = getOverHandler(_dtgI, recordData);
+                _dtgI.notifyEnter = ExportDropTarget.getEnterHandler(_dtgI, recordData);
+                _dtgI.notifyOver =  ExportDropTarget.getOverHandler(_dtgI, recordData);
             }
 
             // stop runner when it's already found the elements
@@ -338,6 +139,87 @@ var DataExport = function() {
     // let's create export metadata json store
     this.exportMetaDataStore = _getExportMetadataStore();
 
+};
+
+// TODO Refactor this please
+// ========================
+function createGeneAutocomplete (el) {
+
+    //console.info('  el.value', el.value);
+
+    var split = function ( val ) {
+        return val.split( /,\s*/ );
+    };
+
+    var extractLast = function ( term ) {
+        return split( term ).pop();
+    };
+
+    var _displayExportAutocomplete = function (d) {
+        //console.log('_displayExportAutocomplete', d);
+        return d.rows;
+    };
+
+    var _geneAutocomplete = function(request,response) {
+        jQuery.get(pageInfo.basePath + "/search/loadSearchPathways", {
+            callback: '_displayExportAutocomplete',
+            query: extractLast(request.term)
+        }, function (data) {
+            response(eval(data));
+
+        });
+    };
+
+    // Convert input text into autocomplete when user select filter type gene
+    // ----
+    if (el.value === 'genes' ) {
+        jQuery("#filterKeyword")
+             //don't navigate away from the field on tab when selecting an item
+            .bind( "keydown", function( event ) {
+                if ( event.keyCode === jQuery.ui.keyCode.TAB &&
+                    jQuery( this ).autocomplete( "instance" ).menu.active ) {
+                    event.preventDefault();
+                }
+            })
+            .autocomplete({
+                source: _geneAutocomplete,
+                minLength: 2,
+                search: function() {
+                    // custom minLength
+                    var term = extractLast( this.value );
+                    if ( term.length < 2 ) {
+                        return false;
+                    }
+                },
+                focus: function() {
+                    // prevent value inserted on focus
+                    return false;
+                },
+                select: function( event, ui ) {
+
+                    var terms = split( this.value );
+                    // remove the current input
+                    terms.pop();
+                    // add the selected item
+                    terms.push( ui.item.keyword );
+                    // add placeholder to get the comma-and-space at the end
+                    terms.push( "" );
+                    this.value = terms.join( ", " );
+                    return false;
+                }
+            })
+            .data('autocomplete')._renderItem = function(ul, item) {
+            //console.log(ul);
+            console.log(item);
+            return jQuery('<li></li>')
+                .data('item.autocomplete', item)
+                .append('<a><span style="color: #0000FF"> ' + item.display + '</span> &raquo; <strong>' +
+                    item.keyword + '</strong> ' + item.synonyms + '</a>')
+                .appendTo(ul);
+        };
+    } else {
+        jQuery("#filterKeyword").empty();
+    }
 };
 
 /**
@@ -536,7 +418,7 @@ DataExport.prototype.prepareOutString = function (files, subset, dataTypeId, met
  * @returns {string|*}
  */
 DataExport.prototype.createSelectBoxHtml = function (file, subset, dataTypeId, platform) {
-    outStr = '';
+    var outStr = '';
     if (platform) {
         outStr += file.dataFormat + ' is available for </br/>' + platform.gplTitle + ": " + platform.fileDataCount + ' samples';//' patients';
         outStr += '<br/> Export (' + file.fileType + ')&nbsp;&nbsp;';
@@ -598,7 +480,7 @@ DataExport.prototype.prepareNewStore = function (store, columns, selectedCohortD
 
         return " <br><span class='data-export-filter-tip'>(Drag and drop " + _str_data_type
             + " nodes here to filter the exported data.)</span>";
-    }
+    };
 
     store.each(function (row) {
         var this_data = [];
@@ -671,7 +553,7 @@ DataExport.prototype.getExportParams = function (gridPanel, selectedFiles) {
      * Check what subset of a file string
      * @param file
      * @returns {string}
-     * @private                              getQuerySummaryItem
+     * @private getQuerySummaryItem
      */
     var _checkSubset = function (file) {
         var _subsets = ["subset1", "subset2"];
@@ -722,7 +604,6 @@ DataExport.prototype.getExportParams = function (gridPanel, selectedFiles) {
 
             // get data type
             var _data_type = gridPanel.records[i].data.dataTypeId;
-
 
             // get concept paths
             var _concept_path_arr = _get_concept_path(gridPanel.getView().getRow(i+1));
@@ -786,28 +667,6 @@ DataExport.prototype.runDataExportJob = function (result, gridPanel) {
 
 console.log(_exportParams);
 console.log(JSON.stringify(_exportParams));
-   //
-   //var _runDataExp = jQuery.ajax({
-   //     url: pageInfo.basePath + "/dataExport/runDataExport",
-   //     method: 'POST',
-   //     timeout: '1800000',
-   //     data: {
-   //         result_instance_id1: GLOBAL.CurrentSubsetIDs[1],
-   //         result_instance_id2: GLOBAL.CurrentSubsetIDs[2],
-   //         analysis: 'DataExport',
-   //         jobName: jobName,
-   //         selectedSubsetDataTypeFiles: selectedSubsetDataTypeFiles
-   //         //selection : _exportParams
-   //     }
-   // })
-   //    .done(function () {
-   //        checkJobStatus(jobName);
-   //    })
-   //    .fail(function (jqXHR, status, err) {
-   //         console.error('jqXHR', jqXHR);
-   //         console.error('status', status);
-   //         console.error('err', err);
-   //    });
 
 
     Ext.Ajax.request(
@@ -822,7 +681,11 @@ console.log(JSON.stringify(_exportParams));
                     analysis: 'DataExport',
                     jobName: jobName,
                     selectedSubsetDataTypeFiles: selectedSubsetDataTypeFiles,
-                    selection : JSON.stringify(_exportParams)
+                    selection : JSON.stringify(_exportParams),
+                    filter : {
+                        type: 'genes',
+                        names: ['TPTEP1', 'LOC63930']
+                    }
                 }) // or a URL encoded string
         });
 
