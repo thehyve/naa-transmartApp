@@ -179,14 +179,6 @@ DataExport.prototype.displayResult = function (records, options, success) {
         );
     };
 
-    /**
-     * Get data types grid panel component
-     * @param newStore
-     * @param columns
-     * @param dataExportToolBar
-     * @returns {Ext.grid.GridPanel}
-     * @private
-     */
     var _getDataTypesGridPanel = function (newStore, columns) {
 
         var _toolBar = _getToolBar();
@@ -585,9 +577,6 @@ DataExport.prototype.runDataExportJob = function (result, gridPanel) {
 
     var _exportParams = this.getExportParams(gridPanel, selectedSubsetDataTypeFiles);
 
-console.log(_exportParams);
-console.log(JSON.stringify(_exportParams));
-
     Ext.Ajax.request(
         {
             url: pageInfo.basePath + "/dataExport/runDataExport",
@@ -600,11 +589,7 @@ console.log(JSON.stringify(_exportParams));
                     analysis: 'DataExport',
                     jobName: jobName,
                     selectedSubsetDataTypeFiles: selectedSubsetDataTypeFiles,
-                    selection : JSON.stringify(_exportParams),
-                    filter : {
-                        type: 'genes',
-                        names: ['TPTEP1', 'LOC63930']
-                    }
+                    selection : JSON.stringify(_exportParams)
                 }) // or a URL encoded string
         });
 
