@@ -156,7 +156,7 @@ grails.project.dependency.resolution = {
     }
 }
 
-grails.plugin.location.'transmart-ewb' = "../transmart-ewb"
+//grails.plugin.location.'transmart-ewb' = "../transmart-ewb"
 
 dm?.with {
     configureInternalPlugin 'compile', 'rdc-rmodules'
