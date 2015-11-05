@@ -95,9 +95,7 @@ class HighDimExportService {
             log.info "  constraint: ${constraint}"
             dataConstraints << constraint
         }
-		DisjunctionDataConstraint disjunction = dataTypeResource.createDataConstraint(
-			[(DisjunctionConstraintFactory.SUBCONSTRAINTS_PARAM): dataConstraints], 
-			DataConstraint.DISJUNCTION_CONSTRAINT)
+		DisjunctionDataConstraint disjunction = new DisjunctionDataConstraint(constraints: dataConstraints)
         disjunction
     }
 
@@ -162,8 +160,9 @@ class HighDimExportService {
             
             Projection projection = dataTypeResource.createProjection( exporter.projection )
             
-            DataConstraint filterConstraints = createFilterConstraints(filters, dataTypeResource)
-    
+            //DataConstraint filterConstraints = createFilterConstraints(filters, dataTypeResource)
+            DataConstraint filterConstraints = createFilterConstraints(dataTypeResource, filters)
+
             // Retrieve the tabular data
             TabularResult<AssayColumn, DataRow<Map<String, String>>> tabularResult =
                     dataTypeResource.retrieveData(assayconstraints, [filterConstraints], projection)
