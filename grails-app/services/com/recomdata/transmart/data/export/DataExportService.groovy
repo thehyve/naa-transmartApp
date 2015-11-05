@@ -134,11 +134,11 @@ class DataExportService {
                                             splitAttributeColumn: false,
                                             resultInstanceId: resultInstanceIdMap[subset],
                                             gplIds: jobDataMap.gplIdsMap[subset][selectedFile],
-                                            conceptPaths: selection[subset][selectedFile].selector,
+                                            conceptPaths: selection[subset][selectedFile].selector*.id as Set,
                                             dataType: selectedFile,
                                             format: format,
                                             studyDir: studyDir,
-                                            filters: jobDataMap.filters
+                                            filters: selection[subset][selectedFile].selector
                                     )
                                 }
                                 log.info "Exported " + selectedFile + " using core api"

@@ -89,7 +89,7 @@ class HighDimExportService {
         filters.each { Map filter ->
             log.info "creating filter of type ${filter.type}..."
             def type = filter.type
-            def data = filter.findAll { it.key != 'type' }
+            def data = filter.findAll { it.key != 'type' && it.key != 'id' }
             log.info "  data: ${data}"
             def constraint = dataTypeResource.createDataConstraint(data, type)
             log.info "  constraint: ${constraint}"
