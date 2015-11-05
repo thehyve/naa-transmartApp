@@ -1,7 +1,5 @@
 package com.recomdata.transmart.data.export
 
-import grails.orm.HibernateCriteriaBuilder
-
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
@@ -11,8 +9,8 @@ import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstra
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.assayconstraints.PlatformConstraint
-import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint
-import org.transmartproject.db.dataquery.highdim.dataconstraints.PropertyDataConstraint
+import org.transmartproject.db.dataquery.highdim.dataconstraints.DisjunctionDataConstraint
+import org.transmartproject.db.dataquery.highdim.parameterproducers.DisjunctionConstraintFactory
 import org.transmartproject.db.dataquery.highdim.snp_lz.SnpSubjectSortedDef
 import org.transmartproject.export.HighDimColumnExporter
 import org.transmartproject.export.HighDimExporter
@@ -75,6 +73,8 @@ class HighDimExportService {
      * [type: 'genes', names: ['TPTEP1', 'LOC63930']]
      * </code>
      * Look at the dataquery.highdim data resource modules for available data constraints.
+     * The filters are combined disjunctively, i.e., the resulting constraint matches if
+     * any of the provided filters matches.
      * @param dataTypeResource the data type resource for which data constraints are created.
      * @param filters a list of filter definitions. Each of the definitions should have a field
      *        <code>type</code>, that should match one of the constraint types supported by the
@@ -84,7 +84,7 @@ class HighDimExportService {
      *        The other data fields of the filter are the fields that are required by the constraint
      *        factory, e.g., <code>names</code> for the <code>genes</code> filter type. 
      */
-    def List<DataConstraint> createDataConstraints(HighDimensionDataTypeResource dataTypeResource, List<Map> filters) {
+    def DataConstraint createFilterConstraints(HighDimensionDataTypeResource dataTypeResource, List<Map> filters) {
         def dataConstraints = []
         filters.each { Map filter ->
             log.info "creating filter of type ${filter.type}..."
@@ -95,7 +95,10 @@ class HighDimExportService {
             log.info "  constraint: ${constraint}"
             dataConstraints << constraint
         }
-        dataConstraints
+		DisjunctionDataConstraint disjunction = dataTypeResource.createDataConstraint(
+			[(DisjunctionConstraintFactory.SUBCONSTRAINTS_PARAM): dataConstraints], 
+			DataConstraint.DISJUNCTION_CONSTRAINT)
+        disjunction
     }
 
     def exportHighDimData(Map args) {
@@ -159,11 +162,11 @@ class HighDimExportService {
             
             Projection projection = dataTypeResource.createProjection( exporter.projection )
             
-            List<DataConstraint> dataConstraints = createDataConstraints(filters, dataTypeResource)
+            DataConstraint filterConstraints = createFilterConstraints(filters, dataTypeResource)
     
             // Retrieve the tabular data
             TabularResult<AssayColumn, DataRow<Map<String, String>>> tabularResult =
-                    dataTypeResource.retrieveData(assayconstraints, dataConstraints, projection)
+                    dataTypeResource.retrieveData(assayconstraints, [filterConstraints], projection)
 
             // Start exporting tabular data
             try {
