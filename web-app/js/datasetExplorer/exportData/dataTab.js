@@ -331,6 +331,7 @@ DataExport.prototype.prepareOutString = function (files, subset, dataTypeId, met
  */
 DataExport.prototype.createSelectBoxHtml = function (file, subset, dataTypeId, platform) {
     var outStr = '';
+    console.log('about to createSelectBoxHtml ..')
     if (platform) {
         outStr += file.dataFormat + ' is available for </br/>' + platform.gplTitle + ": " + platform.fileDataCount + ' samples';//' patients';
         outStr += '<br/> Export (' + file.fileType + ')&nbsp;&nbsp;';
@@ -348,7 +349,7 @@ DataExport.prototype.createSelectBoxHtml = function (file, subset, dataTypeId, p
     }
 
     return outStr
-}
+};
 
 /**
  *
@@ -437,6 +438,7 @@ DataExport.prototype.createDataExportJob = function (gridPanel) {
         method: 'POST',
         success: function (result, request) {
             //Handle data export process
+            console.log(' gridPanel', gridPanel);
             _this.runDataExportJob(result, gridPanel);
         },
         failure: function (result, request) {
@@ -497,18 +499,30 @@ DataExport.prototype.getExportParams = function (gridPanel, selectedFiles) {
      * @param el
      * @private
      */
-    var _get_concept_path = function (tr) {
+    var _get_concept_path = function (tr, data) {
         var  _concept_path_arr = [];
         var _el = Ext.get(tr); // convert tr to element
 
         for (var i = 1; i < _el.dom.childNodes.length; i++) {
-            var _concept_path = (_el.dom.childNodes[i]).getAttribute("conceptid");
-            _concept_path_arr.push(_concept_path);
-        }
 
+            var _concept_path = (_el.dom.childNodes[i]).getAttribute("conceptid");
+            var _filterType = (_el.dom.childNodes[i]).getAttribute("conceptfiltertype");
+            var _filterVal = (_el.dom.childNodes[i]).getAttribute("conceptfiltervalues");
+            //_concept_path_arr.push(_concept_path);
+
+            // create selector object
+            _concept_path_arr.push({
+                id:_concept_path,
+                type:_filterType,
+                names: _filterVal.split(',')
+            });
+            console.log(_filterType);
+            console.log(_filterVal);
+        }
         return _concept_path_arr;
 
     }; //
+
 
     if (gridPanel.records.length > 0) {
 
@@ -519,6 +533,7 @@ DataExport.prototype.getExportParams = function (gridPanel, selectedFiles) {
 
             // get concept paths
             var _concept_path_arr = _get_concept_path(gridPanel.getView().getRow(i+1));
+            //var _concept_path_arr = _getSelectors(gridPanel.getView().getRow(i+1), gridPanel.records[i].data);
 
             // loop through selected files
             for (var j = 0; j < selectedFiles.length; j++) {

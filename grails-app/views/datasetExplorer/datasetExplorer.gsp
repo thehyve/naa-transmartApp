@@ -229,7 +229,7 @@
     <form id="filterForm">
         <fieldset>
             <label for="filterType">Filter Type</label>
-            <select id="filterType" onchange="HighDimDialog.createGeneAutocomplete(this);" >
+            <select id="filterType" onchange="HighDimDialog.createAutocompleteInput(this);" >
                 <option value="snps">SNP Identifiers</option>
                 <option value="genes">Genes</option>
                 <option value="chromosome_segment">Genomic Region</option>

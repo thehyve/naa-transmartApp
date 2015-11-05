@@ -73,15 +73,16 @@ ExportDropTarget = (function() {
             _dropTarget.dropData = data;
 
             exportDropTarget.dialog.dropTarget = _dropTarget;
-
-            console.log(exportDropTarget.dialog);
-
             exportDropTarget.dialog.dialog("open");
 
             jQuery('#filterForm').hide();
-            jQuery('#loadingPleaseWait').show();
+            jQuery('#loadingPleaseWait').show();""
             jQuery('#dialog-apply-btn').button('disable');
             jQuery('#dialog-cancel-btn').button('disable');
+            jQuery('#filterKeyword').val('');
+
+            var _el = jQuery('#filterType');
+            _dialogService.createAutocompleteInput(_el);
 
             _getHDNodeInfo(data)
                 .done(function (d) {

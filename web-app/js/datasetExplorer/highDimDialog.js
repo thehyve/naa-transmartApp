@@ -24,13 +24,15 @@ HighDimDialog = (function() {
         var _filterKeyword = jQuery("#filterKeyword").val(),
             _filter = {
                 type: jQuery("#filterType").val(),
-                data: []
+                data: [],
+                inString: ''
             }; // init filter obj
-        if (_filter.type === 'genes') {
+        if (_filter.type === 'genes' || _filter.type === 'snps') {
             _filterKeyword.split(_separator).forEach(function(d) {
                 _filter.data.push(d.trim());
             });
             _filter.data.pop();
+            _filter.inString = _filter.data.toString();
         } else if (_filter.type === 'chromosome_segment') {
             _filterKeyword.split(_separator).forEach(function(chrPos) {
                 _filter.data.push(_tokenizeChrPosition(chrPos.trim()));
@@ -67,6 +69,11 @@ HighDimDialog = (function() {
                     text : 'Apply',
                     click : function () {
                         _dialog.dropTarget.filter = _getFilter();
+                        console.log('(_dialog.dropTarget', _dialog.dropTarget);
+                        _dialog.dropTarget.recordData.subset1.each(function (subset) {
+                            console.log('i am here');
+                            subset.jajal =  _dialog.dropTarget.filter ;
+                        });
                         _dialog.dialog("close");
                     }
                 },
@@ -93,8 +100,20 @@ HighDimDialog = (function() {
 
     highDimDialog.createPanelItemNew = function (panel, concept, filter) {
 
-        var li = document.createElement('div'); //was li
-        var _strFilter = '';
+        var li = document.createElement('div'); // was li
+        var _strFilterValue = '';
+
+
+        if ( typeof filter !== 'undefined') {
+            if (filter.data[0] instanceof Array) {
+                _strFilterValue = filter.data.toString();
+            } else {
+                _strFilterValue = JSON.stringify(filter.data);
+                console.log('   array of obj',  _strFilterValue);
+            }
+            li.setAttribute('conceptfiltertype', filter.type);
+            li.setAttribute('conceptfiltervalues', _strFilterValue);
+        }
 
         //convert all object attributes to element attributes so i can get them later (must be a way to keep them in object?)
         li.setAttribute('conceptname', concept.name);
@@ -114,6 +133,7 @@ HighDimDialog = (function() {
         li.setAttribute('oktousevalues', concept.oktousevalues);
         li.setAttribute('setnodetype', concept.nodeType);
         li.setAttribute('visualattributes', concept.visualattributes);
+
         li.className = "conceptUnselected";
 
         //Create a shortname
@@ -143,12 +163,9 @@ HighDimDialog = (function() {
             li.setAttribute('conceptsetvaluetext', '');
         }
 
-        if (filter) {
-            _strFilter = '  (' + filter.data.toString() + ')';
-        }
-
         //Create the node
-        var text = document.createTextNode(shortname + " " + valuetext + _strFilter); //used to be name
+        var text = document.createTextNode(shortname + " " + valuetext + _strFilterValue ); //used to be name
+
         li.appendChild(text);
         panel.appendChild(li);
         Ext.get(li).addListener('click', conceptClick);
@@ -166,7 +183,9 @@ HighDimDialog = (function() {
         return li;
     };
 
-    highDimDialog.createGeneAutocomplete = function (el) {
+    highDimDialog.createAutocompleteInput = function (el) {
+
+        var _DEFAULT_TYPE = 'snps';
 
         var split = function ( val ) {
             return val.split( /,\s*/ );
@@ -176,40 +195,30 @@ HighDimDialog = (function() {
             return split( term ).pop();
         };
 
-        var _displayExportAutocomplete = function (d) {
-            //console.log('_displayExportAutocomplete', d);
-            return d.rows;
-        };
-
         var _autocomplete = function(type,request,response) {
+            console.log(type);
+            if (typeof type === "undefined") {type=_DEFAULT_TYPE;}
             var search = extractLast(request.term)
             console.log('_geneAutocomplete: type = ' + type + ', search = ' + search);
             jQuery.get(pageInfo.basePath + "/filterAutocomplete/autocomplete/" + type, {
-                //callback: '_displayExportAutocomplete',
                 search: search
             }, function (data) {
                 console.log('_geneAutocomplete: data = ' + data);
                 response(data);
             });
-            /*
-             jQuery.get(pageInfo.basePath + "/search/loadSearchPathways", {
-             callback: '_displayExportAutocomplete',
-             query: extractLast(request.term)
-             }, function (data) {
-             response(eval(data));
-             });
-             */
         };
 
         var _typedAutocomplete = function(type) {
+            console.log(type);
+            if (typeof type === "undefined") {type=_DEFAULT_TYPE;}
             console.log('creating autocompleter for type ' + type);
             return function(request,response) {
                 return _autocomplete(type,request,response);
             }
         };
+
         // Convert input text into autocomplete when user select filter type gene
         // ----
-        //if (el.value === 'genes' ) {
             jQuery("#filterKeyword")
                 //don't navigate away from the field on tab when selecting an item
                 .bind( "keydown", function( event ) {
@@ -248,13 +257,9 @@ HighDimDialog = (function() {
                 .data('autocomplete')._renderItem = function(ul, item) {
                 return jQuery('<li></li>')
                     .data('item.autocomplete', item)
-                    .append('<a><span style="color: #0000FF"> ' + item.label + '</span> &raquo; <strong>' +
-                    item.keyword + '</strong> ' + item.synonyms + '</a>')
+                    .append('<a style="color: #0000FF"> ' + item.label + '</a>')
                     .appendTo(ul);
             };
-        //} else {
-        //    jQuery("#filterKeyword").empty();
-        //}
     };
 
     return highDimDialog;
