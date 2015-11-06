@@ -60,15 +60,12 @@ class SAMPLEExporterTests {
     @Test
     void "test whether a basic tabular result is exported properly"() {
         tabularResult = createMockSnpLzTabularResult()
-        subjects = createMockSubjectData()
-        
-        log.debug "subjects: $subjects"
         
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()
         
         play {
             List<AssayColumn> assays = tabularResult.getIndicesList()
-            exporter.export( assays, subjects, outputStream )
+            exporter.export( assays, outputStream )
             
             // Assert we have at least some text, in UTF-8 encoding
             String output = outputStream.toString("UTF-8")
@@ -87,11 +84,11 @@ class SAMPLEExporterTests {
                 assert values.size() >= 3
                 def id1 = values[0]
                 def id2 = values[1]
-                def subject = subjectData[i-2]
+                def assay = sampleAssays[i-2]
                 // subjectId is used for the ID_1 field
-                assert subject.subjectId == id1
+                assert assay.patientInTrialId == id1
                 // patientNum is used for the ID_2 field
-                assert subject.subjectPosition == Integer.parseInt(id2)
+                assert assay.patient.id == Integer.parseInt(id2)
             }
         }
     }

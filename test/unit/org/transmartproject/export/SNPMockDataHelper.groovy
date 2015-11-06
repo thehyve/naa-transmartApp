@@ -30,22 +30,6 @@ class SNPMockDataHelper extends MockTabularResultHelper {
         ]
     }
     
-    Map createMockSubjectData() {
-        if (!subjectData) {
-            generateSubjectData()
-        }
-        Map subjects = [:]
-        for (Map data: subjectData) {
-            SnpSubjectSortedDef subject = mock(SnpSubjectSortedDef)
-            subject.patientPosition.returns(data.subjectPosition).stub()
-            subject.subjectId.returns(data.subjectId).stub()
-            def patient = patients[data.subjectPosition - 1]
-            subject.patient.returns(patient).stub()
-            subjects[new Long(data.subjectPosition)] = subject // assuming patient id == subjectPosition
-        }
-        return subjects
-    }
-    
     TabularResult createMockSnpLzTabularResult() {
         generateSubjectData()
         

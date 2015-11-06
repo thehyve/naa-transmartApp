@@ -56,15 +56,12 @@ class TFAMExporterTests {
     @Test
     void "test whether a basic tabular result is exported properly"() {
         tabularResult = createMockSnpLzTabularResult()
-        subjects = createMockSubjectData()
-        
-        log.debug "subjects: $subjects"
         
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()
         
         play {
             List<AssayColumn> assays = tabularResult.getIndicesList()
-            exporter.export( assays, subjects, outputStream )
+            exporter.export( assays, outputStream )
             
             // Assert we have at least some text, in UTF-8 encoding
             String output = outputStream.toString("UTF-8")
@@ -78,9 +75,9 @@ class TFAMExporterTests {
                 assert values.size() == 6
                 def familyId = values[0]
                 def individualId = values[1]
-                def subject = subjectData[i]
-                assert subject.subjectId == familyId        // subjectId is used for the familyId field
-                assert subject.subjectId == individualId    // subjectId is used for the individualId field
+                def assay = sampleAssays[i]
+                assert assay.patientInTrialId == familyId        // subjectId is used for the familyId field
+                assert assay.patientInTrialId == individualId    // subjectId is used for the individualId field
             }
         }
     }
