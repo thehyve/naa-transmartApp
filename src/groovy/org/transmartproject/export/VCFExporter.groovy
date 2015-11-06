@@ -1,16 +1,19 @@
 package org.transmartproject.export
 
 import grails.util.Metadata
+
+import javax.annotation.PostConstruct
+
+import org.apache.commons.lang.NotImplementedException
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 
-import javax.annotation.PostConstruct
-
-class VCFExporter implements HighDimExporter {
+class VCFExporter implements HighDimTabularResultExporter {
     /**
      * List of info fields that can be exported without any change.
      * This list should only include fields for which the value is the

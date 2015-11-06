@@ -33,6 +33,7 @@ CustomGridPanel.prototype.dropZonesChecker = function () {
 
     // init row element checker task
     var checkTask = {
+
         run: function () {
 
             // init rows array
@@ -40,10 +41,18 @@ CustomGridPanel.prototype.dropZonesChecker = function () {
 
             // check if view already have rows represent the number of records
             for (var i = 1; i <= _this.records.length; i++) {
+
+                var recordData = _this.records[i - 1].data;
                 var _rowEl = _this.getView().getRow(i);
-                rows.push(_rowEl)
+                rows.push(_rowEl);
+
                 var _dtgI = new Ext.dd.DropTarget(_rowEl, {ddGroup: 'makeQuery'});
-                _dtgI.notifyDrop = dropOntoVariableSelection;
+                _dtgI.recordData = recordData;
+
+                var _notifyDropF = ExportDropTarget.notifyDropF;
+                _dtgI.notifyDrop = _notifyDropF;
+                _dtgI.notifyEnter = ExportDropTarget.getEnterHandler(_dtgI, recordData);
+                _dtgI.notifyOver =  ExportDropTarget.getOverHandler(_dtgI, recordData);
             }
 
             // stop runner when it's already found the elements
@@ -54,14 +63,14 @@ CustomGridPanel.prototype.dropZonesChecker = function () {
         },
 
         interval: 500 // repeat every 0.5 seconds
-    }
+    };
 
     // Need to have a task runner since there's no other way to retrieve
     // row elements after they're rendered.
 
     var runner = new Ext.util.TaskRunner();  // define a runner
     runner.start(checkTask); // start the task
-}
+};
 
 /**********************************************************************************************************************/
 
@@ -76,9 +85,9 @@ function getDatadata() {
 
     // load export metadata
     dataExport.exportMetaDataStore.load({
-            params: {result_instance_id1: GLOBAL.CurrentSubsetIDs[1], result_instance_id2: GLOBAL.CurrentSubsetIDs[2]},
-            scope: dataExport,
-            callback: dataExport.displayResult
+        params: {result_instance_id1: GLOBAL.CurrentSubsetIDs[1], result_instance_id2: GLOBAL.CurrentSubsetIDs[2]},
+        scope: dataExport,
+        callback: dataExport.displayResult
     });
 }
 
@@ -108,29 +117,30 @@ var DataExport = function() {
         ret.proxy.addListener('loadexception', function(dummy, dummy2, response) {
             if (response.status != 200) {
                 var responseText,
-                    parsedResponseText
-                responseText = response.responseText
+                    parsedResponseText;
+                responseText = response.responseText;
                 try {
-                    parsedResponseText = JSON.parse(responseText)
+                    parsedResponseText = JSON.parse(responseText);
                     if (parsedResponseText.message) {
-                        responseText = parsedResponseText.message
+                        responseText = parsedResponseText.message;
                     }
                 } catch (syntaxError) {}
                 exportListFetchErrorHandler(response.status, responseText);
             }
         });
         return ret;
-    }
+    };
 
     var exportListFetchErrorHandler = function(status, text) {
         Ext.Msg.alert('Status', "Error fetching export metadata.<br/>Status " +
-                status + "<br/>Message: " + text);
-    }
+        status + "<br/>Message: " + text);
+    };
 
     // let's create export metadata json store
     this.exportMetaDataStore = _getExportMetadataStore();
 
-}
+};
+
 
 /**
  * Display data to be exported
@@ -161,22 +171,14 @@ DataExport.prototype.displayResult = function (records, options, success) {
                             tooltip:'Click for Data Export help',
                             iconCls: "contextHelpBtn",
                             handler: function(event, toolEl, panel){
-                                D2H_ShowHelp("1456",helpURL,"wndExternal",CTXT_DISPLAY_FULLHELP );
+                                D2H_ShowHelp("1312",helpURL,"wndExternal",CTXT_DISPLAY_FULLHELP );
                             }
                         }
                     )]
             }
         );
-    }
+    };
 
-    /**
-     * Get data types grid panel component
-     * @param newStore
-     * @param columns
-     * @param dataExportToolBar
-     * @returns {Ext.grid.GridPanel}
-     * @private
-     */
     var _getDataTypesGridPanel = function (newStore, columns) {
 
         var _toolBar = _getToolBar();
@@ -212,7 +214,7 @@ DataExport.prototype.displayResult = function (records, options, success) {
         });
 
         return _grid;
-    }
+    };
 
     // Display data when success and records contains data
     if (success && (_this.records.length > 0)) {
@@ -240,7 +242,7 @@ DataExport.prototype.displayResult = function (records, options, success) {
     }
     // unmask data export panel
     analysisDataExportPanel.body.unmask();
-}
+};
 
 /**
  *
@@ -328,7 +330,8 @@ DataExport.prototype.prepareOutString = function (files, subset, dataTypeId, met
  * @returns {string|*}
  */
 DataExport.prototype.createSelectBoxHtml = function (file, subset, dataTypeId, platform) {
-    outStr = '';
+    var outStr = '';
+    console.log('about to createSelectBoxHtml ..')
     if (platform) {
         outStr += file.dataFormat + ' is available for </br/>' + platform.gplTitle + ": " + platform.fileDataCount + ' samples';//' patients';
         outStr += '<br/> Export (' + file.fileType + ')&nbsp;&nbsp;';
@@ -346,7 +349,7 @@ DataExport.prototype.createSelectBoxHtml = function (file, subset, dataTypeId, p
     }
 
     return outStr
-}
+};
 
 /**
  *
@@ -365,7 +368,6 @@ DataExport.prototype.prepareNewStore = function (store, columns, selectedCohortD
         subsetDataTypeFiles[0].parentNode.removeChild(subsetDataTypeFiles[0])
     }
 
-    var dataTypes;
     var data = [];
     data.push(selectedCohortData);
 
@@ -390,7 +392,7 @@ DataExport.prototype.prepareNewStore = function (store, columns, selectedCohortD
 
         return " <br><span class='data-export-filter-tip'>(Drag and drop " + _str_data_type
             + " nodes here to filter the exported data.)</span>";
-    }
+    };
 
     store.each(function (row) {
         var this_data = [];
@@ -422,7 +424,7 @@ DataExport.prototype.prepareNewStore = function (store, columns, selectedCohortD
     myStore.loadData({subsets: data}, false);
 
     return myStore;
-}
+};
 
 /**
  * Create data export job
@@ -447,7 +449,7 @@ DataExport.prototype.createDataExportJob = function (gridPanel) {
             analysis: "DataExport"
         }
     });
-}
+};
 
 /**
  * Get export parameters to be sent to the backend
@@ -463,7 +465,7 @@ DataExport.prototype.getExportParams = function (gridPanel, selectedFiles) {
      * Check what subset of a file string
      * @param file
      * @returns {string}
-     * @private                              getQuerySummaryItem
+     * @private getQuerySummaryItem
      */
     var _checkSubset = function (file) {
         var _subsets = ["subset1", "subset2"];
@@ -476,7 +478,7 @@ DataExport.prototype.getExportParams = function (gridPanel, selectedFiles) {
             }
         }
         return _returnVal;
-    } //
+    }; //
 
     /**
      * Check if a particular data type is selected
@@ -488,7 +490,7 @@ DataExport.prototype.getExportParams = function (gridPanel, selectedFiles) {
     var _checkDataType = function (file, type) {
         var _typeRegex = new RegExp(type);
         return _typeRegex.test(file);
-    }
+    };
 
     /**
      * Get concept paths
@@ -496,17 +498,44 @@ DataExport.prototype.getExportParams = function (gridPanel, selectedFiles) {
      * @private
      */
     var _get_concept_path = function (tr) {
-        var  _concept_path_arr = [];
-        var _el = Ext.get(tr); // convert tr to element
+        var  _concept_path_arr = [],
+            _vals,
+            _el = Ext.get(tr); // convert tr to element
 
         for (var i = 1; i < _el.dom.childNodes.length; i++) {
-            var _concept_path = (_el.dom.childNodes[i]).getAttribute("conceptid");
-            _concept_path_arr.push(_concept_path);
-        }
 
+            var _concept_path = (_el.dom.childNodes[i]).getAttribute("conceptid");
+            var _filterType = (_el.dom.childNodes[i]).getAttribute("conceptfiltertype");
+            var _filterVal = (_el.dom.childNodes[i]).getAttribute("conceptfiltervalues");
+
+            _vals = JSON.parse(_filterVal);
+
+            if (_filterType === 'chromosome_segment') {
+
+                jQuery.each(_vals, function (k, v) {
+                    _concept_path_arr.push({
+                        id:_concept_path,
+                        type:_filterType,
+                        chromosome: v.chromosome,
+                        start: v.start,
+                        end: v.end
+                    });
+                });
+
+            } else {
+                // create selector object
+                _concept_path_arr.push({
+                    id:_concept_path,
+                    type:_filterType,
+                    names: _vals
+                });
+            }
+
+        }
         return _concept_path_arr;
 
-    } //
+    };
+
 
     if (gridPanel.records.length > 0) {
 
@@ -515,9 +544,9 @@ DataExport.prototype.getExportParams = function (gridPanel, selectedFiles) {
             // get data type
             var _data_type = gridPanel.records[i].data.dataTypeId;
 
-
             // get concept paths
             var _concept_path_arr = _get_concept_path(gridPanel.getView().getRow(i+1));
+            //var _concept_path_arr = _getSelectors(gridPanel.getView().getRow(i+1), gridPanel.records[i].data);
 
             // loop through selected files
             for (var j = 0; j < selectedFiles.length; j++) {
@@ -544,7 +573,7 @@ DataExport.prototype.getExportParams = function (gridPanel, selectedFiles) {
     }
 
     return params;
-}
+};
 
 /**
  * Run data export job
@@ -558,8 +587,8 @@ DataExport.prototype.runDataExportJob = function (result, gridPanel) {
     var messages = {
         cancelMsg: "Your Job has been cancelled.",
         backgroundMsg: "Your job has been put into background process. Please check the job status in " +
-            "the 'Export Jobs' tab."
-    }
+        "the 'Export Jobs' tab."
+    };
 
     showJobStatusWindow(result, messages);
 
@@ -582,15 +611,15 @@ DataExport.prototype.runDataExportJob = function (result, gridPanel) {
             method: 'POST',
             timeout: '1800000',
             params: Ext.urlEncode(
-            {
-                result_instance_id1: GLOBAL.CurrentSubsetIDs[1],
-                result_instance_id2: GLOBAL.CurrentSubsetIDs[2],
-                analysis: 'DataExport',
-                jobName: jobName,
-                selectedSubsetDataTypeFiles: selectedSubsetDataTypeFiles,
-                selection : JSON.stringify(_exportParams)
-            }) // or a URL encoded string
+                {
+                    result_instance_id1: GLOBAL.CurrentSubsetIDs[1],
+                    result_instance_id2: GLOBAL.CurrentSubsetIDs[2],
+                    analysis: 'DataExport',
+                    jobName: jobName,
+                    selectedSubsetDataTypeFiles: selectedSubsetDataTypeFiles,
+                    selection : JSON.stringify(_exportParams)
+                }) // or a URL encoded string
         });
 
-    checkJobStatus(jobName);
-}
+
+};

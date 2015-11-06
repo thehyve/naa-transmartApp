@@ -100,6 +100,7 @@ class DataExportController {
      * Method that will run a data export and is called asynchronously from the datasetexplorer -> Data Export tab
      */
     def runDataExport() {
+        log.debug "DataExportController: params = ${params}"
         checkParamResultInstanceIds()
 
         def jsonResult = exportService.exportData(params, springSecurityService.getPrincipal().username)
