@@ -2,12 +2,17 @@ package com.recomdata.transmart.data.export
 
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
+import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.assayconstraints.PlatformConstraint
+import org.transmartproject.db.dataquery.highdim.dataconstraints.DisjunctionDataConstraint
+import org.transmartproject.export.HighDimColumnExporter
 import org.transmartproject.export.HighDimExporter
+import org.transmartproject.export.HighDimTabularResultExporter
 
 class HighDimExportService {
 
@@ -17,6 +22,41 @@ class HighDimExportService {
     // FIXME: jobResultsService lives in Rmodules, so this is probably not a dependency we should have here
     def jobResultsService
 
+    /**
+     * Create data constraints based on a list of filter definitions,
+     * e.g., the following filters can be used for filtering data of type <code>snp_lz</code>:
+     * <code>
+     * [type: 'snps', names: ['rs12890222']],
+     * [type: 'chromosome_segment', chromosome: 'X', start: 4000000, end: 5000000],
+     * [type: 'genes', names: ['TPTEP1', 'LOC63930']]
+     * </code>
+     * Look at the dataquery.highdim data resource modules for available data constraints.
+     * The filters are combined disjunctively, i.e., the resulting constraint matches if
+     * any of the provided filters matches.
+     * @param dataTypeResource the data type resource for which data constraints are created.
+     * @param filters a list of filter definitions. Each of the definitions should have a field
+     *        <code>type</code>, that should match one of the constraint types supported by the
+     *        data type resource (e.g., <code>chromosome_segment</code> is the constraint type
+     *        name of {@link ChromosomeSegmentConstraintFactory}, available in {@link SnpLzModule},
+     *        the data type resource for the <code>snp_lz</code> data type.
+     *        The other data fields of the filter are the fields that are required by the constraint
+     *        factory, e.g., <code>names</code> for the <code>genes</code> filter type. 
+     */
+    def DataConstraint createFilterConstraints(HighDimensionDataTypeResource dataTypeResource, List<Map> filters) {
+        def dataConstraints = []
+        filters.each { Map filter ->
+            log.info "creating filter of type ${filter.type}..."
+            def type = filter.type
+            def data = filter.findAll { it.key != 'type' && it.key != 'id' }
+            log.info "  data: ${data}"
+            def constraint = dataTypeResource.createDataConstraint(data, type)
+            log.info "  constraint: ${constraint}"
+            dataConstraints << constraint
+        }
+		DisjunctionDataConstraint disjunction = new DisjunctionDataConstraint(constraints: dataConstraints)
+        disjunction
+    }
+
     def exportHighDimData(Map args) {
         String jobName =                    args.jobName
         String dataType =                   args.dataType
@@ -25,7 +65,9 @@ class HighDimExportService {
         Collection<String> conceptPaths =   args.conceptPaths
         String studyDir =                   args.studyDir
         String format =                     args.format
-
+        List<Map> filters =                 args.filters // See {@link #createDataConstraints(HighDimensionDataTypeResource, List<Map>)} for a description.
+        
+        log.debug 'ExportHighDimData args = ' + args
 
         if (jobIsCancelled(jobName)) {
             return null
@@ -49,24 +91,44 @@ class HighDimExportService {
 
         // Setup class to export the data
         HighDimExporter exporter = highDimExporterRegistry.getExporterForFormat( format )
-        Projection projection = dataTypeResource.createProjection( exporter.projection )
 
         File outputFile = new File(studyDir, dataType + '.' + format.toLowerCase() )
         String fileName = outputFile.getAbsolutePath()
 
-        // Retrieve the data itself
-        TabularResult<AssayColumn, DataRow<Map<String, String>>> tabularResult =
-                dataTypeResource.retrieveData(assayconstraints, [], projection)
-
-        // Start exporting
-        try {
+        if (exporter instanceof HighDimColumnExporter) {
+            exporter = exporter as HighDimColumnExporter
+            def startTime = System.currentTimeMillis()
+            log.debug "Fetching assays..."
+            Map<HighDimensionDataTypeResource, Collection<Assay>> assayMap = highDimensionResourceService.getSubResourcesAssayMultiMap(assayconstraints)
+            log.debug "Fetching assays took ${System.currentTimeMillis() - startTime} ms."
+            // for some reason, this dataTypeResourceKey is not the same as dataTypeResource:
+            def dataTypeResourceKey = assayMap.keySet().find { it.dataTypeName == dataTypeResource.dataTypeName }
+            Collection<Assay> assays = assayMap[dataTypeResourceKey]
+            // Start exporting column data
             outputFile.withOutputStream { outputStream ->
-                exporter.export tabularResult, projection, outputStream, { jobIsCancelled(jobName) }
+                exporter.export assays, outputStream, { jobIsCancelled(jobName) }
             }
-        } finally {
-            tabularResult.close()
-        }
+        } else {
+            exporter = exporter as HighDimTabularResultExporter
+            
+            Projection projection = dataTypeResource.createProjection( exporter.projection )
+            
+            //DataConstraint filterConstraints = createFilterConstraints(filters, dataTypeResource)
+            DataConstraint filterConstraints = createFilterConstraints(dataTypeResource, filters)
 
+            // Retrieve the tabular data
+            TabularResult<AssayColumn, DataRow<Map<String, String>>> tabularResult =
+                    dataTypeResource.retrieveData(assayconstraints, [filterConstraints], projection)
+
+            // Start exporting tabular data
+            try {
+                outputFile.withOutputStream { outputStream ->
+                    exporter.export tabularResult, projection, outputStream, { jobIsCancelled(jobName) }
+                }
+            } finally {
+                tabularResult.close()
+            }
+        }
         return [outFile: fileName]
     }
 

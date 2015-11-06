@@ -14,6 +14,16 @@
     color:#d3d3d3;
 }
 
+.conceptDistributionPlaceholder {
+    display: block;
+    padding: 0 !important;
+    background-color: transparent !important;
+    background-position: center !important;
+    background-size: 10% !important;
+    width: 245px;
+    height: 180px;
+}
+
 div.topall {
 	padding-top:4px;
 	background: #fafafa url(../images/skin/shadow30.jpg);
@@ -65,8 +75,8 @@ a.toplink1:hover{
 }
 
 .clearbutton{
-		background-image:url(../images/small_cross.png ) !important;
-	}
+    background-image:url(../images/small_cross.png ) !important;
+}
 .runbutton{
 	background-image:url(../images/runprog.png ) !important;
 	}
@@ -85,16 +95,16 @@ a.toplink1:hover{
 	}
 .valueicon{
 	background-image:url(../images/numeric.gif ) !important;
-	}
+}
 .printbutton{
 	background-image:url(../images/printer.png ) !important;
-	}
+}
 	
 .savebutton{
 	background-image:url(../images/disk.png ) !important;
-	}	
-	
-.jleafclass 
+	}
+
+.jleafclass
 	a span {
 
     color: #33cc33;
@@ -150,7 +160,8 @@ a.button span {
 div.analysis {
 	font-family: arial;
 	font-size: 8pt;
-	}
+	padding-bottom: 50px;
+}
 table.analysis {
 	border-width: 1px 1px 1px 1px;
 	border-spacing: 4px;
@@ -183,6 +194,7 @@ div.analysistitle {
 	font-size: 12pt;
 	font-weight: bold;
 	font-family:arial;
+	padding-bottom: 20px;
 }
 
 
@@ -527,7 +539,7 @@ li.x-tab-strip-active {
 }
 
 #westPanel {
-	background-color: white;	
+	background-color: white;
 }
 
 .x-layout-split {
