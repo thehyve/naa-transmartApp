@@ -26,6 +26,10 @@ HighDimDialog = (function() {
                 data: [],
                 inString: ''
             }; // init filter obj
+
+        console.log('_filter',_filter);
+        console.log('_filterKeyword',_filterKeyword);
+
         if (_filter.type === 'genes' || _filter.type === 'snps') {
             _filterKeyword.split(_separator).forEach(function(d) {
                 _filter.data.push(d.trim());

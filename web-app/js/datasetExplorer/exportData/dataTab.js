@@ -368,7 +368,6 @@ DataExport.prototype.prepareNewStore = function (store, columns, selectedCohortD
         subsetDataTypeFiles[0].parentNode.removeChild(subsetDataTypeFiles[0])
     }
 
-    var dataTypes;
     var data = [];
     data.push(selectedCohortData);
 
@@ -425,7 +424,7 @@ DataExport.prototype.prepareNewStore = function (store, columns, selectedCohortD
     myStore.loadData({subsets: data}, false);
 
     return myStore;
-}
+};
 
 /**
  * Create data export job
@@ -499,8 +498,9 @@ DataExport.prototype.getExportParams = function (gridPanel, selectedFiles) {
      * @private
      */
     var _get_concept_path = function (tr) {
-        var  _concept_path_arr = [];
-        var _el = Ext.get(tr); // convert tr to element
+        var  _concept_path_arr = [],
+            _vals,
+            _el = Ext.get(tr); // convert tr to element
 
         for (var i = 1; i < _el.dom.childNodes.length; i++) {
 
@@ -508,11 +508,11 @@ DataExport.prototype.getExportParams = function (gridPanel, selectedFiles) {
             var _filterType = (_el.dom.childNodes[i]).getAttribute("conceptfiltertype");
             var _filterVal = (_el.dom.childNodes[i]).getAttribute("conceptfiltervalues");
 
+            _vals = JSON.parse(_filterVal);
+
             if (_filterType === 'chromosome_segment') {
 
-                var _filterVals = JSON.parse(_filterVal);
-
-                jQuery.each(_filterVals, function (k, v) {
+                jQuery.each(_vals, function (k, v) {
                     _concept_path_arr.push({
                         id:_concept_path,
                         type:_filterType,
@@ -527,7 +527,7 @@ DataExport.prototype.getExportParams = function (gridPanel, selectedFiles) {
                 _concept_path_arr.push({
                     id:_concept_path,
                     type:_filterType,
-                    names: _filterVal.split(',')
+                    names: _vals
                 });
             }
 
