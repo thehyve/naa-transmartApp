@@ -1,15 +1,16 @@
 package org.transmartproject
 
 import grails.gorm.DetachedCriteria
+import grails.plugin.cache.Cacheable
 import groovy.util.logging.Slf4j
 
 import javax.annotation.PostConstruct
 
-import org.springframework.cache.annotation.Cacheable
 import org.transmartproject.db.dataquery.highdim.snp_lz.DeRcSnpInfo
 import org.transmartproject.db.dataquery.highdim.snp_lz.DeSnpInfo
 
 @Slf4j
+@Cacheable('org.transmartproject.FilterAutocompleteService')
 class FilterAutocompleteService {
 
 	private static final int max_results = 50
@@ -24,7 +25,6 @@ class FilterAutocompleteService {
 	 * @param search The start segment used in the query.
 	 * @return a list of gene names, starting with <code>search</code>.
 	 */
-    @Cacheable('gene_autocomplete')
     private List<String> autoCompleteGene(String search) {
         DetachedCriteria query = DeRcSnpInfo
             .where { geneName =~ "${search}%" }
@@ -46,7 +46,6 @@ class FilterAutocompleteService {
 	 * @param search The start segment used in the query.
 	 * @return a list of gene names, starting with <code>search</code>.
 	 */
-    @Cacheable('snp_autocomplete')
     private List<String> autoCompleteSnp(String search) {
         DetachedCriteria query = DeSnpInfo
             .where { name =~ "${search}%" }
