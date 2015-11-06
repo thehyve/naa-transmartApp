@@ -10,7 +10,6 @@ import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.projections.Projection
-import org.transmartproject.db.dataquery.highdim.snp_lz.SnpSubjectSortedDef
 
 /**
  * Export for Single Nucleotide Polymorphism (SNP) data.
@@ -81,13 +80,13 @@ class TFAMExporter implements HighDimColumnExporter {
     }
 
     @Override
-    public void export(Collection<Assay> assays, Map<Long, SnpSubjectSortedDef> subjectData,
+    public void export(Collection<Assay> assays,
             OutputStream outputStream) {
-        export(assays, subjectData, outputStream, { false })
+        export(assays, outputStream, { false })
     }
             
     @Override
-    public void export(Collection<Assay> assays, Map<Long, SnpSubjectSortedDef> subjectData,
+    public void export(Collection<Assay> assays,
             OutputStream outputStream, Closure isCancelled) {
         log.info "Started exporting to ${format}..."
         def startTime = System.currentTimeMillis()
@@ -102,19 +101,15 @@ class TFAMExporter implements HighDimColumnExporter {
                     return
                 }
                 
-                Patient patient = assay.getPatient()
-                if (patient) {
-                    SnpSubjectSortedDef subject = subjectData[patient.getId()]
-                    def row = new TFAMRow(
-                        familyId: subject.subjectId,
-                        individualId: subject.subjectId,
-                        maternalId: 0,
-                        paternalId: 0,
-                        sex: Sex.Unknown,
-                        phenotype: Phenotype.Missing
-                    )
-                    exportTFAMRow(row, out)
-                }
+                def row = new TFAMRow(
+                    familyId: assay.patientInTrialId, // should be equal to subjectId in SnpSubjectSortedDef
+                    individualId: assay.patientInTrialId,
+                    maternalId: 0,
+                    paternalId: 0,
+                    sex: Sex.Unknown,
+                    phenotype: Phenotype.Missing
+                )
+                exportTFAMRow(row, out)
             }
         }
         

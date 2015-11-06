@@ -10,8 +10,6 @@ import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstrain
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.assayconstraints.PlatformConstraint
 import org.transmartproject.db.dataquery.highdim.dataconstraints.DisjunctionDataConstraint
-import org.transmartproject.db.dataquery.highdim.parameterproducers.DisjunctionConstraintFactory
-import org.transmartproject.db.dataquery.highdim.snp_lz.SnpSubjectSortedDef
 import org.transmartproject.export.HighDimColumnExporter
 import org.transmartproject.export.HighDimExporter
 import org.transmartproject.export.HighDimTabularResultExporter
@@ -23,46 +21,6 @@ class HighDimExportService {
     
     // FIXME: jobResultsService lives in Rmodules, so this is probably not a dependency we should have here
     def jobResultsService
-
-    /**
-     * Limit to the number of elements in a query parameter, used in
-     * {@link #fetchSnpSubjectDataForAssays(Collection<Assay>)}.
-     * Prevents an error like "ORA-01795: maximum number of expressions in a list is 1000"
-     * The value should correspond to the database configuration and should probably
-     * move to a configuration file.
-     */
-    static final int max_query_param_elements = 500
-
-    /**
-     * Fetches SNP subject data (from {@link SnpSubjectSortedDef}) for the subjects
-     * in <code>assays</code>, using <code>patient.id</code> in the assay.
-     * The task is performed in chunks of {@link #max_query_param_elements} subjects at a time,
-     * to prevent overly long queries.
-     * @param assays A collection of assays, containing patient data.
-     * @return a map from patient id to subject data of type {@link SnpSubjectSortedDef}.
-     */
-    Map<Long, SnpSubjectSortedDef> fetchSnpSubjectDataForAssays(Collection<Assay> assays) {
-        List<Long> patientIds = assays*.patient.id
-        Map<Long, SnpSubjectSortedDef> subjectData = [:]
-        if (!patientIds.empty) {
-            def startTime = System.currentTimeMillis()
-            log.debug "Fetching subject data..."
-            int start = 0
-            while (start < patientIds.size()) {
-                int end = Math.min(start + max_query_param_elements, patientIds.size())
-                List<Long> cell = patientIds.subList(start, end);
-                log.debug "(size = ${patientIds.size()}, start = $start, end = $end)"
-                def subjects = SnpSubjectSortedDef.where { patient.id in cell }.list()
-                int count = subjects.size()
-                log.debug "(count = $count)"
-                subjects.each { SnpSubjectSortedDef subject -> subjectData[subject.patient.id] = subject }
-                start += count
-            }
-            log.debug "Fetching subject data took ${System.currentTimeMillis() - startTime} ms."
-        }
-        assert subjectData.size() == patientIds.size()
-        subjectData
-    }
 
     /**
      * Create data constraints based on a list of filter definitions,
@@ -146,14 +104,9 @@ class HighDimExportService {
             // for some reason, this dataTypeResourceKey is not the same as dataTypeResource:
             def dataTypeResourceKey = assayMap.keySet().find { it.dataTypeName == dataTypeResource.dataTypeName }
             Collection<Assay> assays = assayMap[dataTypeResourceKey]
-            Map subjectData = [:]
-            // Fetch SNP subject data for SNP exporters
-            if (exporter.isDataTypeSupported('snp_lz')) {
-                subjectData = fetchSnpSubjectDataForAssays(assays)
-            }
             // Start exporting column data
             outputFile.withOutputStream { outputStream ->
-                exporter.export assays, subjectData, outputStream, { jobIsCancelled(jobName) }
+                exporter.export assays, outputStream, { jobIsCancelled(jobName) }
             }
         } else {
             exporter = exporter as HighDimTabularResultExporter

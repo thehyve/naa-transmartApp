@@ -10,7 +10,6 @@ import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.projections.Projection
-import org.transmartproject.db.dataquery.highdim.snp_lz.SnpSubjectSortedDef
 
 /**
  * Export for Single Nucleotide Polymorphism (SNP) data.
@@ -53,13 +52,13 @@ class SAMPLEExporter implements HighDimColumnExporter {
     }
 
     @Override
-    public void export(Collection<Assay> assays, Map<Long, SnpSubjectSortedDef> subjectData,
+    public void export(Collection<Assay> assays,
             OutputStream outputStream) {
-        export(assays, subjectData, outputStream, { false })
+        export(assays, outputStream, { false })
     }
 
     @Override
-    public void export(Collection<Assay> assays, Map<Long, SnpSubjectSortedDef> subjectData,
+    public void export(Collection<Assay> assays,
             OutputStream outputStream, Closure isCancelled) {
         log.info "Started exporting to ${format}..."
         def startTime = System.currentTimeMillis()
@@ -76,15 +75,11 @@ class SAMPLEExporter implements HighDimColumnExporter {
                     return
                 }
 
-                Patient patient = assay.patient
-                if (patient) {
-                    SnpSubjectSortedDef subject = subjectData[patient.id]
-                    def row = new SampleRow(
-                        id1: subject.subjectId, // column subject_id in deapp.de_snp_subject_sorted_def
-                        id2: patient.id // column patient_num in i2b2demodata.patient_dimension
-                    )
-                    exportSampleRow(row, out)
-                }
+                def row = new SampleRow(
+                    id1: assay.patientInTrialId, // should be equal to column subject_id in deapp.de_snp_subject_sorted_def
+                    id2: assay.patient.id // should be equal to column patient_num in i2b2demodata.patient_dimension
+                )
+                exportSampleRow(row, out)
             }
         }
         
