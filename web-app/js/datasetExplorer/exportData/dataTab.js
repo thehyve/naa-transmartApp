@@ -438,7 +438,6 @@ DataExport.prototype.createDataExportJob = function (gridPanel) {
         method: 'POST',
         success: function (result, request) {
             //Handle data export process
-            console.log(' gridPanel', gridPanel);
             _this.runDataExportJob(result, gridPanel);
         },
         failure: function (result, request) {
@@ -499,7 +498,7 @@ DataExport.prototype.getExportParams = function (gridPanel, selectedFiles) {
      * @param el
      * @private
      */
-    var _get_concept_path = function (tr, data) {
+    var _get_concept_path = function (tr) {
         var  _concept_path_arr = [];
         var _el = Ext.get(tr); // convert tr to element
 
@@ -508,20 +507,34 @@ DataExport.prototype.getExportParams = function (gridPanel, selectedFiles) {
             var _concept_path = (_el.dom.childNodes[i]).getAttribute("conceptid");
             var _filterType = (_el.dom.childNodes[i]).getAttribute("conceptfiltertype");
             var _filterVal = (_el.dom.childNodes[i]).getAttribute("conceptfiltervalues");
-            //_concept_path_arr.push(_concept_path);
 
-            // create selector object
-            _concept_path_arr.push({
-                id:_concept_path,
-                type:_filterType,
-                names: _filterVal.split(',')
-            });
-            console.log(_filterType);
-            console.log(_filterVal);
+            if (_filterType === 'chromosome_segment') {
+
+                var _filterVals = JSON.parse(_filterVal);
+
+                jQuery.each(_filterVals, function (k, v) {
+                    _concept_path_arr.push({
+                        id:_concept_path,
+                        type:_filterType,
+                        chromosome: v.chromosome,
+                        start: v.start,
+                        end: v.end
+                    });
+                });
+
+            } else {
+                // create selector object
+                _concept_path_arr.push({
+                    id:_concept_path,
+                    type:_filterType,
+                    names: _filterVal.split(',')
+                });
+            }
+
         }
         return _concept_path_arr;
 
-    }; //
+    };
 
 
     if (gridPanel.records.length > 0) {

@@ -13,9 +13,8 @@ HighDimDialog = (function() {
         var _tokenizeChrPosition = function(strChrPos) {
             var _strChrPos = strChrPos.split(':'),
                 _pos = _strChrPos[1].split('-');
-
             return {
-                'chr': _strChrPos[0],
+                'chromosome': _strChrPos[0],
                 'start': _pos[0],
                 'end': _pos[1]
             }
@@ -33,7 +32,7 @@ HighDimDialog = (function() {
             });
             _filter.data.pop();
             _filter.inString = _filter.data.toString();
-        } else if (_filter.type === 'chromosome_segment') {
+        } else if (_filter.type === 'chromosome_segment' ) {
             _filterKeyword.split(_separator).forEach(function(chrPos) {
                 _filter.data.push(_tokenizeChrPosition(chrPos.trim()));
             });
@@ -69,9 +68,7 @@ HighDimDialog = (function() {
                     text : 'Apply',
                     click : function () {
                         _dialog.dropTarget.filter = _getFilter();
-                        console.log('(_dialog.dropTarget', _dialog.dropTarget);
                         _dialog.dropTarget.recordData.subset1.each(function (subset) {
-                            console.log('i am here');
                             subset.jajal =  _dialog.dropTarget.filter ;
                         });
                         _dialog.dialog("close");
@@ -109,7 +106,6 @@ HighDimDialog = (function() {
                 _strFilterValue = filter.data.toString();
             } else {
                 _strFilterValue = JSON.stringify(filter.data);
-                console.log('   array of obj',  _strFilterValue);
             }
             li.setAttribute('conceptfiltertype', filter.type);
             li.setAttribute('conceptfiltervalues', _strFilterValue);
@@ -196,22 +192,17 @@ HighDimDialog = (function() {
         };
 
         var _autocomplete = function(type,request,response) {
-            console.log(type);
             if (typeof type === "undefined") {type=_DEFAULT_TYPE;}
             var search = extractLast(request.term)
-            console.log('_geneAutocomplete: type = ' + type + ', search = ' + search);
             jQuery.get(pageInfo.basePath + "/filterAutocomplete/autocomplete/" + type, {
                 search: search
             }, function (data) {
-                console.log('_geneAutocomplete: data = ' + data);
                 response(data);
             });
         };
 
         var _typedAutocomplete = function(type) {
-            console.log(type);
             if (typeof type === "undefined") {type=_DEFAULT_TYPE;}
-            console.log('creating autocompleter for type ' + type);
             return function(request,response) {
                 return _autocomplete(type,request,response);
             }
@@ -242,7 +233,6 @@ HighDimDialog = (function() {
                         return false;
                     },
                     select: function( event, ui ) {
-
                         var terms = split( this.value );
                         // remove the current input
                         terms.pop();
