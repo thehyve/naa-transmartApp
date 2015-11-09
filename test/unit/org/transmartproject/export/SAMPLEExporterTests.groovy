@@ -59,13 +59,12 @@ class SAMPLEExporterTests {
     
     @Test
     void "test whether a basic tabular result is exported properly"() {
-        tabularResult = createMockSnpLzTabularResult()
+        generateSubjectData()
         
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()
         
         play {
-            List<AssayColumn> assays = tabularResult.getIndicesList()
-            exporter.export( assays, outputStream )
+            exporter.export( sampleAssays, outputStream )
             
             // Assert we have at least some text, in UTF-8 encoding
             String output = outputStream.toString("UTF-8")

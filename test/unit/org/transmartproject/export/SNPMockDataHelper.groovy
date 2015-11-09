@@ -30,8 +30,10 @@ class SNPMockDataHelper extends MockTabularResultHelper {
         ]
     }
     
-    TabularResult createMockSnpLzTabularResult() {
-        generateSubjectData()
+    TabularResult createMockSnpLzTabularResult(String projection) {
+		if (!this.subjectData) {
+			generateSubjectData()
+		}
         
         this.snpProperties = [
             "row1": [ chromosome: 1, position: 100, snpName: "rs0010", a1: 'A', a2: 'T'],
@@ -91,7 +93,7 @@ class SNPMockDataHelper extends MockTabularResultHelper {
         ]
         
         def iterator = cellData.collect { String label, List data ->
-            createSnpLzRowForAssays(sampleAssays, data, snpProperties[label])
+            createSnpLzRowForAssays(sampleAssays, data, snpProperties[label], projection)
         }.iterator()
                 
         TabularResult highDimResult = mock TabularResult
@@ -104,39 +106,58 @@ class SNPMockDataHelper extends MockTabularResultHelper {
     
     DataRow createSnpLzRowForAssays(List<AssayColumn> assays,
             List data,
-            Map<String,Object> snpProperties) {
+            Map<String,Object> snpProperties,
+			String projection) {
         createMockSnpLzRow(
                 dot(assays, data, {a, b -> [ a, b ]})
                          .collectEntries(Closure.IDENTITY),
-                snpProperties)
+                snpProperties,
+				projection)
     }
             
     private DataRow<AssayColumn, Object> createMockSnpLzRow(Map<AssayColumn, Object> data,
-            Map<String,Object> snpProperties) {
-            
+            Map<String,Object> snpProperties, String projection) {
+
         def cells = data.collect { assay, celldata ->
-            Object cell = mock(Object)
-            cell.probabilityA1A1.returns((double)celldata.probabilityA1A1).stub()
-            cell.probabilityA1A2.returns((double)celldata.probabilityA1A2).stub()
-            cell.probabilityA2A2.returns((double)celldata.probabilityA2A2).stub()
-            cell.likelyAllele1.returns((char)celldata.likelyAllele1).stub()
-            cell.likelyAllele2.returns((char)celldata.likelyAllele2).stub()
-            cell.minorAlleleDose.returns((double)celldata.minorAlleleDose).stub()
-            cell
+            switch(projection) {
+                case "all_data":
+                    Object cell = mock(Object)
+                    cell.probabilityA1A1.returns((double)celldata.probabilityA1A1).stub()
+                    cell.probabilityA1A2.returns((double)celldata.probabilityA1A2).stub()
+                    cell.probabilityA2A2.returns((double)celldata.probabilityA2A2).stub()
+                    cell.likelyAllele1.returns((char)celldata.likelyAllele1).stub()
+                    cell.likelyAllele2.returns((char)celldata.likelyAllele2).stub()
+                    cell.likelyGenotype.returns("${celldata.likelyAllele1}_${celldata.likelyAllele2}").stub()
+                    cell.minorAlleleDose.returns((double)celldata.minorAlleleDose).stub()
+                    return cell
+                case "alleles":
+                    String likelyGenotype = "${celldata.likelyAllele1}_${celldata.likelyAllele2}"
+                    return likelyGenotype
+                case "probabilities":
+                    double[] probabilities = new double[3]
+                    probabilities[0] = (double)celldata.probabilityA1A1
+                    probabilities[1] = (double)celldata.probabilityA1A2
+                    probabilities[2] = (double)celldata.probabilityA2A2
+                    return probabilities
+                case "dose":
+                    return (double)celldata.minorAlleleDose
+                default:
+                    throw new RuntimeException("Unsupported projection type: '${projection}'.");
+            }
         }
-        
+
         DataRow row = mock(DataRow)
         row.snpName.returns(snpProperties.snpName).stub()
         row.chromosome.returns(snpProperties.chromosome).stub()
         row.position.returns(snpProperties.position).stub()
         row.a1.returns(snpProperties.a1).stub()
         row.a2.returns(snpProperties.a2).stub()
-        
+
         cells.eachWithIndex { cell, i ->
             row.getAtPatientIndex(i).returns(cell).stub()
         }
         row.iterator().returns(cells.iterator()).stub()
-        
+
         row
     }
 

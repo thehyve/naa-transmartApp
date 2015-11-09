@@ -35,9 +35,12 @@ class GENExporter implements HighDimTabularResultExporter {
         dataType == "snp_lz"
     }
 
+    /**
+     * Uses the {@link org.transmartproject.db.dataquery.highdim.snp_lz.SnpLzProbabilitiesProjection} projection.
+     */
     @Override
     public String getProjection() {
-        Projection.ALL_DATA_PROJECTION
+        "probabilities"
     }
 
     @Override
@@ -51,7 +54,7 @@ class GENExporter implements HighDimTabularResultExporter {
     }
 
     @Override
-    public void export(TabularResult /*<AssayColumn, SnpLzRow>*/ data, Projection projection,
+    public void export(TabularResult data, Projection projection,
             OutputStream outputStream) {
         export( data, projection, outputStream, { false } )
     }
@@ -59,7 +62,7 @@ class GENExporter implements HighDimTabularResultExporter {
     static final int default_distance = 0 // Genetic distance (morgans)
             
     @Override
-    public void export(TabularResult /*<AssayColumn, SnpLzRow>*/ data, Projection projection,
+    public void export(TabularResult data, Projection projection,
             OutputStream outputStream, Closure isCancelled) {
         log.info "Started exporting to ${format}..."
         def startTime = System.currentTimeMillis()
@@ -89,13 +92,13 @@ class GENExporter implements HighDimTabularResultExporter {
                 out << ' '
                 out << row.a2
                 
-                for (/*SnpLzCell*/ Object cell: row) { 
+                for (double[] cell: row) {
                     out << ' '
-                    out << cell.probabilityA1A1
+                    out << cell[0] // probabilityA1A1
                     out << ' '
-                    out << cell.probabilityA1A2
+                    out << cell[1] // probabilityA1A2
                     out << ' '
-                    out << cell.probabilityA2A2
+                    out << cell[2] // probabilityA2A2
                 }
                 out << '\n'
                 i++
