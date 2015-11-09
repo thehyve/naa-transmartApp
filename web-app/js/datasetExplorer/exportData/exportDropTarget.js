@@ -23,37 +23,6 @@ ExportDropTarget = (function() {
         return _dropClinicalToHD || _dropHDToClinical;
     };
 
-    /**
-     *
-     * @param data
-     * @param gridRow
-     * @returns {boolean}
-     * @private
-     */
-    var _isCorrectHD = function (data, gridRow) {
-        //console.log(data)
-        //console.log(gridRow)
-        var _keys = Object.keys(data);
-        //console.log( _keys);
-        // return _keys.indexOf('snp_lz') < 0 ? false : true;
-        return _keys[0] === gridRow.dataTypeId;
-    };
-
-
-    /**
-     * Get high dimensional node info.
-     * @param data
-     * @returns {{}}
-     * @private
-     */
-    var _getHDNodeInfo = function( data) {
-        return jQuery.ajax({
-            url : pageInfo.basePath + "/HighDimension/nodeDetails",
-            method : 'POST',
-            data : 'conceptKeys=' + encodeURIComponent(data.node.attributes.id)
-        });
-    };
-
     exportDropTarget.notifyDropF = function (source, e, data) {
 
         var _dropTarget = this; // this is the drop target
@@ -75,33 +44,6 @@ ExportDropTarget = (function() {
             exportDropTarget.dialog.dropTarget = _dropTarget;
             exportDropTarget.dialog.dialog("open");
 
-            jQuery('#filterForm').hide();
-            jQuery('#loadingPleaseWait').show();""
-            jQuery('#dialog-apply-btn').button('disable');
-            jQuery('#dialog-cancel-btn').button('disable');
-            jQuery('#filterKeyword').val('');
-
-            var _el = jQuery('#filterType');
-            _dialogService.createAutocompleteInput(_el);
-
-            _getHDNodeInfo(data)
-                .done(function (d) {
-                    console.log('Done with response ', d);
-                    _dropTarget.dropData.details = d;
-
-                    if (_isCorrectHD(d, _dropTarget.recordData)) { // TODO refactor to match dropped & drop zone
-                        jQuery('#filterForm').show();
-                        jQuery('#loadingPleaseWait').hide();
-                        jQuery('#dialog-apply-btn').button('enable');
-                        jQuery('#dialog-cancel-btn').button('enable');
-                    } else {
-                        exportDropTarget.dialog.dialog("close");
-                    }
-                })
-                .fail(function (msg) {
-                    console.error('Something wrong when checking the node ...', msg);
-                    exportDropTarget.dialog.dialog("close");
-                });
         } else {
             _dialogService.dropOntoVariableSelection(data, _dropTarget.el);
         }
