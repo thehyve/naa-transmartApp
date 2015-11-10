@@ -1,13 +1,9 @@
-HighDimDialog = (function() {
+HighDimensionDialogService = (function(autocompleteInp) {
 
-    // init
-    var highDimDialog = {
-        filterType: {},
-        filterKeyword: {}
-    };
+    var _autocompleteInp = autocompleteInp;
 
     /**
-     * get filter type & keywords selected by user
+     * Get filter type & keywords selected by user
      * @returns {{type: *, data: Array}}
      * @private
      */
@@ -25,23 +21,110 @@ HighDimDialog = (function() {
         };
 
         var _filter = {
-                type: filterType,
-                data: [],
-                inString: ''
-            }; // init filter obj
+            type: filterType,
+            data: []
+        }; // init filter obj
 
         if (filterType === 'genes' || filterType === 'snps') {
             filterKeyword.split(_separator).forEach(function(d) {
                 _filter.data.push(d.trim());
             });
             _filter.data.pop();
-            _filter.inString = _filter.data.toString();
         } else if (filterType === 'chromosome_segment' ) {
             filterKeyword.split(_separator).forEach(function(chrPos) {
                 _filter.data.push(_tokenizeChrPosition(chrPos.trim()));
             });
         }
+
         return _filter;
+    };
+
+    /**
+     * Check if dropped data has same type as the row data
+     * @param data
+     * @param gridRow
+     * @returns {boolean}
+     * @private
+     */
+    var _isCorrectHD = function (data, gridRow) {
+        var _keys = Object.keys(data);
+        console.log(_keys);
+        return _keys[0] === gridRow.dataTypeId;
+    };
+
+    /**
+     * Define some form elements
+     * @param obj
+     * @private
+     */
+    var _defineFormElements = function (obj) {
+        obj.filterForm = jQuery('#filterForm');
+        obj.filterType =  jQuery('#filterType');
+        obj.filterKeyword = jQuery('#filterKeyword');
+        obj.loadingEl = jQuery('#loadingPleaseWait');
+        obj.applyBtn = jQuery('#dialog-apply-btn');
+        obj.cancelBtn = jQuery('#dialog-cancel-btn');
+    };
+
+
+    /**
+     * Initialize service object
+     * @type {{filterType: {}, filterKeyword: {}, dialogEl, uiComponent: {autoOpen: boolean, width: number, modal: boolean, buttons: *[]}}}
+     */
+    var service =
+    {
+        filterType: {},
+        filterKeyword: {},
+        dialogEl: jQuery('#dialog-form'),
+        uiComponent : {
+            autoOpen: false,
+            width: 350,
+            modal: true,
+            buttons: [
+                {
+                    id : 'dialog-apply-btn',
+                    text : 'Apply',
+                    click : function () {
+                        var _f = _getFilter(
+                            service.filterType.val(),
+                            service.filterKeyword.val()
+                        );
+                        console.log(_f);
+                        service.dropTarget.filter = _f;
+                        jQuery('#dialog-form').dialog("close");
+                    }
+                },
+                {
+                    id : 'dialog-cancel-btn',
+                    text : 'Cancel',
+                    click : function () {
+                        jQuery('#dialog-form').dialog("close");
+                    }
+                }
+            ]
+        }
+    };
+
+    /**
+     * void create auto complete input depends on the filter
+     */
+    service.createAutocompleteInput = function () {
+        if (service.filterType.val() === 'chromosome_segment') {
+            service.filterKeyword.autocomplete('disable');
+        } else {
+            var _uri = pageInfo.basePath + "/filterAutocomplete/autocomplete/" + service.filterType.val();
+
+            if (service.filterKeyword.is('.ui-autocomplete-input')){
+                _autocompleteInp.uri = _uri;
+                // UI draggable is loaded
+                service.filterKeyword.autocomplete('enable');
+            } else {
+                _autocompleteInp.create(
+                    service.filterKeyword.attr('id'),
+                    _uri
+                );
+            }
+        }
     };
 
     /**
@@ -50,10 +133,11 @@ HighDimDialog = (function() {
      * @param el
      * @private
      */
-    highDimDialog.dropOntoVariableSelection = function (data, el, filter) {
-        console.log(filter);
-        data.node.attributes.oktousevalues = "N";
-        highDimDialog.createPanelItemNew(el, convertNodeToConcept(data.node), filter);
+    service.dropOntoVariableSelection = function (data, el, filter) {
+        if (Object.keys(data.details).indexOf(data.dataTypeId) >= 0 ) {
+            data.node.attributes.oktousevalues = "N";
+            service.createPanelItemNew(el, convertNodeToConcept(data.node), filter);
+        }
     };
 
     /**
@@ -61,113 +145,60 @@ HighDimDialog = (function() {
      * @param id
      * @private
      */
-    highDimDialog.createIdentifierDialog = function (id) {
+    service.createIdentifierDialog = function (dropzone) {
 
-        /**
-         * Get high dimensional node info.
-         * @param data
-         * @returns {{}}
-         * @private
-         */
-        var _getHDNodeInfo = function( data) {
-            return jQuery.ajax({
+        var _s = service;
+
+        _s.dropTarget = dropzone;
+
+        // assign open dialog handler
+        _s.uiComponent.open = function () {
+
+            _defineFormElements(_s);
+
+            _s.filterForm.hide();
+            _s.loadingEl.show();
+            _s.applyBtn.button('disable');
+            _s.cancelBtn.button('disable');
+            _s.filterKeyword.val('');
+
+            jQuery.ajax({
                 url : pageInfo.basePath + "/HighDimension/nodeDetails",
                 method : 'POST',
-                data : 'conceptKeys=' + encodeURIComponent(data.node.attributes.id)
-            });
+                data : 'conceptKeys=' + encodeURIComponent(dropzone.dropData.node.attributes.id)
+            })
+                .done(function (d) {
+                    dropzone.dropData.details = d;
+                    if (_isCorrectHD(d, dropzone.recordData)) {
+                        _s.filterForm.show();
+                        _s.loadingEl.hide();
+                        _s.applyBtn.button('enable');
+                        _s.cancelBtn.button('enable');
+                        _s.createAutocompleteInput();
+                    } else {
+                        _s.dialogEl.dialog("close");
+                    }
+                })
+                .fail(function (msg) {
+                    console.error('Something wrong when checking the node ...', msg);
+                    _s.dialogEl.dialog("close");
+                });
         };
 
-        /**
-         *
-         * @param data
-         * @param gridRow
-         * @returns {boolean}
-         * @private
-         */
-        var _isCorrectHD = function (data, gridRow) {
-            //console.log(data)
-            //console.log(gridRow)
-            var _keys = Object.keys(data);
-            //console.log( _keys);
-            // return _keys.indexOf('snp_lz') < 0 ? false : true;
-            return _keys[0] === gridRow.dataTypeId;
-        };
-
-        var _dialog =  jQuery(id).dialog({
-            autoOpen: false,
-            width: 350,
-            modal: true,
-            open : function () {
-
-                var _this = this;
-
-                highDimDialog.filterType =  jQuery('#filterType');
-                highDimDialog.filterKeyword = jQuery('#filterKeyword');
-
-                jQuery('#filterForm').hide();
-                jQuery('#loadingPleaseWait').show();
-                jQuery('#dialog-apply-btn').button('disable');
-                jQuery('#dialog-cancel-btn').button('disable');
-                jQuery('#filterKeyword').val('');
-
-                _getHDNodeInfo( _dialog.dropTarget.dropData)
-                    .done(function (d) {
-                        console.log('Done with response ', d);
-                        _dialog.dropTarget.dropData.details = d;
-
-                        if (_isCorrectHD(d, _dialog.dropTarget.recordData)) { // TODO refactor to match dropped & drop zone
-                            jQuery('#filterForm').show();
-                            jQuery('#loadingPleaseWait').hide();
-                            jQuery('#dialog-apply-btn').button('enable');
-                            jQuery('#dialog-cancel-btn').button('enable');
-                            highDimDialog.createAutocompleteInput();
-                        } else {
-                            _this.dialog("close");
-                        }
-                    })
-                    .fail(function (msg) {
-                        console.error('Something wrong when checking the node ...', msg);
-                        _this.dialog("close");
-                    });
-            },
-            buttons: [
-                {
-                    id : 'dialog-apply-btn',
-                    text : 'Apply',
-                    click : function () {
-                        _dialog.dropTarget.filter = _getFilter(
-                            highDimDialog.filterType.val(),
-                            highDimDialog.filterKeyword.val()
-                        );
-
-                        _dialog.dropTarget.recordData.subset1.each(function (subset) {
-                            subset.jajal =  _dialog.dropTarget.filter ;
-                        });
-                        _dialog.dialog("close");
-                    }
-                },
-                {
-                    id : 'dialog-cancel-btn',
-                    text : 'Cancel',
-                    click : function () {
-                        _dialog.dialog( "close" );
-                    }
-                }
-            ],
-            close: function() {
-                var _dt = _dialog.dropTarget;
-                if (Object.keys(_dt.dropData.details).indexOf(_dt.recordData.dataTypeId) >= 0 ) {
-                    highDimDialog.dropOntoVariableSelection(_dt.dropData, _dt.el, _dt.filter);
-                }
+        // assign close dialog handler
+        _s.uiComponent.close = function () {
+            if (Object.keys(dropzone.dropData.details).indexOf(dropzone.recordData.dataTypeId) >= 0 ) {
+                dropzone.dropData.node.attributes.oktousevalues = "N";
+                _s.createPanelItemNew(dropzone.el, convertNodeToConcept(dropzone.dropData.node), dropzone.filter);
             }
-        });
+        };
 
-        return _dialog;
+        // return dialog
+       return jQuery('#dialog-form').dialog(_s.uiComponent);
     };
 
 
-    highDimDialog.createPanelItemNew = function (panel, concept, filter) {
-
+    service.createPanelItemNew = function (panel, concept, filter) {
         var li = document.createElement('div'); // was li
         var _strFilterValue = '';
 
@@ -253,89 +284,7 @@ HighDimDialog = (function() {
         return li;
     };
 
-    highDimDialog.createAutocompleteInput = function (el) {
+    return service;
 
-        var _DEFAULT_TYPE = 'snps';
-
-        var split = function ( val ) {
-            return val.split( /,\s*/ );
-        };
-
-        var extractLast = function ( term ) {
-            return split( term ).pop();
-        };
-
-
-        var _createAutocomplete = function (htmlId) {
-                // Convert input text into autocomplete when user select filter type gene
-                jQuery(htmlId)
-                    //don't navigate away from the field on tab when selecting an item
-                    .bind( "keydown", function( event ) {
-                        if ( event.keyCode === jQuery.ui.keyCode.TAB &&
-                            jQuery( this ).autocomplete( "instance" ).menu.active ) {
-                            event.preventDefault();
-                        }
-                    })
-                    .autocomplete({
-                        source : function (req, res) {
-                            var _type = highDimDialog.filterType.val();
-                            if (typeof highDimDialog.filterType.val() === "undefined") {
-                                _type=_DEFAULT_TYPE;
-                            }
-                            var search = extractLast(req.term);
-                            jQuery.get(pageInfo.basePath + "/filterAutocomplete/autocomplete/" + _type, {
-                                search: search
-                            }, function (data) {
-                                res(data);
-                            });
-                        },
-
-                        minLength: 2,
-                        search: function() {
-                            // custom minLength
-                            var term = extractLast( this.value );
-                            if ( term.length < 2 ) {
-                                return false;
-                            }
-                        },
-                        focus: function() {
-                            // prevent value inserted on focus
-                            return false;
-                        },
-                        select: function( event, ui ) {
-                            var terms = split( this.value );
-                            // remove the current input
-                            terms.pop();
-                            // add the selected item
-                            terms.push( ui.item.value );
-                            // add placeholder to get the comma-and-space at the end
-                            terms.push( "" );
-                            this.value = terms.join( ", " );
-                            return false;
-                        }
-                    })
-                    .data('autocomplete')._renderItem = function(ul, item) {
-                    return jQuery('<li></li>')
-                        .data('item.autocomplete', item)
-                        .append('<a style="color: #0000FF"> ' + item.label + '</a>')
-                        .appendTo(ul);
-                };
-        };
-
-        if (highDimDialog.filterType.val() === 'chromosome_segment') {
-            highDimDialog.filterKeyword.autocomplete('disable');
-        } else {
-            if (highDimDialog.filterKeyword.is('.ui-autocomplete-input')){
-                // UI draggable is loaded
-                highDimDialog.filterKeyword.autocomplete('enable');
-            } else {
-                _createAutocomplete('#filterKeyword');
-            }
-
-        }
-
-    };
-
-    return highDimDialog;
-})();
+})(AutocompleteInput);
 

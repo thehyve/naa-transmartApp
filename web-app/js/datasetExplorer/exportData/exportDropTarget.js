@@ -17,9 +17,6 @@ ExportDropTarget = (function() {
         var _visualAttr = data.node.attributes.visualattributes;
         var _dropHDToClinical =  _visualAttr.indexOf('HIGH_DIMENSIONAL') >= 0 && gridRow.dataTypeId === 'CLINICAL';
         var _dropClinicalToHD =  _visualAttr.indexOf('HIGH_DIMENSIONAL') < 0 && gridRow.dataTypeId !== 'CLINICAL';
-        //console.log(_visualAttr);
-        //console.log( gridRow.dataTypeId);
-        //console.log(_dropClinicalToHD);
         return _dropClinicalToHD || _dropHDToClinical;
     };
 
@@ -28,7 +25,7 @@ ExportDropTarget = (function() {
         var _dropTarget = this; // this is the drop target
 
         // create dialog box instance in the initialisation
-        exportDropTarget.dialog = _dialogService.createIdentifierDialog('#dialog-form');
+        exportDropTarget.dialog = _dialogService.createIdentifierDialog( _dropTarget);
 
         // 1st checking
         if (_isWrongNode(_dropTarget.recordData, data)) {
@@ -93,4 +90,4 @@ ExportDropTarget = (function() {
     return exportDropTarget;
 })();
 
-ExportDropTarget.init(HighDimDialog);
+ExportDropTarget.init(HighDimensionDialogService);
