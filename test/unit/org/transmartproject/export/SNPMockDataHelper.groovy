@@ -134,10 +134,10 @@ class SNPMockDataHelper extends MockTabularResultHelper {
                     String likelyGenotype = "${celldata.likelyAllele1}_${celldata.likelyAllele2}"
                     return likelyGenotype
                 case "probabilities":
-                    double[] probabilities = new double[3]
-                    probabilities[0] = (double)celldata.probabilityA1A1
-                    probabilities[1] = (double)celldata.probabilityA1A2
-                    probabilities[2] = (double)celldata.probabilityA2A2
+                    Object probabilities = mock(Object)
+                    probabilities.probabilityA1A1.returns((double)celldata.probabilityA1A1).stub()
+                    probabilities.probabilityA1A2.returns((double)celldata.probabilityA1A2).stub()
+                    probabilities.probabilityA2A2.returns((double)celldata.probabilityA2A2).stub()
                     return probabilities
                 case "dose":
                     return (double)celldata.minorAlleleDose

@@ -92,13 +92,13 @@ class GENExporter implements HighDimTabularResultExporter {
                 out << ' '
                 out << row.a2
                 
-                for (double[] cell: row) {
+                for (/*SnpLzProbabilitiesProjection*/ Object cell: row) {
                     out << ' '
-                    out << cell[0] // probabilityA1A1
+                    out << cell.probabilityA1A1
                     out << ' '
-                    out << cell[1] // probabilityA1A2
+                    out << cell.probabilityA1A2
                     out << ' '
-                    out << cell[2] // probabilityA2A2
+                    out << cell.probabilityA2A2
                 }
                 out << '\n'
                 i++
