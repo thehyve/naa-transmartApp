@@ -2606,31 +2606,40 @@ function buildAnalysis(nodein) {
         return;
     }
 
-    resultsTabPanel.body.mask("Running analysis...", 'x-mask-loading');
+    // FIXME: use filter dialog with autocomplete
+    console.log('Opening filter dialog...');
+    Ext.MessageBox.prompt('SNP filter', 'Enter SNP names, comma separated<br />(e.g., \'rs12890222, rs12890225\'):', function(el, snpNames) {
+    	snpNames = jQuery.filter(jQuery.map(snpNames.split(","), function(s) { return s.trim(); }), function(s) { return s; });
+    	var filters = (snpNames) ? [{type: 'snps', names: snpNames}] : null;
+    	console.log('Filters: ' + JSON.stringify(filters));
 
-    Ext.Ajax.request(
-            {
-                url : pageInfo.basePath+"/chart/analysis",
-                method : 'POST',
-                timeout: '600000',
-                params :  Ext.urlEncode(
-                        {
-                            charttype : "analysis",
-                            concept_key : node.attributes.id,
-                            result_instance_id1 : GLOBAL.CurrentSubsetIDs[1],
-                            result_instance_id2 : GLOBAL.CurrentSubsetIDs[2]
-                        }
-                ), // or a URL encoded string
-            success: function (result, request) {
-                buildAnalysisComplete(result);
-                resultsTabPanel.body.unmask();
-            },
-            failure: function (result, request) {
-				buildAnalysisComplete(result);
-            }
-            }
-    );
-    getAnalysisGridData(node.attributes.id);
+        resultsTabPanel.body.mask("Running analysis...", 'x-mask-loading');
+
+	    Ext.Ajax.request(
+	            {
+	                url : pageInfo.basePath+"/chart/analysis",
+	                method : 'POST',
+	                timeout: '600000',
+	                params :  Ext.urlEncode(
+	                        {
+	                            charttype : "analysis",
+	                            concept_key : node.attributes.id,
+	                            result_instance_id1 : GLOBAL.CurrentSubsetIDs[1],
+	                            result_instance_id2 : GLOBAL.CurrentSubsetIDs[2],
+	                            filters : JSON.stringify(filters)
+	                        }
+	                ), // or a URL encoded string
+	            success: function (result, request) {
+	                buildAnalysisComplete(result);
+	                resultsTabPanel.body.unmask();
+	            },
+	            failure: function (result, request) {
+					buildAnalysisComplete(result);
+	            }
+	            }
+	    );
+	    getAnalysisGridData(node.attributes.id, filters);
+    });
 }
 
 function buildAnalysisComplete(result) {
@@ -3608,7 +3617,7 @@ function storeLoaded() {
     analysisGridPanel.doLayout();
 }
 
-function getAnalysisGridData(concept_key) {
+function getAnalysisGridData(concept_key, filters) {
     gridstore = new Ext.data.JsonStore(
             {
                 url : pageInfo.basePath+'/chart/analysisGrid',
@@ -3622,7 +3631,8 @@ function getAnalysisGridData(concept_key) {
                 charttype : "analysisgrid",
                 concept_key : concept_key,
                 result_instance_id1 : GLOBAL.CurrentSubsetIDs[1],
-                result_instance_id2 : GLOBAL.CurrentSubsetIDs[2]
+                result_instance_id2 : GLOBAL.CurrentSubsetIDs[2],
+                filters : JSON.stringify(filters)
             }
     );
     // or a URL encoded string */
