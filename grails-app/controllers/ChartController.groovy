@@ -187,10 +187,9 @@ class ChartController {
         // We add the key to our cache set
         chartService.keyCache.add(concept)
 
-        // FIXME: get filters from subsets data
-        def filters = [
-            [names:['rs12890222'], type: 'snps']
-        ]
+        // FIXME: get filters from concept data
+        def filters = params.filters ? JSON.parse(params.filters) : null
+        log.info "analysis: filters = ${filters} (${filters.class})"
 
         // Collect concept information
         concepts[concept] = chartService.getConceptAnalysis(
@@ -230,6 +229,10 @@ class ChartController {
         String concept_key = params.concept_key;
         def result_instance_id1 = params.result_instance_id1;
         def result_instance_id2 = params.result_instance_id2;
+
+        // FIXME: get filters from concept data
+        def filters = params.filters ? JSON.parse(params.filters) : null
+        log.info "analysis: filters = ${filters}"
 
         /*which subsets are present? */
         boolean s1 = (result_instance_id1 == "" || result_instance_id1 == null) ? false : true;
@@ -281,10 +284,6 @@ class ChartController {
                 if (s1) i2b2HelperService.addConceptDataToTable(table, ck, result_instance_id1);
                 if (s2) i2b2HelperService.addConceptDataToTable(table, ck, result_instance_id2);
 
-                // FIXME: get filters from subsets data
-                def filters = [
-                    [names:['rs12890222'], type: 'snps']
-                ]
                 chartService.addHighDimDataToTable(table, ck, chartService.getSubsetsFromRequest(params), filters)
             }
         }

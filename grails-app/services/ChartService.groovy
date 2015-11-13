@@ -191,7 +191,7 @@ class ChartService {
             }
             def rowCount = rowdata.max { it.value.size() }.value.size()
             log.info "Row count: ${rowCount}"
-            (0..rowCount-1).each { i ->
+            (0..(rowCount > 0 ? rowCount-1 : 0)).each { i ->
                 def title = ''
                 def rownames = []
                 def colnames = []
