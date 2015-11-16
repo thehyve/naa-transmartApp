@@ -1,3 +1,6 @@
+import java.awt.Color
+import java.awt.Rectangle
+
 import org.apache.commons.math.stat.inference.TestUtils
 import org.jfree.chart.ChartFactory
 import org.jfree.chart.ChartRenderingInfo
@@ -18,8 +21,13 @@ import org.jfree.data.statistics.DefaultBoxAndWhiskerCategoryDataset
 import org.jfree.data.statistics.HistogramDataset
 import org.jfree.graphics2d.svg.SVGGraphics2D
 import org.jfree.ui.RectangleInsets
+import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
+import org.transmartproject.db.dataquery.highdim.snp_lz.SnpLzRow
 
-import java.awt.*
+import com.recomdata.export.ExportColumn
+import com.recomdata.export.ExportRow
+import com.recomdata.export.ExportRowNew
+import com.recomdata.export.ExportTableNew
 
 /**
  * Created by Florian Guitton <f.guitton@imperial.ac.uk> on 17/12/2014.
@@ -27,6 +35,8 @@ import java.awt.*
 class ChartService {
 
     def i2b2HelperService
+    def exportMetadataService
+    def highDimRowDataService
 
     def public keyCache = []
 
@@ -118,12 +128,107 @@ class ChartService {
         concepts
     }
 
+    def addHighDimDataToTable(ExportTableNew tablein, String concept, subsets, List<Map> filters) {
+        log.info "addHighDimDataToTable"
+
+        def metadata = exportMetadataService.getHighDimMetaData(subsets[1]?.instance as Long, subsets[2]?.instance as Long)
+        metadata.each { data ->
+            log.info "addHighDimDataToTable: dataType = ${data.datatype}"
+            def rowdata = [:]
+            subsets.each { k, v ->
+                if (v.instance) {
+                    def assayConstraints = [(AssayConstraint.PATIENT_SET_CONSTRAINT):
+                        [[result_instance_id: v.instance]]]
+                    Map subjectData = highDimRowDataService.getDataByPatient(concept, data.datatype.dataTypeName, assayConstraints, filters)
+                    List colnames = subjectData.colnames
+                    List subjects = subjectData.subjects
+                    Map rowData = subjectData.rowData
+                    colnames.each { colname ->
+                        if (tablein.getColumn(colname) != null) {
+                            log.warn "Column '${colname}' already exists."
+                        } else {
+                            log.debug "Adding column '${colname}'"
+                            tablein.putColumn(colname, new ExportColumn(colname, colname, "", "string"))
+                        }
+                    }
+                    rowData.each { id, values ->
+                        def subjectId = id as String
+                        if (!tablein.containsRow(subjectId)) {
+                            log.warn "Row with subject id '${subjectId}' does not exists."
+                        } else {
+                            log.debug "Adding values for subject '${subjectId}'"
+                            ExportRowNew row = tablein.getRow(subjectId)
+                            values.eachWithIndex { value, i ->
+                                row.put(colnames[i], value)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 
+     * @param subsets
+     * @param concept
+     * @param chartSize
+     * @param filters
+     * @return
+     */
+    List<Map> getHighDimAnalysis(subsets, concept, chartSize, List<Map> filters) {
+        List<Map> result = []
+        def metadata = exportMetadataService.getHighDimMetaData(subsets[1]?.instance as Long, subsets[2]?.instance as Long)
+        metadata.each { data ->
+            log.info "getConceptAnalysis: dataType = ${data.datatype}"
+            def rowdata = [:]
+            subsets.each { k, v ->
+                if (v.instance) {
+                    def assayConstraints = [(AssayConstraint.PATIENT_SET_CONSTRAINT):
+                        [[result_instance_id: v.instance]]]
+                    rowdata[k] = highDimRowDataService.getRowData(concept, data.datatype.dataTypeName, assayConstraints, filters)
+                }
+            }
+            def rowCount = rowdata.max { it.value.size() }.value.size()
+            log.info "Row count: ${rowCount}"
+            (0..(rowCount > 0 ? rowCount-1 : 0)).each { i ->
+                def title = ''
+                def rownames = []
+                def colnames = []
+                def bardata = [:]
+                rowdata.each { k, v ->
+                    if (i < v.size()) {
+                        // FIXME: too SNP specific, refactor
+                        SnpLzRow row = v[i] as SnpLzRow
+                        title = row.snpName
+                        colnames.add("Subset ${k}")
+                        rownames = ["${row.a1}_${row.a1}", "${row.a1}_${row.a2}", "${row.a2}_${row.a2}"]
+                        bardata[k] =
+                            [("${row.a1}_${row.a1}"): row.a1a1Count,
+                             ("${row.a1}_${row.a2}"): row.a1a2Count,
+                             ("${row.a2}_${row.a2}"): row.a2a2Count]
+                    }
+                }
+                log.info "Title: ${title}, plot data: ${bardata}"
+                log.info "Column names: ${colnames}"
+                result << [
+                    plot: getSVGChart(type: 'bar', title: "$title", data: bardata, size: chartSize),
+                    rownames: rownames,
+                    colnames: colnames,
+                    data: bardata
+                ]
+            }
+        }
+        result
+    }
+
     def getConceptAnalysis (Map args) {
 
         // Retrieving function parameters
         def subsets = args.subsets ?: null
         def concept = args.concept ?: null
         def chartSize = args.chartSize ?: null
+        def filters = args.filters ?: null
 
         // We create our result holder and initiate it from subsets
         def result = [:]
@@ -136,6 +241,8 @@ class ChartService {
         // We retrieve the basics
         result.commons.conceptCode = i2b2HelperService.getConceptCodeFromKey(concept);
         result.commons.conceptName = i2b2HelperService.getShortNameFromKey(concept);
+
+        if (filters) result.commons.highdim = getHighDimAnalysis(subsets, concept, chartSize, filters)
 
         if (i2b2HelperService.isValueConceptCode(result.commons.conceptCode)) {
 
@@ -299,6 +406,7 @@ class ChartService {
                     min = min != null ? (min > v.min() ? v.min() : min) : v.min()
                     max = max != null ? (max < v.max() ? v.max() : max) : v.max()
                 }.each { k, v ->
+                    log.debug "histogram: k = ${k}, v = ${v}"
                     if (k) set.addSeries(k, (double [])v.toArray(), 10, min, max)
                 }
 
@@ -349,12 +457,22 @@ class ChartService {
 
             case 'bar':
 
+                boolean renderLegend = false
                 set = new DefaultCategoryDataset();
-                data.each { k, v ->
-                    if (k) set.setValue(v, '', k)
+                if (data.find { it.value instanceof Map}) {
+                    data.each { i, row ->
+                        row.each { k, v ->
+                            if (k) set.setValue(v, "Subset ${i}", k)
+                        }
+                    }
+                    renderLegend = true
+                } else {
+                    data.each { k, v ->
+                        if (k) set.setValue(v, '', k)
+                    }
                 }
 
-                chart = ChartFactory.createBarChart(title, "", "", set, PlotOrientation.HORIZONTAL, false, true, false)
+                chart = ChartFactory.createBarChart(title, "", "", set, PlotOrientation.HORIZONTAL, renderLegend, true, false)
                 chart.setChartParameters()
 
                 chart.plot.renderer.setSeriesPaint(0, new Color(128, 193, 119))
@@ -364,6 +482,6 @@ class ChartService {
         }
 
         chart.draw(renderer, new Rectangle(0, 0, width, height), new ChartRenderingInfo(new StandardEntityCollection()));
-        renderer.getSVGDocument()
+        renderer.getSVGElement()
     }
 }
