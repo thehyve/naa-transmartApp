@@ -2606,40 +2606,43 @@ function buildAnalysis(nodein) {
         return;
     }
 
-    // FIXME: use filter dialog with autocomplete
-    console.log('Opening filter dialog...');
-    Ext.MessageBox.prompt('SNP filter', 'Enter SNP names, comma separated<br />(e.g., \'rs12890222, rs12890225\'):', function(el, snpNames) {
-    	snpNames = jQuery.map(snpNames.split(","), function(s) { return s.trim(); });
-    	var filters = (snpNames) ? [{type: 'snps', names: snpNames}] : null;
-    	console.log('Filters: ' + JSON.stringify(filters));
+    var _dialog = HighDimensionDialogService.createSummaryStatDialog(node);
+    _dialog.dialog("open");
 
-        resultsTabPanel.body.mask("Running analysis...", 'x-mask-loading');
+    HighDimensionDialogService.applyBtn.click(function () {
 
-	    Ext.Ajax.request(
-	            {
-	                url : pageInfo.basePath+"/chart/analysis",
-	                method : 'POST',
-	                timeout: '600000',
-	                params :  Ext.urlEncode(
-	                        {
-	                            charttype : "analysis",
-	                            concept_key : node.attributes.id,
-	                            result_instance_id1 : GLOBAL.CurrentSubsetIDs[1],
-	                            result_instance_id2 : GLOBAL.CurrentSubsetIDs[2],
-	                            filters : JSON.stringify(filters)
-	                        }
-	                ), // or a URL encoded string
-	            success: function (result, request) {
-	                buildAnalysisComplete(result);
-	                resultsTabPanel.body.unmask();
-	            },
-	            failure: function (result, request) {
-					buildAnalysisComplete(result);
-	            }
-	            }
-	    );
-	    getAnalysisGridData(node.attributes.id, filters);
+        var filters = [{
+            type : HighDimensionDialogService.filter.type,
+            names : HighDimensionDialogService.filter.data
+        }];
+
+        Ext.Ajax.request(
+            {
+                url : pageInfo.basePath+"/chart/analysis",
+                method : 'POST',
+                timeout: '600000',
+                params :  Ext.urlEncode(
+                    {
+                        charttype : "analysis",
+                        concept_key : node.attributes.id,
+                        result_instance_id1 : GLOBAL.CurrentSubsetIDs[1],
+                        result_instance_id2 : GLOBAL.CurrentSubsetIDs[2],
+                        filters : JSON.stringify(filters)
+                    }
+                ), // or a URL encoded string
+                success: function (result, request) {
+                    buildAnalysisComplete(result);
+                    resultsTabPanel.body.unmask();
+                },
+                failure: function (result, request) {
+                    buildAnalysisComplete(result);
+                }
+            }
+        );
+        getAnalysisGridData(node.attributes.id, filters);
+
     });
+
 }
 
 function buildAnalysisComplete(result) {

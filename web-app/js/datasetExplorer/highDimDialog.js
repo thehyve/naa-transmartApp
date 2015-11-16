@@ -30,6 +30,7 @@ HighDimensionDialogService = (function(autocompleteInp) {
                 _filter.data.push(d.trim());
             });
             _filter.data.pop();
+            _filter.names = _filter.data;
         } else if (filterType === 'chromosome_segment' ) {
             filterKeyword.split(_separator).forEach(function(chrPos) {
                 _filter.data.push(_tokenizeChrPosition(chrPos.trim()));
@@ -90,7 +91,10 @@ HighDimensionDialogService = (function(autocompleteInp) {
                             service.filterKeyword.val()
                         );
                         console.log(_f);
-                        service.dropTarget.filter = _f;
+                        service.filter = _f;
+                        if (typeof service.dropTarget !== 'undefined') {
+                            service.dropTarget.filter = _f;
+                        }
                         jQuery('#dialog-form').dialog("close");
                     }
                 },
@@ -138,6 +142,52 @@ HighDimensionDialogService = (function(autocompleteInp) {
             data.node.attributes.oktousevalues = "N";
             service.createPanelItemNew(el, convertNodeToConcept(data.node), filter);
         }
+    };
+
+    service.createSummaryStatDialog = function (node) {
+
+        var _s = service;
+
+        // assign open dialog handler
+        _s.uiComponent.open = function () {
+
+            _defineFormElements(_s);
+            _s.loadingEl.hide();
+            _s.filterType.prop('disabled', true);
+
+            jQuery.ajax({
+                url : pageInfo.basePath + "/HighDimension/nodeDetails",
+                method : 'POST',
+                data : 'conceptKeys=' + encodeURIComponent(node.attributes.id)
+            })
+                .done(function (d) {
+                    console.log(d);
+                    if (service.filterKeyword.is('.ui-autocomplete-input')){
+                        console.log('autocomplete already initiated, so now enabling it');
+                        service.filterKeyword.autocomplete('enable');
+                    } else {
+                        console.log('autocomplete not yet initiated, so now creating it');
+                        _s.createAutocompleteInput();
+                    }
+
+                })
+                .fail(function (msg) {
+                    console.error('Something wrong when checking the node ...', msg);
+                    _s.dialogEl.dialog("close");
+                });
+        };
+
+        // assign close dialog handler
+        _s.uiComponent.close = function () {
+            // todo
+            console.log('Close Dialog UI and disabling autocomplete');
+            service.filterKeyword.autocomplete('disable');
+        };
+
+        // =============== //
+        // dialog creation //
+        // =============== //
+        return jQuery('#dialog-form').dialog(_s.uiComponent);
     };
 
     /**
@@ -193,7 +243,9 @@ HighDimensionDialogService = (function(autocompleteInp) {
             }
         };
 
-        // return dialog
+        // =============== //
+        // dialog creation //
+        // =============== //
        return jQuery('#dialog-form').dialog(_s.uiComponent);
     };
 
