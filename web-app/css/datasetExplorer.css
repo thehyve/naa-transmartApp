@@ -571,8 +571,23 @@ table.booktable {
     border-bottom: 1px solid gray;
 }
 .booktable td, .booktable th {
-    padding: 5px 8px 5px 8px;
+    padding: 3px 8px 3px 8px;
 }
 .booktable td.numeric, .booktable th.numeric {
     text-align: right;
+}
+.booktable caption {
+	font-style: italic;
+	text-align: center;
+	font-size: 1.1em;
+	padding: 2em 4em 1em 2em;
+}
+
+div.plotrow {
+	margin: auto 0 auto 0;
+	display: table;
+}
+div.plotbox {
+	float: left;
+	margin: 1em 3em;
 }

@@ -2609,7 +2609,7 @@ function buildAnalysis(nodein) {
     // FIXME: use filter dialog with autocomplete
     console.log('Opening filter dialog...');
     Ext.MessageBox.prompt('SNP filter', 'Enter SNP names, comma separated<br />(e.g., \'rs12890222, rs12890225\'):', function(el, snpNames) {
-    	snpNames = jQuery.filter(jQuery.map(snpNames.split(","), function(s) { return s.trim(); }), function(s) { return s; });
+    	snpNames = jQuery.map(snpNames.split(","), function(s) { return s.trim(); });
     	var filters = (snpNames) ? [{type: 'snps', names: snpNames}] : null;
     	console.log('Filters: ' + JSON.stringify(filters));
 

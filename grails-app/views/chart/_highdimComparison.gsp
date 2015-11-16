@@ -1,10 +1,21 @@
 <div class="highdimComparison">
     <g:each in="${subsets?.commons?.highdim}" var="highdim">
-        ${highdim.plot}
+        <div class="plotrow">
+        <div class="plotbox">
+            ${highdim.plots[1]}
+        </div>
+        <g:if test="highdim.plots[2]">
+        <div class="plotbox">
+        ${highdim.plots[2]}
+        </div>
+        </g:if>
+        </div>
+        <div style="clear: both;"></div>
         <table class="booktable">
+        <caption>Comparison for Single Nucleotide Polymorphism (SNP) <code>${highdim.title}</code>.</caption>
         <thead>
             <tr>
-                <th>Category</th>
+                <th>Genotype</th>
                 <g:each in ="${highdim.series}" var="element">
                     <th>${element} (n)</th>
                     <th>${element} (%)</th>
@@ -18,7 +29,9 @@
                 <g:each in="${highdim.data}" var="d">
                     <td class="numeric">${d.value.get(label)}</td>
                     <td class="numeric">
-                        <g:formatNumber number="${100* (d.value.get(label) / d.value.collect{it.value}.sum())}" maxFractionDigits="1" />
+                        <g:if test="${d.value.collect{it.value}}">
+                            <g:formatNumber number="${ 100* ((d.value.get(label) ?: 0) / d.value.collect{it.value}.sum()) }" maxFractionDigits="1" />
+                        </g:if>
                     </td>
                 </g:each>
             </tr>

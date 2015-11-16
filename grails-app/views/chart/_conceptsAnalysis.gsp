@@ -16,9 +16,6 @@
                     </g:if>
                 </div>
                 <g:render template="${concept.value.commons.type}Comparison" model="${[subsets: concept.value]}"/>
-                <g:if test="${!concept.value?.commons.highdim?.empty}">
-                    <g:render template="highdimComparison" model="${[subsets: concept.value]}"/>
-                </g:if>
             </g:if>
             </td>
         </tr>

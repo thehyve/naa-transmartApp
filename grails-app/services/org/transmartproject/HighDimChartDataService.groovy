@@ -22,10 +22,14 @@ class HighDimChartDataService {
             case "snp_lz":
                 return { Object rowData ->
                     SnpLzRow row = rowData as SnpLzRow
-                    def result = 
-                        [("${row.a1}_${row.a1}"): row.a1a1Count,
-                         ("${row.a1}_${row.a2}"): row.a1a2Count,
-                         ("${row.a2}_${row.a2}"): row.a2a2Count]
+                    Map result = [:]
+                    for (String cell: row) {
+                        if (!(cell in result)) {
+                            result[cell] = 1
+                        } else {
+                            result[cell]++
+                        }
+                    }
                     return result
                 }
             default:
@@ -47,6 +51,16 @@ class HighDimChartDataService {
         }
     }
 
+    Projection getProjectionForDatatype(HighDimensionDataTypeResource typeResource) {
+        switch(typeResource.dataTypeName) {
+            case "snp_lz":
+                return typeResource.createProjection("alleles")
+            default:
+                log.warn "No default projection found for datatype ${typeResource.dataTypeName}!"
+                return null // FIXME
+        }
+    }
+
     /**
      * Retrieves the highdim data for the given conceptKey/dataType/projectionName
      * and returns row data.
@@ -64,7 +78,7 @@ class HighDimChartDataService {
         HighDimensionDataTypeResource typeResource =
                 highDimensionResourceService.getSubResourceForType(dataType)
 
-        Projection projection = typeResource.createProjection(Projection.ALL_DATA_PROJECTION)
+        Projection projection = getProjectionForDatatype(typeResource)
         Map metadata = [:]
         Closure<Map> transformRow = getBarChartTransformerForDatatype(typeResource)
 
@@ -84,12 +98,15 @@ class HighDimChartDataService {
                 assayConstraints, [dataConstraints], projection)
 
         List<Map> barChartData = []
+        Set<String> labels = []
         try {
             for (Object row: tabularResult) {
                 if (!metadata) {
                     metadata = getBarChartMetadataForDatatype(typeResource, row)
                 }
-                barChartData.add(transformRow(row))
+                Map rowData = transformRow(row)
+                labels.addAll(rowData.keySet())
+                barChartData.add(rowData)
             }
         } finally {
             tabularResult.close() //closing the tabular result, no matter what
@@ -97,19 +114,9 @@ class HighDimChartDataService {
 
         [
             title: metadata.title,
-            labels: metadata.labels,
+            labels: labels,
             data: barChartData
         ]
-    }
-
-    Projection getDefaultTableDataProjectionForDatatype(HighDimensionDataTypeResource typeResource) {
-        switch(typeResource.dataTypeName) {
-            case "snp_lz":
-                return typeResource.createProjection("alleles")
-            default:
-                log.warn "No default projection found for datatype ${typeResource.dataTypeName}!"
-                return null // FIXME
-        }
     }
 
     /**
@@ -129,7 +136,7 @@ class HighDimChartDataService {
         HighDimensionDataTypeResource typeResource =
                 highDimensionResourceService.getSubResourceForType(dataType)
 
-        Projection projection = getDefaultTableDataProjectionForDatatype(typeResource)
+        Projection projection = getProjectionForDatatype(typeResource)
 
         List<AssayConstraint> assayConstraints = /* [
                 typeResource.createAssayConstraint(

@@ -22,10 +22,8 @@ import org.jfree.data.statistics.HistogramDataset
 import org.jfree.graphics2d.svg.SVGGraphics2D
 import org.jfree.ui.RectangleInsets
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
-import org.transmartproject.db.dataquery.highdim.snp_lz.SnpLzRow
 
 import com.recomdata.export.ExportColumn
-import com.recomdata.export.ExportRow
 import com.recomdata.export.ExportRowNew
 import com.recomdata.export.ExportTableNew
 
@@ -191,25 +189,39 @@ class ChartService {
             }
             def rowCount = barChartData.max { it.value.data.size() }.value.data.size()
             log.debug "Row count: ${rowCount}"
+            // Rows are the different selected high dimension data rows
             (0..(rowCount > 0 ? rowCount-1 : 0)).each { i ->
                 def title = ''
-                def labels = []
+                Set<String> labels = []
                 def series = []
                 def bardata = [:]
                 barChartData.each { k, v ->
                     if (i < v.data.size()) {
                         title = v.title
-                        labels = v.labels
+                        labels.addAll(v.labels)
                         series.add("Subset ${k}")
                         bardata[k] = v.data[i]
                     }
                 }
-                log.debug "Title: ${title}, plot data: ${bardata}"
+                List labelList = new ArrayList(labels)
+                labelList.sort()
+                Map sortedData = bardata.collectEntries { k, v ->
+                    SortedMap d = new TreeMap()
+                    labelList.each { label ->
+                        d[label] = v[label] ?: 0
+                    }
+                    [(k): d]
+                }
+                log.debug "Title: ${title}, plot data: ${sortedData}"
                 result << [
-                    plot: getSVGChart(type: 'bar', title: "$title", data: bardata, size: chartSize),
-                    labels: labels,
+                    plots: sortedData.collectEntries { k, v ->
+                        def plottitle = title //"Genotype distribution in subset $k for SNP $title"
+                        [(k): getSVGChart(type: 'bar', title: "$plottitle", data: v, size: chartSize)]
+                    },
+                    title: title,
+                    labels: labelList,
                     series: series,
-                    data: bardata
+                    data: sortedData
                 ]
             }
         }
@@ -236,9 +248,10 @@ class ChartService {
         result.commons.conceptCode = i2b2HelperService.getConceptCodeFromKey(concept);
         result.commons.conceptName = i2b2HelperService.getShortNameFromKey(concept);
 
-        if (filters) result.commons.highdim = getHighDimAnalysis(subsets, concept, chartSize, filters)
-
-        if (i2b2HelperService.isValueConceptCode(result.commons.conceptCode)) {
+        if (filters) {
+            result.commons.type = 'highdim'
+            result.commons.highdim = getHighDimAnalysis(subsets, concept, chartSize, filters)
+        } else if (i2b2HelperService.isValueConceptCode(result.commons.conceptCode)) {
 
             result.commons.type = 'value'
 
