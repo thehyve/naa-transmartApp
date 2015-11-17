@@ -259,6 +259,7 @@ class ChartService {
 
         if (filters) {
             result.commons.type = 'highdim'
+            result.commons.conceptName = i2b2HelperService.getShortNameFromKey(conceptKey);
             result.commons.highdim = getHighDimAnalysis(subsets, conceptKey, chartSize, filters)
         } else if (i2b2HelperService.isValueConceptCode(result.commons.conceptCode)) {
 
