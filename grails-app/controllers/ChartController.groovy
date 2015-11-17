@@ -194,6 +194,7 @@ class ChartController {
         // Collect concept information
         concepts[concept] = chartService.getConceptAnalysis(
             concept: i2b2HelperService.getConceptKeyForAnalysis(concept),
+            conceptKey: concept,
             subsets: chartService.getSubsetsFromRequest(params),
             filters: filters
         )

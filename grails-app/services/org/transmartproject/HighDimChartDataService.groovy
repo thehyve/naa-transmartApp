@@ -21,6 +21,8 @@ class HighDimChartDataService {
         switch(typeResource.dataTypeName) {
             case "snp_lz":
                 return { Object rowData ->
+                    // Count number of cells with a certain value:
+                    // the result will be a map from values to the count.
                     SnpLzRow row = rowData as SnpLzRow
                     Map result = [:]
                     for (String cell: row) {
@@ -62,18 +64,17 @@ class HighDimChartDataService {
     }
 
     /**
-     * Retrieves the highdim data for the given conceptKey/dataType/projectionName
-     * and returns row data.
+     * Retrieves the highdim data for the given dataType, assay constraints and filters
+     * and returns data for generating a bar chart.
      *
-     * @param conceptKey key of the concept to retrieve highdim for
      * @param dataType highdim data type
      */
-    Map getBarChartData(String conceptKey,
+    Map getBarChartData(
                 String dataType,
                 Map assayConstraintsSpec,
                 List filters) {
 
-        log.debug "getBarChartData: conceptKey = ${conceptKey}, dataType = ${dataType}."
+        log.debug "getBarChartData: dataType = ${dataType}."
 
         HighDimensionDataTypeResource typeResource =
                 highDimensionResourceService.getSubResourceForType(dataType)
@@ -82,10 +83,7 @@ class HighDimChartDataService {
         Map metadata = [:]
         Closure<Map> transformRow = getBarChartTransformerForDatatype(typeResource)
 
-        List<AssayConstraint> assayConstraints = /* [
-                typeResource.createAssayConstraint(
-                        AssayConstraint.ONTOLOGY_TERM_CONSTRAINT,
-                        concept_key: conceptKey)] + */
+        List<AssayConstraint> assayConstraints =
                 assayConstraintsSpec.collect { String type, List instances ->
                     instances.collect { Map params ->
                         typeResource.createAssayConstraint(params, type)
@@ -120,28 +118,24 @@ class HighDimChartDataService {
     }
 
     /**
-     * Retrieves the highdim data for the given conceptKey/dataType/projectionName
-     * and returns row data.
+     * Retrieves the highdim data for the given dataType, assay constraints and filters
+     * and returns data for adding a highdim data column to the grid view.
      *
-     * @param conceptKey key of the concept to retrieve highdim for
      * @param dataType highdim data type
      */
-    Map getTableDataByPatient(String conceptKey,
+    Map getTableDataByPatient(
                 String dataType,
                 Map assayConstraintsSpec,
                 List filters) {
 
-        log.debug "getTableDataByPatient: conceptKey = ${conceptKey}, dataType = ${dataType}."
+        log.debug "getTableDataByPatient: dataType = ${dataType}."
 
         HighDimensionDataTypeResource typeResource =
                 highDimensionResourceService.getSubResourceForType(dataType)
 
         Projection projection = getProjectionForDatatype(typeResource)
 
-        List<AssayConstraint> assayConstraints = /* [
-                typeResource.createAssayConstraint(
-                        AssayConstraint.ONTOLOGY_TERM_CONSTRAINT,
-                        concept_key: conceptKey)] + */
+        List<AssayConstraint> assayConstraints =
                 assayConstraintsSpec.collect { String type, List instances ->
                     instances.collect { Map params ->
                         typeResource.createAssayConstraint(params, type)

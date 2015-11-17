@@ -135,9 +135,13 @@ class ChartService {
             def rowdata = [:]
             subsets.each { k, v ->
                 if (v.instance) {
-                    def assayConstraints = [(AssayConstraint.PATIENT_SET_CONSTRAINT):
-                        [[result_instance_id: v.instance]]]
-                    Map subjectData = highDimChartDataService.getTableDataByPatient(concept, data.datatype.dataTypeName, assayConstraints, filters)
+                    def assayConstraints = [
+                            (AssayConstraint.PATIENT_SET_CONSTRAINT):
+                                [[result_instance_id: v.instance]],
+                            (AssayConstraint.ONTOLOGY_TERM_CONSTRAINT):
+                                [[concept_key: concept]],
+                        ]
+                    Map subjectData = highDimChartDataService.getTableDataByPatient(data.datatype.dataTypeName, assayConstraints, filters)
                     List colnames = subjectData.colnames
                     List subjects = subjectData.subjects
                     Map tableData = subjectData.tableData
@@ -178,13 +182,17 @@ class ChartService {
         List<Map> result = []
         def metadata = exportMetadataService.getHighDimMetaData(subsets[1]?.instance as Long, subsets[2]?.instance as Long)
         metadata.each { data ->
-            log.debug "getConceptAnalysis: dataType = ${data.datatype}"
+            log.debug "getHighDimAnalysis: concept = ${concept}, dataType = ${data.datatype}"
             def barChartData = [:]
             subsets.each { k, v ->
                 if (v.instance) {
-                    def assayConstraints = [(AssayConstraint.PATIENT_SET_CONSTRAINT):
-                        [[result_instance_id: v.instance]]]
-                    barChartData[k] = highDimChartDataService.getBarChartData(concept, data.datatype.dataTypeName, assayConstraints, filters)
+                    def assayConstraints = [
+                            (AssayConstraint.PATIENT_SET_CONSTRAINT):
+                                [[result_instance_id: v.instance]],
+                            (AssayConstraint.ONTOLOGY_TERM_CONSTRAINT):
+                                [[concept_key: concept]]
+                        ]
+                    barChartData[k] = highDimChartDataService.getBarChartData(data.datatype.dataTypeName, assayConstraints, filters)
                 }
             }
             def rowCount = barChartData.max { it.value.data.size() }.value.data.size()
@@ -233,6 +241,7 @@ class ChartService {
         // Retrieving function parameters
         def subsets = args.subsets ?: null
         def concept = args.concept ?: null
+        def conceptKey = args.conceptKey ?: null
         def chartSize = args.chartSize ?: null
         def filters = args.filters ?: null
 
@@ -250,7 +259,7 @@ class ChartService {
 
         if (filters) {
             result.commons.type = 'highdim'
-            result.commons.highdim = getHighDimAnalysis(subsets, concept, chartSize, filters)
+            result.commons.highdim = getHighDimAnalysis(subsets, conceptKey, chartSize, filters)
         } else if (i2b2HelperService.isValueConceptCode(result.commons.conceptCode)) {
 
             result.commons.type = 'value'
