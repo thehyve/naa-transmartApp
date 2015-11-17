@@ -554,3 +554,44 @@ li.x-tab-strip-active {
 
 .x-grid3-row .conceptUnselected, .x-grid3-row .conceptSelected {padding: 0 0 5px 5px; font-size: .85em;}
 .data-export-filter-tip {color: #666; font-style: italic}
+
+table.booktable {
+	margin: 20px 8px 20px 8px;
+    border-collapse: collapse;
+}
+.booktable thead, .booktable tbody, .booktable tfoot {
+    border-top: 2px solid black;
+    border-bottom: 2px solid black;
+}
+.booktable th, .booktable tfoot td {
+	font-weight: bold;
+	font-size: 1.1em;
+}
+.booktable tr {
+    border-bottom: 1px solid gray;
+}
+.booktable td, .booktable th {
+    padding: 3px 8px 3px 8px;
+}
+.booktable td.numeric, .booktable th.numeric {
+    text-align: right;
+}
+.booktable caption {
+	font-style: italic;
+	text-align: center;
+	font-size: 1.1em;
+	padding: 2em 4em 1em 2em;
+}
+
+div.plotrow {
+	margin: auto 0 auto 0;
+}
+div.plotcolumn {
+	float: left;
+	margin: auto 0 auto 0;
+	width: 50%;
+}
+div.plotbox {
+	display: table;
+	margin: 1em 3em;
+}

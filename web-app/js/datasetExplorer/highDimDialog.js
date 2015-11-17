@@ -1,13 +1,13 @@
-HighDimDialog = (function() {
+HighDimensionDialogService = (function(autocompleteInp) {
 
-    var highDimDialog = {};
+    var _autocompleteInp = autocompleteInp;
 
     /**
-     * get filter type & keywords selected by user
+     * Get filter type & keywords selected by user
      * @returns {{type: *, data: Array}}
      * @private
      */
-    var _getFilter = function () {
+    var _getFilter = function (filterType, filterKeyword) {
         var _separator = /[,]+/; // identifiers are separated by comma (,)
 
         var _tokenizeChrPosition = function(strChrPos) {
@@ -20,49 +20,64 @@ HighDimDialog = (function() {
             }
         };
 
-        var _filterKeyword = jQuery("#filterKeyword").val(),
-            _filter = {
-                type: jQuery("#filterType").val(),
-                data: [],
-                inString: ''
-            }; // init filter obj
+        var _filter = {
+            type: filterType,
+            data: []
+        }; // init filter obj
 
-        console.log('_filter',_filter);
-        console.log('_filterKeyword',_filterKeyword);
-
-        if (_filter.type === 'genes' || _filter.type === 'snps') {
-            _filterKeyword.split(_separator).forEach(function(d) {
+        if (filterType === 'genes' || filterType === 'snps') {
+            filterKeyword.split(_separator).forEach(function(d) {
                 _filter.data.push(d.trim());
             });
             _filter.data.pop();
-            _filter.inString = _filter.data.toString();
-        } else if (_filter.type === 'chromosome_segment' ) {
-            _filterKeyword.split(_separator).forEach(function(chrPos) {
+            _filter.names = _filter.data;
+        } else if (filterType === 'chromosome_segment' ) {
+            filterKeyword.split(_separator).forEach(function(chrPos) {
                 _filter.data.push(_tokenizeChrPosition(chrPos.trim()));
             });
         }
+
         return _filter;
     };
 
     /**
-     * Stuff to be invoked when a node is dropped into a drop zone.
+     * Check if dropped data has same type as the row data
      * @param data
-     * @param el
+     * @param gridRow
+     * @returns {boolean}
      * @private
      */
-    highDimDialog.dropOntoVariableSelection = function (data, el, filter) {
-        data.node.attributes.oktousevalues = "N";
-        highDimDialog.createPanelItemNew(el, convertNodeToConcept(data.node), filter);
+    var _isCorrectHD = function (data, gridRow) {
+        var _keys = Object.keys(data);
+        console.log(_keys);
+        return _keys[0] === gridRow.dataTypeId;
     };
 
     /**
-     * Generate jQuery UI High Dimensional filter by identifier dialog
-     * @param id
+     * Define some form elements
+     * @param obj
      * @private
      */
-    highDimDialog.createIdentifierDialog = function (id) {
+    var _defineFormElements = function (obj) {
+        obj.filterForm = jQuery('#filterForm');
+        obj.filterType =  jQuery('#filterType');
+        obj.filterKeyword = jQuery('#filterKeyword');
+        obj.loadingEl = jQuery('#loadingPleaseWait');
+        obj.applyBtn = jQuery('#dialog-apply-btn');
+        obj.cancelBtn = jQuery('#dialog-cancel-btn');
+    };
 
-        var _dialog =  jQuery(id).dialog({
+
+    /**
+     * Initialize service object
+     * @type {{filterType: {}, filterKeyword: {}, dialogEl, uiComponent: {autoOpen: boolean, width: number, modal: boolean, buttons: *[]}}}
+     */
+    var service =
+    {
+        filterType: {},
+        filterKeyword: {},
+        dialogEl: jQuery('#dialog-form'),
+        uiComponent : {
             autoOpen: false,
             width: 350,
             modal: true,
@@ -71,39 +86,167 @@ HighDimDialog = (function() {
                     id : 'dialog-apply-btn',
                     text : 'Apply',
                     click : function () {
-                        _dialog.dropTarget.filter = _getFilter();
-                        _dialog.dropTarget.recordData.subset1.each(function (subset) {
-                            subset.jajal =  _dialog.dropTarget.filter ;
-                        });
-                        _dialog.dialog("close");
+                        var _f = _getFilter(
+                            service.filterType.val(),
+                            service.filterKeyword.val()
+                        );
+                        console.log(_f);
+                        service.filter = _f;
+                        if (typeof service.dropTarget !== 'undefined') {
+                            service.dropTarget.filter = _f;
+                        }
+                        jQuery('#dialog-form').dialog("close");
                     }
                 },
                 {
                     id : 'dialog-cancel-btn',
                     text : 'Cancel',
                     click : function () {
-                        _dialog.dialog( "close" );
+                        jQuery('#dialog-form').dialog("close");
                     }
                 }
-            ],
-            close: function() {
-                var _dt = _dialog.dropTarget;
+            ]
+        }
+    };
 
-                if (Object.keys(_dt.dropData.details).indexOf(_dt.recordData.dataTypeId) >= 0 ) {
-                    highDimDialog.dropOntoVariableSelection(_dt.dropData, _dt.el, _dt.filter);
-                }
+    /**
+     * void create auto complete input depends on the filter
+     */
+    service.createAutocompleteInput = function () {
+        if (service.filterType.val() === 'chromosome_segment') {
+            service.filterKeyword.autocomplete('disable');
+        } else {
+            var _uri = pageInfo.basePath + "/filterAutocomplete/autocomplete/" + service.filterType.val();
+
+            if (service.filterKeyword.is('.ui-autocomplete-input')){
+                _autocompleteInp.uri = _uri;
+                // UI draggable is loaded
+                service.filterKeyword.autocomplete('enable');
+            } else {
+                _autocompleteInp.create(
+                    service.filterKeyword.attr('id'),
+                    _uri
+                );
             }
-        });
+        }
+    };
 
-        return _dialog;
+    /**
+     * Stuff to be invoked when a node is dropped into a drop zone.
+     * @param data
+     * @param el
+     * @private
+     */
+    service.dropOntoVariableSelection = function (data, el, filter) {
+        if (Object.keys(data.details).indexOf(data.dataTypeId) >= 0 ) {
+            data.node.attributes.oktousevalues = "N";
+            service.createPanelItemNew(el, convertNodeToConcept(data.node), filter);
+        }
+    };
+
+    service.createSummaryStatDialog = function (node) {
+
+        var _s = service;
+
+        // assign open dialog handler
+        _s.uiComponent.open = function () {
+
+            _defineFormElements(_s);
+            _s.loadingEl.hide();
+            if (_s.filterType.val() !== 'snps') {
+            	_s.filterType.val('snps');
+            	_s.filterKeyword.val('');
+            	_s.createAutocompleteInput();
+            }
+            _s.filterType.prop('disabled', true);
+
+            if (service.filterKeyword.is('.ui-autocomplete-input')){
+                //console.log('autocomplete already initiated, so now enabling it');
+                service.filterKeyword.autocomplete('enable');
+            } else {
+                //console.log('autocomplete not yet initiated, so now creating it');
+                _s.createAutocompleteInput();
+            }
+
+        };
+
+        // assign close dialog handler
+        _s.uiComponent.close = function () {
+            // todo
+            console.log('Close Dialog UI and disabling autocomplete');
+            service.filterKeyword.autocomplete('disable');
+        };
+
+        // =============== //
+        // dialog creation //
+        // =============== //
+        return jQuery('#dialog-form').dialog(_s.uiComponent);
+    };
+
+    /**
+     * Generate jQuery UI High Dimensional filter by identifier dialog
+     * @param id
+     * @private
+     */
+    service.createIdentifierDialog = function (dropzone) {
+
+        var _s = service;
+
+        _s.dropTarget = dropzone;
+
+        // assign open dialog handler
+        _s.uiComponent.open = function () {
+
+            _defineFormElements(_s);
+
+            _s.filterForm.hide();
+            _s.loadingEl.show();
+            _s.applyBtn.button('disable');
+            _s.cancelBtn.button('disable');
+            _s.filterKeyword.val('');
+            _s.filterType.prop('disabled', false);
+
+            jQuery.ajax({
+                url : pageInfo.basePath + "/HighDimension/nodeDetails",
+                method : 'POST',
+                data : 'conceptKeys=' + encodeURIComponent(dropzone.dropData.node.attributes.id)
+            })
+                .done(function (d) {
+                    dropzone.dropData.details = d;
+                    if (_isCorrectHD(d, dropzone.recordData)) {
+                        _s.filterForm.show();
+                        _s.loadingEl.hide();
+                        _s.applyBtn.button('enable');
+                        _s.cancelBtn.button('enable');
+                        _s.createAutocompleteInput();
+                    } else {
+                        _s.dialogEl.dialog("close");
+                    }
+                })
+                .fail(function (msg) {
+                    console.error('Something wrong when checking the node ...', msg);
+                    _s.dialogEl.dialog("close");
+                });
+        };
+
+        // assign close dialog handler
+        _s.uiComponent.close = function () {
+            if (Object.keys(dropzone.dropData.details).indexOf(dropzone.recordData.dataTypeId) >= 0 ) {
+                dropzone.dropData.node.attributes.oktousevalues = "N";
+                _s.createPanelItemNew(dropzone.el, convertNodeToConcept(dropzone.dropData.node), dropzone.filter);
+            }
+        };
+
+        // =============== //
+        // dialog creation //
+        // =============== //
+       return jQuery('#dialog-form').dialog(_s.uiComponent);
     };
 
 
-    highDimDialog.createPanelItemNew = function (panel, concept, filter) {
-
+    service.createPanelItemNew = function (panel, concept, filter) {
         var li = document.createElement('div'); // was li
         var _strFilterValue = '';
-
 
         if ( typeof filter !== 'undefined') {
             if (filter.data[0] instanceof Array) {
@@ -115,7 +258,9 @@ HighDimDialog = (function() {
             li.setAttribute('conceptfiltervalues', _strFilterValue);
         }
 
-        //convert all object attributes to element attributes so i can get them later (must be a way to keep them in object?)
+        // convert all object attributes to element attributes so i can get them later
+        // (must be a way to keep them in object?)
+
         li.setAttribute('conceptname', concept.name);
         li.setAttribute('conceptid', concept.key);
         li.setAttribute('conceptlevel', concept.level);
@@ -168,8 +313,10 @@ HighDimDialog = (function() {
 
         li.appendChild(text);
         panel.appendChild(li);
+
         Ext.get(li).addListener('click', conceptClick);
         Ext.get(li).addListener('contextmenu', conceptRightClick);
+
         new Ext.ToolTip({target: li, html: concept.key, dismissDelay: 10000});
         li.concept = concept;
         //return the node
@@ -183,79 +330,7 @@ HighDimDialog = (function() {
         return li;
     };
 
-    highDimDialog.createAutocompleteInput = function (el) {
+    return service;
 
-        var _DEFAULT_TYPE = 'snps';
-
-        var split = function ( val ) {
-            return val.split( /,\s*/ );
-        };
-
-        var extractLast = function ( term ) {
-            return split( term ).pop();
-        };
-
-        var _autocomplete = function(type,request,response) {
-            if (typeof type === "undefined") {type=_DEFAULT_TYPE;}
-            var search = extractLast(request.term)
-            jQuery.get(pageInfo.basePath + "/filterAutocomplete/autocomplete/" + type, {
-                search: search
-            }, function (data) {
-                response(data);
-            });
-        };
-
-        var _typedAutocomplete = function(type) {
-            if (typeof type === "undefined") {type=_DEFAULT_TYPE;}
-            return function(request,response) {
-                return _autocomplete(type,request,response);
-            }
-        };
-
-        // Convert input text into autocomplete when user select filter type gene
-        // ----
-            jQuery("#filterKeyword")
-                //don't navigate away from the field on tab when selecting an item
-                .bind( "keydown", function( event ) {
-                    if ( event.keyCode === jQuery.ui.keyCode.TAB &&
-                        jQuery( this ).autocomplete( "instance" ).menu.active ) {
-                        event.preventDefault();
-                    }
-                })
-                .autocomplete({
-                    source: _typedAutocomplete(el.value),
-                    minLength: 2,
-                    search: function() {
-                        // custom minLength
-                        var term = extractLast( this.value );
-                        if ( term.length < 2 ) {
-                            return false;
-                        }
-                    },
-                    focus: function() {
-                        // prevent value inserted on focus
-                        return false;
-                    },
-                    select: function( event, ui ) {
-                        var terms = split( this.value );
-                        // remove the current input
-                        terms.pop();
-                        // add the selected item
-                        terms.push( ui.item.value );
-                        // add placeholder to get the comma-and-space at the end
-                        terms.push( "" );
-                        this.value = terms.join( ", " );
-                        return false;
-                    }
-                })
-                .data('autocomplete')._renderItem = function(ul, item) {
-                return jQuery('<li></li>')
-                    .data('item.autocomplete', item)
-                    .append('<a style="color: #0000FF"> ' + item.label + '</a>')
-                    .appendTo(ul);
-            };
-    };
-
-    return highDimDialog;
-})();
+})(AutocompleteInput);
 
