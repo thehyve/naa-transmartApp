@@ -1,14 +1,18 @@
 <div class="highdimComparison">
     <g:each in="${subsets?.commons?.highdim}" var="highdim">
         <div class="plotrow">
-        <div class="plotbox">
-            ${highdim.plots[1]}
-        </div>
-        <g:if test="highdim.plots[2]">
-        <div class="plotbox">
-        ${highdim.plots[2]}
-        </div>
-        </g:if>
+	        <div class="plotcolumn">
+	        <div class="plotbox">
+	            ${highdim.plots[1]}
+	        </div>
+	        </div>
+            <div class="plotcolumn">
+            <div class="plotbox">
+            <g:if test="highdim.plots[2]">
+                ${highdim.plots[2]}
+            </g:if>
+            </div>
+            </div>
         </div>
         <div style="clear: both;"></div>
         <table class="booktable">

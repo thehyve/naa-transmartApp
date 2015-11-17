@@ -585,9 +585,13 @@ table.booktable {
 
 div.plotrow {
 	margin: auto 0 auto 0;
-	display: table;
+}
+div.plotcolumn {
+	float: left;
+	margin: auto 0 auto 0;
+	width: 50%;
 }
 div.plotbox {
-	float: left;
+	display: table;
 	margin: 1em 3em;
 }
