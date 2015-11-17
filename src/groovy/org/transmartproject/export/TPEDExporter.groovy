@@ -42,9 +42,12 @@ class TPEDExporter implements HighDimTabularResultExporter {
         dataType == "snp_lz"
     }
 
+    /**
+     * Uses the {@link org.transmartproject.db.dataquery.highdim.snp_lz.SnpLzAllelesProjection} projection.
+     */
     @Override
     public String getProjection() {
-        Projection.ALL_DATA_PROJECTION
+        "alleles"
     }
 
     @Override
@@ -94,11 +97,14 @@ class TPEDExporter implements HighDimTabularResultExporter {
                 out << ' '
                 out << position
                 
-                for (/*SnpLzCell*/ Object cell: row) {
+                for (String likelyGenotype: row) {
+                    // likelyGenotype is of the format "${likelyAllele1}_${likelyAllele2}"
+                    List<String> likelyAlleles = likelyGenotype?.split('_')
+                    assert(likelyAlleles.size() == 2)
                     out << ' '
-                    out << cell.likelyAllele1   // most likely value for allele1
+                    out << likelyAlleles[0]   // most likely value for allele1
                     out << ' '
-                    out << cell.likelyAllele2   // most likely value for allele2
+                    out << likelyAlleles[1]   // most likely value for allele2
                 }
                 out << '\n'
                 i++

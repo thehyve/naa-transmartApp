@@ -70,7 +70,7 @@ class SAMPLEExporter implements HighDimColumnExporter {
         outputStream.withWriter( "UTF-8" ) { out ->
             exportHeader(out)
             
-            for (AssayColumn assay: assays) {
+            for (Assay assay: assays) {
                 if (isCancelled() ) {
                     return
                 }
