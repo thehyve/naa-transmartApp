@@ -27,7 +27,7 @@ class FilterAutocompleteService {
 	 */
     private List<String> autoCompleteGene(String search) {
         DetachedCriteria query = DeRcSnpInfo
-            .where { geneName =~ "${search}%" }
+            .where { geneName ==~ "${search}%" }
 		query
 			.max(max_results)
 			.order('geneName')
@@ -48,7 +48,7 @@ class FilterAutocompleteService {
 	 */
     private List<String> autoCompleteSnp(String search) {
         DetachedCriteria query = DeSnpInfo
-            .where { name =~ "${search}%" }
+            .where { name ==~ "${search}%" }
 		query
 			.max(max_results)
 			.order('name')
