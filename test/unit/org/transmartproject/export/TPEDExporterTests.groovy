@@ -56,7 +56,7 @@ class TPEDExporterTests {
     
     @Test
     void "test whether a basic tabular result is exported properly"() {
-        tabularResult = createMockSnpLzTabularResult()
+        tabularResult = createMockSnpLzTabularResult(exporter.getProjection())
         
         // Create cohort projection, as that is used for exporting.
         def projection = mock(Projection)

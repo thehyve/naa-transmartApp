@@ -48,7 +48,9 @@
     <script type="text/javascript" src="${resource(dir: 'js', file: 'myJobs.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer', file: 'reports.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer', file: 'workspace.js')}"></script>
+    <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer', file:'autocompleteInput.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer', file:'highDimDialog.js')}"></script>
+    <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer/exportData', file: 'dataExport.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer/exportData', file: 'exportDropTarget.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer/exportData', file: 'dataTab.js')}"></script>
     <script type="text/javascript" src="${resource(dir:'js/datasetExplorer/exportData', file: 'exportJobsTab.js')}"></script>
@@ -164,7 +166,6 @@
         // initialize browser version variables; see http://www.quirksmode.org/js/detect.html
         BrowserDetect.init();
         if (BrowserDetect.browser == "Explorer") {
-
             if (BrowserDetect.version < 7) {
                 GLOBAL.resulttype = 'image';
             }
@@ -224,12 +225,14 @@
 <IFRAME src="${gplogout}" width="1" height="1" scrolling="no" frameborder="0" id="gplogin"></IFRAME>
 <IFRAME src="${gplogout}" width="1" height="1" scrolling="no" frameborder="0" id="altgplogin"></IFRAME>
 
+
+%{--High Dimension Dialog--}%
 <div id="dialog-form" title="SNP Filtering">
     <div id="loadingPleaseWait">Loading please wait ..</div>
     <form id="filterForm">
         <fieldset>
             <label for="filterType">Filter Type</label>
-            <select id="filterType" onchange="HighDimDialog.createAutocompleteInput(this);" >
+            <select id="filterType" onchange="HighDimensionDialogService.createAutocompleteInput();" >
                 <option value="snps">SNP Identifiers</option>
                 <option value="genes">Genes</option>
                 <option value="chromosome_segment">Genomic Region</option>
