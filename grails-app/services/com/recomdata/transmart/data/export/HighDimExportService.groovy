@@ -41,16 +41,13 @@ class HighDimExportService {
      *        The other data fields of the filter are the fields that are required by the constraint
      *        factory, e.g., <code>names</code> for the <code>genes</code> filter type. 
      */
-    static DataConstraint createFilterConstraints(HighDimensionDataTypeResource dataTypeResource, List<Map> filters) {
-        def dataConstraints = [:]
+    def DataConstraint createFilterConstraints(HighDimensionDataTypeResource dataTypeResource, List<Map> filters) {
+        def dataConstraints = [:].withDefault { _ -> []}
         filters.each { Map filter ->
             log.debug "creating filter of type ${filter.type}..."
             def type = filter.type
             def data = filter.findAll { it.key != 'type' && it.key != 'id' }
             log.debug "  data: ${data}"
-            if (!(type in dataConstraints)) {
-                dataConstraints[type] = []
-            }
             dataConstraints[type] << data
         }
         DataConstraint disjunction = dataTypeResource.createDataConstraint(
