@@ -155,26 +155,14 @@ HighDimensionDialogService = (function(autocompleteInp) {
             _s.loadingEl.hide();
             _s.filterType.prop('disabled', true);
 
-            jQuery.ajax({
-                url : pageInfo.basePath + "/HighDimension/nodeDetails",
-                method : 'POST',
-                data : 'conceptKeys=' + encodeURIComponent(node.attributes.id)
-            })
-                .done(function (d) {
-                    console.log(d);
-                    if (service.filterKeyword.is('.ui-autocomplete-input')){
-                        console.log('autocomplete already initiated, so now enabling it');
-                        service.filterKeyword.autocomplete('enable');
-                    } else {
-                        console.log('autocomplete not yet initiated, so now creating it');
-                        _s.createAutocompleteInput();
-                    }
+            if (service.filterKeyword.is('.ui-autocomplete-input')){
+                //console.log('autocomplete already initiated, so now enabling it');
+                service.filterKeyword.autocomplete('enable');
+            } else {
+                //console.log('autocomplete not yet initiated, so now creating it');
+                _s.createAutocompleteInput();
+            }
 
-                })
-                .fail(function (msg) {
-                    console.error('Something wrong when checking the node ...', msg);
-                    _s.dialogEl.dialog("close");
-                });
         };
 
         // assign close dialog handler
