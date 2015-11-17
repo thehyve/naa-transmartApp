@@ -187,7 +187,6 @@ class ChartController {
         // We add the key to our cache set
         chartService.keyCache.add(concept)
 
-        // FIXME: get filters from concept data
         def filters = params.filters ? JSON.parse(params.filters) : null
         log.info "analysis: filters = ${filters} (${filters.class})"
 
