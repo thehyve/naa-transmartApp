@@ -2616,6 +2616,8 @@ function buildAnalysis(nodein) {
             names : HighDimensionDialogService.filter.data
         }];
 
+        resultsTabPanel.body.mask("Running analysis...", 'x-mask-loading');
+
         Ext.Ajax.request(
             {
                 url : pageInfo.basePath+"/chart/analysis",
