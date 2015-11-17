@@ -153,6 +153,11 @@ HighDimensionDialogService = (function(autocompleteInp) {
 
             _defineFormElements(_s);
             _s.loadingEl.hide();
+            if (_s.filterType.val() !== 'snps') {
+            	_s.filterType.val('snps');
+            	_s.filterKeyword.val('');
+            	_s.createAutocompleteInput();
+            }
             _s.filterType.prop('disabled', true);
 
             if (service.filterKeyword.is('.ui-autocomplete-input')){
@@ -199,6 +204,7 @@ HighDimensionDialogService = (function(autocompleteInp) {
             _s.applyBtn.button('disable');
             _s.cancelBtn.button('disable');
             _s.filterKeyword.val('');
+            _s.filterType.prop('disabled', false);
 
             jQuery.ajax({
                 url : pageInfo.basePath + "/HighDimension/nodeDetails",
