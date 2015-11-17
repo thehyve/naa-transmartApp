@@ -15,7 +15,7 @@
     </g:if>
 
     <g:if test="${tokens.isEmpty()}">
-        <h3>No connected to this tranSMART instance using your account credentials.</h3>
+        <p>None connected to this tranSMART instance using your account credentials.</p>
     </g:if>
     <g:else>
 
