@@ -230,7 +230,6 @@ class ChartController {
         def result_instance_id1 = params.result_instance_id1;
         def result_instance_id2 = params.result_instance_id2;
 
-        // FIXME: get filters from concept data
         def filters = params.filters ? JSON.parse(params.filters) : null
         log.info "analysis: filters = ${filters}"
 
