@@ -27,9 +27,11 @@ HighDimensionDialogService = (function(autocompleteInp) {
 
         if (filterType === 'genes' || filterType === 'snps') {
             filterKeyword.split(_separator).forEach(function(d) {
-                _filter.data.push(d.trim());
+            	var _d = d.trim();
+                if (_d) {
+                	_filter.data.push(_d);
+                }
             });
-            _filter.data.pop();
             _filter.names = _filter.data;
         } else if (filterType === 'chromosome_segment' ) {
             filterKeyword.split(_separator).forEach(function(chrPos) {

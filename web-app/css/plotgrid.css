@@ -1,0 +1,17 @@
+/**
+ * Layout for a two-column grid of plots.
+ */
+
+div.plotrow {
+    margin: auto 0 auto 0;
+}
+div.plotcolumn {
+    float: left;
+    margin: auto 0 auto 0;
+    width: 50%;
+}
+div.plotbox {
+    display: table;
+    margin: 1em 3em;
+}
+
