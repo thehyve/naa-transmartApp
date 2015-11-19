@@ -2637,7 +2637,9 @@ function buildAnalysis(nodein) {
                     resultsTabPanel.body.unmask();
                 },
                 failure: function (result, request) {
-                    buildAnalysisComplete(result);
+                	resultsTabPanel.body.unmask();
+                	var responseText = result.responseText ? JSON.parse(result.responseText) : null;
+                	Ext.MessageBox.alert('Error', 'An error occured' + (responseText ? ': ' + responseText.message : '') + '.');
                 }
             }
         );
@@ -3653,7 +3655,7 @@ function getAnalysisPanelContent() {
 }
 
 function printPreview(content) {
-	var stylesheet = "<html><head><link rel='stylesheet' type='text/css' href='../css/chartservlet.css'></head><body>";
+	var stylesheet = "<html><head><link rel='stylesheet' type='text/css' href='" + pageInfo.basePath + "/static/css/chartservlet.css'></head><body>";
 	var generator = window.open('', 'name', 'height=400,width=500, resizable=yes, scrollbars=yes');
     var printbutton = "<input type='button' value=' Print this page 'onclick='window.print();return false;' />";
     //var savebutton = "<input type='button' value='Save'  onclick='document.execCommand(\"SaveAs\",null,\".html\")' />";

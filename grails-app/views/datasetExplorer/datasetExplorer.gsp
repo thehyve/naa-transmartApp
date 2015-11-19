@@ -76,6 +76,8 @@
     <link rel="stylesheet" type="text/css" href="${resource(dir: 'js/ext/resources/css', file: 'xtheme-gray.css')}">
     <link rel="stylesheet" type="text/css" href="${resource(dir: 'css/jquery/ui', file: 'jquery-ui-1.9.1.custom.css')}">
     <link rel="stylesheet" type="text/css" href="${resource(dir: 'css/jquery/skin', file: 'ui.dynatree.css')}">
+    <link rel="stylesheet" type="text/css" href="${resource(dir: 'css', file: 'booktable.css')}">
+    <link rel="stylesheet" type="text/css" href="${resource(dir: 'css', file: 'plotgrid.css')}">
     <link rel="stylesheet" type="text/css" href="${resource(dir: 'css', file: 'datasetExplorer.css')}">
     <link rel="stylesheet" type="text/css" href="${resource(dir:'css', file:'folderManagement.css', plugin: 'folder-management')}">
     <script type="text/javascript" src="${resource(dir:'js', file:'folderManagementDE.js', plugin: 'folder-management')}"></script>
