@@ -149,14 +149,7 @@ class LoginController {
 			
 				springSecurityService.reauthenticate(cUser)
 				
-				// Fix for correctly dealing with redirection when login via SSO is done before. More testing is needed before this can be included in the codebase.
-				SavedRequest savedRequest = new HttpSessionRequestCache().getRequest(request, response);
-				//string requesturl = savedrequest.getfullrequesturl();
-				String targetUrl = savedRequest.getRequestURL()
-				if (targetUrl !=null)
-					redirect uri: targetUrl
-				else
-					redirect uri: SpringSecurityUtils.securityConfig.successHandler.defaultTargetUrl
+				redirect uri: SpringSecurityUtils.securityConfig.successHandler.defaultTargetUrl
 				return
 			
 			}

@@ -30,10 +30,6 @@
 			<td valign="top" class="value">${fieldValue(bean:analysis, field:'createDate')}</td>
 		</tr>
 		<tr class="prop">
-			<td valign="top" class="name" style="text-align: right">Updated analysis from:</td>
-			<td valign="top" class="value">${analysis?.updateOf?.name}</td>
-		</tr>
-		<tr class="prop">
 			<td valign="top" class="name" style="text-align: right">Analysis Description:</td>
 			<td valign="top" class="value">${raw(analysis?.longDescription)}</td>
 		</tr>
@@ -70,7 +66,7 @@
 		<!--  GWAS new analysis fields for Q4 2015 Pfizer release -->
 		<tr class="prop">
 			<td valign="top" class="name" style="text-align: right">Update Of:</td>
-			<td valign="top" class="value">${fieldValue(bean:analysis, field:'updateOf')}</td>
+			<td valign="top" class="value">${analysis?.updateOf?.shortDescription}</td>
 		</tr>
 		<tr class="prop">
 			<td valign="top" class="name" style="text-align: right">Effect Type:</td>
