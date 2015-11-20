@@ -9,7 +9,6 @@ import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstra
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.assayconstraints.PlatformConstraint
-import org.transmartproject.db.dataquery.highdim.dataconstraints.DisjunctionDataConstraint
 import org.transmartproject.export.HighDimColumnExporter
 import org.transmartproject.export.HighDimExporter
 import org.transmartproject.export.HighDimTabularResultExporter
@@ -42,18 +41,18 @@ class HighDimExportService {
      *        The other data fields of the filter are the fields that are required by the constraint
      *        factory, e.g., <code>names</code> for the <code>genes</code> filter type. 
      */
-    def DataConstraint createFilterConstraints(HighDimensionDataTypeResource dataTypeResource, List<Map> filters) {
-        def dataConstraints = []
+    static DataConstraint createFilterConstraints(HighDimensionDataTypeResource dataTypeResource, List<Map> filters) {
+        def dataConstraints = [:].withDefault { _ -> []}
         filters.each { Map filter ->
-            log.info "creating filter of type ${filter.type}..."
+            log.debug "creating filter of type ${filter.type}..."
             def type = filter.type
             def data = filter.findAll { it.key != 'type' && it.key != 'id' }
-            log.info "  data: ${data}"
-            def constraint = dataTypeResource.createDataConstraint(data, type)
-            log.info "  constraint: ${constraint}"
-            dataConstraints << constraint
+            log.debug "  data: ${data}"
+            dataConstraints[type] << data
         }
-		DisjunctionDataConstraint disjunction = new DisjunctionDataConstraint(constraints: dataConstraints)
+        DataConstraint disjunction = dataTypeResource.createDataConstraint(
+                [subconstraints: dataConstraints],
+                DataConstraint.DISJUNCTION_CONSTRAINT)
         disjunction
     }
 

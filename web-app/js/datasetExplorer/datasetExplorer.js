@@ -2606,31 +2606,47 @@ function buildAnalysis(nodein) {
         return;
     }
 
-    resultsTabPanel.body.mask("Running analysis...", 'x-mask-loading');
+    var _dialog = HighDimensionDialogService.createSummaryStatDialog(node);
+    _dialog.dialog("open");
 
-    Ext.Ajax.request(
+    HighDimensionDialogService.applyBtn.click(function () {
+
+        var filters = [{
+            type : HighDimensionDialogService.filter.type,
+            names : HighDimensionDialogService.filter.data
+        }];
+
+        resultsTabPanel.body.mask("Running analysis...", 'x-mask-loading');
+
+        Ext.Ajax.request(
             {
                 url : pageInfo.basePath+"/chart/analysis",
                 method : 'POST',
                 timeout: '600000',
                 params :  Ext.urlEncode(
-                        {
-                            charttype : "analysis",
-                            concept_key : node.attributes.id,
-                            result_instance_id1 : GLOBAL.CurrentSubsetIDs[1],
-                            result_instance_id2 : GLOBAL.CurrentSubsetIDs[2]
-                        }
+                    {
+                        charttype : "analysis",
+                        concept_key : node.attributes.id,
+                        result_instance_id1 : GLOBAL.CurrentSubsetIDs[1],
+                        result_instance_id2 : GLOBAL.CurrentSubsetIDs[2],
+                        filters : JSON.stringify(filters)
+                    }
                 ), // or a URL encoded string
-            success: function (result, request) {
-                buildAnalysisComplete(result);
-                resultsTabPanel.body.unmask();
-            },
-            failure: function (result, request) {
-				buildAnalysisComplete(result);
+                success: function (result, request) {
+                    buildAnalysisComplete(result);
+                    resultsTabPanel.body.unmask();
+                },
+                failure: function (result, request) {
+                	resultsTabPanel.body.unmask();
+                	var responseText = result.responseText ? JSON.parse(result.responseText) : null;
+                	Ext.MessageBox.alert('Error', 'An error occured' + (responseText ? ': ' + responseText.message : '') + '.');
+                }
             }
-            }
-    );
-    getAnalysisGridData(node.attributes.id);
+        );
+        getAnalysisGridData(node.attributes.id, filters);
+
+    });
+
 }
 
 function buildAnalysisComplete(result) {
@@ -3608,7 +3624,7 @@ function storeLoaded() {
     analysisGridPanel.doLayout();
 }
 
-function getAnalysisGridData(concept_key) {
+function getAnalysisGridData(concept_key, filters) {
     gridstore = new Ext.data.JsonStore(
             {
                 url : pageInfo.basePath+'/chart/analysisGrid',
@@ -3622,7 +3638,8 @@ function getAnalysisGridData(concept_key) {
                 charttype : "analysisgrid",
                 concept_key : concept_key,
                 result_instance_id1 : GLOBAL.CurrentSubsetIDs[1],
-                result_instance_id2 : GLOBAL.CurrentSubsetIDs[2]
+                result_instance_id2 : GLOBAL.CurrentSubsetIDs[2],
+                filters : JSON.stringify(filters)
             }
     );
     // or a URL encoded string */
@@ -3638,7 +3655,7 @@ function getAnalysisPanelContent() {
 }
 
 function printPreview(content) {
-	var stylesheet = "<html><head><link rel='stylesheet' type='text/css' href='../css/chartservlet.css'></head><body>";
+	var stylesheet = "<html><head><link rel='stylesheet' type='text/css' href='" + pageInfo.basePath + "/static/css/chartservlet.css'></head><body>";
 	var generator = window.open('', 'name', 'height=400,width=500, resizable=yes, scrollbars=yes');
     var printbutton = "<input type='button' value=' Print this page 'onclick='window.print();return false;' />";
     //var savebutton = "<input type='button' value='Save'  onclick='document.execCommand(\"SaveAs\",null,\".html\")' />";

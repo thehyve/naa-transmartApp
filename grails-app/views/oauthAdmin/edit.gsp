@@ -42,7 +42,7 @@
             <div class="checklist">
             <div>
                 <input type="checkbox" name="authorizedGrantTypes" 
-                    id="grant-auth-code" value=" authorization_code" 
+                    id="grant-auth-code" value="authorization_code"
                     ${('authorization_code' in client.authorizedGrantTypes) ? 'checked' : ''} /> 
                 <label for="grant-auth-code">Authorization code</label>
             </div>

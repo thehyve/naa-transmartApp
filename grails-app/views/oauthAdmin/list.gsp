@@ -63,7 +63,7 @@
 
         <h3>Notes:</h3>
         <p>
-        Clients in <span class="configclient">colour</span> are configured in <code>Config.grails</code>. To configure it, you have to edit it directly
+        Clients in <span class="configclient">colour</span> are configured in <code>Config.groovy</code>. To configure it, you have to edit it directly
         in the file.
         </p>
     </div>

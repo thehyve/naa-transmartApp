@@ -1,3 +1,6 @@
+import java.awt.Color
+import java.awt.Rectangle
+
 import org.apache.commons.math.stat.inference.TestUtils
 import org.jfree.chart.ChartFactory
 import org.jfree.chart.ChartRenderingInfo
@@ -18,8 +21,11 @@ import org.jfree.data.statistics.DefaultBoxAndWhiskerCategoryDataset
 import org.jfree.data.statistics.HistogramDataset
 import org.jfree.graphics2d.svg.SVGGraphics2D
 import org.jfree.ui.RectangleInsets
+import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 
-import java.awt.*
+import com.recomdata.export.ExportColumn
+import com.recomdata.export.ExportRowNew
+import com.recomdata.export.ExportTableNew
 
 /**
  * Created by Florian Guitton <f.guitton@imperial.ac.uk> on 17/12/2014.
@@ -27,6 +33,8 @@ import java.awt.*
 class ChartService {
 
     def i2b2HelperService
+    def exportMetadataService
+    def highDimChartDataService
 
     def public keyCache = []
 
@@ -96,8 +104,8 @@ class ChartService {
         }
 
         // Lets build our age diagrams now that we have all the points in
-        subsets.commons.ageHisto = getSVGChart(type: 'histogram', data: ageHistogramHandle)
-        subsets.commons.agePlot = getSVGChart(type: 'boxplot', data: agePlotHandle)
+        subsets.commons.ageHisto = getSVGChart(type: 'histogram', data: ageHistogramHandle, title: "Age")
+        subsets.commons.agePlot = getSVGChart(type: 'boxplot', data: agePlotHandle, title: "Age")
 
         subsets
     }
@@ -118,12 +126,124 @@ class ChartService {
         concepts
     }
 
+    def addHighDimDataToTable(ExportTableNew tablein, String concept, subsets, List<Map> filters) {
+        log.debug "addHighDimDataToTable"
+
+        def metadata = exportMetadataService.getHighDimMetaData(subsets[1]?.instance as Long, subsets[2]?.instance as Long)
+        metadata.each { data ->
+            log.debug "addHighDimDataToTable: dataType = ${data.datatype}"
+            def rowdata = [:]
+            subsets.each { k, v ->
+                if (v.instance) {
+                    def assayConstraints = [
+                            (AssayConstraint.PATIENT_SET_CONSTRAINT):
+                                [[result_instance_id: v.instance]],
+                            (AssayConstraint.ONTOLOGY_TERM_CONSTRAINT):
+                                [[concept_key: concept]],
+                        ]
+                    Map subjectData = highDimChartDataService.getTableDataByPatient(data.datatype.dataTypeName, assayConstraints, filters)
+                    List colnames = subjectData.colnames
+                    List subjects = subjectData.subjects
+                    Map tableData = subjectData.tableData
+                    colnames.each { colname ->
+                        if (tablein.getColumn(colname) != null) {
+                            log.warn "Column '${colname}' already exists."
+                        } else {
+                            log.debug "Adding column '${colname}'"
+                            tablein.putColumn(colname, new ExportColumn(colname, colname, "", "string"))
+                        }
+                    }
+                    tableData.each { id, values ->
+                        def subjectId = id as String
+                        if (!tablein.containsRow(subjectId)) {
+                            log.warn "Row with subject id '${subjectId}' does not exists."
+                        } else {
+                            log.debug "Adding values for subject '${subjectId}'"
+                            ExportRowNew row = tablein.getRow(subjectId)
+                            values.eachWithIndex { value, i ->
+                                row.put(colnames[i], value)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 
+     * @param subsets
+     * @param concept
+     * @param chartSize
+     * @param filters
+     * @return
+     */
+    List<Map> getHighDimAnalysis(subsets, concept, chartSize, List<Map> filters) {
+        List<Map> result = []
+        def metadata = exportMetadataService.getHighDimMetaData(subsets[1]?.instance as Long, subsets[2]?.instance as Long)
+        metadata.each { data ->
+            log.debug "getHighDimAnalysis: concept = ${concept}, dataType = ${data.datatype}"
+            def barChartData = [:]
+            subsets.each { k, v ->
+                if (v.instance) {
+                    def assayConstraints = [
+                            (AssayConstraint.PATIENT_SET_CONSTRAINT):
+                                [[result_instance_id: v.instance]],
+                            (AssayConstraint.ONTOLOGY_TERM_CONSTRAINT):
+                                [[concept_key: concept]]
+                        ]
+                    barChartData[k] = highDimChartDataService.getBarChartData(data.datatype.dataTypeName, assayConstraints, filters)
+                }
+            }
+            def rowCount = barChartData.max { it.value.data.size() }.value.data.size()
+            log.debug "Row count: ${rowCount}"
+            // Rows are the different selected high dimension data rows
+            (0..(rowCount > 0 ? rowCount-1 : 0)).each { i ->
+                def title = ''
+                Set<String> labels = []
+                def series = []
+                def bardata = [:]
+                barChartData.each { k, v ->
+                    if (i < v.data.size()) {
+                        title = v.title
+                        labels.addAll(v.labels)
+                        series.add("Subset ${k}")
+                        bardata[k] = v.data[i]
+                    }
+                }
+                List labelList = new ArrayList(labels)
+                labelList.sort()
+                Map sortedData = bardata.collectEntries { k, v ->
+                    SortedMap d = new TreeMap()
+                    labelList.each { label ->
+                        d[label] = v[label] ?: 0
+                    }
+                    [(k): d]
+                }
+                log.debug "Title: ${title}, plot data: ${sortedData}"
+                result << [
+                    plots: sortedData.collectEntries { k, v ->
+                        def plottitle = title //"Genotype distribution in subset $k for SNP $title"
+                        [(k): getSVGChart(type: 'bar', title: "$plottitle", data: v, size: chartSize)]
+                    },
+                    title: title,
+                    labels: labelList,
+                    series: series,
+                    data: sortedData
+                ]
+            }
+        }
+        result
+    }
+
     def getConceptAnalysis (Map args) {
 
         // Retrieving function parameters
         def subsets = args.subsets ?: null
         def concept = args.concept ?: null
+        def conceptKey = args.conceptKey ?: null
         def chartSize = args.chartSize ?: null
+        def filters = args.filters ?: null
 
         // We create our result holder and initiate it from subsets
         def result = [:]
@@ -137,7 +257,11 @@ class ChartService {
         result.commons.conceptCode = i2b2HelperService.getConceptCodeFromKey(concept);
         result.commons.conceptName = i2b2HelperService.getShortNameFromKey(concept);
 
-        if (i2b2HelperService.isValueConceptCode(result.commons.conceptCode)) {
+        if (filters) {
+            result.commons.type = 'highdim'
+            result.commons.conceptName = i2b2HelperService.getShortNameFromKey(conceptKey);
+            result.commons.highdim = getHighDimAnalysis(subsets, conceptKey, chartSize, filters)
+        } else if (i2b2HelperService.isValueConceptCode(result.commons.conceptCode)) {
 
             result.commons.type = 'value'
 
@@ -299,6 +423,7 @@ class ChartService {
                     min = min != null ? (min > v.min() ? v.min() : min) : v.min()
                     max = max != null ? (max < v.max() ? v.max() : max) : v.max()
                 }.each { k, v ->
+                    log.debug "histogram: k = ${k}, v = ${v}"
                     if (k) set.addSeries(k, (double [])v.toArray(), 10, min, max)
                 }
 
@@ -349,12 +474,22 @@ class ChartService {
 
             case 'bar':
 
+                boolean renderLegend = false
                 set = new DefaultCategoryDataset();
-                data.each { k, v ->
-                    if (k) set.setValue(v, '', k)
+                if (data.find { it.value instanceof Map}) {
+                    data.each { i, row ->
+                        row.each { k, v ->
+                            if (k) set.setValue(v, "Subset ${i}", k)
+                        }
+                    }
+                    renderLegend = true
+                } else {
+                    data.each { k, v ->
+                        if (k) set.setValue(v, '', k)
+                    }
                 }
 
-                chart = ChartFactory.createBarChart(title, "", "", set, PlotOrientation.HORIZONTAL, false, true, false)
+                chart = ChartFactory.createBarChart(title, "", "", set, PlotOrientation.HORIZONTAL, renderLegend, true, false)
                 chart.setChartParameters()
 
                 chart.plot.renderer.setSeriesPaint(0, new Color(128, 193, 119))
@@ -364,6 +499,6 @@ class ChartService {
         }
 
         chart.draw(renderer, new Rectangle(0, 0, width, height), new ChartRenderingInfo(new StandardEntityCollection()));
-        renderer.getSVGDocument()
+        renderer.getSVGElement()
     }
 }
