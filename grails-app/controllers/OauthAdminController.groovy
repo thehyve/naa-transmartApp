@@ -27,10 +27,8 @@ class OauthAdminController {
     }
     
     def create = {
-        String pathStr = request.getScheme() + '://' + request.getServerName() + ((request.getLocalPort() != 80) ? ':' + request.getLocalPort() : '') + request.getContextPath() + '/oauth/verify'
-    
         def client = new Client()
-        client.redirectUris = [pathStr]
+        client.redirectUris = []
         client.clientId = ''
         client.authorizedGrantTypes = []
         render view: 'edit', model: [client: client]
