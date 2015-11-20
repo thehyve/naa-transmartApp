@@ -35,7 +35,7 @@
             </thead>
             <tbody>
             <g:each in="${clients}" status="i" var="client">
-	            <tr class="${(i % 2) == 0 ? 'odd' : 'even'} ${(client.clientId in configClientIds) ? 'configclient' : ''}">
+	            <tr class="${(client.clientId in configClientIds) ? 'configclient' : ''}">
 	                <td>${client.id}</td>
 	                <td><code>${client.clientId}</code></td>
 	                <td><em class="remark">(hashed)</em></td>

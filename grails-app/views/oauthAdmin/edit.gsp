@@ -77,13 +77,17 @@
             </div>
             <script type="application/javascript">
             var uriCount = ${client.redirectUris.size()};
-            function newUriField() {
-                return $("<input type='text' name='redirectUris[" + (uriCount++) + "]' maxlength='2083'><br />");
+            function newUriField(uri) {
+                return $("<input type='text' name='redirectUris[" + (uriCount++) + "]' maxlength='2083' value='" + uri + "' /><br />");
             }
-            jQuery('#uris').append(newUriField());
+            var baseUri = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '')+'${request.getContextPath()}';
+            if (uriCount == 0) {
+            	jQuery('#uris').append(newUriField(baseUri + '/oauth/verify'));
+            }
+            jQuery('#uris').append(newUriField(''));
             </script>
             <p style="text-align: right;">
-                <input onclick="javascript:jQuery('#uris').append(newUriField());" type="button" value="Add row" />
+                <input onclick="javascript:jQuery('#uris').append(newUriField(''));" type="button" value="Add row" />
             </p>
             </div>
         </div>
