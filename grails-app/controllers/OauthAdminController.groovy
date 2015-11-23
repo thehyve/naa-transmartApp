@@ -72,7 +72,7 @@ class OauthAdminController {
             return
         }
         
-        client.scopes = ["_notused_"]
+        client.scopes = ["_dummy_"]
 
         params.clientSecret = params.clientSecret?.trim()
         if (!params.clientSecret) {
