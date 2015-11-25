@@ -558,3 +558,11 @@ li.x-tab-strip-active {
 
 .x-grid3-row .conceptUnselected, .x-grid3-row .conceptSelected {padding: 0 0 5px 5px; font-size: .85em;}
 .data-export-filter-tip {color: #666; font-style: italic}
+
+.var {
+    font-style: italic;
+}
+
+.warning {
+    color: #f77;
+}

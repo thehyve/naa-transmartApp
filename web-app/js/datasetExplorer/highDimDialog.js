@@ -64,6 +64,7 @@ HighDimensionDialogService = (function(autocompleteInp) {
         obj.filterForm = jQuery('#filterForm');
         obj.filterType =  jQuery('#filterType');
         obj.filterKeyword = jQuery('#filterKeyword');
+        obj.filterKeywordFeedback = jQuery('#filterKeywordFeedback');
         obj.loadingEl = jQuery('#loadingPleaseWait');
         obj.applyBtn = jQuery('#dialog-apply-btn');
         obj.cancelBtn = jQuery('#dialog-cancel-btn');
@@ -78,6 +79,7 @@ HighDimensionDialogService = (function(autocompleteInp) {
     {
         filterType: {},
         filterKeyword: {},
+        filterKeywordFeedback: {},
         dialogEl: jQuery('#dialog-form'),
         uiComponent : {
             autoOpen: false,
@@ -115,6 +117,8 @@ HighDimensionDialogService = (function(autocompleteInp) {
      * void create auto complete input depends on the filter
      */
     service.createAutocompleteInput = function () {
+        service.filterKeyword.val('');
+        service.validateKeyword();
         if (service.filterType.val() === 'chromosome_segment') {
             service.filterKeyword.autocomplete('disable');
         } else {
@@ -140,10 +144,8 @@ HighDimensionDialogService = (function(autocompleteInp) {
      * @private
      */
     service.dropOntoVariableSelection = function (data, el, filter) {
-        if (Object.keys(data.details).indexOf(data.dataTypeId) >= 0 ) {
-            data.node.attributes.oktousevalues = "N";
-            service.createPanelItemNew(el, convertNodeToConcept(data.node), filter);
-        }
+        data.node.attributes.oktousevalues = "N";
+        service.createPanelItemNew(el, convertNodeToConcept(data.node), filter);
     };
 
     service.createSummaryStatDialog = function (node) {
@@ -155,12 +157,28 @@ HighDimensionDialogService = (function(autocompleteInp) {
 
             _defineFormElements(_s);
             _s.loadingEl.hide();
+            _s.filterKeyword.val('');
+            _s.applyBtn.button('disable');
             if (_s.filterType.val() !== 'snps') {
             	_s.filterType.val('snps');
-            	_s.filterKeyword.val('');
             	_s.createAutocompleteInput();
             }
             _s.filterType.prop('disabled', true);
+
+            _s.filterKeyword.off('keyup');
+            _s.filterKeyword.on('keyup', function(evt) {
+                _s.validateKeyword();
+            });
+
+            _s.filterForm.off('keypress');
+            _s.filterForm.on('keypress', function(evt) {
+                if (evt.which == 13) {
+                    evt.preventDefault();
+                    if (!_s.applyBtn.prop('disabled')) {
+                        _s.applyBtn.click();
+                    }
+                }
+            });
 
             if (service.filterKeyword.is('.ui-autocomplete-input')){
                 //console.log('autocomplete already initiated, so now enabling it');
@@ -186,6 +204,60 @@ HighDimensionDialogService = (function(autocompleteInp) {
     };
 
     /**
+     * The format used for specifying genomic regions: '<var>C</var>:<var>start</var>:<var>end</var>',
+     * where C is a chromosome number or any of <code>{'X', 'Y', 'XY', 'MT'}</code>.
+     * <var>start</var> and <var>end</var> are integers that specify an interval of basepair positions
+     * in the chromosome.
+     * Examples: <code>X:1-1000000</code>, <code>3:200000-400000</code>.
+     */
+    service.chromosome_segment_pattern = /([0-9]{1,2}|X|Y|XY|MT):(\d+)-(\d+)/;
+
+    /**
+     * Validates if the value in <var>filterKeyword</var> is conform the filter type
+     * selected in <var>filterType</var>.
+     * In particular, for chromosome segment, checks if the value matches the pattern in
+     * <var>chromosome_segment_pattern</var> and if the <var>start</var> values is smaller than (or equal to)
+     * the <var>end</var> value.
+     * If the <var>filterKeyword</var> conforms to the filter type format,
+     * the <code>applyBtn</code> button is enabled; otherwise the button is disabled
+     * and an error message is written to the <code>filterKeywordFeedback</code> element.
+     */
+    service.validateKeyword = function() {
+        		if (service.filterType.val() === 'chromosome_segment') {
+            // validate pattern
+            var valid = false;
+            var m = service.chromosome_segment_pattern
+                    .exec(service.filterKeyword.val())
+            if (m) {
+                var chromosome = m[1];
+                var start = m[2];
+                var end = m[3];
+                if (start <= end) {
+                    valid = true;
+                }
+            }
+            var message = 'Genomic region specification should be in the format '
+                    + '\'<var class="var">C</var><code>:</code><var class="var">start</var><code>-</code><var class="var">end</var>\','
+                    + 'e.g., \'X:1-1000000\' or \'3:200000-400000\'.';
+            // console.log(message);
+            if (valid) {
+                service.applyBtn.button('enable');
+                service.filterKeywordFeedback.text('');
+            } else {
+                service.applyBtn.button('disable');
+                service.filterKeywordFeedback.html(message);
+            }
+        } else {
+            if (service.filterKeyword.val().trim()) {
+                service.applyBtn.button('enable');
+            } else {
+                service.applyBtn.button('disable');
+            }
+            service.filterKeywordFeedback.text('');
+        }
+    }
+
+    /**
      * Generate jQuery UI High Dimensional filter by identifier dialog
      * @param id
      * @private
@@ -208,6 +280,22 @@ HighDimensionDialogService = (function(autocompleteInp) {
             _s.filterKeyword.val('');
             _s.filterType.prop('disabled', false);
 
+            _s.filterKeyword.off('keyup');
+            _s.filterKeyword.on('keyup', function(evt) {
+        		_s.validateKeyword();
+            });
+
+            _s.filterForm.off('keypress');
+            _s.filterForm.on('keypress', function(evt) {
+                console.log('keypress: ' + evt.which);
+                if (evt.which == 13) {
+                    evt.preventDefault();
+                    if (!_s.applyBtn.prop('disabled')) {
+                        _s.applyBtn.click();
+                    }
+                }
+            });
+
             jQuery.ajax({
                 url : pageInfo.basePath + "/HighDimension/nodeDetails",
                 method : 'POST',
@@ -218,7 +306,6 @@ HighDimensionDialogService = (function(autocompleteInp) {
                     if (_isCorrectHD(d, dropzone.recordData)) {
                         _s.filterForm.show();
                         _s.loadingEl.hide();
-                        _s.applyBtn.button('enable');
                         _s.cancelBtn.button('enable');
                         _s.createAutocompleteInput();
                     } else {

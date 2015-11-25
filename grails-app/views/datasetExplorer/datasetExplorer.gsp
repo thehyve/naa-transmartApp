@@ -241,9 +241,10 @@
             </select>
             <label for="filterKeyword">Keyword</label>
             <input type="text" name="filterKeyword" id="filterKeyword" value="" class="text ui-widget-content ui-corner-all">
+            <p id="filterKeywordFeedback" class="text warning"></p>
 
             <!-- Allow form submission with keyboard without duplicating the dialog button -->
-            <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+            <input type="button" tabindex="-1" style="position:absolute; top:-1000px">
         </fieldset>
     </form>
 </div>
