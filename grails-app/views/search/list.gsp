@@ -237,7 +237,7 @@
 			    // set active tab
 			    tabpanel.activate(getActiveTab("${session.searchFilter.acttabname()}"));
 
-                var helpURL = '${grailsApplication.config.com.recomdata.adminHelpURL}';
+                var helpURL = '${grailsApplication.config.com.recomdata.searchtool.adminHelpURL}';
 	            var contact = '${grailsApplication.config.com.recomdata.contactUs}';
 	            var appTitle = '${grailsApplication.config.com.recomdata.appTitle}';
 	            var buildVer = 'Build Version: <g:meta name="environment.BUILD_NUMBER"/> - <g:meta name="environment.BUILD_ID"/>';
@@ -329,7 +329,7 @@
 	    <!-- This implements the Help functionality -->
 	    <script type="text/javascript" src="${resource(dir:'js', file:'help/D2H_ctxt.js')}"></script>
 	    <script language="javascript">
-	    	helpURL = '${grailsApplication.config.com.recomdata.adminHelpURL}';
+	    	helpURL = '${grailsApplication.config.com.recomdata.searchtool.adminHelpURL}';
 	    </script>
 	    <sec:ifAnyGranted roles="ROLE_ADMIN">
 			<script language="javascript">

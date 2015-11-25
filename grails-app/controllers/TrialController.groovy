@@ -23,9 +23,12 @@
  * @version $Revision: 10280 $
  */
 import com.recomdata.util.DomainObjectExcelHelper
+
 import grails.converters.JSON
+
 import org.transmart.SearchResult
 import org.transmart.biomart.BioAssayAnalysis
+import org.transmart.biomart.BioAssayAnalysisExt;
 import org.transmart.biomart.ClinicalTrial
 import org.transmart.biomart.Experiment
 import org.transmart.searchapp.SearchKeyword
@@ -112,7 +115,8 @@ class TrialController {
 
     def showAnalysis = {
         def analysis = BioAssayAnalysis.get(params.id)
-        render(template: 'analysisdetail', model: [analysis: analysis])
+		def analysisExt = BioAssayAnalysisExt.findByBioAssayAnalysis(analysis)
+        render(template: 'analysisdetail', model: [analysis: analysis, analysisExt: analysisExt])
     }
 
     def expDetail = {

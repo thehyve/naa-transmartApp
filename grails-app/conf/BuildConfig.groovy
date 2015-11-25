@@ -160,7 +160,6 @@ grails.project.dependency.resolution = {
             runtime ':transmart-metacore-plugin:1.2.2'
 
             //test ':transmart-core-db-tests:1.2.2'
-
         } else {
             dm.internalDependencies delegate
         }
