@@ -20,7 +20,7 @@ var DataExport = function() {
             url : pageInfo.basePath+'/dataExport/getMetaData',
             root : 'exportMetaData',
             fields : ['subsetId1', 'subsetName1', 'subset1', 'subsetId2', 'subsetName2', 'subset2', 'dataTypeId',
-                'dataTypeName', 'metadataExists']
+                'dataTypeName', 'metadataExists', 'supportedDataConstraints']
         });
         ret.proxy.addListener('loadexception', function(dummy, dummy2, response) {
             if (response.status != 200) {

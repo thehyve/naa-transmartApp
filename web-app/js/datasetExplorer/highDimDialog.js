@@ -51,7 +51,6 @@ HighDimensionDialogService = (function(autocompleteInp) {
      */
     var _isCorrectHD = function (data, gridRow) {
         var _keys = Object.keys(data);
-        console.log(_keys);
         return _keys[0] === gridRow.dataTypeId;
     };
 
@@ -255,7 +254,29 @@ HighDimensionDialogService = (function(autocompleteInp) {
             }
             service.filterKeywordFeedback.text('');
         }
-    }
+    };
+
+    service.disableUnsupportedFilters = function(supportedDataConstraints) {
+        var selected = service.filterType.val();
+        service.filterType.find('option').each(function() {
+            var val = jQuery(this).val();
+            if (supportedDataConstraints.indexOf(val) == -1) {
+                // filter not supported, disable filter
+                console.log('disable filter option: ' + val);
+                jQuery(this).prop('disabled', true);
+                if (selected == val) {
+                    selected = '';
+                }
+            } else {
+                jQuery(this).prop('disabled', false);
+                if (selected == '') {
+                    selected = val;
+                }
+            }
+        });
+        service.filterType.val(selected);
+        console.log('selected filter type: ' + service.filterType.val());
+    };
 
     /**
      * Generate jQuery UI High Dimensional filter by identifier dialog
@@ -304,22 +325,25 @@ HighDimensionDialogService = (function(autocompleteInp) {
                 .done(function (d) {
                     dropzone.dropData.details = d;
                     if (_isCorrectHD(d, dropzone.recordData)) {
+                        console.log('show filter dialog for filter types: ', dropzone.recordData.supportedDataConstraints);
+                        _s.disableUnsupportedFilters(dropzone.recordData.supportedDataConstraints);
                         _s.filterForm.show();
                         _s.loadingEl.hide();
                         _s.cancelBtn.button('enable');
                         _s.createAutocompleteInput();
                     } else {
-                        _s.dialogEl.dialog("close");
+                        jQuery('#dialog-form').dialog('close');
                     }
                 })
                 .fail(function (msg) {
                     console.error('Something wrong when checking the node ...', msg);
-                    _s.dialogEl.dialog("close");
+                    jQuery('#dialog-form').dialog('close');
                 });
         };
 
         // assign close dialog handler
         _s.uiComponent.close = function () {
+            console.log('uiComponent.close');
             if (Object.keys(dropzone.dropData.details).indexOf(dropzone.recordData.dataTypeId) >= 0 ) {
                 dropzone.dropData.node.attributes.oktousevalues = "N";
                 _s.createPanelItemNew(dropzone.el, convertNodeToConcept(dropzone.dropData.node), dropzone.filter);

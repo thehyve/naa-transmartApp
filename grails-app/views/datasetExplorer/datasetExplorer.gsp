@@ -229,15 +229,15 @@
 
 
 %{--High Dimension Dialog--}%
-<div id="dialog-form" title="SNP Filtering">
-    <div id="loadingPleaseWait">Loading please wait ..</div>
+<div id="dialog-form" title="Filter data">
+    <div id="loadingPleaseWait">Loading, please wait...</div>
     <form id="filterForm">
         <fieldset>
             <label for="filterType">Filter Type</label>
             <select id="filterType" onchange="HighDimensionDialogService.createAutocompleteInput();" >
-                <option value="snps">SNP Identifiers</option>
+                <option value="snps">SNP identifiers</option>
                 <option value="genes">Genes</option>
-                <option value="chromosome_segment">Genomic Region</option>
+                <option value="chromosome_segment">Genomic region</option>
             </select>
             <label for="filterKeyword">Keyword</label>
             <input type="text" name="filterKeyword" id="filterKeyword" value="" class="text ui-widget-content ui-corner-all">
