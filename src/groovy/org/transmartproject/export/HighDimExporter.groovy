@@ -26,4 +26,15 @@ interface HighDimExporter {
      */
     public String getDescription()
 
+
+    /**
+     * @return a map with display attributes, used in the user interface.
+     *
+     * Recognized keys: (only one currently)
+     * - selectOnFilterPriority (number): The exports with the highest values within a filtered datatype
+     *   are selected when the user drops a concept on the export row. If multiple exports have the same value they are
+     *   all selected. With a value < 0 an exporter is never auto-selected.
+     *
+     */
+    public Map<String, Object> getDisplayAttributes()
 }

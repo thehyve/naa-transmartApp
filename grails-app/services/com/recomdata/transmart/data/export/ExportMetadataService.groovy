@@ -225,7 +225,8 @@ class ExportMetadataService {
                         dataTypeHasCounts: true,
                         dataFormat: it.description,
                         fileDataCount: highDimRow.subset1 ? highDimRow.subset1.size() : 0,
-                        platforms: platforms.subset1
+                        platforms: platforms.subset1,
+                        displayAttributes: it.displayAttributes
                     ]
                 },
                 subset2: exporters.collect {
@@ -234,7 +235,8 @@ class ExportMetadataService {
                         dataTypeHasCounts: true,
                         dataFormat: it.description,
                         fileDataCount: highDimRow.subset2 ? highDimRow.subset2.size() : 0,
-                        platforms: platforms.subset2
+                        platforms: platforms.subset2,
+                        displayAttributes: it.displayAttributes
                     ]
                 }
             ]

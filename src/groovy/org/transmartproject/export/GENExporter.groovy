@@ -54,6 +54,11 @@ class GENExporter implements HighDimTabularResultExporter {
     }
 
     @Override
+    public Map<String, Object> getDisplayAttributes() {
+        [selectOnFilterPriority: 100]
+    }
+
+    @Override
     public void export(TabularResult data, Projection projection,
             OutputStream outputStream) {
         export( data, projection, outputStream, { false } )
