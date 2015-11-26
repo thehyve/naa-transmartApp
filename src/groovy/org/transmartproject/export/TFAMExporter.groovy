@@ -81,7 +81,7 @@ class TFAMExporter implements HighDimColumnExporter {
 
     @Override
     public Map<String, Object> getDisplayAttributes() {
-        [selectOnFilterPriority: 200]
+        [selectOnFilterPriority: 200, group: 'TFAM_TPED']
     }
 
     @Override

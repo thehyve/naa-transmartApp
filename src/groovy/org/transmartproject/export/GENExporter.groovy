@@ -55,7 +55,7 @@ class GENExporter implements HighDimTabularResultExporter {
 
     @Override
     public Map<String, Object> getDisplayAttributes() {
-        [selectOnFilterPriority: 100]
+        [selectOnFilterPriority: 100, group: 'GENE_SAMPLE']
     }
 
     @Override
