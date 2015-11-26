@@ -63,7 +63,12 @@ class VCFExporter implements HighDimTabularResultExporter {
             OutputStream outputStream) {
         export( tabularResult, projection, outputStream, { false } )
     }
-            
+
+    @Override
+    public Map<String, Object> getDisplayAttributes() {
+        [selectOnFilterPriority: 100]
+    }
+
     @Override
     public void export(TabularResult tabularResult, Projection projection,
             OutputStream outputStream, Closure isCancelled) {

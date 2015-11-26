@@ -52,6 +52,11 @@ class SAMPLEExporter implements HighDimColumnExporter {
     }
 
     @Override
+    public Map<String, Object> getDisplayAttributes() {
+        [selectOnFilterPriority: 100]
+    }
+
+    @Override
     public void export(Collection<Assay> assays,
             OutputStream outputStream) {
         export(assays, outputStream, { false })

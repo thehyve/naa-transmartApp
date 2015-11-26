@@ -55,6 +55,11 @@ class TabSeparatedExporter implements HighDimTabularResultExporter {
     }
 
     @Override
+    public Map<String, Object> getDisplayAttributes() {
+        [selectOnFilterPriority: 100]
+    }
+
+    @Override
     public void export(TabularResult tabularResult, Projection projection,
             OutputStream outputStream) {
         export( tabularResult, projection, outputStream, { false } )
@@ -68,7 +73,7 @@ class TabSeparatedExporter implements HighDimTabularResultExporter {
         def startTime = System.currentTimeMillis()
         
         if (isCancelled() ) {
-            return null
+            return
         }
 
         

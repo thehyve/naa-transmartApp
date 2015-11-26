@@ -80,6 +80,11 @@ class TFAMExporter implements HighDimColumnExporter {
     }
 
     @Override
+    public Map<String, Object> getDisplayAttributes() {
+        [selectOnFilterPriority: 200]
+    }
+
+    @Override
     public void export(Collection<Assay> assays,
             OutputStream outputStream) {
         export(assays, outputStream, { false })

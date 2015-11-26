@@ -61,6 +61,11 @@ class TPEDExporter implements HighDimTabularResultExporter {
     }
 
     @Override
+    public Map<String, Object> getDisplayAttributes() {
+        [selectOnFilterPriority: 200]
+    }
+
+    @Override
     public void export(TabularResult /*<AssayColumn, SnpLzRow>*/ data, Projection projection,
             OutputStream outputStream) {
         export( data, projection, outputStream, { false } )

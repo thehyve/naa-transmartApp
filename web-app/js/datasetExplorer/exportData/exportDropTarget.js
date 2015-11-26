@@ -46,7 +46,24 @@ ExportDropTarget = (function() {
         }
 
         // mark as checked
-        jQuery(_dropTarget.el.dom).find('input[name="SubsetDataTypeFileType"]').prop('checked', true);
+        var priority = 0;
+        var toCheck = [];
+        ['subset1', 'subset2'].each(function(subset) {
+            _dropTarget.recordData[subset].each(function(exp) {
+                var prio = exp.displayAttributes.selectOnFilterPriority;
+                if (prio < priority) return;
+                if (prio > priority) {
+                    toCheck = [];
+                    priority = prio;
+                }
+                exp.platforms.each(function(platform) {
+                    toCheck.push('#' +
+                        [subset, _dropTarget.recordData.dataTypeId, exp.fileType, platform.gplId]
+                            .join('_').replace('.', '\\.'));
+                })
+            })
+        });
+        jQuery(_dropTarget.el.dom).find(toCheck.join(', ')).prop('checked', true);
         // ---------------------------------------
 
         return true;
