@@ -23,7 +23,7 @@ function getExportJobs(tab)
 {
 	//TODO : point it to /asyncJob/getjobs : somehow the UI in "Export Jobs" tab seems to be not showing the list of jobs
 	exportjobsstore = new Ext.data.JsonStore({
-		url : pageInfo.basePath+'/asyncJob/getjobs',
+		url : pageInfo.basePath+'/asyncJob/jobs',
 		root : 'jobs',
 		totalProperty : 'totalCount',
 		fields : ['name', 'status', 'runTime', 'startDate', 'viewerURL', 'querySummary']

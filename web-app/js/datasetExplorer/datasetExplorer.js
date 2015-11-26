@@ -3921,12 +3921,12 @@ function showWorkflowStatusWindow() {
                 timeout : '300000'
                 }
         );
-      } 
+      };
       
       var task = {
           run: updateStatus,
           interval: 4000 //4 second
-      }
+      };
  
       runner.start(task);
       
