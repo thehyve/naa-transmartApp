@@ -17,7 +17,7 @@ HighDimensionDialogService = (function(autocompleteInp) {
                 'chromosome': _strChrPos[0],
                 'start': _pos[0],
                 'end': _pos[1]
-            }
+            };
         };
 
         var _filter = {
@@ -27,13 +27,13 @@ HighDimensionDialogService = (function(autocompleteInp) {
 
         if (filterType === 'genes' || filterType === 'snps') {
             filterKeyword.split(_separator).forEach(function(d) {
-            	var _d = d.trim();
+                var _d = d.trim();
                 if (_d) {
-                	_filter.data.push(_d);
+                    _filter.data.push(_d);
                 }
             });
             _filter.names = _filter.data;
-        } else if (filterType === 'chromosome_segment' ) {
+        } else if (filterType === 'chromosome_segment') {
             filterKeyword.split(_separator).forEach(function(chrPos) {
                 _filter.data.push(_tokenizeChrPosition(chrPos.trim()));
             });
@@ -159,8 +159,8 @@ HighDimensionDialogService = (function(autocompleteInp) {
             _s.filterKeyword.val('');
             _s.applyBtn.button('disable');
             if (_s.filterType.val() !== 'snps') {
-            	_s.filterType.val('snps');
-            	_s.createAutocompleteInput();
+                _s.filterType.val('snps');
+                _s.createAutocompleteInput();
             }
             _s.filterType.prop('disabled', true);
 
@@ -171,7 +171,7 @@ HighDimensionDialogService = (function(autocompleteInp) {
 
             _s.filterForm.off('keypress');
             _s.filterForm.on('keypress', function(evt) {
-                if (evt.which == 13) {
+                if (evt.which === 13) {
                     evt.preventDefault();
                     if (!_s.applyBtn.prop('disabled')) {
                         _s.applyBtn.click();
@@ -222,11 +222,11 @@ HighDimensionDialogService = (function(autocompleteInp) {
      * and an error message is written to the <code>filterKeywordFeedback</code> element.
      */
     service.validateKeyword = function() {
-        		if (service.filterType.val() === 'chromosome_segment') {
+            if (service.filterType.val() === 'chromosome_segment') {
             // validate pattern
             var valid = false;
             var m = service.chromosome_segment_pattern
-                    .exec(service.filterKeyword.val())
+                    .exec(service.filterKeyword.val());
             if (m) {
                 var chromosome = m[1];
                 var start = m[2];
@@ -264,12 +264,12 @@ HighDimensionDialogService = (function(autocompleteInp) {
                 // filter not supported, disable filter
                 console.log('disable filter option: ' + val);
                 jQuery(this).prop('disabled', true);
-                if (selected == val) {
+                if (selected === val) {
                     selected = '';
                 }
             } else {
                 jQuery(this).prop('disabled', false);
-                if (selected == '') {
+                if (selected === '') {
                     selected = val;
                 }
             }
@@ -303,13 +303,13 @@ HighDimensionDialogService = (function(autocompleteInp) {
 
             _s.filterKeyword.off('keyup');
             _s.filterKeyword.on('keyup', function(evt) {
-        		_s.validateKeyword();
+                _s.validateKeyword();
             });
 
             _s.filterForm.off('keypress');
             _s.filterForm.on('keypress', function(evt) {
                 console.log('keypress: ' + evt.which);
-                if (evt.which == 13) {
+                if (evt.which === 13) {
                     evt.preventDefault();
                     if (!_s.applyBtn.prop('disabled')) {
                         _s.applyBtn.click();
@@ -399,8 +399,9 @@ HighDimensionDialogService = (function(autocompleteInp) {
         var shortname = "";
         if (splits.length > 1) {
             shortname = "...\\" + splits[splits.length - 2] + "\\" + splits[splits.length - 1];
+        } else {
+            shortname = splits[splits.length - 1];
         }
-        else shortname = splits[splits.length - 1];
         li.setAttribute('conceptshortname', shortname);
 
         //Create a setvalue description
