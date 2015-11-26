@@ -218,6 +218,7 @@ class ExportMetadataService {
                 dataTypeName: highDimRow.datatype.dataTypeDescription,
                 isHighDimensional: true,
                 metadataExists: true,
+                supportedDataConstraints: highDimRow.datatype.supportedDataConstraints,
                 
                 subset1: exporters.collect {
                     [
