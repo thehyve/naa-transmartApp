@@ -234,14 +234,27 @@
     <form id="filterForm">
         <fieldset>
             <label for="filterType">Filter Type</label>
-            <select id="filterType" onchange="HighDimensionDialogService.createAutocompleteInput();" >
+            <select id="filterType" onchange="HighDimensionDialogService.showKeywordDescription(); HighDimensionDialogService.createAutocompleteInput();" >
                 <option value="snps">SNP identifiers</option>
                 <option value="genes">Genes</option>
                 <option value="chromosome_segment">Genomic region</option>
             </select>
             <label for="filterKeyword">Keyword</label>
             <input type="text" name="filterKeyword" id="filterKeyword" value="" class="text ui-widget-content ui-corner-all">
-            <p id="filterKeywordFeedback" class="text warning"></p>
+            <p id="filterKeywordFeedback" class="text warning">No valid filter specification.</p>
+            <p id="filterKeywordDescription[snps]" class="text filter_keyword_description">
+                Please provide one or multiple SNP identifiers (separated by commas), e.g.,
+                <code>rs12890222, rs1234567</code>.
+            </p>
+            <p id="filterKeywordDescription[genes]" class="text filter_keyword_description">
+                Please provide one or multiple gene names (separated by commas), e.g.,
+                <code>TP53, AURKA</code>.
+            </p>
+            <p id="filterKeywordDescription[chromosome_segment]" class="text filter_keyword_description">
+                Please provide one or multiple genomic region (separated by commas) in the format:
+                &lsquo;<var class="var">C</var><code>:</code><var class="var">start</var><code>-</code><var class="var">end</var>&rsquo;,
+                e.g., <code>X:1-1000000, 3:200000-400000</code>.
+            </p>
 
             <!-- Allow form submission with keyboard without duplicating the dialog button -->
             <input type="button" tabindex="-1" style="position:absolute; top:-1000px">

@@ -564,5 +564,6 @@ li.x-tab-strip-active {
 }
 
 .warning {
+    font-style: italic;
     color: #f77;
 }

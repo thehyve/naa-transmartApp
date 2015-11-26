@@ -1,6 +1,7 @@
 HighDimensionDialogService = (function(autocompleteInp) {
 
     var _autocompleteInp = autocompleteInp;
+    var _separator = /[,]+/; // identifiers are separated by comma (,)
 
     /**
      * Get filter type & keywords selected by user
@@ -8,7 +9,6 @@ HighDimensionDialogService = (function(autocompleteInp) {
      * @private
      */
     var _getFilter = function (filterType, filterKeyword) {
-        var _separator = /[,]+/; // identifiers are separated by comma (,)
 
         var _tokenizeChrPosition = function(strChrPos) {
             var _strChrPos = strChrPos.split(':'),
@@ -202,6 +202,18 @@ HighDimensionDialogService = (function(autocompleteInp) {
         return jQuery('#dialog-form').dialog(_s.uiComponent);
     };
 
+    service.showKeywordDescription = function() {
+        var filterType = service.filterType.val();
+        jQuery('.filter_keyword_description').each(function() {
+            var el = jQuery(this);
+            if (el.attr('id') === 'filterKeywordDescription['+filterType+']') {
+                el.show();
+            } else {
+                el.hide();
+            }
+        });
+    };
+
     /**
      * The format used for specifying genomic regions: '<var>C</var>:<var>start</var>:<var>end</var>',
      * where C is a chromosome number or any of <code>{'X', 'Y', 'XY', 'MT'}</code>.
@@ -209,7 +221,7 @@ HighDimensionDialogService = (function(autocompleteInp) {
      * in the chromosome.
      * Examples: <code>X:1-1000000</code>, <code>3:200000-400000</code>.
      */
-    service.chromosome_segment_pattern = /([0-9]{1,2}|X|Y|XY|MT):(\d+)-(\d+)/;
+    service.chromosome_segment_pattern = /^([0-9]{1,2}|X|Y|XY|MT):(\d+)-(\d+)$/;
 
     /**
      * Validates if the value in <var>filterKeyword</var> is conform the filter type
@@ -222,37 +234,50 @@ HighDimensionDialogService = (function(autocompleteInp) {
      * and an error message is written to the <code>filterKeywordFeedback</code> element.
      */
     service.validateKeyword = function() {
-            if (service.filterType.val() === 'chromosome_segment') {
-            // validate pattern
-            var valid = false;
-            var m = service.chromosome_segment_pattern
-                    .exec(service.filterKeyword.val());
-            if (m) {
-                var chromosome = m[1];
-                var start = m[2];
-                var end = m[3];
-                if (start <= end) {
-                    valid = true;
-                }
+        var filterKeyword = service.filterKeyword.val().trim();
+        if (service.filterType.val() === 'chromosome_segment') {
+            var valid_count = 0;
+            var invalid_count = 0;
+            if (filterKeyword) {
+                filterKeyword.split(_separator).forEach(function(d) {
+                    var _d = d.trim();
+                    if (_d) {
+                        var valid_segment = false;
+                        // validate pattern
+                        var m = service.chromosome_segment_pattern
+                                .exec(_d);
+                        if (m) {
+                            var chromosome = m[1];
+                            var start = m[2];
+                            var end = m[3];
+                            if (start <= end) {
+                                valid_segment = true;
+                            }
+                        }
+                        if (valid_segment) {
+                            valid_count++;
+                        } else {
+                            invalid_count++;
+                        }
+                        //console.log('segment ' + _d + ': ' + (valid_segment ? 'valid': 'invalid'));
+                    }
+                });
             }
-            var message = 'Genomic region specification should be in the format '
-                    + '\'<var class="var">C</var><code>:</code><var class="var">start</var><code>-</code><var class="var">end</var>\','
-                    + 'e.g., \'X:1-1000000\' or \'3:200000-400000\'.';
-            // console.log(message);
+            var valid = (valid_count > 0 && invalid_count == 0);
             if (valid) {
                 service.applyBtn.button('enable');
-                service.filterKeywordFeedback.text('');
+                service.filterKeywordFeedback.hide();
             } else {
                 service.applyBtn.button('disable');
-                service.filterKeywordFeedback.html(message);
+                service.filterKeywordFeedback.show();
             }
         } else {
-            if (service.filterKeyword.val().trim()) {
+            if (filterKeyword) {
                 service.applyBtn.button('enable');
             } else {
                 service.applyBtn.button('disable');
             }
-            service.filterKeywordFeedback.text('');
+            service.filterKeywordFeedback.hide();
         }
     };
 
@@ -308,7 +333,6 @@ HighDimensionDialogService = (function(autocompleteInp) {
 
             _s.filterForm.off('keypress');
             _s.filterForm.on('keypress', function(evt) {
-                console.log('keypress: ' + evt.which);
                 if (evt.which === 13) {
                     evt.preventDefault();
                     if (!_s.applyBtn.prop('disabled')) {
@@ -327,6 +351,7 @@ HighDimensionDialogService = (function(autocompleteInp) {
                     if (_isCorrectHD(d, dropzone.recordData)) {
                         console.log('show filter dialog for filter types: ', dropzone.recordData.supportedDataConstraints);
                         _s.disableUnsupportedFilters(dropzone.recordData.supportedDataConstraints);
+                        _s.showKeywordDescription();
                         _s.filterForm.show();
                         _s.loadingEl.hide();
                         _s.cancelBtn.button('enable');
