@@ -1060,10 +1060,6 @@ function onWindowResize() {
 
     jQuery('#analysisPanel .x-panel-body').height(jQuery(window).height() - 65);
 
-    if (jQuery('#dataTypesGridPanel .x-panel-body').size() > 0) {
-        var exportPanelTop = jQuery('#dataTypesGridPanel .x-panel-body').offset()['top'];
-        jQuery('#dataTypesGridPanel .x-panel-body').height(jQuery(window).height() - exportPanelTop - 40);
-    }
     if (jQuery('#dataAssociationPanel .x-panel-body').size() > 0) {
         var panelTop = jQuery('#dataAssociationPanel .x-panel-body').offset()['top'];
         jQuery('#dataAssociationPanel .x-panel-body').height(jQuery(window).height() - panelTop);
