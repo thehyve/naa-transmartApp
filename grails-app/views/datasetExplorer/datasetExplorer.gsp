@@ -253,7 +253,8 @@
             <p id="filterKeywordDescription[chromosome_segment]" class="text filter_keyword_description">
                 Please provide one or multiple genomic region (separated by commas) in the format:
                 &lsquo;<var class="var">C</var><code>:</code><var class="var">start</var><code>-</code><var class="var">end</var>&rsquo;,
-                e.g., <code>X:1-1000000, 3:200000-400000</code>.
+                where <var class="var">C</var> is in the range 1&ndash;22 or one of <code>X</code>, <code>Y</code>, <code>XY</code>, <code>M</code>, <code>MT</code>.
+                E.g., <code>X:1-1000000, 3:200000-400000</code>.
             </p>
 
             <!-- Allow form submission with keyboard without duplicating the dialog button -->

@@ -216,19 +216,20 @@ HighDimensionDialogService = (function(autocompleteInp) {
 
     /**
      * The format used for specifying genomic regions: '<var>C</var>:<var>start</var>:<var>end</var>',
-     * where C is a chromosome number or any of <code>{'X', 'Y', 'XY', 'MT'}</code>.
+     * where C is a chromosome number in the range 1--22 or any of <code>{'X', 'Y', 'XY', 'M', 'MT'}</code>
+     * (assumes the human genome).
      * <var>start</var> and <var>end</var> are integers that specify an interval of basepair positions
      * in the chromosome.
      * Examples: <code>X:1-1000000</code>, <code>3:200000-400000</code>.
      */
-    service.chromosome_segment_pattern = /^([0-9]{1,2}|X|Y|XY|MT):(\d+)-(\d+)$/;
+    service.chromosome_segment_pattern = /^([0-9]{1,2}|X|Y|XY|M|MT):(\d+)-(\d+)$/;
 
     /**
      * Validates if the value in <var>filterKeyword</var> is conform the filter type
      * selected in <var>filterType</var>.
      * In particular, for chromosome segment, checks if the value matches the pattern in
-     * <var>chromosome_segment_pattern</var> and if the <var>start</var> values is smaller than (or equal to)
-     * the <var>end</var> value.
+     * <var>chromosome_segment_pattern</var>, if the chromosome number is in the range 1--22 (assuming the human genome),
+     * and if the <var>start</var> values is smaller than (or equal to) the <var>end</var> value.
      * If the <var>filterKeyword</var> conforms to the filter type format,
      * the <code>applyBtn</code> button is enabled; otherwise the button is disabled
      * and an error message is written to the <code>filterKeywordFeedback</code> element.
@@ -250,7 +251,8 @@ HighDimensionDialogService = (function(autocompleteInp) {
                             var chromosome = m[1];
                             var start = m[2];
                             var end = m[3];
-                            if (start <= end) {
+                            if ((isNaN(chromosome) || (chromosome >= 1 && chromosome <= 22))
+                                    && start <= end) {
                                 valid_segment = true;
                             }
                         }
