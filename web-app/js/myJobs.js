@@ -21,7 +21,7 @@
 function getJobsData(tab) {
 	jobsstore = new Ext.data.JsonStore(
 			{
-   				url : pageInfo.basePath+'/asyncJob/getjobs',
+   				url : pageInfo.basePath+'/asyncJob/jobs',
    				root : 'jobs',
    				totalProperty : 'totalCount',
             fields: ['name', 'status', 'runTime', 'startDate', 'viewerURL', 'altViewerURL']
@@ -83,7 +83,7 @@ function jobsstoreLoaded() {
                             }
 						} else {
 							Ext.Ajax.request({
-								url: pageInfo.basePath+"/asyncJob/getjobresults",
+								url: pageInfo.basePath+"/asyncJob/jobresults",
 								method: 'POST',
 								success: function(result, request){
 									var jobResultsInfo = Ext.util.JSON.decode(result.responseText);					 

@@ -39,7 +39,7 @@ class AsyncJobController {
     /**
      * Method that will create the get the list of jobs to show in the jobs tab
      */
-    def getjobs = {
+    def jobs = {
         def result = asyncJobService.getjobs(params.jobType)
 
         response.setContentType("text/json")
@@ -49,8 +49,7 @@ class AsyncJobController {
     /**
      * get job stats by name
      */
-    def getjobbyname = {
-
+    def jobbyname = {
 		println(params.jobName)
 
 		def result = asyncJobService.getjobbyname(params.jobName)
@@ -62,7 +61,7 @@ class AsyncJobController {
 	/**
      * Called to retrieve the job results (HTML) stored in the JOB_RESULTS field for Haploview and Survival Analysis
      */
-    def getjobresults = {
+    def jobresults = {
         def result = asyncJobService.getjobresults(params.jobName)
         response.setContentType("text/json")
         response.outputStream << result?.toString()

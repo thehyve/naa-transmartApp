@@ -528,6 +528,7 @@ DataExport.prototype.runDataExportJob = function (result, gridPanel) {
                     selection : JSON.stringify(_exportParams)
                 }) // or a URL encoded string
         });
+    checkJobStatus(jobName);
 };
 
 
