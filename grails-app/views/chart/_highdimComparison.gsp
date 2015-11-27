@@ -1,11 +1,12 @@
+
 <div class="highdimComparison">
     <g:each in="${subsets?.commons?.highdim}" var="highdim">
         <div class="plotrow">
-	        <div class="plotcolumn">
-	        <div class="plotbox">
-	            ${highdim.plots[1]}
-	        </div>
-	        </div>
+            <div class="plotcolumn">
+            <div class="plotbox">
+                ${highdim.plots[1]}
+            </div>
+            </div>
             <div class="plotcolumn">
             <div class="plotbox">
             <g:if test="highdim.plots[2]">
@@ -15,8 +16,25 @@
             </div>
         </div>
         <div style="clear: both;"></div>
+        <g:if test="${highdim.data.size() == 0}">
+            <div>No data of type ${highdim.dataTypeDescription} found for ${highdim.concept}.</div>
+            <g:if test="${highdim.filters.size() > 0}">
+                <g:each in="${highdim.filters}" var="filter">
+                    <table>
+                        <caption>Filter:</caption>
+                        <g:each in="${filter}" var="p">
+                            <tr>
+                            <td>${p.key}:</td>
+                            <td>${p.value}</td>
+                            </tr>
+                        </g:each>
+                    </table>
+                </g:each>
+            </g:if>
+        </g:if>
+        <g:else>
         <table class="booktable">
-        <caption>Comparison for Single Nucleotide Polymorphism (SNP) <code>${highdim.title}</code>.</caption>
+        <caption>Comparison for <code>${highdim.title}</code> (${highdim.dataTypeDescription}).</caption>
         <thead>
             <tr>
                 <th>Genotype</th>
@@ -51,5 +69,6 @@
         </tr>
         </tfoot>
         </table>
+        </g:else>
     </g:each>
 </div>

@@ -112,6 +112,13 @@ HighDimensionDialogService = (function(autocompleteInp) {
         }
     };
 
+    service.getFilter = function() {
+        return _getFilter(
+            service.filterType.val(),
+            service.filterKeyword.val()
+        );
+    }
+
     /**
      * void create auto complete input depends on the filter
      */
@@ -147,7 +154,7 @@ HighDimensionDialogService = (function(autocompleteInp) {
         service.createPanelItemNew(el, convertNodeToConcept(data.node), filter);
     };
 
-    service.createSummaryStatDialog = function (node) {
+    service.createSummaryStatDialog = function (node, datatype) {
 
         var _s = service;
 
@@ -155,14 +162,12 @@ HighDimensionDialogService = (function(autocompleteInp) {
         _s.uiComponent.open = function () {
 
             _defineFormElements(_s);
-            _s.loadingEl.hide();
-            _s.filterKeyword.val('');
+            _s.filterForm.hide();
+            _s.loadingEl.show();
             _s.applyBtn.button('disable');
-            if (_s.filterType.val() !== 'snps') {
-                _s.filterType.val('snps');
-                _s.createAutocompleteInput();
-            }
-            _s.filterType.prop('disabled', true);
+            _s.cancelBtn.button('disable');
+            _s.filterKeyword.val('');
+            _s.filterType.prop('disabled', false);
 
             _s.filterKeyword.off('keyup');
             _s.filterKeyword.on('keyup', function(evt) {
@@ -179,14 +184,24 @@ HighDimensionDialogService = (function(autocompleteInp) {
                 }
             });
 
-            if (service.filterKeyword.is('.ui-autocomplete-input')){
-                //console.log('autocomplete already initiated, so now enabling it');
-                service.filterKeyword.autocomplete('enable');
-            } else {
-                //console.log('autocomplete not yet initiated, so now creating it');
+            console.log('Fetching supported data constraints for datatype: ' + datatype);
+            jQuery.ajax({
+                url : pageInfo.basePath + "/HighDimDataType/supportedDataConstraints",
+                data : {dataType: datatype}
+            })
+            .done(function (supported_filters) {
+                console.log('Show filter dialog for filter types: ', supported_filters);
+                _s.disableUnsupportedFilters(supported_filters);
+                _s.showKeywordDescription();
+                _s.filterForm.show();
+                _s.loadingEl.hide();
+                _s.cancelBtn.button('enable');
                 _s.createAutocompleteInput();
-            }
-
+            })
+            .fail(function (msg) {
+                console.error('Error when fetching supported filter types for datatype \'' + datatype + '\':', msg);
+                jQuery('#dialog-form').dialog('close');
+            });
         };
 
         // assign close dialog handler
@@ -348,24 +363,24 @@ HighDimensionDialogService = (function(autocompleteInp) {
                 method : 'POST',
                 data : 'conceptKeys=' + encodeURIComponent(dropzone.dropData.node.attributes.id)
             })
-                .done(function (d) {
-                    dropzone.dropData.details = d;
-                    if (_isCorrectHD(d, dropzone.recordData)) {
-                        console.log('show filter dialog for filter types: ', dropzone.recordData.supportedDataConstraints);
-                        _s.disableUnsupportedFilters(dropzone.recordData.supportedDataConstraints);
-                        _s.showKeywordDescription();
-                        _s.filterForm.show();
-                        _s.loadingEl.hide();
-                        _s.cancelBtn.button('enable');
-                        _s.createAutocompleteInput();
-                    } else {
-                        jQuery('#dialog-form').dialog('close');
-                    }
-                })
-                .fail(function (msg) {
-                    console.error('Something wrong when checking the node ...', msg);
+            .done(function (d) {
+                dropzone.dropData.details = d;
+                if (_isCorrectHD(d, dropzone.recordData)) {
+                    console.log('Show filter dialog for filter types: ', dropzone.recordData.supportedDataConstraints);
+                    _s.disableUnsupportedFilters(dropzone.recordData.supportedDataConstraints);
+                    _s.showKeywordDescription();
+                    _s.filterForm.show();
+                    _s.loadingEl.hide();
+                    _s.cancelBtn.button('enable');
+                    _s.createAutocompleteInput();
+                } else {
                     jQuery('#dialog-form').dialog('close');
-                });
+                }
+            })
+            .fail(function (msg) {
+                console.error('Something wrong when checking the node ...', msg);
+                jQuery('#dialog-form').dialog('close');
+            });
         };
 
         // assign close dialog handler

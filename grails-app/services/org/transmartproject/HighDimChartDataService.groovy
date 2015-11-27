@@ -17,6 +17,12 @@ class HighDimChartDataService {
 
     HighDimensionResource highDimensionResourceService
 
+    Set<String> getSupportedDataConstraints(String dataType) {
+        HighDimensionDataTypeResource typeResource =
+            highDimensionResourceService.getSubResourceForType(dataType)
+        typeResource.supportedDataConstraints
+    }
+
     Closure<Map> getBarChartTransformerForDatatype(HighDimensionDataTypeResource typeResource) {
         switch(typeResource.dataTypeName) {
             case "snp_lz":
