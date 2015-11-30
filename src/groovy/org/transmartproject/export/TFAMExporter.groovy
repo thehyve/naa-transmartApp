@@ -85,13 +85,13 @@ class TFAMExporter implements HighDimColumnExporter {
     }
 
     @Override
-    public void export(Collection<Assay> assays,
+    public Map<String, Object> export(Collection<Assay> assays,
             OutputStream outputStream) {
         export(assays, outputStream, { false })
     }
             
     @Override
-    public void export(Collection<Assay> assays,
+    public Map<String, Object> export(Collection<Assay> assays,
             OutputStream outputStream, Closure isCancelled) {
         log.info "Started exporting to ${format}..."
         def startTime = System.currentTimeMillis()
@@ -99,7 +99,9 @@ class TFAMExporter implements HighDimColumnExporter {
         if (isCancelled() ) {
             return
         }
-      
+
+        long i = 0
+
         outputStream.withWriter( "UTF-8" ) { out ->
             for (Assay assay: assays) {
                 if (isCancelled() ) {
@@ -115,10 +117,12 @@ class TFAMExporter implements HighDimColumnExporter {
                     phenotype: Phenotype.Missing
                 )
                 exportTFAMRow(row, out)
+                i++
             }
         }
         
         log.info("Exporting took ${System.currentTimeMillis() - startTime} ms.")
+        [rowsWritten: i]
     }
 
     protected void exportTFAMRow(TFAMRow row, Writer out) {

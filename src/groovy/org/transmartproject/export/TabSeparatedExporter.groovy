@@ -1,5 +1,7 @@
 package org.transmartproject.export
 
+import java.util.Map;
+
 import javax.annotation.PostConstruct
 
 import org.apache.commons.lang.NotImplementedException
@@ -60,13 +62,13 @@ class TabSeparatedExporter implements HighDimTabularResultExporter {
     }
 
     @Override
-    public void export(TabularResult tabularResult, Projection projection,
+    public Map<String, Object> export(TabularResult tabularResult, Projection projection,
             OutputStream outputStream) {
         export( tabularResult, projection, outputStream, { false } )
     }
             
     @Override
-    public void export(TabularResult tabularResult, Projection projection,
+    public Map<String, Object> export(TabularResult tabularResult, Projection projection,
             OutputStream outputStream, Closure isCancelled) {
         
         log.info("started exporting to $format ")
@@ -84,7 +86,9 @@ class TabSeparatedExporter implements HighDimTabularResultExporter {
         Map<String, String> rowKeys = projection.rowProperties.collectEntries {
             [it.key, getFieldTranslation( it.key ).toUpperCase()]
         }
-                
+
+        long i = 0
+
         outputStream.withWriter( "UTF-8" ) { writer ->
             
             // First write the header
@@ -98,7 +102,7 @@ class TabSeparatedExporter implements HighDimTabularResultExporter {
             for (DataRow<AssayColumn,Map<String, String>> datarow : tabularResult) {
                 // Test periodically if the export is cancelled
                 if (isCancelled() ) {
-                    return null
+                    return
                 }
         
                 for (AssayColumn assay : assayList) {
@@ -132,10 +136,12 @@ class TabSeparatedExporter implements HighDimTabularResultExporter {
             
                     writeLine( writer, line )
                 }
+                i++
             }
         }
         
         log.info("Exporting data took ${System.currentTimeMillis() - startTime} ms")
+        [rowsWritten: i]
     }
             
     /**

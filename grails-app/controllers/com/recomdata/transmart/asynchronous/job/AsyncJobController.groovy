@@ -93,7 +93,14 @@ class AsyncJobController {
         def statusIndexExists = result.get('statusIndexExists')
         if (statusIndexExists) {
             def statusIndex = result.get('statusIndex')
-            def statusHtml = g.render(template: "/genePattern/jobStatusList", model: [jobStatuses: jobResultsService[params.jobName]["StatusList"], statusIndex: statusIndex]).toString();
+            def statusHtml = g.render(
+                template: "/genePattern/jobStatusList", 
+                model: [
+                    status: jobResultsService[params.jobName]["Status"],
+                    jobStatuses: jobResultsService[params.jobName]["StatusList"],
+                    statusIndex: statusIndex,
+                    rowsWritten: jobResultsService[params.jobName]["RowsWritten"]]
+            ).toString();
             result.put('jobStatusHTML', statusHtml)
 
             result.remove('statusIndex')

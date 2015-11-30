@@ -57,13 +57,13 @@ class SAMPLEExporter implements HighDimColumnExporter {
     }
 
     @Override
-    public void export(Collection<Assay> assays,
+    public Map<String, Object> export(Collection<Assay> assays,
             OutputStream outputStream) {
         export(assays, outputStream, { false })
     }
 
     @Override
-    public void export(Collection<Assay> assays,
+    public Map<String, Object> export(Collection<Assay> assays,
             OutputStream outputStream, Closure isCancelled) {
         log.info "Started exporting to ${format}..."
         def startTime = System.currentTimeMillis()
@@ -71,6 +71,8 @@ class SAMPLEExporter implements HighDimColumnExporter {
         if (isCancelled() ) {
             return
         }
+
+        long i = 0
 
         outputStream.withWriter( "UTF-8" ) { out ->
             exportHeader(out)
@@ -85,10 +87,12 @@ class SAMPLEExporter implements HighDimColumnExporter {
                     id2: assay.patient.id // should be equal to column patient_num in i2b2demodata.patient_dimension
                 )
                 exportSampleRow(row, out)
+                i++
             }
         }
         
         log.info("Exporting took ${System.currentTimeMillis() - startTime} ms.")
+        [rowsWritten: i]
     }
 
     protected void exportHeader(Writer out) {

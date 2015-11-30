@@ -1,5 +1,7 @@
 package org.transmartproject.export
 
+import java.util.Map;
+
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.projections.Projection
@@ -30,8 +32,10 @@ interface HighDimColumnExporter extends HighDimExporter {
      * Exports column data to the outputStream.
      * @param assays The assay data to be exported.
      * @param outputStream Stream to write the data to.
+     * @return a map with information about the exported values:
+     *      the entry with key <code>rowsWritten</code> contains the number of rows written.
      */
-    public void export( Collection<Assay> assays, OutputStream outputStream )
+    public Map<String, Object> export( Collection<Assay> assays, OutputStream outputStream )
 
     /**
      * Exports column data to the outputStream,
@@ -40,7 +44,9 @@ interface HighDimColumnExporter extends HighDimExporter {
      * @param assays The assay data to be exported
      * @param outputStream Stream to write the data to.
      * @param isCancelled Closure that returns true iff the export is cancelled.
+     * @return a map with information about the exported values:
+     *      the entry with key <code>rowsWritten</code> contains the number of rows written.
      */
-    public void export( Collection<Assay> assays, OutputStream outputStream, Closure isCancelled )
+    public Map<String, Object> export( Collection<Assay> assays, OutputStream outputStream, Closure isCancelled )
 
 }
