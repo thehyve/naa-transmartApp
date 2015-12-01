@@ -203,25 +203,22 @@ DataExport.prototype.prepareOutString = function (files, subset, dataTypeId, met
     var dataCountExists = false;
     var _this = this;
 
-    files.each(function (file) {
+    var groupedfiles = _this.groupAndTranspose(files);
 
-        if (!file.platforms) {
-            if (!dataCountExists) dataCountExists = true;
-            outStr += _this.createSelectBoxHtml(file, subset, dataTypeId)
+    groupedfiles.forEach(function (platform) {
+        if (platform.gplId == _this._absentPlatformsMarker) {
+            dataCountExists = true;
+            outStr += _this.createSelectBoxHtml(platform.exports, subset, dataTypeId, platform.fileDataCount);
+        } else if (platform.gplId == _this._emptyPlatformsMarker) {
+            platform.exports.forEach(function(exp) {
+                outStr += exp.dataFormat + ' is not available. ';
+                outStr += '<br/><br/>';
+            })
         } else {
-            if (file.platforms.length > 0) {
-                file.platforms.each(function (platform) {
-                    if (platform.fileDataCount > 0) {
-                        dataCountExists = true;
-                        outStr += _this.createSelectBoxHtml(file, subset, dataTypeId, platform)
-                    }
-                });
-            } else {
-                outStr += file.dataFormat + ' is not available. ';
-                outStr += '<br/><br/>'
-            }
+            if (platform.fileDataCount == 0) return;
+            dataCountExists = true;
+            outStr += _this.createSelectBoxHtml(platform.exports, subset, dataTypeId, platform.fileDataCount, platform)
         }
-
     });
 
     if (dataCountExists && metadataExists)
@@ -230,30 +227,108 @@ DataExport.prototype.prepareOutString = function (files, subset, dataTypeId, met
 }
 
 /**
+ * The files array is a list of export formats. Each export format can have data from one or multiple platforms.
+ * This method groups the export formats that have the same 'group' attribute together per platform.
+ * The result is transposed in the sense that it is a list of platforms with one export format per platform, or more
+ * if the export formats are in the same group.
  *
- * @param file
+ * @param files The list of export file types as received from the server
+ * @returns A list of transposed and grouped platform descriptions, each with one or more files
+ */
+DataExport.prototype.groupAndTranspose = function(files) {
+    var groupedfiles = [];
+    var skip = {};
+    for (var i=0; i<files.length; i++) {
+        if (i in skip) continue;
+
+        var groupname = files[i].displayAttributes.group || null;
+        var group_platforms = {};
+
+        // We use the same code for exports with and without a 'group' attribute. Loop accordingly.
+        var limit = groupname == null ? i+1 : files.length;
+        for (var j=i; j<limit; j++) {
+            if (j in skip) continue;
+            if ((files[j].displayAttributes.group || null) != groupname) continue;
+            var platforms = files[j].platforms;
+
+            // clinical data
+            if (!platforms) {
+                platforms = [{gplId: this._absentPlatformsMarker, gplTitle: null, fileDataCount: files[j].fileDataCount}];
+            }
+            // also record if an export format is not applicable to any platforms
+            if (platforms.length == 0) {
+                platforms = [{gplId: this._emptyPlatformsMarker, gplTitle: null, fileDataCount: 0}]
+            }
+
+            platforms.forEach(function(platform) {
+                var id = platform.gplId;
+                if (!(id in group_platforms)) {
+                    // create a new object since we will be modifying it
+                    group_platforms[id] = {
+                        gplId: id,
+                        gplTitle: platform.gplTitle,
+                        fileDataCount: platform.fileDataCount,
+                        exports: [files[j]]
+                    };
+                    return;
+                }
+                if (group_platforms[id].gplTitle != platform.gplTitle) {
+                    console.warn(jQuery.validator.format('Different platform definitions for {0}: titles "{1}" and' +
+                        ' "{2}"', id, group_platforms[id].gplTitle, platform.gplTitle));
+                }
+                group_platforms[id].exports.push(files[j]);
+                // We assume grouped export file types 'belong' together and so support the same data types and thus
+                // have the same count. If not, we'll display the max.
+                group_platforms[id].fileDataCount = Math.max(group_platforms[id].fileDataCount, platform.fileDataCount);
+            });
+            skip[j] = true;
+        }
+        groupedfiles.push.apply(groupedfiles, Object.values(group_platforms));
+    }
+
+    return groupedfiles;
+}
+// Random string to avoid collissions with real platform identifiers. We could use ES6 symbols for this.
+DataExport.prototype._emptyPlatformsMarker = '_platformsEmpty_W1qe1445Pl8';
+DataExport.prototype._absentPlatformsMarker = '_platformsAbsent_W1qe1445Pl8';
+
+/**
+ *
+ * @param files
  * @param subset
  * @param dataTypeId
+ * @param fileDataCount
  * @param platform
  * @returns {string|*}
  */
-DataExport.prototype.createSelectBoxHtml = function (file, subset, dataTypeId, platform) {
+DataExport.prototype.createSelectBoxHtml = function (files, subset, dataTypeId, fileDataCount, platform) {
     var outStr = '';
-    console.log('about to createSelectBoxHtml ..')
+    console.log('about to createSelectBoxHtml ..');
+
+    var dataFormat = files.map(function(file) {return file.dataFormat}).join(' and ');
+
     if (platform) {
-        outStr += file.dataFormat + ' is available for </br/>' + platform.gplTitle + ": " + platform.fileDataCount + ' samples';//' patients';
-        outStr += '<br/> Export (' + file.fileType + ')&nbsp;&nbsp;';
-        outStr += '<input type="checkbox" name="SubsetDataTypeFileType"';
-        outStr += ' value="{subset: ' + subset + ', dataTypeId: ' + dataTypeId + ', fileType: ' + file.fileType + ', gplId: ' + platform.gplId + '}"';
-        outStr += ' id="' + subset + '_' + dataTypeId + '_' + file.fileType + '_' + platform.gplId + '"';
-        outStr += ' /><br/><br/>';
+        outStr += dataFormat + ' is available for <br/>' + platform.gplTitle + ": " + fileDataCount + ' samples<br/>';
+        outStr += 'Export ';
+        outStr += files.map(function(file) {
+            return  file.fileType + '&nbsp;&nbsp;' +
+                    '<input type="checkbox" name="SubsetDataTypeFileType"' +
+                    ' value="{subset: ' + subset + ', dataTypeId: ' + dataTypeId + ', fileType: ' + file.fileType + ', gplId: ' + platform.gplId + '}"' +
+                    ' id="' + subset + '_' + dataTypeId + '_' + file.fileType + '_' + platform.gplId + '"' +
+                    ' />';
+        }).join(' &nbsp;');
+        outStr += '<br/><br/>';
     } else {
-        outStr += file.dataFormat + ' is available for ' + file.fileDataCount + ' patients';
-        outStr += '<br/> Export (' + file.fileType + ')&nbsp;&nbsp;';
-        outStr += '<input type="checkbox" name="SubsetDataTypeFileType"';
-        outStr += ' value="{subset: ' + subset + ', dataTypeId: ' + dataTypeId + ', fileType: ' + file.fileType + '}"';
-        outStr += ' id="' + subset + '_' + dataTypeId + '_' + file.fileType + '"';
-        outStr += ' /><br/><br/>';
+        outStr += dataFormat + ' is available for ' + fileDataCount + ' patients<br/>';
+        outStr += 'Export ';
+        outStr += files.map(function(file) {
+            return  file.fileType + '&nbsp;&nbsp;' +
+                    '<input type="checkbox" name="SubsetDataTypeFileType"' +
+                    ' value="{subset: ' + subset + ', dataTypeId: ' + dataTypeId + ', fileType: ' + file.fileType + '}"' +
+                    ' id="' + subset + '_' + dataTypeId + '_' + file.fileType + '"' +
+                    ' />';
+        }).join(' &nbsp;');
+        outStr += '<br/><br/>';
     }
 
     return outStr
