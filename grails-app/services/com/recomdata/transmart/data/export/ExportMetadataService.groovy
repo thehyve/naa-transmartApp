@@ -152,14 +152,16 @@ class ExportMetadataService {
                 [
                     fileType: ".TXT",
                     dataFormat: "Data",
-                    fileDataCount: clinicalData.subset1
+                    fileDataCount: clinicalData.subset1,
+                    displayAttributes: [:]
                 ]
             ],
             subset2:[
                 [
                     fileType: ".TXT",
                     dataFormat: "Data",
-                    fileDataCount: clinicalData.subset2
+                    fileDataCount: clinicalData.subset2,
+                    displayAttributes: [:]
                 ]
             ],
         ] 
