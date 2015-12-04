@@ -229,7 +229,11 @@ class ChartService {
                     title: title,
                     labels: labelList,
                     series: series,
-                    data: sortedData
+                    data: sortedData,
+                    concept: concept,
+                    dataType: data.datatype.dataTypeName,
+                    dataTypeDescription: data.datatype.dataTypeDescription,
+                    filters: filters
                 ]
             }
         }

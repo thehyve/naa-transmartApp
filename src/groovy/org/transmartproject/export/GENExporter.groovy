@@ -59,7 +59,7 @@ class GENExporter implements HighDimTabularResultExporter {
     }
 
     @Override
-    public void export(TabularResult data, Projection projection,
+    public Map<String, Object> export(TabularResult data, Projection projection,
             OutputStream outputStream) {
         export( data, projection, outputStream, { false } )
     }
@@ -67,7 +67,7 @@ class GENExporter implements HighDimTabularResultExporter {
     static final int default_distance = 0 // Genetic distance (morgans)
             
     @Override
-    public void export(TabularResult data, Projection projection,
+    public Map<String, Object> export(TabularResult data, Projection projection,
             OutputStream outputStream, Closure isCancelled) {
         log.info "Started exporting to ${format}..."
         def startTime = System.currentTimeMillis()
@@ -76,7 +76,7 @@ class GENExporter implements HighDimTabularResultExporter {
             return
         }
       
-        def i = 1
+        long i = 0
         outputStream.withWriter( "UTF-8" ) { out ->
             for (/*SnpLzRow*/ Object row: data) {
                 if (isCancelled() ) {
@@ -111,6 +111,7 @@ class GENExporter implements HighDimTabularResultExporter {
         }
         
         log.info("Exporting took ${System.currentTimeMillis() - startTime} ms.")
+        [rowsWritten: i]
     }
 
 }

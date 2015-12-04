@@ -2585,6 +2585,36 @@ function getNodeForAnalysis(node) {
 	// must be a concept folder so return me
 }
 
+function loadAnalysisData(node, filters) {
+    resultsTabPanel.body.mask("Running analysis...", 'x-mask-loading');
+
+    Ext.Ajax.request(
+        {
+            url : pageInfo.basePath+"/chart/analysis",
+            method : 'POST',
+            timeout: '600000',
+            params :  Ext.urlEncode(
+                {
+                    charttype : "analysis",
+                    concept_key : node.attributes.id,
+                    result_instance_id1 : GLOBAL.CurrentSubsetIDs[1],
+                    result_instance_id2 : GLOBAL.CurrentSubsetIDs[2],
+                    filters : JSON.stringify(filters)
+                }
+            ), // or a URL encoded string
+            success: function (result, request) {
+                buildAnalysisComplete(result);
+                resultsTabPanel.body.unmask();
+            },
+            failure: function (result, request) {
+                resultsTabPanel.body.unmask();
+                var responseText = result.responseText ? JSON.parse(result.responseText) : null;
+                Ext.MessageBox.alert('Error', 'An error occured' + (responseText ? ': ' + responseText.message : '') + '.');
+            }
+        }
+    );
+    getAnalysisGridData(node.attributes.id, filters);
+}
 
 function buildAnalysis(nodein) {
 	var node = nodein // getNodeForAnalysis(nodein);
@@ -2602,45 +2632,48 @@ function buildAnalysis(nodein) {
         return;
     }
 
-    var _dialog = HighDimensionDialogService.createSummaryStatDialog(node);
-    _dialog.dialog("open");
+    console.log('Loading node details...');
+    jQuery.ajax({
+        url : pageInfo.basePath + "/HighDimension/nodeDetails",
+        method : 'POST',
+        data : 'conceptKeys=' + encodeURIComponent(node.attributes.id)
+    })
+    .done(function (highDimNodeDetails) {
+        var datatypes = highDimNodeDetails ? Object.keys(highDimNodeDetails) : [];
+        if (datatypes.length > 0) {
+            var datatype = datatypes[0];
 
-    HighDimensionDialogService.applyBtn.click(function () {
+            var _dialog = HighDimensionDialogService.createSummaryStatDialog(node, datatype);
+            _dialog.dialog("open");
 
-        var filters = [{
-            type : HighDimensionDialogService.filter.type,
-            names : HighDimensionDialogService.filter.data
-        }];
-
-        resultsTabPanel.body.mask("Running analysis...", 'x-mask-loading');
-
-        Ext.Ajax.request(
-            {
-                url : pageInfo.basePath+"/chart/analysis",
-                method : 'POST',
-                timeout: '600000',
-                params :  Ext.urlEncode(
-                    {
-                        charttype : "analysis",
-                        concept_key : node.attributes.id,
-                        result_instance_id1 : GLOBAL.CurrentSubsetIDs[1],
-                        result_instance_id2 : GLOBAL.CurrentSubsetIDs[2],
-                        filters : JSON.stringify(filters)
-                    }
-                ), // or a URL encoded string
-                success: function (result, request) {
-                    buildAnalysisComplete(result);
-                    resultsTabPanel.body.unmask();
-                },
-                failure: function (result, request) {
-                	resultsTabPanel.body.unmask();
-                	var responseText = result.responseText ? JSON.parse(result.responseText) : null;
-                	Ext.MessageBox.alert('Error', 'An error occured' + (responseText ? ': ' + responseText.message : '') + '.');
+            HighDimensionDialogService.applyBtn.click(function () {
+                var filters = [];
+                var f = HighDimensionDialogService.getFilter()
+                if (f.type === 'chromosome_segment') {
+                    jQuery.each(f.data, function (i, d) {
+                        filters.push({
+                            type: f.type,
+                            chromosome: d.chromosome,
+                            start: d.start,
+                            end: d.end
+                        });
+                    });
+                } else {
+                    // create selector object
+                    filters.push({
+                        type: f.type,
+                        names: f.data
+                    });
                 }
-            }
-        );
-        getAnalysisGridData(node.attributes.id, filters);
-
+                loadAnalysisData(node, filters);
+            });
+        } else {
+            loadAnalysisData(node, []);
+        }
+    })
+    .fail(function (msg) {
+        console.error('Something wrong when fetching node details for \'' + node + '\':', msg);
+        jQuery('#dialog-form').dialog('close');
     });
 
 }

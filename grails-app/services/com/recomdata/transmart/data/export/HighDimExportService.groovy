@@ -126,6 +126,7 @@ class HighDimExportService {
         String name = "${study}_${dataType}_${serialisedFilterDescription}_${jobName}.${format.toLowerCase()}"
         File outputFile = new File(studyDir, name)
         String fileName = outputFile.getAbsolutePath()
+        Map result
 
         if (exporter instanceof HighDimColumnExporter) {
             exporter = exporter as HighDimColumnExporter
@@ -138,7 +139,7 @@ class HighDimExportService {
             Collection<Assay> assays = assayMap[dataTypeResourceKey]
             // Start exporting column data
             outputFile.withOutputStream { outputStream ->
-                exporter.export assays, outputStream, { jobIsCancelled(jobName) }
+                result = exporter.export assays, outputStream, { jobIsCancelled(jobName) }
             }
         } else {
             exporter = exporter as HighDimTabularResultExporter
@@ -155,13 +156,20 @@ class HighDimExportService {
             // Start exporting tabular data
             try {
                 outputFile.withOutputStream { outputStream ->
-                    exporter.export tabularResult, projection, outputStream, { jobIsCancelled(jobName) }
+                    result = exporter.export tabularResult, projection, outputStream, { jobIsCancelled(jobName) }
                 }
             } finally {
                 tabularResult.close()
             }
         }
-        return [outFile: fileName]
+
+        long rowsWritten = result?.rowsWritten ?: 0
+        log.info "HighDimExportService: ${rowsWritten} rows written."
+        if (!("RowsWritten" in jobResultsService[jobName])) {
+            jobResultsService[jobName]["RowsWritten"] = [:]
+        }
+        jobResultsService[jobName]["RowsWritten"][name] = rowsWritten
+        return [outFile: fileName, rowsWritten: rowsWritten]
     }
 
     def boolean jobIsCancelled(jobName) {

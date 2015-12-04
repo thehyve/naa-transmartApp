@@ -152,13 +152,14 @@ function showJobStatusWindow(result, messages)	{
 		layout:'fit',
 		width:350,
 		height:400,
-		closable: false,
+		closable: true,
 		plain: true,
 		modal: true,
 		border:false,
 		resizable: false,
 		buttons: [
 		          {
+	                  id: 'cancjob-button',
 		        	  text: 'Cancel Job',
 		        	  handler: function()	{		        		  
 		        		  cancelJob(jobName);
@@ -171,6 +172,7 @@ function showJobStatusWindow(result, messages)	{
 		        	  }
 		          },
 		          {
+		              id: 'background-button',
 		        	  text: 'Run in Background',
 		        	  handler: function()	{
 		        		  sb.setVisible(true);
@@ -210,6 +212,7 @@ function cancelJob(jobName)	{
 function checkJobStatus(jobName)	{	
 	var sb = Ext.getCmp('asyncjob-statusbar');	
 	var cancBtn = Ext.getCmp('cancjob-button');
+	var backgroundBtn = Ext.getCmp('background-button')
 	var jWindow = Ext.getCmp('showJobStatus');	
 	var secCount = 0;
 	var pollInterval = 3000;   // 4 second
@@ -244,6 +247,7 @@ function checkJobStatus(jobName)	{
 					var newHTML = jobStatusInfo.jobStatusHTML;
 					var resultType = jobStatusInfo.resultType;
 					var jobResults = jobStatusInfo.jobResults;
+					var rowsWritten = jobStatusInfo.rowsWritten;
 					
 					if (newHTML != null)	{
 						if (jWindow != null && jWindow.isVisible())	{
@@ -267,7 +271,12 @@ function checkJobStatus(jobName)	{
 						singletonflag++;
 						
 						if (jWindow != null && jWindow.isVisible())	{
-							jWindow.close();
+						    if (rowsWritten) {
+						        cancBtn.setDisabled(true);
+						        backgroundBtn.setDisabled(true);
+						    } else {
+						        jWindow.close();
+						    }
 						}
 						
                         runner.stopAll();
