@@ -34,7 +34,7 @@ interface HighDimExporter {
      * - selectOnFilterPriority (number): The exports with the highest values within a filtered datatype
      *   are selected when the user drops a concept on the export row. If multiple exports have the same value they are
      *   all selected. With a value < 0 an exporter is never auto-selected.
-     *
+     * - group (string, optional): Exporters that have the same group will be displayed together.
      */
     public Map<String, Object> getDisplayAttributes()
 }
