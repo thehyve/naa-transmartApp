@@ -776,6 +776,9 @@ Ext.onReady(function () {
             return def;
         }
 
+        loadPlugin('smartR', "/EtriksEngines/loadScripts", function () {
+          resultsTabPanel.insert(4, etriksPanel);
+        });
 
         if(!Math.log10){ Math.log10 = function (x) { return Math.log(x) / Math.log(10); }}
 
