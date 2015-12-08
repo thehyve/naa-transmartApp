@@ -1,14 +1,10 @@
 package org.transmartproject.export
 
-import java.util.Map;
-
+import org.transmartproject.core.dataquery.highdim.projections.AllDataProjection
 import javax.annotation.PostConstruct
-
-import org.apache.commons.lang.NotImplementedException
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.TabularResult
-import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
@@ -68,7 +64,7 @@ class TabSeparatedExporter implements HighDimTabularResultExporter {
     }
             
     @Override
-    public Map<String, Object> export(TabularResult tabularResult, Projection projection,
+    public Map<String, Object> export(TabularResult tabularResult, Projection projection_,
             OutputStream outputStream, Closure isCancelled) {
         
         log.info("started exporting to $format ")
@@ -78,6 +74,7 @@ class TabSeparatedExporter implements HighDimTabularResultExporter {
             return
         }
 
+        AllDataProjection projection = (AllDataProjection) projection_
         
         // Determine the fields to be exported, and the label they get
         Map<String, String> dataKeys = projection.dataProperties.collectEntries {
@@ -135,8 +132,8 @@ class TabSeparatedExporter implements HighDimTabularResultExporter {
                     }
             
                     writeLine( writer, line )
+                    i++
                 }
-                i++
             }
         }
         
