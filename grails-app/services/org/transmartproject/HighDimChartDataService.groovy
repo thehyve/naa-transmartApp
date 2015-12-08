@@ -7,7 +7,10 @@ import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
+import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.core.exceptions.EmptySetException
+import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.db.dataquery.highdim.snp_lz.SnpLzRow
 
 import com.recomdata.transmart.data.export.HighDimExportService
@@ -69,6 +72,24 @@ class HighDimChartDataService {
         }
     }
 
+    String getTrialNameFromAssays(Collection<Assay> assays) {
+        def trials = [] as Set
+        assays.each { trials << it.trialName }
+        log.debug "Set of trials for assays: $trials"
+
+        if (trials.size() == 0) {
+            throw new EmptySetException(
+                    "Assay set $trials has no trial information")
+        } else if (trials.size() > 1) {
+            // Do not permit more than one trial, otherwise we wouldn't be able
+            // to returns meaningful row properties (or we'd have to make them
+            // maps)
+            throw new UnexpectedResultException("Found more than one trial in " +
+                    "the assay set; this is not allowed for this data type")
+        }
+        return trials[0]
+    }
+
     /**
      * Retrieves the highdim data for the given dataType, assay constraints and filters
      * and returns data for generating a bar chart.
@@ -96,10 +117,24 @@ class HighDimChartDataService {
                     }
                 }.flatten()
 
-        def dataConstraints = HighDimExportService.createFilterConstraints(typeResource, filters)
+        List<DataConstraint> dataConstraints = [HighDimExportService.createFilterConstraints(typeResource, filters)]
+
+        log.debug "Fetching assays..."
+        Map<HighDimensionDataTypeResource, Collection<Assay>> assayMap = highDimensionResourceService.getSubResourcesAssayMultiMap(assayConstraints)
+        // for some reason, this dataTypeResourceKey is not the same as dataTypeResource:
+        def dataTypeResourceKey = assayMap.keySet().find { it.dataTypeName == typeResource.dataTypeName }
+        Collection<Assay> assays = assayMap[dataTypeResourceKey]
+
+        // Add trialName constraint for SNP data
+        if (typeResource.dataTypeName == 'snp_lz') {
+            def trialName = getTrialNameFromAssays(assays)
+            log.debug "Add constraint for trailName '${trialName}'"
+            dataConstraints << typeResource.createDataConstraint(
+                [trialName: trialName], 'trialName')
+        }
 
         TabularResult tabularResult = typeResource.retrieveData(
-                assayConstraints, [dataConstraints], projection)
+                assayConstraints, dataConstraints, projection)
 
         List<Map> barChartData = []
         Set<String> labels = []
@@ -148,7 +183,7 @@ class HighDimChartDataService {
                     }
                 }.flatten()
 
-        def dataConstraints = HighDimExportService.createFilterConstraints(typeResource, filters)
+        List<DataConstraint> dataConstraints = [HighDimExportService.createFilterConstraints(typeResource, filters)]
 
         log.debug "Fetching assays..."
         Map<HighDimensionDataTypeResource, Collection<Assay>> assayMap = highDimensionResourceService.getSubResourcesAssayMultiMap(assayConstraints)
@@ -156,8 +191,16 @@ class HighDimChartDataService {
         def dataTypeResourceKey = assayMap.keySet().find { it.dataTypeName == typeResource.dataTypeName }
         Collection<Assay> assays = assayMap[dataTypeResourceKey]
 
+        // Add trialName constraint for SNP data
+        if (typeResource.dataTypeName == 'snp_lz') {
+            def trialName = getTrialNameFromAssays(assays)
+            log.debug "Add constraint for trailName '${trialName}'"
+            dataConstraints << typeResource.createDataConstraint(
+                [trialName: trialName], 'trialName')
+        }
+
         TabularResult tabularResult = typeResource.retrieveData(
-                assayConstraints, [dataConstraints], projection)
+                assayConstraints, dataConstraints, projection)
 
         List colnames = []
         List subjects = assays*.patient.id // patientInTrialId

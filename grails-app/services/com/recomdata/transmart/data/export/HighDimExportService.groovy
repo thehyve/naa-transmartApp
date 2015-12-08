@@ -9,6 +9,7 @@ import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstra
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.assayconstraints.PlatformConstraint
+import org.transmartproject.db.dataquery.highdim.dataconstraints.PropertyDataConstraint
 import org.transmartproject.export.HighDimColumnExporter
 import org.transmartproject.export.HighDimExporter
 import org.transmartproject.export.HighDimTabularResultExporter
@@ -147,11 +148,18 @@ class HighDimExportService {
             Projection projection = dataTypeResource.createProjection( exporter.projection )
             
             //DataConstraint filterConstraints = createFilterConstraints(filters, dataTypeResource)
-            DataConstraint filterConstraints = createFilterConstraints(dataTypeResource, filters)
+            List<DataConstraint> dataConstraints = [createFilterConstraints(dataTypeResource, filters)]
+
+            // Add study constraint for SNP data
+            if (dataTypeResource.dataTypeName == 'snp_lz') {
+                log.debug "Add constraint for trailName '${study}'"
+                dataConstraints << dataTypeResource.createDataConstraint(
+                    [trialName: study], 'trialName')
+            }
 
             // Retrieve the tabular data
             TabularResult<AssayColumn, DataRow<Map<String, String>>> tabularResult =
-                    dataTypeResource.retrieveData(assayconstraints, [filterConstraints], projection)
+                    dataTypeResource.retrieveData(assayconstraints, dataConstraints, projection)
 
             // Start exporting tabular data
             try {
