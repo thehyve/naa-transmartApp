@@ -335,6 +335,7 @@ HighDimensionDialogService = (function(autocompleteInp) {
         _s.uiComponent.open = function () {
 
             _defineFormElements(_s);
+            _s.dropTarget.filter = {};
 
             _s.filterForm.hide();
             _s.loadingEl.show();
@@ -386,6 +387,7 @@ HighDimensionDialogService = (function(autocompleteInp) {
         // assign close dialog handler
         _s.uiComponent.close = function () {
             console.log('uiComponent.close');
+
             if (Object.keys(dropzone.dropData.details).indexOf(dropzone.recordData.dataTypeId) >= 0 ) {
                 dropzone.dropData.node.attributes.oktousevalues = "N";
                 _s.createPanelItemNew(dropzone.el, convertNodeToConcept(dropzone.dropData.node), dropzone.filter);
