@@ -6,6 +6,7 @@ import javax.annotation.PostConstruct
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.Patient
+import org.transmartproject.core.dataquery.Sex
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
@@ -21,48 +22,61 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
  */
 class TFAMExporter implements HighDimColumnExporter {
 
-    enum Sex {
+    enum TFAM_Sex {
         Male(1),
         Female(2),
         Unknown(0)
-        
+
         int value
-        
-        Sex(value) {
+
+        TFAM_Sex(int value) {
             this.value = value
         }
     }
-    
-    enum Phenotype {
+
+    static final TFAM_Sex toTFAM_Sex(Sex value) {
+        switch(value) {
+        case Sex.MALE:
+            return TFAM_Sex.Male
+        case Sex.FEMALE:
+            return TFAM_Sex.Female
+            break
+        case Sex.UNKNOWN:
+        default:
+            return TFAM_Sex.Unknown
+        }
+    }
+
+    enum TFAM_Phenotype {
         Missing(-9),
         Unaffected(0),
         Affected(1)
         
         int value
         
-        Phenotype(value) {
+        TFAM_Phenotype(value) {
             this.value = value
         }
     }
 
-    class TFAMRow {
+    class TFAM_Row {
         String familyId
         String individualId
         String paternalId   
         String maternalId
-        Sex sex
-        Phenotype phenotype
+        TFAM_Sex sex
+        TFAM_Phenotype phenotype
     }
-    
+
     @Autowired
     HighDimExporterRegistry highDimExporterRegistry
-    
+
     @PostConstruct
     void init() {
         this.highDimExporterRegistry.registerHighDimensionExporter(
                 format, this )
     }
-    
+
     @Override
     public boolean isDataTypeSupported(String dataType) {
         log.debug "Checking support for datatype ${dataType}"
@@ -89,7 +103,7 @@ class TFAMExporter implements HighDimColumnExporter {
             OutputStream outputStream) {
         export(assays, outputStream, { false })
     }
-            
+
     @Override
     public Map<String, Object> export(Collection<Assay> assays,
             OutputStream outputStream, Closure isCancelled) {
@@ -108,13 +122,13 @@ class TFAMExporter implements HighDimColumnExporter {
                     return
                 }
                 
-                def row = new TFAMRow(
+                def row = new TFAM_Row(
                     familyId: assay.patientInTrialId, // should be equal to subjectId in SnpSubjectSortedDef
                     individualId: assay.patientInTrialId,
                     maternalId: 0,
                     paternalId: 0,
-                    sex: Sex.Unknown,
-                    phenotype: Phenotype.Missing
+                    sex: toTFAM_Sex(assay.patient.sex),
+                    phenotype: TFAM_Phenotype.Missing
                 )
                 exportTFAMRow(row, out)
                 i++
@@ -125,7 +139,7 @@ class TFAMExporter implements HighDimColumnExporter {
         [rowsWritten: i]
     }
 
-    protected void exportTFAMRow(TFAMRow row, Writer out) {
+    protected void exportTFAMRow(TFAM_Row row, Writer out) {
         out << row.familyId
         out << ' '
         out << row.individualId
