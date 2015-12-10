@@ -283,6 +283,7 @@ class ChartController {
                 if (s1) i2b2HelperService.addConceptDataToTable(table, ck, result_instance_id1);
                 if (s2) i2b2HelperService.addConceptDataToTable(table, ck, result_instance_id2);
 
+                //TODO: implement check for highdim data in less hacky manner
                 if (filters) {
                     chartService.addHighDimDataToTable(table, ck, chartService.getSubsetsFromRequest(params), filters)
                 }
