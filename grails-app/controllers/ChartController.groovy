@@ -283,7 +283,9 @@ class ChartController {
                 if (s1) i2b2HelperService.addConceptDataToTable(table, ck, result_instance_id1);
                 if (s2) i2b2HelperService.addConceptDataToTable(table, ck, result_instance_id2);
 
-                chartService.addHighDimDataToTable(table, ck, chartService.getSubsetsFromRequest(params), filters)
+                if (filters) {
+                    chartService.addHighDimDataToTable(table, ck, chartService.getSubsetsFromRequest(params), filters)
+                }
             }
         }
         pw.write(table.toJSONObject().toString(5));
