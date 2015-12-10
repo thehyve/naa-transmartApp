@@ -45,25 +45,33 @@ ExportDropTarget = (function() {
             _dialogService.dropOntoVariableSelection(data, _dropTarget.el);
         }
 
-        // mark as checked
+        // mark exports with the highest selectOnFilterPriority as checked, but only if nothing else is checked already
         var priority = 0;
         var toCheck = [];
-        ['subset1', 'subset2'].each(function(subset) {
-            _dropTarget.recordData[subset].each(function(exp) {
+        var anyChecked = false;
+        ['subset1', 'subset2'].forEach(function(subset) {
+            _dropTarget.recordData[subset].forEach(function(exp) {
+                if (anyChecked) return;
+                var selectors = exp.platforms.map(function(platform) {
+                    return '#' +
+                        [subset, _dropTarget.recordData.dataTypeId, exp.fileType, platform.gplId]
+                            .join('_').replace('.', '\\.');
+                });
+                anyChecked = anyChecked || selectors.any(function(sel) {return jQuery(sel).prop('checked')});
+                if (anyChecked) return;
+
                 var prio = exp.displayAttributes.selectOnFilterPriority;
                 if (prio < priority) return;
                 if (prio > priority) {
                     toCheck = [];
                     priority = prio;
                 }
-                exp.platforms.each(function(platform) {
-                    toCheck.push('#' +
-                        [subset, _dropTarget.recordData.dataTypeId, exp.fileType, platform.gplId]
-                            .join('_').replace('.', '\\.'));
-                })
+                toCheck.push.apply(toCheck, selectors)
             })
         });
-        jQuery(_dropTarget.el.dom).find(toCheck.join(', ')).prop('checked', true);
+        if (!anyChecked) {
+            jQuery(_dropTarget.el.dom).find(toCheck.join(', ')).prop('checked', true);
+        }
         // ---------------------------------------
 
         return true;
