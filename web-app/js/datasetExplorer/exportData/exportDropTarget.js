@@ -52,15 +52,22 @@ ExportDropTarget = (function() {
         ['subset1', 'subset2'].forEach(function(subset) {
             _dropTarget.recordData[subset].forEach(function(exp) {
                 if (anyChecked) return;
-                var selectors = exp.platforms.map(function(platform) {
-                    return '#' +
-                        [subset, _dropTarget.recordData.dataTypeId, exp.fileType, platform.gplId]
-                            .join('_').replace('.', '\\.');
-                });
+
+                var selectors;
+                var selector = '#' +
+                    [subset, _dropTarget.recordData.dataTypeId, exp.fileType]
+                        .join('_').replace('.', '\\.');
+
+                if (exp.platforms) {
+                    selectors = exp.platforms.map(function (platform) { return selector + '_' + platform.gplId });
+                } else {
+                    // clinical data
+                    selectors = [selector];
+                }
                 anyChecked = anyChecked || selectors.any(function(sel) {return jQuery(sel).prop('checked')});
                 if (anyChecked) return;
 
-                var prio = exp.displayAttributes.selectOnFilterPriority;
+                var prio = exp.displayAttributes.selectOnFilterPriority || 0;
                 if (prio < priority) return;
                 if (prio > priority) {
                     toCheck = [];
