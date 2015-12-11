@@ -341,6 +341,8 @@ class ChartService {
                     result.commons.testmessage = 'No χ² test calculated: these are the same subsets'
                 else if (result[1].conceptData.size() != result[2].conceptData.size())
                     result.commons.testmessage = 'No χ² test calculated: subsets have different sizes'
+                else if (result[1].conceptData.size() < 2)
+                    result.commons.testmessage = 'No χ² test calculated: insufficient dimension'
                 else {
 
                     def long [][] counts = [result[1].conceptData.values(), result[2].conceptData.values()]
@@ -424,8 +426,8 @@ class ChartService {
                 def max = null
                 set = new HistogramDataset()
                 data.each { k, v ->
-                    min = min != null ? (min > v.min() ? v.min() : min) : v.min()
-                    max = max != null ? (max < v.max() ? v.max() : max) : v.max()
+                    min = min != null ? (v.min() != null && min > v.min() ? v.min() : min) : v.min()
+                    max = max != null ? (v.max() != null && max < v.max() ? v.max() : max) : v.max()
                 }.each { k, v ->
                     log.debug "histogram: k = ${k}, v = ${v}"
                     if (k) set.addSeries(k, (double [])v.toArray(), 10, min, max)
@@ -488,9 +490,9 @@ class ChartService {
                     }
                     renderLegend = true
                 } else {
-                    data.each { k, v ->
-                        if (k) set.setValue(v, '', k)
-                    }
+                data.each { k, v ->
+                    if (k) set.setValue(v, '', k)
+                }
                 }
 
                 chart = ChartFactory.createBarChart(title, "", "", set, PlotOrientation.HORIZONTAL, renderLegend, true, false)
