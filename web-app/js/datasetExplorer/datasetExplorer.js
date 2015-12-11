@@ -1826,6 +1826,7 @@ function setupDragAndDrop() {
     );
 
     dts.notifyDrop = function (source, e, data) {
+        console.log(' ')
         buildAnalysis(data.node);
         return true;
     }
@@ -2588,6 +2589,33 @@ function getNodeForAnalysis(node) {
 function loadAnalysisData(node, filters) {
     resultsTabPanel.body.mask("Running analysis...", 'x-mask-loading');
 
+    jQuery.ajax({
+        url : pageInfo.basePath+"/chart/analysis",
+        method : 'POST',
+        data :  {
+            charttype : "analysis",
+            concept_key : node.attributes.id,
+            result_instance_id1 : GLOBAL.CurrentSubsetIDs[1],
+            result_instance_id2 : GLOBAL.CurrentSubsetIDs[2],
+            filters : JSON.stringify(filters)
+        }
+    })
+        .done(function (result) {
+            buildAnalysisComplete(result);
+        })
+        .fail(function (jqXHR, textStatus, errorThrown) {
+            console.error(jqXHR);
+            console.error(textStatus);
+            console.error(errorThrown);
+            console.log('yes im here ..');
+            var _errObj =  JSON.parse(jqXHR.responseText);
+            Ext.MessageBox.alert('HTTP Status ' + _errObj.httpStatus,
+                _errObj.type + ' : '+ _errObj.message  + '.');
+        })
+        .always(function () {
+            resultsTabPanel.body.unmask();
+        });
+
     Ext.Ajax.request(
         {
             url : pageInfo.basePath+"/chart/analysis",
@@ -2607,9 +2635,12 @@ function loadAnalysisData(node, filters) {
                 resultsTabPanel.body.unmask();
             },
             failure: function (result, request) {
+                console.error(request)
+                console.error(result)
+                console.log('yes im here ..')
                 resultsTabPanel.body.unmask();
-                var responseText = result.responseText ? JSON.parse(result.responseText) : null;
-                Ext.MessageBox.alert('Error', 'An error occured' + (responseText ? ': ' + responseText.message : '') + '.');
+                //var responseText = result.responseText ? JSON.parse(result.responseText) : null;
+                //Ext.MessageBox.alert('Error', 'An error occured' + (responseText ? ': ' + responseText.message : '') + '.');
             }
         }
     );
@@ -2633,55 +2664,74 @@ function buildAnalysis(nodein) {
     }
 
     console.log('Loading node details...');
+    resultsTabPanel.body.mask("Loading ..", 'x-mask-loading');
     jQuery.ajax({
         url : pageInfo.basePath + "/HighDimension/nodeDetails",
         method : 'POST',
         data : 'conceptKeys=' + encodeURIComponent(node.attributes.id)
     })
-    .done(function (highDimNodeDetails) {
-        var datatypes = highDimNodeDetails ? Object.keys(highDimNodeDetails) : [];
-        if (datatypes.length > 0) {
-            var datatype = datatypes[0];
+        .done(function (highDimNodeDetails) {
+            var datatypes = highDimNodeDetails ? Object.keys(highDimNodeDetails) : [];
+            if (datatypes.length > 0) {
+                var datatype = datatypes[0];
 
-            console.log("Data type: " + datatype);
-            if (datatype == 'snp_lz') {
-                var _dialog = HighDimensionDialogService.createSummaryStatDialog(node, datatype);
-                _dialog.dialog("open");
+                console.log("Data type: " + datatype);
+                if (datatype == 'snp_lz') {
+                    var _dialog = HighDimensionDialogService.createSummaryStatDialog(node, datatype);
+                    _dialog.dialog("open");
 
-                HighDimensionDialogService.applyBtn.click(function () {
-                    var filters = [];
-                    var f = HighDimensionDialogService.getFilter()
-                    if (f.type === 'chromosome_segment') {
-                        jQuery.each(f.data, function (i, d) {
+                    HighDimensionDialogService.applyBtn.click(function () {
+                        var filters = [];
+                        var f = HighDimensionDialogService.getFilter()
+                        if (f.type === 'chromosome_segment') {
+                            jQuery.each(f.data, function (i, d) {
+                                filters.push({
+                                    type: f.type,
+                                    chromosome: d.chromosome,
+                                    start: d.start,
+                                    end: d.end
+                                });
+                            });
+                        } else {
+                            // create selector object
                             filters.push({
                                 type: f.type,
-                                chromosome: d.chromosome,
-                                start: d.start,
-                                end: d.end
+                                names: f.data
                             });
-                        });
-                    } else {
-                        // create selector object
-                        filters.push({
-                            type: f.type,
-                            names: f.data
-                        });
-                    }
-                    loadAnalysisData(node, filters);
-                })
+                        }
+                        loadAnalysisData(node, filters);
+                    })
+                }
+                else {
+                    loadAnalysisData(node, []);
+                }
             }
             else {
                 loadAnalysisData(node, []);
             }
-        }
-        else {
-            loadAnalysisData(node, []);
-        }
-    })
-    .fail(function (msg) {
-        console.error('Something wrong when fetching node details for \'' + node + '\':', msg);
-        jQuery('#dialog-form').dialog('close');
-    });
+        })
+        .fail(function ( jqXHR, textStatus, errorThrown ) {
+            resultsTabPanel.body.unmask();
+            console.error('Something wrong when fetching node details for \'' + node + '\'');
+            console.error('jqXHR', jqXHR);
+            console.error('status', textStatus);
+            console.error('errorThrown', errorThrown);
+            Ext.Msg.show(
+                {
+                    title: 'Error generating patient set',
+                    msg: error,
+                    buttons: Ext.Msg.OK,
+                    fn: function () {
+                        Ext.Msg.hide();
+                    },
+                    icon: Ext.MessageBox.ERROR
+                }
+            );
+            //jQuery('#dialog-form').dialog('close');
+        })
+        .always(function () {
+            resultsTabPanel.body.unmask();
+        });
 
 }
 
