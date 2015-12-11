@@ -2643,31 +2643,38 @@ function buildAnalysis(nodein) {
         if (datatypes.length > 0) {
             var datatype = datatypes[0];
 
-            var _dialog = HighDimensionDialogService.createSummaryStatDialog(node, datatype);
-            _dialog.dialog("open");
+            console.log("Data type: " + datatype);
+            if (datatype == 'snp_lz') {
+                var _dialog = HighDimensionDialogService.createSummaryStatDialog(node, datatype);
+                _dialog.dialog("open");
 
-            HighDimensionDialogService.applyBtn.click(function () {
-                var filters = [];
-                var f = HighDimensionDialogService.getFilter()
-                if (f.type === 'chromosome_segment') {
-                    jQuery.each(f.data, function (i, d) {
+                HighDimensionDialogService.applyBtn.click(function () {
+                    var filters = [];
+                    var f = HighDimensionDialogService.getFilter()
+                    if (f.type === 'chromosome_segment') {
+                        jQuery.each(f.data, function (i, d) {
+                            filters.push({
+                                type: f.type,
+                                chromosome: d.chromosome,
+                                start: d.start,
+                                end: d.end
+                            });
+                        });
+                    } else {
+                        // create selector object
                         filters.push({
                             type: f.type,
-                            chromosome: d.chromosome,
-                            start: d.start,
-                            end: d.end
+                            names: f.data
                         });
-                    });
-                } else {
-                    // create selector object
-                    filters.push({
-                        type: f.type,
-                        names: f.data
-                    });
-                }
-                loadAnalysisData(node, filters);
-            });
-        } else {
+                    }
+                    loadAnalysisData(node, filters);
+                })
+            }
+            else {
+                loadAnalysisData(node, []);
+            }
+        }
+        else {
             loadAnalysisData(node, []);
         }
     })
