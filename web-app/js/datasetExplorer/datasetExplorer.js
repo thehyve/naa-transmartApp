@@ -2599,9 +2599,7 @@ function loadAnalysisData(node, filters) {
             filters : JSON.stringify(filters)
         }
     })
-        .done(function (result) {
-            buildAnalysisComplete(result);
-        })
+        .done(buildAnalysisComplete)
         .fail(function (jqXHR, textStatus, errorThrown) {
             console.error(jqXHR);
             console.error(textStatus);
