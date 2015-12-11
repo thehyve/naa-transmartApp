@@ -1602,7 +1602,7 @@ function setupOntTree(id_in, title_in) {
                         success: function (result, request) {
                         },
                         failure: function (result, request) {
-                            console.log(result);
+                            console.error(result);
                         },
                         timeout: '600000'
                     }
@@ -1826,10 +1826,9 @@ function setupDragAndDrop() {
     );
 
     dts.notifyDrop = function (source, e, data) {
-        console.log(' ')
         buildAnalysis(data.node);
         return true;
-    }
+    };
 
     /* set up drag and drop for grid */
     var mcd = Ext.get(analysisGridPanel.body);
@@ -2634,7 +2633,6 @@ function buildAnalysis(nodein) {
         return;
     }
 
-    console.log('Loading node details...');
     resultsTabPanel.body.mask("Loading ..", 'x-mask-loading');
     jQuery.ajax({
         url : pageInfo.basePath + "/HighDimension/nodeDetails",
@@ -2646,7 +2644,6 @@ function buildAnalysis(nodein) {
             if (datatypes.length > 0) {
                 var datatype = datatypes[0];
 
-                console.log("Data type: " + datatype);
                 if (datatype == 'snp_lz') {
                     var _dialog = HighDimensionDialogService.createSummaryStatDialog(node, datatype);
                     _dialog.dialog("open");
