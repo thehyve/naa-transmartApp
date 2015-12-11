@@ -2607,7 +2607,6 @@ function loadAnalysisData(node, filters) {
             console.error(jqXHR);
             console.error(textStatus);
             console.error(errorThrown);
-            console.log('yes im here ..');
             var _errObj =  JSON.parse(jqXHR.responseText);
             Ext.MessageBox.alert('HTTP Status ' + _errObj.httpStatus,
                 _errObj.type + ' : '+ _errObj.message  + '.');
@@ -2616,34 +2615,6 @@ function loadAnalysisData(node, filters) {
             resultsTabPanel.body.unmask();
         });
 
-    Ext.Ajax.request(
-        {
-            url : pageInfo.basePath+"/chart/analysis",
-            method : 'POST',
-            timeout: '600000',
-            params :  Ext.urlEncode(
-                {
-                    charttype : "analysis",
-                    concept_key : node.attributes.id,
-                    result_instance_id1 : GLOBAL.CurrentSubsetIDs[1],
-                    result_instance_id2 : GLOBAL.CurrentSubsetIDs[2],
-                    filters : JSON.stringify(filters)
-                }
-            ), // or a URL encoded string
-            success: function (result, request) {
-                buildAnalysisComplete(result);
-                resultsTabPanel.body.unmask();
-            },
-            failure: function (result, request) {
-                console.error(request)
-                console.error(result)
-                console.log('yes im here ..')
-                resultsTabPanel.body.unmask();
-                //var responseText = result.responseText ? JSON.parse(result.responseText) : null;
-                //Ext.MessageBox.alert('Error', 'An error occured' + (responseText ? ': ' + responseText.message : '') + '.');
-            }
-        }
-    );
     getAnalysisGridData(node.attributes.id, filters);
 }
 
