@@ -183,50 +183,50 @@ class ChartService {
         def metadata = exportMetadataService.getHighDimMetaData(subsets[1]?.instance as Long, subsets[2]?.instance as Long)
         metadata.each { data ->
             log.debug "getHighDimAnalysis: concept = ${concept}, dataType = ${data.datatype}"
-            def barChartData = [:]
-            subsets.each { k, v ->
-                if (v.instance) {
+            Map<String, Map<String, Map>> barChartData = [:] // maps subsets to a map from row label to row data
+            subsets.each { subset, properties ->
+                if (properties.instance) {
                     def assayConstraints = [
                             (AssayConstraint.PATIENT_SET_CONSTRAINT):
-                                [[result_instance_id: v.instance]],
+                                [[result_instance_id: properties.instance]],
                             (AssayConstraint.ONTOLOGY_TERM_CONSTRAINT):
                                 [[concept_key: concept]]
                         ]
-                    barChartData[k] = highDimChartDataService.getBarChartData(data.datatype.dataTypeName, assayConstraints, filters)
+                    barChartData[subset] = highDimChartDataService.getBarChartData(data.datatype.dataTypeName, assayConstraints, filters)
                 }
             }
-            def rowCount = barChartData.max { it.value.data.size() }.value.data.size()
-            log.debug "Row count: ${rowCount}"
+            List<String> rows = barChartData.collect { it.value.collect { it.key } }.flatten().unique()
             // Rows are the different selected high dimension data rows
-            (0..(rowCount > 0 ? rowCount-1 : 0)).each { i ->
-                def title = ''
+            rows.each { rowName ->
+                log.debug "Row: ${rowName}"
                 Set<String> labels = []
                 def series = []
                 def bardata = [:]
-                barChartData.each { k, v ->
-                    if (i < v.data.size()) {
-                        title = v.title
-                        labels.addAll(v.labels)
-                        series.add("Subset ${k}")
-                        bardata[k] = v.data[i]
+                barChartData.each { subset, Map<String, Map> rowMap ->
+                    if (rowMap[rowName]) {
+                        Map row = rowMap[rowName]
+                        log.debug "Subset: ${subset}, row: ${row}"
+                        labels.addAll(row.labels)
+                        series.add("Subset ${subset}")
+                        bardata[subset] = row.data
                     }
                 }
                 List labelList = new ArrayList(labels)
                 labelList.sort()
-                Map sortedData = bardata.collectEntries { k, v ->
-                    SortedMap d = new TreeMap()
+                Map sortedData = bardata.collectEntries { subset, rowData ->
+                    LinkedHashMap sortedRowData = [:]
                     labelList.each { label ->
-                        d[label] = v[label] ?: 0
+                        sortedRowData[label] = rowData[label] ?: 0
                     }
-                    [(k): d]
+                    [(subset): sortedRowData]
                 }
-                log.debug "Title: ${title}, plot data: ${sortedData}"
+                log.debug "Title: ${rowName}, plot data: ${sortedData}"
                 result << [
-                    plots: sortedData.collectEntries { k, v ->
-                        def plottitle = title //"Genotype distribution in subset $k for SNP $title"
-                        [(k): getSVGChart(type: 'bar', title: "$plottitle", data: v, size: chartSize)]
+                    plots: sortedData.collectEntries { subset, rowData ->
+                        def plottitle = rowName //"Genotype distribution in subset $k for SNP $rowName"
+                        [(subset): getSVGChart(type: 'bar', title: "$plottitle", data: rowData, size: chartSize)]
                     },
-                    title: title,
+                    title: rowName,
                     labels: labelList,
                     series: series,
                     data: sortedData,
