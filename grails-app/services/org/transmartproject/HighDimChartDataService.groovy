@@ -141,14 +141,11 @@ class HighDimChartDataService {
 
         def dataConstraints = HighDimExportService.createFilterConstraints(typeResource, filters)
 
-        log.debug "Fetching assays..."
-        Map<HighDimensionDataTypeResource, Collection<Assay>> assayMap = highDimensionResourceService.getSubResourcesAssayMultiMap(assayConstraints)
-        // for some reason, this dataTypeResourceKey is not the same as dataTypeResource:
-        def dataTypeResourceKey = assayMap.keySet().find { it.dataTypeName == typeResource.dataTypeName }
-        Collection<Assay> assays = assayMap[dataTypeResourceKey]
 
         TabularResult tabularResult = typeResource.retrieveData(
                 assayConstraints, [dataConstraints], projection)
+
+        List<Assay> assays = tabularResult.indicesList
 
         List colnames = []
         List subjects = assays*.patient.id // patientInTrialId
