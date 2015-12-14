@@ -1,6 +1,7 @@
 HighDimensionDialogService = (function(autocompleteInp) {
 
     var _autocompleteInp = autocompleteInp;
+    var _separator = /[,]+/; // identifiers are separated by comma (,)
 
     /**
      * Get filter type & keywords selected by user
@@ -8,7 +9,6 @@ HighDimensionDialogService = (function(autocompleteInp) {
      * @private
      */
     var _getFilter = function (filterType, filterKeyword) {
-        var _separator = /[,]+/; // identifiers are separated by comma (,)
 
         var _tokenizeChrPosition = function(strChrPos) {
             var _strChrPos = strChrPos.split(':'),
@@ -17,7 +17,7 @@ HighDimensionDialogService = (function(autocompleteInp) {
                 'chromosome': _strChrPos[0],
                 'start': _pos[0],
                 'end': _pos[1]
-            }
+            };
         };
 
         var _filter = {
@@ -27,13 +27,13 @@ HighDimensionDialogService = (function(autocompleteInp) {
 
         if (filterType === 'genes' || filterType === 'snps') {
             filterKeyword.split(_separator).forEach(function(d) {
-            	var _d = d.trim();
+                var _d = d.trim();
                 if (_d) {
-                	_filter.data.push(_d);
+                    _filter.data.push(_d);
                 }
             });
             _filter.names = _filter.data;
-        } else if (filterType === 'chromosome_segment' ) {
+        } else if (filterType === 'chromosome_segment') {
             filterKeyword.split(_separator).forEach(function(chrPos) {
                 _filter.data.push(_tokenizeChrPosition(chrPos.trim()));
             });
@@ -51,7 +51,6 @@ HighDimensionDialogService = (function(autocompleteInp) {
      */
     var _isCorrectHD = function (data, gridRow) {
         var _keys = Object.keys(data);
-        console.log(_keys);
         return _keys[0] === gridRow.dataTypeId;
     };
 
@@ -64,6 +63,7 @@ HighDimensionDialogService = (function(autocompleteInp) {
         obj.filterForm = jQuery('#filterForm');
         obj.filterType =  jQuery('#filterType');
         obj.filterKeyword = jQuery('#filterKeyword');
+        obj.filterKeywordFeedback = jQuery('#filterKeywordFeedback');
         obj.loadingEl = jQuery('#loadingPleaseWait');
         obj.applyBtn = jQuery('#dialog-apply-btn');
         obj.cancelBtn = jQuery('#dialog-cancel-btn');
@@ -78,6 +78,7 @@ HighDimensionDialogService = (function(autocompleteInp) {
     {
         filterType: {},
         filterKeyword: {},
+        filterKeywordFeedback: {},
         dialogEl: jQuery('#dialog-form'),
         uiComponent : {
             autoOpen: false,
@@ -111,10 +112,19 @@ HighDimensionDialogService = (function(autocompleteInp) {
         }
     };
 
+    service.getFilter = function() {
+        return _getFilter(
+            service.filterType.val(),
+            service.filterKeyword.val()
+        );
+    }
+
     /**
      * void create auto complete input depends on the filter
      */
     service.createAutocompleteInput = function () {
+        service.filterKeyword.val('');
+        service.validateKeyword();
         if (service.filterType.val() === 'chromosome_segment') {
             service.filterKeyword.autocomplete('disable');
         } else {
@@ -140,13 +150,11 @@ HighDimensionDialogService = (function(autocompleteInp) {
      * @private
      */
     service.dropOntoVariableSelection = function (data, el, filter) {
-        if (Object.keys(data.details).indexOf(data.dataTypeId) >= 0 ) {
-            data.node.attributes.oktousevalues = "N";
-            service.createPanelItemNew(el, convertNodeToConcept(data.node), filter);
-        }
+        data.node.attributes.oktousevalues = "N";
+        service.createPanelItemNew(el, convertNodeToConcept(data.node), filter);
     };
 
-    service.createSummaryStatDialog = function (node) {
+    service.createSummaryStatDialog = function (node, datatype) {
 
         var _s = service;
 
@@ -154,22 +162,46 @@ HighDimensionDialogService = (function(autocompleteInp) {
         _s.uiComponent.open = function () {
 
             _defineFormElements(_s);
-            _s.loadingEl.hide();
-            if (_s.filterType.val() !== 'snps') {
-            	_s.filterType.val('snps');
-            	_s.filterKeyword.val('');
-            	_s.createAutocompleteInput();
-            }
-            _s.filterType.prop('disabled', true);
+            _s.filterForm.hide();
+            _s.loadingEl.show();
+            _s.applyBtn.button('disable');
+            _s.cancelBtn.button('disable');
+            _s.filterKeyword.val('');
+            _s.filterType.prop('disabled', false);
 
-            if (service.filterKeyword.is('.ui-autocomplete-input')){
-                //console.log('autocomplete already initiated, so now enabling it');
-                service.filterKeyword.autocomplete('enable');
-            } else {
-                //console.log('autocomplete not yet initiated, so now creating it');
+            _s.filterKeyword.off('keyup');
+            _s.filterKeyword.on('keyup', function(evt) {
+                _s.validateKeyword();
+            });
+
+            _s.filterForm.off('keypress');
+            _s.filterForm.on('keypress', function(evt) {
+                if (evt.which === 13) {
+                    evt.preventDefault();
+                    if (!_s.applyBtn.prop('disabled')) {
+                        _s.applyBtn.click();
+                    }
+                }
+            });
+
+            console.log('Fetching supported data constraints for datatype: ' + datatype);
+            jQuery.ajax({
+                url : pageInfo.basePath + "/HighDimDataType/supportedDataConstraints",
+                data : {dataType: datatype}
+            })
+            .done(function (supported_filters) {
+                console.log('Show filter dialog for filter types: ', supported_filters);
+                _s.disableUnsupportedFilters(supported_filters);
+                _s.showKeywordDescription();
+                _s.filterForm.show();
+                _s.loadingEl.hide();
+                _s.cancelBtn.button('enable');
                 _s.createAutocompleteInput();
-            }
-
+            })
+            .fail(function (msg) {
+                console.error('Error when fetching supported filter types for datatype \'' + datatype + '\':', msg);
+                jQuery('#dialog-form').dialog('close');
+            });
         };
 
         // assign close dialog handler
@@ -183,6 +215,109 @@ HighDimensionDialogService = (function(autocompleteInp) {
         // dialog creation //
         // =============== //
         return jQuery('#dialog-form').dialog(_s.uiComponent);
+    };
+
+    service.showKeywordDescription = function() {
+        var filterType = service.filterType.val();
+        jQuery('.filter_keyword_description').each(function() {
+            var el = jQuery(this);
+            if (el.attr('id') === 'filterKeywordDescription['+filterType+']') {
+                el.show();
+            } else {
+                el.hide();
+            }
+        });
+    };
+
+    /**
+     * The format used for specifying genomic regions: '<var>C</var>:<var>start</var>:<var>end</var>',
+     * where C is a chromosome number in the range 1--22 or any of <code>{'X', 'Y', 'XY', 'M', 'MT'}</code>
+     * (assumes the human genome).
+     * <var>start</var> and <var>end</var> are integers that specify an interval of basepair positions
+     * in the chromosome.
+     * Examples: <code>X:1-1000000</code>, <code>3:200000-400000</code>.
+     */
+    service.chromosome_segment_pattern = /^([0-9]{1,2}|X|Y|XY|M|MT):(\d+)-(\d+)$/;
+
+    /**
+     * Validates if the value in <var>filterKeyword</var> is conform the filter type
+     * selected in <var>filterType</var>.
+     * In particular, for chromosome segment, checks if the value matches the pattern in
+     * <var>chromosome_segment_pattern</var>, if the chromosome number is in the range 1--22 (assuming the human genome),
+     * and if the <var>start</var> values is smaller than (or equal to) the <var>end</var> value.
+     * If the <var>filterKeyword</var> conforms to the filter type format,
+     * the <code>applyBtn</code> button is enabled; otherwise the button is disabled
+     * and an error message is written to the <code>filterKeywordFeedback</code> element.
+     */
+    service.validateKeyword = function() {
+        var filterKeyword = service.filterKeyword.val().trim();
+        if (service.filterType.val() === 'chromosome_segment') {
+            var valid_count = 0;
+            var invalid_count = 0;
+            if (filterKeyword) {
+                filterKeyword.split(_separator).forEach(function(d) {
+                    var _d = d.trim();
+                    if (_d) {
+                        var valid_segment = false;
+                        // validate pattern
+                        var m = service.chromosome_segment_pattern
+                                .exec(_d);
+                        if (m) {
+                            var chromosome = m[1];
+                            var start = m[2];
+                            var end = m[3];
+                            if ((isNaN(chromosome) || (chromosome >= 1 && chromosome <= 22))
+                                    && start <= end) {
+                                valid_segment = true;
+                            }
+                        }
+                        if (valid_segment) {
+                            valid_count++;
+                        } else {
+                            invalid_count++;
+                        }
+                        //console.log('segment ' + _d + ': ' + (valid_segment ? 'valid': 'invalid'));
+                    }
+                });
+            }
+            var valid = (valid_count > 0 && invalid_count == 0);
+            if (valid) {
+                service.applyBtn.button('enable');
+                service.filterKeywordFeedback.hide();
+            } else {
+                service.applyBtn.button('disable');
+                service.filterKeywordFeedback.show();
+            }
+        } else {
+            if (filterKeyword) {
+                service.applyBtn.button('enable');
+            } else {
+                service.applyBtn.button('disable');
+            }
+            service.filterKeywordFeedback.hide();
+        }
+    };
+
+    service.disableUnsupportedFilters = function(supportedDataConstraints) {
+        var selected = service.filterType.val();
+        service.filterType.find('option').each(function() {
+            var val = jQuery(this).val();
+            if (supportedDataConstraints.indexOf(val) == -1) {
+                // filter not supported, disable filter
+                console.log('disable filter option: ' + val);
+                jQuery(this).prop('disabled', true);
+                if (selected === val) {
+                    selected = '';
+                }
+            } else {
+                jQuery(this).prop('disabled', false);
+                if (selected === '') {
+                    selected = val;
+                }
+            }
+        });
+        service.filterType.val(selected);
+        console.log('selected filter type: ' + service.filterType.val());
     };
 
     /**
@@ -200,6 +335,7 @@ HighDimensionDialogService = (function(autocompleteInp) {
         _s.uiComponent.open = function () {
 
             _defineFormElements(_s);
+            _s.dropTarget.filter = {};
 
             _s.filterForm.hide();
             _s.loadingEl.show();
@@ -208,31 +344,50 @@ HighDimensionDialogService = (function(autocompleteInp) {
             _s.filterKeyword.val('');
             _s.filterType.prop('disabled', false);
 
+            _s.filterKeyword.off('keyup');
+            _s.filterKeyword.on('keyup', function(evt) {
+                _s.validateKeyword();
+            });
+
+            _s.filterForm.off('keypress');
+            _s.filterForm.on('keypress', function(evt) {
+                if (evt.which === 13) {
+                    evt.preventDefault();
+                    if (!_s.applyBtn.prop('disabled')) {
+                        _s.applyBtn.click();
+                    }
+                }
+            });
+
             jQuery.ajax({
                 url : pageInfo.basePath + "/HighDimension/nodeDetails",
                 method : 'POST',
                 data : 'conceptKeys=' + encodeURIComponent(dropzone.dropData.node.attributes.id)
             })
-                .done(function (d) {
-                    dropzone.dropData.details = d;
-                    if (_isCorrectHD(d, dropzone.recordData)) {
-                        _s.filterForm.show();
-                        _s.loadingEl.hide();
-                        _s.applyBtn.button('enable');
-                        _s.cancelBtn.button('enable');
-                        _s.createAutocompleteInput();
-                    } else {
-                        _s.dialogEl.dialog("close");
-                    }
-                })
-                .fail(function (msg) {
-                    console.error('Something wrong when checking the node ...', msg);
-                    _s.dialogEl.dialog("close");
-                });
+            .done(function (d) {
+                dropzone.dropData.details = d;
+                if (_isCorrectHD(d, dropzone.recordData)) {
+                    console.log('Show filter dialog for filter types: ', dropzone.recordData.supportedDataConstraints);
+                    _s.disableUnsupportedFilters(dropzone.recordData.supportedDataConstraints);
+                    _s.showKeywordDescription();
+                    _s.filterForm.show();
+                    _s.loadingEl.hide();
+                    _s.cancelBtn.button('enable');
+                    _s.createAutocompleteInput();
+                } else {
+                    jQuery('#dialog-form').dialog('close');
+                }
+            })
+            .fail(function (msg) {
+                console.error('Something wrong when checking the node ...', msg);
+                jQuery('#dialog-form').dialog('close');
+            });
         };
 
         // assign close dialog handler
         _s.uiComponent.close = function () {
+            console.log('uiComponent.close');
+
             if (Object.keys(dropzone.dropData.details).indexOf(dropzone.recordData.dataTypeId) >= 0 ) {
                 dropzone.dropData.node.attributes.oktousevalues = "N";
                 _s.createPanelItemNew(dropzone.el, convertNodeToConcept(dropzone.dropData.node), dropzone.filter);
@@ -288,8 +443,9 @@ HighDimensionDialogService = (function(autocompleteInp) {
         var shortname = "";
         if (splits.length > 1) {
             shortname = "...\\" + splits[splits.length - 2] + "\\" + splits[splits.length - 1];
+        } else {
+            shortname = splits[splits.length - 1];
         }
-        else shortname = splits[splits.length - 1];
         li.setAttribute('conceptshortname', shortname);
 
         //Create a setvalue description

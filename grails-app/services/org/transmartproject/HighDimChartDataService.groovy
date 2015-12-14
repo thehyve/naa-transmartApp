@@ -17,6 +17,12 @@ class HighDimChartDataService {
 
     HighDimensionResource highDimensionResourceService
 
+    Set<String> getSupportedDataConstraints(String dataType) {
+        HighDimensionDataTypeResource typeResource =
+            highDimensionResourceService.getSubResourceForType(dataType)
+        typeResource.supportedDataConstraints
+    }
+
     Closure<Map> getBarChartTransformerForDatatype(HighDimensionDataTypeResource typeResource) {
         switch(typeResource.dataTypeName) {
             case "snp_lz":
@@ -69,7 +75,7 @@ class HighDimChartDataService {
      *
      * @param dataType highdim data type
      */
-    Map getBarChartData(
+    Map<String, Map> getBarChartData(
                 String dataType,
                 Map assayConstraintsSpec,
                 List filters) {
@@ -95,26 +101,17 @@ class HighDimChartDataService {
         TabularResult tabularResult = typeResource.retrieveData(
                 assayConstraints, [dataConstraints], projection)
 
-        List<Map> barChartData = []
-        Set<String> labels = []
+        Map<String, Map> barChartData = [:]
         try {
             for (Object row: tabularResult) {
-                if (!metadata) {
-                    metadata = getBarChartMetadataForDatatype(typeResource, row)
-                }
                 Map rowData = transformRow(row)
-                labels.addAll(rowData.keySet())
-                barChartData.add(rowData)
+                barChartData[row.label] = [title: row.label, labels: rowData.keySet(), data: rowData]
             }
         } finally {
             tabularResult.close() //closing the tabular result, no matter what
         }
 
-        [
-            title: metadata.title,
-            labels: labels,
-            data: barChartData
-        ]
+        barChartData
     }
 
     /**
@@ -144,14 +141,11 @@ class HighDimChartDataService {
 
         def dataConstraints = HighDimExportService.createFilterConstraints(typeResource, filters)
 
-        log.debug "Fetching assays..."
-        Map<HighDimensionDataTypeResource, Collection<Assay>> assayMap = highDimensionResourceService.getSubResourcesAssayMultiMap(assayConstraints)
-        // for some reason, this dataTypeResourceKey is not the same as dataTypeResource:
-        def dataTypeResourceKey = assayMap.keySet().find { it.dataTypeName == typeResource.dataTypeName }
-        Collection<Assay> assays = assayMap[dataTypeResourceKey]
 
         TabularResult tabularResult = typeResource.retrieveData(
                 assayConstraints, [dataConstraints], projection)
+
+        List<Assay> assays = tabularResult.indicesList
 
         List colnames = []
         List subjects = assays*.patient.id // patientInTrialId

@@ -56,6 +56,32 @@ class HighDimExportService {
         disjunction
     }
 
+    static List knownKeys = ['names', 'chromosome', 'start', 'end']
+    /**
+     * Sorts a collection of keys such that:
+     * - keys in {@link #knownKeys} appear before other keys;
+     * - keys in {@link #knownKeys} are ordered according to their order in {@link #knownKeys};
+     * - other keys are ordered according to their natural ordering.
+     * @param k a collection of keys.
+     * @return the list containing all keys in <var>k</var>, ordered according to 
+     * the ordering described above.
+     */
+    static List sortKeys(Collection k) {
+        List keys = new ArrayList(k);
+        keys.sort { a, b ->
+            if (a in knownKeys && b in knownKeys) {
+                return knownKeys.indexOf(a) <=> knownKeys.indexOf(b)
+            } else if (a in knownKeys) {
+                return -1
+            } else if (b in knownKeys) {
+                return 1
+            } else {
+                return a <=> b
+            }
+        }
+        keys
+    }
+
     def exportHighDimData(Map args) {
         String jobName =                    args.jobName
         String dataType =                   args.dataType
@@ -65,7 +91,8 @@ class HighDimExportService {
         String studyDir =                   args.studyDir
         String format =                     args.format
         List<Map> filters =                 args.filters // See {@link #createDataConstraints(HighDimensionDataTypeResource, List<Map>)} for a description.
-        
+        String study =                      args.study
+
         log.debug 'ExportHighDimData args = ' + args
 
         if (jobIsCancelled(jobName)) {
@@ -91,8 +118,15 @@ class HighDimExportService {
         // Setup class to export the data
         HighDimExporter exporter = highDimExporterRegistry.getExporterForFormat( format )
 
-        File outputFile = new File(studyDir, dataType + '.' + format.toLowerCase() )
+        // serialise filter definition to be used in the generated filename
+        String serialisedFilterDescription = filters.collect({ filter ->
+            List keys = sortKeys(filter.keySet().findAll { it != 'type' && it != 'id' })
+            return keys.collect({ filter[it] }).join('_')
+        }).join('_')
+        String name = "${study}_${dataType}_${serialisedFilterDescription}_${jobName}.${format.toLowerCase()}"
+        File outputFile = new File(studyDir, name)
         String fileName = outputFile.getAbsolutePath()
+        Map result
 
         if (exporter instanceof HighDimColumnExporter) {
             exporter = exporter as HighDimColumnExporter
@@ -105,7 +139,7 @@ class HighDimExportService {
             Collection<Assay> assays = assayMap[dataTypeResourceKey]
             // Start exporting column data
             outputFile.withOutputStream { outputStream ->
-                exporter.export assays, outputStream, { jobIsCancelled(jobName) }
+                result = exporter.export assays, outputStream, { jobIsCancelled(jobName) }
             }
         } else {
             exporter = exporter as HighDimTabularResultExporter
@@ -122,13 +156,20 @@ class HighDimExportService {
             // Start exporting tabular data
             try {
                 outputFile.withOutputStream { outputStream ->
-                    exporter.export tabularResult, projection, outputStream, { jobIsCancelled(jobName) }
+                    result = exporter.export tabularResult, projection, outputStream, { jobIsCancelled(jobName) }
                 }
             } finally {
                 tabularResult.close()
             }
         }
-        return [outFile: fileName]
+
+        long rowsWritten = result?.rowsWritten ?: 0
+        log.info "HighDimExportService: ${rowsWritten} rows written."
+        if (!("RowsWritten" in jobResultsService[jobName])) {
+            jobResultsService[jobName]["RowsWritten"] = [:]
+        }
+        jobResultsService[jobName]["RowsWritten"][name] = rowsWritten
+        return [outFile: fileName, rowsWritten: rowsWritten]
     }
 
     def boolean jobIsCancelled(jobName) {

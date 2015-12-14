@@ -1060,10 +1060,6 @@ function onWindowResize() {
 
     jQuery('#analysisPanel .x-panel-body').height(jQuery(window).height() - 65);
 
-    if (jQuery('#dataTypesGridPanel .x-panel-body').size() > 0) {
-        var exportPanelTop = jQuery('#dataTypesGridPanel .x-panel-body').offset()['top'];
-        jQuery('#dataTypesGridPanel .x-panel-body').height(jQuery(window).height() - exportPanelTop - 40);
-    }
     if (jQuery('#dataAssociationPanel .x-panel-body').size() > 0) {
         var panelTop = jQuery('#dataAssociationPanel .x-panel-body').offset()['top'];
         jQuery('#dataAssociationPanel .x-panel-body').height(jQuery(window).height() - panelTop);
@@ -1606,7 +1602,7 @@ function setupOntTree(id_in, title_in) {
                         success: function (result, request) {
                         },
                         failure: function (result, request) {
-                            console.log(result);
+                            console.error(result);
                         },
                         timeout: '600000'
                     }
@@ -1832,7 +1828,7 @@ function setupDragAndDrop() {
     dts.notifyDrop = function (source, e, data) {
         buildAnalysis(data.node);
         return true;
-    }
+    };
 
     /* set up drag and drop for grid */
     var mcd = Ext.get(analysisGridPanel.body);
@@ -2589,6 +2585,35 @@ function getNodeForAnalysis(node) {
 	// must be a concept folder so return me
 }
 
+function loadAnalysisData(node, filters) {
+    resultsTabPanel.body.mask("Running analysis...", 'x-mask-loading');
+
+    jQuery.ajax({
+        url : pageInfo.basePath+"/chart/analysis",
+        method : 'POST',
+        data :  {
+            charttype : "analysis",
+            concept_key : node.attributes.id,
+            result_instance_id1 : GLOBAL.CurrentSubsetIDs[1],
+            result_instance_id2 : GLOBAL.CurrentSubsetIDs[2],
+            filters : JSON.stringify(filters)
+        }
+    })
+        .done(buildAnalysisComplete)
+        .fail(function (jqXHR, textStatus, errorThrown) {
+            console.error(jqXHR);
+            console.error(textStatus);
+            console.error(errorThrown);
+            var _errObj =  JSON.parse(jqXHR.responseText);
+            Ext.MessageBox.alert('HTTP Status ' + _errObj.httpStatus,
+                _errObj.type + ' : '+ _errObj.message  + '.');
+        })
+        .always(function () {
+            resultsTabPanel.body.unmask();
+        });
+
+    getAnalysisGridData(node.attributes.id, filters);
+}
 
 function buildAnalysis(nodein) {
 	var node = nodein // getNodeForAnalysis(nodein);
@@ -2606,60 +2631,85 @@ function buildAnalysis(nodein) {
         return;
     }
 
-    var _dialog = HighDimensionDialogService.createSummaryStatDialog(node);
-    _dialog.dialog("open");
+    resultsTabPanel.body.mask("Loading ..", 'x-mask-loading');
+    jQuery.ajax({
+        url : pageInfo.basePath + "/HighDimension/nodeDetails",
+        method : 'POST',
+        data : 'conceptKeys=' + encodeURIComponent(node.attributes.id)
+    })
+        .done(function (highDimNodeDetails) {
+            var datatypes = highDimNodeDetails ? Object.keys(highDimNodeDetails) : [];
+            if (datatypes.length > 0) {
+                var datatype = datatypes[0];
 
-    HighDimensionDialogService.applyBtn.click(function () {
+                if (datatype == 'snp_lz') {
+                    var _dialog = HighDimensionDialogService.createSummaryStatDialog(node, datatype);
+                    _dialog.dialog("open");
 
-        var filters = [{
-            type : HighDimensionDialogService.filter.type,
-            names : HighDimensionDialogService.filter.data
-        }];
-
-        resultsTabPanel.body.mask("Running analysis...", 'x-mask-loading');
-
-        Ext.Ajax.request(
-            {
-                url : pageInfo.basePath+"/chart/analysis",
-                method : 'POST',
-                timeout: '600000',
-                params :  Ext.urlEncode(
-                    {
-                        charttype : "analysis",
-                        concept_key : node.attributes.id,
-                        result_instance_id1 : GLOBAL.CurrentSubsetIDs[1],
-                        result_instance_id2 : GLOBAL.CurrentSubsetIDs[2],
-                        filters : JSON.stringify(filters)
-                    }
-                ), // or a URL encoded string
-                success: function (result, request) {
-                    buildAnalysisComplete(result);
-                    resultsTabPanel.body.unmask();
-                },
-                failure: function (result, request) {
-                	resultsTabPanel.body.unmask();
-                	var responseText = result.responseText ? JSON.parse(result.responseText) : null;
-                	Ext.MessageBox.alert('Error', 'An error occured' + (responseText ? ': ' + responseText.message : '') + '.');
+                    HighDimensionDialogService.applyBtn.click(function () {
+                        var filters = [];
+                        var f = HighDimensionDialogService.getFilter()
+                        if (f.type === 'chromosome_segment') {
+                            jQuery.each(f.data, function (i, d) {
+                                filters.push({
+                                    type: f.type,
+                                    chromosome: d.chromosome,
+                                    start: d.start,
+                                    end: d.end
+                                });
+                            });
+                        } else {
+                            // create selector object
+                            filters.push({
+                                type: f.type,
+                                names: f.data
+                            });
+                        }
+                        loadAnalysisData(node, filters);
+                    })
+                }
+                else {
+                    loadAnalysisData(node, []);
                 }
             }
-        );
-        getAnalysisGridData(node.attributes.id, filters);
-
-    });
+            else {
+                loadAnalysisData(node, []);
+            }
+        })
+        .fail(function ( jqXHR, textStatus, errorThrown ) {
+            resultsTabPanel.body.unmask();
+            console.error('Something wrong when fetching node details for \'' + node + '\'');
+            console.error('jqXHR', jqXHR);
+            console.error('status', textStatus);
+            console.error('errorThrown', errorThrown);
+            Ext.Msg.show(
+                {
+                    title: 'Error generating patient set',
+                    msg: error,
+                    buttons: Ext.Msg.OK,
+                    fn: function () {
+                        Ext.Msg.hide();
+                    },
+                    icon: Ext.MessageBox.ERROR
+                }
+            );
+            //jQuery('#dialog-form').dialog('close');
+        })
+        .always(function () {
+            resultsTabPanel.body.unmask();
+        });
 
 }
 
 function buildAnalysisComplete(result) {
-    // analysisPanel.body.unmask();
-    var txt = result.responseText;
-    updateAnalysisPanel(txt, true);
+    updateAnalysisPanel(result, true);
 }
 
 function updateAnalysisPanel(html, insert) {
     if (insert) {
-        var div = jQuery("#analysisPanel div.analysis")
-        var uniq = 'appenedItem_' + new Date().getTime()
-        div.append(jQuery(html).attr('id', uniq))
+        var div = jQuery("#analysisPanel div.analysis");
+        var uniq = 'appenedItem_' + new Date().getTime();
+        div.append(jQuery(html).attr('id', uniq));
         div.parent().scrollTop(jQuery('#' + uniq).prop('offsetTop'))
     } else {
         analysisPanel.body.update(html, false, null)
@@ -3925,12 +3975,12 @@ function showWorkflowStatusWindow() {
                 timeout : '300000'
                 }
         );
-      } 
+      };
       
       var task = {
           run: updateStatus,
           interval: 4000 //4 second
-      }
+      };
  
       runner.start(task);
       

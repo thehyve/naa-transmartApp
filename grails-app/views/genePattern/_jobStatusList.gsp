@@ -19,13 +19,18 @@
 
 <body>
   <div id="divjobstatus" style="background:#fff;height:100%;padding:5px; font:12px tahoma, arial, helvetica, sans-serif;">  
-    <h3>Step ${statusIndex + 1} of ${jobStatuses.size()}</h3>
+    <g:if test="${status == 'Completed'}">
+        <h3>Completed</h3>
+    </g:if>
+    <g:else>
+        <h3>Step ${statusIndex + 1} of ${jobStatuses.size()}</h3>
+    </g:else>
     <table width="100%" style="background:#fff;">
         <g:each status="i" in="${jobStatuses}" var="jobStatus">
             <tr>
                 <td>${jobStatus}
-                    <g:if test="${i < statusIndex}">
-                        <img src="${resource(dir:'images',file:'green_check.png')}"/>
+                    <g:if test="${i < statusIndex || status == 'Completed'}">
+                        <img src="${resource(dir:'images',file:'green_check3.png')}"/>
                     </g:if>
                     <g:elseif test="${i == statusIndex}">
                         <img src="${resource(dir:'images', file:'loading-balls.gif')}"/>
@@ -33,7 +38,16 @@
                 </td>
             </tr>
         </g:each>
-    </table> 
+    </table>
+
+    <ul>
+    <g:each status="i" in="${rowsWritten}" var="written">
+        <li>
+            ${written.key}<br />
+            ${written.value} rows written
+        </li>
+    </g:each>
+    </ul> 
   </div>
 </body>
 

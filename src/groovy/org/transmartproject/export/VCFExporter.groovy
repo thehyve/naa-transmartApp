@@ -1,5 +1,7 @@
 package org.transmartproject.export
 
+import java.util.Map;
+
 import grails.util.Metadata
 
 import javax.annotation.PostConstruct
@@ -59,13 +61,18 @@ class VCFExporter implements HighDimTabularResultExporter {
     }
 
     @Override
-    public void export(TabularResult tabularResult, Projection projection,
+    public Map<String, Object> export(TabularResult tabularResult, Projection projection,
             OutputStream outputStream) {
         export( tabularResult, projection, outputStream, { false } )
     }
-            
+
     @Override
-    public void export(TabularResult tabularResult, Projection projection,
+    public Map<String, Object> getDisplayAttributes() {
+        [selectOnFilterPriority: 100]
+    }
+
+    @Override
+    public Map<String, Object> export(TabularResult tabularResult, Projection projection,
             OutputStream outputStream, Closure isCancelled) {
 
         log.info("started exporting to $format ")
@@ -74,6 +81,8 @@ class VCFExporter implements HighDimTabularResultExporter {
         if (isCancelled() ) {
             return
         }
+
+        long i = 0
 
         outputStream.withWriter( "UTF-8" ) { writer ->
             
@@ -97,10 +106,12 @@ class VCFExporter implements HighDimTabularResultExporter {
                 }
                 
                 writer << getDataForPosition( datarow, assayList ).join( "\t" ) << "\n"
+                i++
             }
         }
         
         log.info("Exporting data took ${System.currentTimeMillis() - startTime} ms")
+        [rowsWritten: i]
     }
             
     /**

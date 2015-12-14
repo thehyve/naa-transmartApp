@@ -21,17 +21,21 @@
 package com.recomdata.transmart.data.export
 
 import grails.util.Holders
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
+import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.export.HighDimExporter
 
 class ExportMetadataService {
 
     static transactional = false
 
-	def dataCountService
     def highDimensionResourceService
     def highDimExporterRegistry
+
+    @Autowired
+    QueriesResource queriesResource  // deprecated
 
 	def Map createJSONFileObject(fileType, dataFormat, fileDataCount, gplId, gplTitle) {
 		def file = [:]
@@ -59,10 +63,6 @@ class ExportMetadataService {
             getHighDimMetaData( resultInstanceId1, resultInstanceId2 ) 
         )
 
-        metadata.exportMetaData.addAll(
-            getLegacyHighDimensionMetaData(resultInstanceId1, resultInstanceId2)
-        )
-        
         metadata
     }
     
@@ -73,8 +73,8 @@ class ExportMetadataService {
 
         //Retrieve the counts for each subset.
         [
-            subset1: resultInstanceId1 ? dataCountService.getClinicalDataCount( resultInstanceId1 ) : 0,    
-            subset2: resultInstanceId2 ? dataCountService.getClinicalDataCount( resultInstanceId2 ) : 0,    
+            subset1: resultInstanceId1 ? queriesResource.getQueryResultFromId( resultInstanceId1 ).getSetSize() : 0,
+            subset2: resultInstanceId2 ? queriesResource.getQueryResultFromId( resultInstanceId2 ).getSetSize() : 0,
         ]
     }
     
@@ -112,66 +112,6 @@ class ExportMetadataService {
         hdMetaData
     }
 
-    /*
-     * This method was taken from the ExportService before high dimensional datatypes were exported through core-api.
-     * SNP data is not yet implemented there. FIXME: implement SNP in core-db and remove this method
-     */
-    def getLegacyHighDimensionMetaData(Long resultInstanceId1, Long resultInstanceId2) {
-        def dataTypesMap = Holders.config.com.recomdata.transmart.data.export.dataTypesMap
-
-        //The result instance id's are stored queries which we can use to get information from the i2b2 schema.
-        def rIDs = [resultInstanceId1, resultInstanceId2].toArray( new Long[0] )
-
-        def subsetLen = (resultInstanceId1 && resultInstanceId2) ? 2 : (resultInstanceId1 || resultInstanceId2) ? 1 : 0
-        log.debug('rID1 :: ' + resultInstanceId1 + ' :: rID2 :: ' + resultInstanceId2)
-
-        //Retrieve the counts for each subset. We get back a map that looks like ['RBM':2,'MRNA':30]
-        def subset1CountMap = dataCountService.getDataCounts(resultInstanceId1, rIDs)
-        def subset2CountMap = dataCountService.getDataCounts(resultInstanceId2, rIDs)
-        log.debug('subset1CountMap :: ' + subset1CountMap + ' :: subset2CountMap :: ' + subset2CountMap)
-
-        //This is the map we render to JSON.
-        def finalMap = [:]
-
-        //Add our counts to the map.
-        finalMap['subset1'] = subset1CountMap
-        finalMap['subset2'] = subset2CountMap
-        //render '{"subset1": [{"PLINK": "102","RBM":"28"}],"subset2": [{"PLINK": "1","RBM":"2"}]}'
-        def result = [:]
-        result.put('noOfSubsets', subsetLen)
-
-        def rows = []
-        dataTypesMap.each { key, value ->
-            if (key != 'SNP') return
-            def dataType = [:]
-            def dataTypeHasCounts = false
-            dataType['dataTypeId'] = key
-            dataType['dataTypeName'] = value
-            //TODO replace 2 with subsetLen
-            for (i in 1..2) {
-                def files = []
-                if (key == 'SNP') {
-                    files.add(createJSONFileObject('.PED .MAP .CNV', 'Processed Data',
-                            finalMap["subset${i}"][key],
-                            null, null))
-                    files.add(createJSONFileObject('.CEL', 'Raw Data', finalMap["subset${i}"][key + '_CEL'], null,
-                            null))
-                }
-                if ((null != finalMap["subset${i}"][key] && finalMap["subset${i}"][key] > 0))
-                    dataTypeHasCounts = true;
-
-                dataType['metadataExists'] = true
-                dataType['subsetId' + i] = "subset" + i
-                dataType['subsetName' + i] = "Subset " + i
-                dataType['subset' + i] = files
-                dataType.isHighDimensional = true
-            }
-            if (dataTypeHasCounts) rows.add(dataType)
-        }
-
-        return rows
-    }    
-    
     /**
      * Converts information about clinical data and high dimensional data into a map
      * that can be handled by the frontend javascript
@@ -212,14 +152,16 @@ class ExportMetadataService {
                 [
                     fileType: ".TXT",
                     dataFormat: "Data",
-                    fileDataCount: clinicalData.subset1
+                    fileDataCount: clinicalData.subset1,
+                    displayAttributes: [:]
                 ]
             ],
             subset2:[
                 [
                     fileType: ".TXT",
                     dataFormat: "Data",
-                    fileDataCount: clinicalData.subset2
+                    fileDataCount: clinicalData.subset2,
+                    displayAttributes: [:]
                 ]
             ],
         ] 
@@ -278,6 +220,7 @@ class ExportMetadataService {
                 dataTypeName: highDimRow.datatype.dataTypeDescription,
                 isHighDimensional: true,
                 metadataExists: true,
+                supportedDataConstraints: highDimRow.datatype.supportedDataConstraints,
                 
                 subset1: exporters.collect {
                     [
@@ -285,7 +228,8 @@ class ExportMetadataService {
                         dataTypeHasCounts: true,
                         dataFormat: it.description,
                         fileDataCount: highDimRow.subset1 ? highDimRow.subset1.size() : 0,
-                        platforms: platforms.subset1
+                        platforms: platforms.subset1,
+                        displayAttributes: it.displayAttributes
                     ]
                 },
                 subset2: exporters.collect {
@@ -294,7 +238,8 @@ class ExportMetadataService {
                         dataTypeHasCounts: true,
                         dataFormat: it.description,
                         fileDataCount: highDimRow.subset2 ? highDimRow.subset2.size() : 0,
-                        platforms: platforms.subset2
+                        platforms: platforms.subset2,
+                        displayAttributes: it.displayAttributes
                     ]
                 }
             ]

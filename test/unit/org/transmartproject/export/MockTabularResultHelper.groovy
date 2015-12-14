@@ -7,6 +7,7 @@ import grails.test.mixin.*
 import org.gmock.GMockController
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.Patient
+import org.transmartproject.core.dataquery.Sex
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.SampleType
 import org.transmartproject.core.dataquery.assay.Timepoint
@@ -48,10 +49,12 @@ class MockTabularResultHelper {
     }
 
     List<Patient> createPatients2(int n) {
+        def sexes = [Sex.MALE, Sex.FEMALE, Sex.UNKNOWN]
         (1..n).collect {
             Patient p = mock(Patient)
             p.getId().returns(new Long(it)).stub()
             p.inTrialId.returns("subject id #$it".toString()).stub()
+            p.getSex().returns(sexes[it % 3]).stub()
             p
         }
     }

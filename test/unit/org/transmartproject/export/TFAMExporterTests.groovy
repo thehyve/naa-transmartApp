@@ -5,9 +5,11 @@ import org.gmock.WithGMock
 import org.junit.Before
 import org.junit.Test
 import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.Sex
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.export.TFAMExporter.TFAM_Sex;
 
 /**
  * Tests for the TFAM exporter in {@link TFAMExporter}
@@ -74,9 +76,13 @@ class TFAMExporterTests {
                 assert values.size() == 6
                 def familyId = values[0]
                 def individualId = values[1]
+                def sex = values[4]
                 def assay = sampleAssays[i]
                 assert assay.patientInTrialId == familyId        // subjectId is used for the familyId field
                 assert assay.patientInTrialId == individualId    // subjectId is used for the individualId field
+                assert (assay.patient.sex == Sex.MALE) == (sex.toInteger() == TFAM_Sex.Male.getValue())
+                assert (assay.patient.sex == Sex.FEMALE) == (sex.toInteger() == TFAM_Sex.Female.getValue())
+                assert (assay.patient.sex == Sex.UNKNOWN) == (sex.toInteger() == TFAM_Sex.Unknown.getValue())
             }
         }
     }

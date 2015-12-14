@@ -50,6 +50,7 @@ class AsyncJobService {
 			m["startDate"] = jobResult.lastRunOn
 			m["viewerURL"] = jobResult.viewerURL
 			m["altViewerURL"] = jobResult.altViewerURL
+            m["rowsWritten"] = new JSONObject(jobResultsService[jobResult.jobName]?.get("RowsWritten"))
 			rows.put(m)
 		}
 
@@ -209,6 +210,10 @@ class AsyncJobService {
 	  } else {
 	  	  result.put('statusIndexExists', false)
 	  }
+      def rowsWritten = jobResultsService[jobName]["RowsWritten"]
+      if (rowsWritten) {
+          result.put("rowsWritten", rowsWritten)
+      }
 
         updateStatus(jobName, jobStatus, viewerURL, altViewerURL, jobResults)
 

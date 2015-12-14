@@ -138,7 +138,8 @@ class DataExportService {
                                             dataType: selectedFile,
                                             format: format,
                                             studyDir: studyDir,
-                                            filters: selection[subset][selectedFile].selector
+                                            filters: selection[subset][selectedFile].selector,
+                                            study: study
                                     )
                                 }
                                 log.info "Exported " + selectedFile + " using core api"

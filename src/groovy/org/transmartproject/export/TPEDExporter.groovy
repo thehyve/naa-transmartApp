@@ -1,5 +1,7 @@
 package org.transmartproject.export
 
+import java.util.Map;
+
 import javax.annotation.PostConstruct
 
 import org.apache.commons.lang.NotImplementedException
@@ -61,7 +63,12 @@ class TPEDExporter implements HighDimTabularResultExporter {
     }
 
     @Override
-    public void export(TabularResult /*<AssayColumn, SnpLzRow>*/ data, Projection projection,
+    public Map<String, Object> getDisplayAttributes() {
+        [selectOnFilterPriority: 200, group: 'TFAM_TPED']
+    }
+
+    @Override
+    public Map<String, Object> export(TabularResult /*<AssayColumn, SnpLzRow>*/ data, Projection projection,
             OutputStream outputStream) {
         export( data, projection, outputStream, { false } )
     }
@@ -69,7 +76,7 @@ class TPEDExporter implements HighDimTabularResultExporter {
     static final int default_distance = 0 // Genetic distance (morgans)
             
     @Override
-    public void export(TabularResult /*<AssayColumn, SnpLzRow>*/ data, Projection projection,
+    public Map<String, Object> export(TabularResult /*<AssayColumn, SnpLzRow>*/ data, Projection projection,
             OutputStream outputStream, Closure isCancelled) {
         log.info "Started exporting to ${format}..."
         def startTime = System.currentTimeMillis()
@@ -78,7 +85,7 @@ class TPEDExporter implements HighDimTabularResultExporter {
             return
         }
       
-        def i = 1
+        long i = 0
         outputStream.withWriter( "UTF-8" ) { out ->
             for (/*SnpLzRow*/ Object row: data) {
                 if (isCancelled() ) {
@@ -112,6 +119,7 @@ class TPEDExporter implements HighDimTabularResultExporter {
         }
         
         log.info("Exporting took ${System.currentTimeMillis() - startTime} ms.")
+        [rowsWritten: i]
     }
 
 }

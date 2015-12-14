@@ -36,6 +36,7 @@ import org.jfree.chart.servlet.ServletUtilities
 import org.jfree.data.statistics.HistogramDataset
 import org.transmart.searchapp.AccessLog
 import org.transmart.searchapp.AuthUser
+import org.transmartproject.core.exceptions.UnexpectedResultException
 
 import javax.servlet.ServletException
 import javax.servlet.ServletOutputStream
@@ -191,12 +192,16 @@ class ChartController {
         log.info "analysis: filters = ${filters} (${filters.class})"
 
         // Collect concept information
-        concepts[concept] = chartService.getConceptAnalysis(
-            concept: i2b2HelperService.getConceptKeyForAnalysis(concept),
-            conceptKey: concept,
-            subsets: chartService.getSubsetsFromRequest(params),
-            filters: filters
-        )
+        try {
+            concepts[concept] = chartService.getConceptAnalysis(
+                    concept: i2b2HelperService.getConceptKeyForAnalysis(concept),
+                    conceptKey: concept,
+                    subsets: chartService.getSubsetsFromRequest(params),
+                    filters: filters
+            )
+        } catch (Exception e) {
+            throw new UnexpectedResultException(e)
+        }
 
         // Time to delivery !
         render(template: "conceptsAnalysis", model: [concepts: concepts])
@@ -283,7 +288,10 @@ class ChartController {
                 if (s1) i2b2HelperService.addConceptDataToTable(table, ck, result_instance_id1);
                 if (s2) i2b2HelperService.addConceptDataToTable(table, ck, result_instance_id2);
 
-                chartService.addHighDimDataToTable(table, ck, chartService.getSubsetsFromRequest(params), filters)
+                //TODO: implement check for highdim data in less hacky manner
+                if (filters) {
+                    chartService.addHighDimDataToTable(table, ck, chartService.getSubsetsFromRequest(params), filters)
+                }
             }
         }
         pw.write(table.toJSONObject().toString(5));

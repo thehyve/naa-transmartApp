@@ -45,8 +45,40 @@ ExportDropTarget = (function() {
             _dialogService.dropOntoVariableSelection(data, _dropTarget.el);
         }
 
-        // mark as checked
-        jQuery(_dropTarget.el.dom).find('input[name="SubsetDataTypeFileType"]').prop('checked', true);
+        // mark exports with the highest selectOnFilterPriority as checked, but only if nothing else is checked already
+        var priority = 0;
+        var toCheck = [];
+        var anyChecked = false;
+        ['subset1', 'subset2'].forEach(function(subset) {
+            _dropTarget.recordData[subset].forEach(function(exp) {
+                if (anyChecked) return;
+
+                var selectors;
+                var selector = '#' +
+                    [subset, _dropTarget.recordData.dataTypeId, exp.fileType]
+                        .join('_').replace('.', '\\.');
+
+                if (exp.platforms) {
+                    selectors = exp.platforms.map(function (platform) { return selector + '_' + platform.gplId });
+                } else {
+                    // clinical data
+                    selectors = [selector];
+                }
+                anyChecked = anyChecked || selectors.any(function(sel) {return jQuery(sel).prop('checked')});
+                if (anyChecked) return;
+
+                var prio = exp.displayAttributes.selectOnFilterPriority || 0;
+                if (prio < priority) return;
+                if (prio > priority) {
+                    toCheck = [];
+                    priority = prio;
+                }
+                toCheck.push.apply(toCheck, selectors)
+            })
+        });
+        if (!anyChecked) {
+            jQuery(_dropTarget.el.dom).find(toCheck.join(', ')).prop('checked', true);
+        }
         // ---------------------------------------
 
         return true;
