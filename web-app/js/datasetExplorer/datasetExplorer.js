@@ -2702,16 +2702,14 @@ function buildAnalysis(nodein) {
 }
 
 function buildAnalysisComplete(result) {
-    // analysisPanel.body.unmask();
-    var txt = result.responseText;
-    updateAnalysisPanel(txt, true);
+    updateAnalysisPanel(result, true);
 }
 
 function updateAnalysisPanel(html, insert) {
     if (insert) {
-        var div = jQuery("#analysisPanel div.analysis")
-        var uniq = 'appenedItem_' + new Date().getTime()
-        div.append(jQuery(html).attr('id', uniq))
+        var div = jQuery("#analysisPanel div.analysis");
+        var uniq = 'appenedItem_' + new Date().getTime();
+        div.append(jQuery(html).attr('id', uniq));
         div.parent().scrollTop(jQuery('#' + uniq).prop('offsetTop'))
     } else {
         analysisPanel.body.update(html, false, null)
