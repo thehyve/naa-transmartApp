@@ -154,6 +154,7 @@ grails.project.dependency.resolution = {
 			runtime ':transmart-rest-api:1.2.2'
             compile ':transmart-gwas:1.2.2'
             test ':transmart-core-db-tests:1.2.2'
+
         } else {
             dm.internalDependencies delegate
         }
