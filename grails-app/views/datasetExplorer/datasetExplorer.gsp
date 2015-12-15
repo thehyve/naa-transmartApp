@@ -237,6 +237,6 @@
     helpURL = '${grailsApplication.config.com.recomdata.adminHelpURL}';
 </script>
 <!-- ************************************** -->
-<r:layoutResources /><%-- XXX: Use template --%>
+<r:layoutResources/><%-- XXX: Use template --%>
 </body>
 </html>
