@@ -111,8 +111,8 @@ class LoginController {
 		nocache response
 
 		def guestAutoLogin = grailsApplication.config.com.recomdata.guestAutoLogin;
-		boolean guestLoginEnabled = ('true'==guestAutoLogin)
-		log.info("enabled guest login")
+		boolean guestLoginEnabled = (guestAutoLogin == 'true' || guestAutoLogin.is(true))
+		log.info("enable guest login: " + guestLoginEnabled)
 		//log.info("requet:"+request.getQueryString())
 		boolean forcedFormLogin = request.getQueryString() != null
 		log.info("User is forcing the form login? : " + forcedFormLogin)

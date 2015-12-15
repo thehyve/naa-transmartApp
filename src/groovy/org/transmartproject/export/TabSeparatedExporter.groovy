@@ -1,5 +1,7 @@
 package org.transmartproject.export
 
+import org.transmartproject.core.dataquery.highdim.projections.AllDataProjection
+import javax.annotation.PostConstruct
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.TabularResult
@@ -9,9 +11,7 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.NoSuchResourceException
 
-import javax.annotation.PostConstruct
-
-class TabSeparatedExporter implements HighDimExporter {
+class TabSeparatedExporter implements HighDimTabularResultExporter {
     final static String SEPARATOR = "\t"
 
     @Autowired
@@ -53,22 +53,28 @@ class TabSeparatedExporter implements HighDimExporter {
     }
 
     @Override
-    public void export(TabularResult tabularResult, Projection projection,
+    public Map<String, Object> getDisplayAttributes() {
+        [selectOnFilterPriority: 100]
+    }
+
+    @Override
+    public Map<String, Object> export(TabularResult tabularResult, Projection projection,
             OutputStream outputStream) {
         export( tabularResult, projection, outputStream, { false } )
     }
             
     @Override
-    public void export(TabularResult tabularResult, Projection projection,
+    public Map<String, Object> export(TabularResult tabularResult, Projection projection_,
             OutputStream outputStream, Closure isCancelled) {
         
         log.info("started exporting to $format ")
         def startTime = System.currentTimeMillis()
         
         if (isCancelled() ) {
-            return null
+            return
         }
 
+        AllDataProjection projection = (AllDataProjection) projection_
         
         // Determine the fields to be exported, and the label they get
         Map<String, String> dataKeys = projection.dataProperties.collectEntries {
@@ -77,7 +83,9 @@ class TabSeparatedExporter implements HighDimExporter {
         Map<String, String> rowKeys = projection.rowProperties.collectEntries {
             [it.key, getFieldTranslation( it.key ).toUpperCase()]
         }
-                
+
+        long i = 0
+
         outputStream.withWriter( "UTF-8" ) { writer ->
             
             // First write the header
@@ -91,7 +99,7 @@ class TabSeparatedExporter implements HighDimExporter {
             for (DataRow<AssayColumn,Map<String, String>> datarow : tabularResult) {
                 // Test periodically if the export is cancelled
                 if (isCancelled() ) {
-                    return null
+                    return
                 }
         
                 for (AssayColumn assay : assayList) {
@@ -124,11 +132,13 @@ class TabSeparatedExporter implements HighDimExporter {
                     }
             
                     writeLine( writer, line )
+                    i++
                 }
             }
         }
         
         log.info("Exporting data took ${System.currentTimeMillis() - startTime} ms")
+        [rowsWritten: i]
     }
             
     /**

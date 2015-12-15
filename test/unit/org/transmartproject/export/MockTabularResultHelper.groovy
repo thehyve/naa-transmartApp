@@ -1,10 +1,13 @@
 package org.transmartproject.export
 
+import java.util.List;
+
 import grails.test.mixin.*
 
 import org.gmock.GMockController
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.Patient
+import org.transmartproject.core.dataquery.Sex
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.SampleType
 import org.transmartproject.core.dataquery.assay.Timepoint
@@ -16,11 +19,15 @@ class MockTabularResultHelper {
 
     GMockController gMockController
 
+    List<Patient> patients
+    
     List<AssayColumn> createSampleAssays(int n) {
+        this.patients = createPatients2(n)
         (1..n).collect {
             createMockAssay( it, "assay_${it}", "sample_code_${it}", 
                     "patient_${it}_subject_id", "sampletype_${it}",
-                    "timepoint_${it}", "tissuetype_${it}", "" + it * 10 )
+                    "timepoint_${it}", "tissuetype_${it}", "" + it * 10,
+                    patients[it-1] )
         }
     }
 
@@ -41,10 +48,13 @@ class MockTabularResultHelper {
         res
     }
 
-    List<Patient> createPatients(int n) {
+    List<Patient> createPatients2(int n) {
+        def sexes = [Sex.MALE, Sex.FEMALE, Sex.UNKNOWN]
         (1..n).collect {
             Patient p = mock(Patient)
-            p.inTrialId.returns("subject id #$it".toString()).atLeastOnce()
+            p.getId().returns(new Long(it)).stub()
+            p.inTrialId.returns("subject id #$it".toString()).stub()
+            p.getSex().returns(sexes[it % 3]).stub()
             p
         }
     }
@@ -81,11 +91,12 @@ class MockTabularResultHelper {
     }
 
 
-    private AssayColumn createMockAssay(
+    protected AssayColumn createMockAssay(
             Long id = null, String label = null, String sampleCode = null, 
             String patientInTrialId = null, String sampleTypeLabel = null,
             String timepointLabel = null, String tissueTypeLabel = null,
-            String platformId = null 
+            String platformId = null,
+            Patient patient 
             ) {
         [
                 getId:               { -> id },
@@ -105,7 +116,8 @@ class MockTabularResultHelper {
                         getId:       { -> platformId }
                 ] as Platform },
                 equals:              { other -> delegate.is(other) },
-                toString:            { -> "assay for $patientInTrialId" as String }
+                toString:            { -> "assay for $patientInTrialId" as String },
+                getPatient:          { -> patient }
         ] as AssayColumn
     }
     
@@ -125,7 +137,7 @@ class MockTabularResultHelper {
         row
     }
 
-    private Object mock(Class clazz) {
+    protected Object mock(Class clazz) {
         gMockController.mock clazz
     }
 }

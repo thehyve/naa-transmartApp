@@ -11,7 +11,7 @@ import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
-import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.core.dataquery.highdim.projections.AllDataProjection
 import org.transmartproject.core.exceptions.NoSuchResourceException
 
 import spock.lang.*
@@ -26,8 +26,7 @@ class TabSeparatedExporterTests {
     
     TabSeparatedExporter exporter
     TabularResult tabularResult
-    Projection projection
-    
+
     @Before
     void before() {
         mockTabularResultHelper = new MockTabularResultHelper()
@@ -79,7 +78,7 @@ class TabSeparatedExporterTests {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()
         
         def tabularResult = mock(TabularResult)
-        def projection = mock(Projection)
+        def projection = mock(AllDataProjection)
         
         play {
             
@@ -101,7 +100,7 @@ class TabSeparatedExporterTests {
         tabularResult = createMockTabularResult( assays: sampleAssays, data: labelToData )
         
         // Create all data projection, as that is used for exporting tab separated files
-        def projection = mock(Projection) {
+        def projection = mock(AllDataProjection) {
             getRowProperties().returns( [ "label": String ] )
             getDataProperties().returns( [ "property1": Integer, "property2": Integer ])
         }

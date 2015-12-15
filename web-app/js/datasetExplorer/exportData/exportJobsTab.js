@@ -23,10 +23,10 @@ function getExportJobs(tab)
 {
 	//TODO : point it to /asyncJob/getjobs : somehow the UI in "Export Jobs" tab seems to be not showing the list of jobs
 	exportjobsstore = new Ext.data.JsonStore({
-		url : pageInfo.basePath+'/asyncJob/getjobs',
+		url : pageInfo.basePath+'/asyncJob/jobs',
 		root : 'jobs',
 		totalProperty : 'totalCount',
-		fields : ['name', 'status', 'runTime', 'startDate', 'viewerURL', 'querySummary']
+		fields : ['name', 'status', 'runTime', 'startDate', 'viewerURL', 'querySummary', 'rowsWritten']
 	});
 	exportjobsstore.on('load', exportjobsstoreLoaded);
 	var myparams = Ext.urlEncode({jobType: 'DataExport', disableCaching: true});
@@ -66,6 +66,16 @@ function exportjobsstoreLoaded()
 		          {name:'status', header: "Status", width: 60, sortable: true, dataIndex: 'status'},
 		          {name:'runTime', header: "Run Time", width: 80, sortable: true, dataIndex: 'runTime', hidden: true},
 		          {name:'startDate', header: "Started On", width: 80, sortable: true, dataIndex: 'startDate'},
+                  {name:'rowsWritten', header: "Written", width: 120, sortable: false, dataIndex: 'rowsWritten',
+                      renderer: function (value, metaData, record, rowIndex, colIndex, store) {
+                          var keys = Object.keys(value).sort();
+                          return jQuery.map(keys, function (key) {
+                              var val = value[key];
+                              var ext = key.split('.').pop();
+                              return ext + ' (' + val + ' rows)';
+                          }).join(', ');
+                      }
+                  },
 		          {name:'viewerURL', header: "Viewer URL", width: 120, sortable: false, dataIndex: 'viewerURL', hidden: true}
 		],
 		listeners : {cellclick : function (grid, rowIndex, columnIndex, e) 

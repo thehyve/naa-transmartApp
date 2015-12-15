@@ -39,7 +39,7 @@ class AsyncJobController {
     /**
      * Method that will create the get the list of jobs to show in the jobs tab
      */
-    def getjobs = {
+    def jobs = {
         def result = asyncJobService.getjobs(params.jobType)
 
         response.setContentType("text/json")
@@ -49,8 +49,7 @@ class AsyncJobController {
     /**
      * get job stats by name
      */
-    def getjobbyname = {
-
+    def jobbyname = {
 		println(params.jobName)
 
 		def result = asyncJobService.getjobbyname(params.jobName)
@@ -62,7 +61,7 @@ class AsyncJobController {
 	/**
      * Called to retrieve the job results (HTML) stored in the JOB_RESULTS field for Haploview and Survival Analysis
      */
-    def getjobresults = {
+    def jobresults = {
         def result = asyncJobService.getjobresults(params.jobName)
         response.setContentType("text/json")
         response.outputStream << result?.toString()
@@ -94,7 +93,14 @@ class AsyncJobController {
         def statusIndexExists = result.get('statusIndexExists')
         if (statusIndexExists) {
             def statusIndex = result.get('statusIndex')
-            def statusHtml = g.render(template: "/genePattern/jobStatusList", model: [jobStatuses: jobResultsService[params.jobName]["StatusList"], statusIndex: statusIndex]).toString();
+            def statusHtml = g.render(
+                template: "/genePattern/jobStatusList", 
+                model: [
+                    status: jobResultsService[params.jobName]["Status"],
+                    jobStatuses: jobResultsService[params.jobName]["StatusList"],
+                    statusIndex: statusIndex,
+                    rowsWritten: jobResultsService[params.jobName]["RowsWritten"]]
+            ).toString();
             result.put('jobStatusHTML', statusHtml)
 
             result.remove('statusIndex')

@@ -81,12 +81,7 @@ if (externalDataSource) {
 }
 grails.config.locations.each { console.info "Including configuration file [${it}] in configuration building." }
 
-/* 
- *  The following lines are copied from the previous COnfig.groovy
- * 
- */
-
-
+grails.mime.disable.accept.header.userAgents = []
 grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format
 grails.mime.types = [ html: [
 		'text/html',
@@ -259,3 +254,19 @@ remove this line */
 /*
 // MetaCore plugin
 com.thomsonreuters.transmart.metacoreAnalyticsEnable=true */
+
+grails {
+    cache {
+        enabled = true
+        ehcache {
+            ehcacheXmlLocation = 'classpath:ehcache.xml'
+            reloadable = false
+        }
+    }
+}
+
+// Added by the Spring Security OAuth2 Provider plugin:
+grails.plugin.springsecurity.oauthProvider.clientLookup.className = 'org.transmart.oauth2.Client'
+grails.plugin.springsecurity.oauthProvider.authorizationCodeLookup.className = 'org.transmart.oauth2.AuthorizationCode'
+grails.plugin.springsecurity.oauthProvider.accessTokenLookup.className = 'org.transmart.oauth2.AccessToken'
+grails.plugin.springsecurity.oauthProvider.refreshTokenLookup.className = 'org.transmart.oauth2.RefreshToken'

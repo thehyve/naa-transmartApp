@@ -23,7 +23,7 @@
 		<tr>
 			<td align="center">
 				<span style="text-decoration: underline;font-size:1.25em;font-weight:bold;">Subset 1</span>
-			</td>
+			</td>web-app/panels/subsetPanel.html
 			<td id="subsetdivider" rowspan="21" valign="center" align="center"  height="100%">
 				<div style="margin:15px;border:1px solid black;background:black;width:1px; height:150px"></div>
 			</td>

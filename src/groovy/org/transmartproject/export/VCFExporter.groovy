@@ -1,16 +1,21 @@
 package org.transmartproject.export
 
+import java.util.Map;
+
 import grails.util.Metadata
+
+import javax.annotation.PostConstruct
+
+import org.apache.commons.lang.NotImplementedException
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 
-import javax.annotation.PostConstruct
-
-class VCFExporter implements HighDimExporter {
+class VCFExporter implements HighDimTabularResultExporter {
     /**
      * List of info fields that can be exported without any change.
      * This list should only include fields for which the value is the
@@ -56,13 +61,18 @@ class VCFExporter implements HighDimExporter {
     }
 
     @Override
-    public void export(TabularResult tabularResult, Projection projection,
+    public Map<String, Object> export(TabularResult tabularResult, Projection projection,
             OutputStream outputStream) {
         export( tabularResult, projection, outputStream, { false } )
     }
-            
+
     @Override
-    public void export(TabularResult tabularResult, Projection projection,
+    public Map<String, Object> getDisplayAttributes() {
+        [selectOnFilterPriority: 100]
+    }
+
+    @Override
+    public Map<String, Object> export(TabularResult tabularResult, Projection projection,
             OutputStream outputStream, Closure isCancelled) {
 
         log.info("started exporting to $format ")
@@ -71,6 +81,8 @@ class VCFExporter implements HighDimExporter {
         if (isCancelled() ) {
             return
         }
+
+        long i = 0
 
         outputStream.withWriter( "UTF-8" ) { writer ->
             
@@ -94,10 +106,12 @@ class VCFExporter implements HighDimExporter {
                 }
                 
                 writer << getDataForPosition( datarow, assayList ).join( "\t" ) << "\n"
+                i++
             }
         }
         
         log.info("Exporting data took ${System.currentTimeMillis() - startTime} ms")
+        [rowsWritten: i]
     }
             
     /**
