@@ -57,13 +57,13 @@ class SAMPLEExporter implements HighDimColumnExporter {
     }
 
     @Override
-    public Map<String, Object> export(Collection<Assay> assays,
+    public Map<String, Object> export(List<Assay> assays,
             OutputStream outputStream) {
         export(assays, outputStream, { false })
     }
 
     @Override
-    public Map<String, Object> export(Collection<Assay> assays,
+    public Map<String, Object> export(List<Assay> assays,
             OutputStream outputStream, Closure isCancelled) {
         log.info "Started exporting to ${format}..."
         def startTime = System.currentTimeMillis()
@@ -74,7 +74,7 @@ class SAMPLEExporter implements HighDimColumnExporter {
 
         long i = 0
 
-        outputStream.withWriter( "UTF-8" ) { out ->
+        outputStream.withWriter( "UTF-8" ) { Writer out ->
             exportHeader(out)
             
             for (Assay assay: assays) {
