@@ -21,26 +21,22 @@
 
 function getExportJobs(tab)
 {
-	//TODO : point it to /asyncJob/getjobs : somehow the UI in "Export Jobs" tab seems to be not showing the list of jobs
-	exportjobsstore = new Ext.data.JsonStore({
-		url : pageInfo.basePath+'/asyncJob/jobs',
-		root : 'jobs',
-		totalProperty : 'totalCount',
-		fields : ['name', 'status', 'runTime', 'startDate', 'viewerURL', 'querySummary', 'rowsWritten']
-	});
-	exportjobsstore.on('load', exportjobsstoreLoaded);
-	var myparams = Ext.urlEncode({jobType: 'DataExport', disableCaching: true});
-	exportjobsstore.load({params : myparams});
+    //TODO : point it to /asyncJob/getjobs : somehow the UI in "Export Jobs" tab seems to be not showing the list of jobs
+    exportjobsstore = new Ext.data.JsonStore({
+    	url : pageInfo.basePath+'/asyncJob/jobs',
+    	root : 'jobs',
+    	totalProperty : 'totalCount',
+    	fields : ['name', 'status', 'runTime', 'startDate', 'viewerURL', 'querySummary', 'rowsWritten']
+    });
+    exportjobsstore.on('load', exportjobsstoreLoaded);
+    var myparams = Ext.urlEncode({jobType: 'DataExport', disableCaching: true});
+    exportjobsstore.load({params : myparams});
+
+	console.log('exportjobsstore',	exportjobsstore);
 }
 
 function exportjobsstoreLoaded()
 {
-	var foo = exportjobsstore;
-
-//	if(window.exportJobs)
-//	{
-//		analysisExportJobsPanel.remove(exportJobs);
-//	}
 	var ojobs = Ext.getCmp('exportJobsgrid');
 	if(ojobs!=null)
 	{
@@ -68,7 +64,7 @@ function exportjobsstoreLoaded()
 		          {name:'startDate', header: "Started On", width: 80, sortable: true, dataIndex: 'startDate'},
                   {name:'rowsWritten', header: "Written", width: 120, sortable: false, dataIndex: 'rowsWritten',
                       renderer: function (value, metaData, record, rowIndex, colIndex, store) {
-                          var keys = Object.keys(value).sort();
+                          var keys = Object.keys(value === null? '':value).sort();
                           return jQuery.map(keys, function (key) {
                               var val = value[key];
                               var ext = key.split('.').pop();
