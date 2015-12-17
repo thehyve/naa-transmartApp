@@ -236,6 +236,14 @@ class ChartService {
                     filters: filters
                 ]
             }
+            if (rows.empty) {
+                result << [
+                    concept: concept,
+                    dataType: data.datatype.dataTypeName,
+                    dataTypeDescription: data.datatype.dataTypeDescription,
+                    filters: filters
+                ]
+            }
         }
         result
     }
