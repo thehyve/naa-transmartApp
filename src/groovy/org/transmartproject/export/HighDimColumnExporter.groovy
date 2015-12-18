@@ -35,7 +35,7 @@ interface HighDimColumnExporter extends HighDimExporter {
      * @return a map with information about the exported values:
      *      the entry with key <code>rowsWritten</code> contains the number of rows written.
      */
-    public Map<String, Object> export( Collection<Assay> assays, OutputStream outputStream )
+    public Map<String, Object> export( List<Assay> assays, OutputStream outputStream )
 
     /**
      * Exports column data to the outputStream,
@@ -47,6 +47,6 @@ interface HighDimColumnExporter extends HighDimExporter {
      * @return a map with information about the exported values:
      *      the entry with key <code>rowsWritten</code> contains the number of rows written.
      */
-    public Map<String, Object> export( Collection<Assay> assays, OutputStream outputStream, Closure isCancelled )
+    public Map<String, Object> export( List<Assay> assays, OutputStream outputStream, Closure isCancelled )
 
 }

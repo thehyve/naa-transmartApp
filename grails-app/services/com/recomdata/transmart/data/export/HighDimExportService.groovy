@@ -132,11 +132,8 @@ class HighDimExportService {
             exporter = exporter as HighDimColumnExporter
             def startTime = System.currentTimeMillis()
             log.debug "Fetching assays..."
-            Map<HighDimensionDataTypeResource, Collection<Assay>> assayMap = highDimensionResourceService.getSubResourcesAssayMultiMap(assayconstraints)
+            List<AssayColumn> assays = dataTypeResource.retrieveAssays(assayconstraints)
             log.debug "Fetching assays took ${System.currentTimeMillis() - startTime} ms."
-            // for some reason, this dataTypeResourceKey is not the same as dataTypeResource:
-            def dataTypeResourceKey = assayMap.keySet().find { it.dataTypeName == dataTypeResource.dataTypeName }
-            Collection<Assay> assays = assayMap[dataTypeResourceKey]
             // Start exporting column data
             outputFile.withOutputStream { outputStream ->
                 result = exporter.export assays, outputStream, { jobIsCancelled(jobName) }

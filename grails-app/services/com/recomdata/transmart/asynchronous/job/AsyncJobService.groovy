@@ -2,8 +2,9 @@
 package com.recomdata.transmart.asynchronous.job
 import com.recomdata.transmart.domain.i2b2.AsyncJob
 import org.apache.commons.lang.StringUtils
-import org.json.JSONArray
-import org.json.JSONObject
+
+import org.codehaus.groovy.grails.web.json.JSONArray
+import org.codehaus.groovy.grails.web.json.JSONObject
 
 class AsyncJobService {
 
@@ -43,14 +44,17 @@ class AsyncJobService {
 		}
 		def m = [:]
 		for (jobResult in jobResults)	{
-			m = [:]
+			m = new JSONObject()
 			m["name"] = jobResult.jobName
 			m["status"] = jobResult.jobStatus
 			m["runTime"] = jobResult.jobStatusTime
 			m["startDate"] = jobResult.lastRunOn
 			m["viewerURL"] = jobResult.viewerURL
 			m["altViewerURL"] = jobResult.altViewerURL
-            m["rowsWritten"] = new JSONObject(jobResultsService[jobResult.jobName]?.get("RowsWritten"))
+			Map rowsWritten = jobResultsService[jobResult.jobName]?.get("RowsWritten")
+            m["rowsWritten"] = rowsWritten == null ?
+					JSONObject.NULL :
+					new JSONObject(rowsWritten)
 			rows.put(m)
 		}
 
