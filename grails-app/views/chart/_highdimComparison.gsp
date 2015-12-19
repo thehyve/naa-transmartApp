@@ -1,22 +1,24 @@
 
 <div class="highdimComparison">
     <g:each in="${subsets?.commons?.highdim}" var="highdim">
-        <div class="plotrow">
-            <div class="plotcolumn">
-            <div class="plotbox">
-                ${highdim.plots[1]}
+        <g:if test="${highdim.plots != null}">
+            <div class="plotrow">
+                <div class="plotcolumn">
+                <div class="plotbox">
+                    ${highdim.plots[1]}
+                </div>
+                </div>
+                <div class="plotcolumn">
+                <div class="plotbox">
+                <g:if test="highdim.plots[2]">
+                    ${highdim.plots[2]}
+                </g:if>
+                </div>
+                </div>
             </div>
-            </div>
-            <div class="plotcolumn">
-            <div class="plotbox">
-            <g:if test="highdim.plots[2]">
-                ${highdim.plots[2]}
-            </g:if>
-            </div>
-            </div>
-        </div>
-        <div style="clear: both;"></div>
-        <g:if test="${highdim.data.size() == 0}">
+            <div style="clear: both;"></div>
+        </g:if>
+        <g:if test="${highdim.data == null}">
             <div>No data of type ${highdim.dataTypeDescription} found for ${highdim.concept}.</div>
             <g:if test="${highdim.filters.size() > 0}">
                 <g:each in="${highdim.filters}" var="filter">
