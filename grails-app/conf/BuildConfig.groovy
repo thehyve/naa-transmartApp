@@ -23,6 +23,7 @@ grails.project.war.file = "target/${appName}.war"
 grails.servlet.version = "2.5"
 
 grails.project.dependency.resolver = 'maven'
+grails.project.fork.test = false
 
 def dm, dmClass
 try {
@@ -191,4 +192,5 @@ codenarc.reports = {
     }
 }
 
+grails.plugin.location.smartR = '../smartR'
 // vim: set et ts=4 sw=4:

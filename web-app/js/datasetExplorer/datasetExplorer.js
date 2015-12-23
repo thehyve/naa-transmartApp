@@ -779,6 +779,10 @@ Ext.onReady(function () {
 
         if(!Math.log10){ Math.log10 = function (x) { return Math.log(x) / Math.log(10); }}
 
+        loadPlugin('smartR', "/SmartR/loadScripts", function () {
+            resultsTabPanel.add(smartRPanel);
+        });
+
         // DALLIANCE
         // =======
         loadPlugin('dalliance-plugin', "/Dalliance/loadScripts", function () {
