@@ -1,5 +1,7 @@
 language: groovy
 
+sudo: false
+
 jdk:
     - oraclejdk7
 
@@ -20,6 +22,7 @@ install:
     - make_inline_grails_dep $(travis_get_owner)/${PREFIX}folder-management-plugin "$DEFAULT_BRANCH" folder-management
     - make_inline_grails_dep $(travis_get_owner)/${PREFIX}transmart-extensions "$DEFAULT_BRANCH" transmart-extensions transmart-java search-domain biomart-domain
     - make_inline_grails_dep $(travis_get_owner)/${PREFIX}transmart-rest-api "$DEFAULT_BRANCH" transmart-rest-api
+    - make_inline_grails_dep $(travis_get_owner)/${PREFIX}smartR "$DEFAULT_BRANCH" smartR
 
 script:
     - grails refresh-dependencies --non-interactive
