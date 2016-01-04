@@ -23,7 +23,6 @@ grails.project.war.file = "target/${appName}.war"
 grails.servlet.version = "2.5"
 
 grails.project.dependency.resolver = 'maven'
-grails.project.fork.test = false
 
 def dm, dmClass
 try {
@@ -113,8 +112,7 @@ grails.project.dependency.resolution = {
         test 'org.gmock:gmock:0.9.0-r435-hyve2', {
             transitive = false
         }
-        test 'org.hamcrest:hamcrest-library:1.3',
-                'org.hamcrest:hamcrest-core:1.3'
+
     }
 
     plugins {
