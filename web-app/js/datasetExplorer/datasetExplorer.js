@@ -776,15 +776,21 @@ Ext.onReady(function () {
             return def;
         }
 
-        loadPlugin('smartR', "/EtriksEngines/loadScripts", function () {
-          resultsTabPanel.insert(4, etriksPanel);
-        });
 
-        if(!Math.log10){ Math.log10 = function (x) { return Math.log(x) / Math.log(10); }}
+        // To have both eae and heim smartR
+        // TODO : Fix this, should be in one menu
+
+        loadPlugin('smartR', "/EtriksEngines/loadScripts", function () {
+            resultsTabPanel.add(etriksPanel);
+        });
 
         loadPlugin('smartR', "/SmartR/loadScripts", function () {
             resultsTabPanel.add(smartRPanel);
         });
+
+        // ----
+
+        if(!Math.log10){ Math.log10 = function (x) { return Math.log(x) / Math.log(10); }}
 
         // DALLIANCE
         // =======
