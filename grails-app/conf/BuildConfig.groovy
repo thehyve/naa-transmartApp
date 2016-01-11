@@ -112,8 +112,7 @@ grails.project.dependency.resolution = {
         test 'org.gmock:gmock:0.9.0-r435-hyve2', {
             transitive = false
         }
-        test 'org.hamcrest:hamcrest-library:1.3',
-                'org.hamcrest:hamcrest-core:1.3'
+
     }
 
     plugins {
@@ -192,5 +191,4 @@ codenarc.reports = {
 }
 
 grails.plugin.location.smartR = '../smartR'
-
 // vim: set et ts=4 sw=4:
