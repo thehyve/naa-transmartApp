@@ -6,7 +6,7 @@ String.prototype.trim = function() {
 Ext.layout.BorderLayout.Region.prototype.getCollapsedEl = Ext.layout.BorderLayout.Region.prototype.getCollapsedEl.createSequence(function () {
     if ((this.position === 'north' || this.position === 'south') && !this.collapsedEl.titleEl) {
         this.collapsedEl.titleEl = this.collapsedEl.createChild({
-            style: 'color:#15428b;font:11px/15px tahoma,arial,verdana,sans-serif;padding:2px 5px;',
+            style: 'color:#15428b;font:11px/15px tahoma,arial,verdana,sans-serif;padding:2px 5px;', 
             cn: this.panel.title
         });
     }
@@ -786,24 +786,29 @@ Ext.onReady(function () {
     function loadPlugin(pluginName, scriptsUrl, bootstrap) {
         var def = jQuery.Deferred();
         var loadResources = function () {
-            loadResourcesByUrl(pageInfo.basePath + scriptsUrl, function () {
-                bootstrap();
-                def.resolve();
-            }).fail(def.reject);
+                loadResourcesByUrl(pageInfo.basePath + scriptsUrl, function() {
+                    bootstrap();
+                    def.resolve();
+                }).fail(def.reject);
         };
         if (pluginName) {
             jQuery.post(pageInfo.basePath + "/pluginDetector/checkPlugin", {pluginName: pluginName}, function (data) {
                 if (data === 'true') {
                     loadResources();
-                } else {
-                    def.reject();
-                }
-            }).fail(def.reject);
+            } else {
+                def.reject();
+            }
+        }).fail(def.reject);
         } else {
             loadResources();
         }
     }
         // ----
+
+    // smartR -- to be ported to extension mechanism
+    loadPlugin('smartR', "/SmartR/loadScripts", function () {
+        resultsTabPanel.add(smartRPanel);
+    });
 
     function loadAnalysisTabExtensions(currentIndex) {
         if (currentIndex >= GLOBAL.analysisTabExtensions.length) {
@@ -1784,10 +1789,10 @@ function getSubCategories(ontresponse) {
             handler: function(event, toolEl, panel){
                    D2H_ShowHelp((id_in=="navigateTermsPanel")?"1066":"1091",helpURL,"wndExternal",CTXT_DISPLAY_FULLHELP );
             },
-            iconCls: "contextHelpBtn"
+            iconCls: "contextHelpBtn"  
         }
     ]);
-
+    
     var treeRoot = Ext.getCmp('navigateTermsPanel').getRootNode();
     for (c = treeRoot.childNodes.length - 1; c >= 0; c--) {
         treeRoot.childNodes[c].remove();
@@ -2091,7 +2096,7 @@ function showConceptInfoDialog(conceptKey, conceptid, conceptcomment) {
 
     conceptinfowin.load({
         url: pageInfo.basePath+"/ontology/showConceptDefinition",
-        params: {conceptKey: conceptKey}, // or a URL encoded string
+        params: {conceptKey: conceptKey}, // or a URL encoded string     
         discardUrl: true,
         nocache: true,
         text: "Loading...",
@@ -2855,7 +2860,7 @@ function showSurvivalAnalysis() {
         runAllQueries(showSurvivalAnalysis);
         return;
     }
-    
+
     Ext.Ajax.request({
         url: pageInfo.basePath+"/asyncJob/createnewjob",
         method: 'POST',
@@ -2877,11 +2882,11 @@ function genePatternReplacement() {
 
 //Once, we get a job created by GPController, we run the survival analysis
 function RunSurvivalAnalysis(result, result_instance_id1, result_instance_id2, querySummary1, querySummary2) {
-    var jobNameInfo = Ext.util.JSON.decode(result.responseText);
+    var jobNameInfo = Ext.util.JSON.decode(result.responseText);                     
     var jobName = jobNameInfo.jobName;
 
     genePatternReplacement();
-    showJobStatusWindow(result);
+    showJobStatusWindow(result);    
     document.getElementById("gplogin").src = pageInfo.basePath + '/analysis/gplogin';   // log into GenePattern
     Ext.Ajax.request(
         {                        
@@ -2899,7 +2904,7 @@ function RunSurvivalAnalysis(result, result_instance_id1, result_instance_id2, q
 }
 
 function showSNPViewerSelection() {
-    
+
     if((!isSubsetEmpty(1) && GLOBAL.CurrentSubsetIDs[1] == null) ||
         (!isSubsetEmpty(2) && GLOBAL.CurrentSubsetIDs[2] == null)) {
         runAllQueries(showSNPViewerSelection);
@@ -2978,14 +2983,14 @@ function getSNPViewer() {
     if (selectedGenesEltValue && selectedGenesEltValue.length != 0) {
         selectedGeneStr = selectedGenesEltValue;
     }
-
+    
     var geneAndIdListElt = Ext.get("selectedGenesAndIdSNPViewer");
     var geneAndIdListEltValue = geneAndIdListElt.dom.value;
     var geneAndIdListStr = "";
     if (geneAndIdListElt && geneAndIdListEltValue.length != 0) {
         geneAndIdListStr = geneAndIdListEltValue;
     }
-
+    
     var selectedSNPsElt = Ext.get("selectedSNPs");
     var selectedSNPsEltValue = selectedSNPsElt.dom.value;
     var selectedSNPsStr = "";
@@ -3011,12 +3016,12 @@ function getSNPViewer() {
             geneAndIdList: geneAndIdListStr,
             snps: selectedSNPsStr}
     });
-
+    
     showWorkflowStatusWindow();
 }
 
 function showIgvSelection() {
-    
+
     if((!isSubsetEmpty(1) && GLOBAL.CurrentSubsetIDs[1] == null) ||
         (!isSubsetEmpty(2) && GLOBAL.CurrentSubsetIDs[2] == null)) {
         runAllQueries(showIgvSelection);
@@ -3095,21 +3100,21 @@ function getIgv() {
     if (selectedGenesEltValue && selectedGenesEltValue.length != 0) {
         selectedGeneStr = selectedGenesEltValue;
     }
-
+    
     var geneAndIdListElt = Ext.get("selectedGenesAndIdIgv");
     var geneAndIdListEltValue = geneAndIdListElt.dom.value;
     var geneAndIdListStr = "";
     if (geneAndIdListElt && geneAndIdListEltValue.length != 0) {
         geneAndIdListStr = geneAndIdListEltValue;
     }
-
+    
     var selectedSNPsElt = Ext.get("selectedSNPsIgv");
     var selectedSNPsEltValue = selectedSNPsElt.dom.value;
     var selectedSNPsStr = "";
     if (selectedSNPsElt && selectedSNPsEltValue.length != 0) {
         selectedSNPsStr = selectedSNPsEltValue;
     }
-    
+
     Ext.Ajax.request(
     {
         url: pageInfo.basePath+"/analysis/showIgv",
@@ -3128,7 +3133,7 @@ function getIgv() {
             geneAndIdList: geneAndIdListStr,
             snps: selectedSNPsStr}
     });
-
+    
     showWorkflowStatusWindow();
 }
 
@@ -3209,7 +3214,7 @@ function getPlink() {
 }
 
 function showGwasSelection() {
-    
+
     if((!isSubsetEmpty(1) && GLOBAL.CurrentSubsetIDs[1] == null) ||
         (!isSubsetEmpty(2) && GLOBAL.CurrentSubsetIDs[2] == null)) {
         runAllQueries(showGwasSelection);
@@ -3287,13 +3292,13 @@ function showGwas() {
         runAllQueries(showGwas);
         return;
     }
-
+    
     genePatternReplacement();
 }
 
 // After we get a job created by GPController, we run GWAS
 function runGwas(result, result_instance_id1, result_instance_id2, querySummary1, querySummary2) {
-    var jobNameInfo = Ext.util.JSON.decode(result.responseText);
+    var jobNameInfo = Ext.util.JSON.decode(result.responseText);                     
     var jobName = jobNameInfo.jobName;
 
     genePatternReplacement();
@@ -3422,11 +3427,11 @@ function jsonToDataTable(jsontext) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // Once, we get a job created by GPController, we run the heatmap
 function RunHeatMap(result, setid1, setid2, pathway, datatype, analysis, resulttype, nclusters, timepoints1, timepoints2, sample1, sample2, rbmPanels1, rbmPanels2) {
-    var jobNameInfo = Ext.util.JSON.decode(result.responseText);
+    var jobNameInfo = Ext.util.JSON.decode(result.responseText);                     
     var jobName = jobNameInfo.jobName;
 
     //genePatternReplacement();
-    showJobStatusWindow(result);
+    showJobStatusWindow(result);    
     genePatternLogin();
     Ext.Ajax.request(
         {                        
@@ -3784,7 +3789,7 @@ function watchForSymbol(options) {
 
 //Called to run the Haploviewer
 function getHaploview() {
-    Ext.Ajax.request({
+    Ext.Ajax.request({                      
         url: pageInfo.basePath+"/asyncJob/createnewjob",
         method: 'POST',
         success: function(result, request){
@@ -3795,14 +3800,14 @@ function getHaploview() {
         },
         timeout: '1800000',
         params: {jobType:  "Haplo"}
-    });
+    }); 
 }
 
 function RunHaploViewer(result, result_instance_id1, result_instance_id2, genes) {
-    var jobNameInfo = Ext.util.JSON.decode(result.responseText);
+    var jobNameInfo = Ext.util.JSON.decode(result.responseText);                     
     var jobName = jobNameInfo.jobName;
 
-    showJobStatusWindow(result);
+    showJobStatusWindow(result);    
     document.getElementById("gplogin").src = pageInfo.basePath + '/analysis/gplogin';   // log into GenePattern
     Ext.Ajax.request(
         {                        
@@ -4001,7 +4006,7 @@ function showWorkflowStatusWindow() {
     });
     //  }
     wfsWindow.show(viewport);
-    
+
     var updateStatus = function(){
         Ext.Ajax.request(
                 {
@@ -4057,9 +4062,9 @@ function workflowStatusUpdate(result){
         if(wfsWindow!=null){
             wfsWindow.close();
             wfsWindow =null;
-        }
+        }       
         showWorkflowResult(result);
-    }
+    } 
 }
 
 function showWorkflowResult(result) {
@@ -4086,7 +4091,7 @@ function showWorkflowResult(result) {
 }
 
 function showSnpGeneAnnotationPage(snpGeneAnnotationPage) {
-    var resultWin = window.open('', 'Snp_Gene_Annotation_' + (new Date()).getTime(),
+    var resultWin = window.open('', 'Snp_Gene_Annotation_' + (new Date()).getTime(), 
         'width=600,height=800,scrollbars=yes,resizable=yes,location=no,toolbar=no,status=no,menubar=no,directories=no');
     resultWin.document.write(snpGeneAnnotationPage);
 }
@@ -4144,7 +4149,7 @@ function saveComparisonComplete(result) {
     });    
 
     //Show the window we just created.
-    saveComparisonWindow.show(viewport);
+    saveComparisonWindow.show(viewport);    
 }
 
 function ontFilterLoaded(el, success, response, options) {
@@ -4186,3 +4191,5 @@ function contains(a, obj) {
     }
     return false;
 }
+
+
