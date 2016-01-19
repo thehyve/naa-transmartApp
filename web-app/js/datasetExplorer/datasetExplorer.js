@@ -801,12 +801,12 @@ Ext.onReady(function () {
             jQuery.post(pageInfo.basePath + '/pluginDetector/checkPlugin',
                 {pluginName: pluginName })
                 .done(function(data) {
-                    if (data === 'true') {
+                if (data === 'true') {
                         loadResources()
-                    } else {
+                } else {
                         console.log("Plugin " + pluginName + " not active");
                         def.reject('not active');
-                    }
+                }
                 })
                 .fail(function() {
                     console.log('Could not determine whether plugin ' + pluginName +
@@ -834,8 +834,8 @@ Ext.onReady(function () {
     /* load the tabs registered with the extension mechanism */
     (function loadAnalysisTabExtensions() {
         GLOBAL.analysisTabExtensions.forEach(function(tabExtension) {
-            loadPlugin(null, tabExtension.resourcesUrl, function () {
-                (window[tabExtension.bootstrapFunction])(resultsTabPanel, tabExtension.config);
+        loadPlugin(null, tabExtension.resourcesUrl, function () {
+            (window[tabExtension.bootstrapFunction])(resultsTabPanel, tabExtension.config);
             });
         });
     })();
@@ -851,7 +851,7 @@ Ext.onReady(function () {
             promiseAndBootstrap.promise.always(function() {
                 if (--n == 0) {
                     def.resolve();
-                }
+    }
             });
         });
 
@@ -861,7 +861,7 @@ Ext.onReady(function () {
                     promiseAndBootstrap.bootstrap();
                 }
             });
-        });
+    });
     })();
 
 
