@@ -1,4 +1,4 @@
-package org.transmartproject.audit
+package org.transmart.audit
 
 import java.util.Map;
 import com.google.gson.Gson
@@ -21,11 +21,11 @@ class AuditLogService {
     GrailsApplication grailsApplication
 
     @Lazy
-    static final Gson gson = {new GsonBuilder()
+    static final Gson gson = new GsonBuilder()
             .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX")
             .serializeNulls()
             .setPrettyPrinting()
-            .create()}()
+            .create()
 
     def report(Map<String, Object> params = [:], String task, HttpServletRequest request) {
         String action = (String) params.action
