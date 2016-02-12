@@ -1,5 +1,4 @@
 import grails.util.Environment
-import org.transmart.ExternalProcessAppender
 
 def console
 if (!Environment.isWarDeployed() && Environment.isWithinShell()) {
