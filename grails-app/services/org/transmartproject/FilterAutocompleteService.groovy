@@ -7,6 +7,7 @@ import groovy.util.logging.Slf4j
 import javax.annotation.PostConstruct
 
 import org.transmartproject.db.dataquery.highdim.snp_lz.GenotypeProbeAnnotation;
+import org.transmartproject.db.dataquery.highdim.snp_lz.DeSnpGeneMap;
 
 @Slf4j
 @Cacheable('org.transmartproject.FilterAutocompleteService')
@@ -19,41 +20,22 @@ class FilterAutocompleteService {
 	/**
 	 * Returns a sorted list of maximum {@link #max_results} 
 	 * gene names, starting with <code>search</code>.
-	 * Gene names are fetched from the {@link GenotypeProbeAnnotation} data type.
+	 * Gene names are fetched from the {@link DeSnpGeneMap} data type.
 	 * 
 	 * @param search The start segment used in the query.
 	 * @return a list of gene names, starting with <code>search</code>.
 	 */
     private List<String> autoCompleteGene(String search) {
-        DetachedCriteria query = GenotypeProbeAnnotation
-            .where { geneInfo ==~ "%${search}%" }
-		List<String> geneInfos = query
+        DetachedCriteria query = DeSnpGeneMap
+            .where { geneName ==~ "${search}%" }
+		query
 			.max(max_results)
-			.order('geneInfo')
+			.order('geneName')
             .list {
                 projections {
-                  distinct('geneInfo')
+                  distinct('geneName')
                 }
             }
-        /*
-         * This piece of code just because the geneInfo column contains a '|'-
-         * separated list of tuples "<geneName>:<geneId>", instead of having
-         * a separate table where geneName and geneId are columns.
-         */
-        List<String> results = []
-        for (String geneInfo: geneInfos) {
-            List<String> genes = geneInfo.tokenize('|')
-            for (String gene: genes) {
-                List<String> parts = gene.tokenize(':')
-                if (parts.size() > 0) {
-                    String geneName = parts[0]
-                    if (geneName.startsWith(search)) {
-                        results += geneInfo
-                    }
-                }
-            }
-        }
-        results.unique()
     }
 
 	/**
