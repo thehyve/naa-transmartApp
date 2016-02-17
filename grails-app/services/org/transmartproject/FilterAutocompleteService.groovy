@@ -6,8 +6,7 @@ import groovy.util.logging.Slf4j
 
 import javax.annotation.PostConstruct
 
-import org.transmartproject.db.dataquery.highdim.snp_lz.DeRcSnpInfo
-import org.transmartproject.db.dataquery.highdim.snp_lz.DeSnpInfo
+import org.transmartproject.db.dataquery.highdim.snp_lz.GenotypeProbeAnnotation;
 
 @Slf4j
 @Cacheable('org.transmartproject.FilterAutocompleteService')
@@ -20,47 +19,66 @@ class FilterAutocompleteService {
 	/**
 	 * Returns a sorted list of maximum {@link #max_results} 
 	 * gene names, starting with <code>search</code>.
-	 * Gene names are fetched from the {@link DeRcSnpInfo} data type.
+	 * Gene names are fetched from the {@link GenotypeProbeAnnotation} data type.
 	 * 
 	 * @param search The start segment used in the query.
 	 * @return a list of gene names, starting with <code>search</code>.
 	 */
     private List<String> autoCompleteGene(String search) {
-        DetachedCriteria query = DeRcSnpInfo
-            .where { geneName ==~ "${search}%" }
-		query
+        DetachedCriteria query = GenotypeProbeAnnotation
+            .where { geneInfo ==~ "%${search}%" }
+		List<String> geneInfos = query
 			.max(max_results)
-			.order('geneName')
+			.order('geneInfo')
             .list {
                 projections {
-                  distinct('geneName')  
+                  distinct('geneInfo')
                 }
             }
+        /*
+         * This piece of code just because the geneInfo column contains a '|'-
+         * separated list of tuples "<geneName>:<geneId>", instead of having
+         * a separate table where geneName and geneId are columns.
+         */
+        List<String> results = []
+        for (String geneInfo: geneInfos) {
+            List<String> genes = geneInfo.tokenize('|')
+            for (String gene: genes) {
+                List<String> parts = gene.tokenize(':')
+                if (parts.size() > 0) {
+                    String geneName = parts[0]
+                    if (geneName.startsWith(search)) {
+                        results += geneInfo
+                    }
+                }
+            }
+        }
+        results.unique()
     }
 
 	/**
 	 * Returns a sorted list of maximum {@link #max_results}
 	 * Single Nucleotide Polymorphism (SNP) names, starting with <code>search</code>.
-	 * SNP names are fetched from the {@link DeSnpInfo} data type.
+	 * SNP names are fetched from the {@link GenotypeProbeAnnotation} data type.
 	 *  
 	 * @param search The start segment used in the query.
 	 * @return a list of gene names, starting with <code>search</code>.
 	 */
     private List<String> autoCompleteSnp(String search) {
-        DetachedCriteria query = DeSnpInfo
-            .where { name ==~ "${search}%" }
+        DetachedCriteria query = GenotypeProbeAnnotation
+            .where { snpName ==~ "${search}%" }
 		query
 			.max(max_results)
-			.order('name')
+			.order('snpName')
             .list {
                 projections {
-                  distinct('name')
+                  distinct('snpName')
                 }
             }
     }
 
     void register(String type, Closure<List<String>> f) {
-        log.info "Registring autocompleter for type ${type}..."
+        log.info "Registering autocompleter for type ${type}..."
         registry[type] = f
     }
 
