@@ -818,7 +818,7 @@ public class GeneSignatureService {
      */
     def listPermissionedGeneSignatures(Long userId, boolean bAdmin) {
         def permCriteria = (bAdmin) ? "(1=1)" : "(gs.createdByAuthUser.id=" + userId + " or gs.publicFlag=true)"
-        def qBuf = "from GeneSignature gs where " + permCriteria + " and gs.deletedFlag=false order by gs.name"
+        def qBuf = "from GeneSignature gs where " + permCriteria + " and gs.deletedFlag=false order by lower(gs.name)"
         return GeneSignature.findAll(qBuf);
     }
 
