@@ -27,6 +27,11 @@ import com.recomdata.export.ExportColumn
 import com.recomdata.export.ExportRowNew
 import com.recomdata.export.ExportTableNew
 
+import org.transmartproject.core.dataquery.assay.Assay
+import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
+import org.transmartproject.core.dataquery.highdim.HighDimensionResource
+import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
+
 /**
  * Created by Florian Guitton <f.guitton@imperial.ac.uk> on 17/12/2014.
  */
@@ -131,10 +136,16 @@ class ChartService {
 
         def metadata = exportMetadataService.getHighDimMetaData(subsets[1]?.instance as Long, subsets[2]?.instance as Long)
         metadata.each { data ->
-            log.debug "addHighDimDataToTable: dataType = ${data.datatype}"
+            log.debug "addHighDimDataToTable: dataType = ${data.datatype.dataTypeName}"
             def rowdata = [:]
             subsets.each { k, v ->
                 if (v.instance) {
+                    def conceptDataType = highDimChartDataService.getDataTypeForConcept(concept)
+                    if (conceptDataType != data.datatype.dataTypeName) {
+                        log.debug "Concept data type (${conceptDataType}) is not the same as the data type associated with the subset (${data.datatype.dataTypeName})"
+                        return
+                    }
+
                     def assayConstraints = [
                             (AssayConstraint.PATIENT_SET_CONSTRAINT):
                                 [[result_instance_id: v.instance]],
@@ -182,7 +193,12 @@ class ChartService {
         List<Map> result = []
         def metadata = exportMetadataService.getHighDimMetaData(subsets[1]?.instance as Long, subsets[2]?.instance as Long)
         metadata.each { data ->
-            log.debug "getHighDimAnalysis: concept = ${concept}, dataType = ${data.datatype}"
+            log.debug "getHighDimAnalysis: concept = ${concept}, dataType = ${data.datatype.dataTypeName}"
+            def conceptDataType = highDimChartDataService.getDataTypeForConcept(concept)
+            if (conceptDataType != data.datatype.dataTypeName) {
+                log.debug "Concept data type (${conceptDataType}) is not the same as the data type associated with the subset (${data.datatype.dataTypeName})"
+                return
+            }
             Map<String, Map<String, Map>> barChartData = [:] // maps subsets to a map from row label to row data
             subsets.each { subset, properties ->
                 if (properties.instance) {
