@@ -1,5 +1,6 @@
 package org.transmartproject
 
+import grails.plugin.cache.Cacheable
 import grails.transaction.Transactional
 
 import org.transmartproject.core.dataquery.TabularResult
@@ -16,6 +17,25 @@ import com.recomdata.transmart.data.export.HighDimExportService
 class HighDimChartDataService {
 
     HighDimensionResource highDimensionResourceService
+
+    @Cacheable('org.transmartproject.HighDimChartDataService')
+    String getDataTypeForConcept(String concept_key) {
+        def constraints = []
+
+        constraints << highDimensionResourceService.createAssayConstraint(
+                [concept_key: concept_key],
+                AssayConstraint.ONTOLOGY_TERM_CONSTRAINT)
+
+        def assayMultiMap = highDimensionResourceService.
+                getSubResourcesAssayMultiMap(constraints)
+
+        def result = assayMultiMap.collect { HighDimensionDataTypeResource dataTypeResource,
+                                             Collection<Assay> assays ->
+            dataTypeResource.dataTypeName
+        }
+        assert(result.size() == 1)
+        result[0]
+    }
 
     Set<String> getSupportedDataConstraints(String dataType) {
         HighDimensionDataTypeResource typeResource =
