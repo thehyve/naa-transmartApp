@@ -1,23 +1,5 @@
 import grails.util.Environment
 
-/*************************************************************************
- * tranSMART - translational medicine data mart
- * 
- * Copyright 2008-2012 Janssen Research & Development, LLC.
- * 
- * This product includes software developed at Janssen Research & Development, LLC.
- * 
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License 
- * as published by the Free Software  * Foundation, either version 3 of the License, or (at your option) any later version, along with the following terms:
- * 1.	You may convey a work based on this program in accordance with section 5, provided that you retain the above notices.
- * 2.	You may convey verbatim copies of this program code as you receive it, in any medium, provided that you retain the above notices.
- * 
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
- *
- ******************************************************************/
 def console
 if (!Environment.isWarDeployed() && Environment.isWithinShell()) {
     console = grails.build.logging.GrailsConsole.instance
@@ -212,6 +194,38 @@ org.transmart.security.spnegoEnabled = false
 grails.plugins.sendfile.tomcat = false
 
 log4j = {
+    /**
+     * Configuration for writing audit metrics.
+     * This needs to be placed in the out-of-tree Config.groovy, as the log4j config there will override this.
+     * (and don't forget to 'import org.apache.log4j.DailyRollingFileAppender',
+     * 'import org.transmart.logging.ChildProcessAppender' and 'import org.transmart.logging.JsonLayout'.)
+     */
+    /*
+    appenders {
+        // default log directory is either the tomcat root directory or the
+        // current working directory.
+        def catalinaBase = System.getProperty('catalina.base') ?: '.'
+        def logDirectory = "${catalinaBase}/logs".toString()
+
+        // Use layout: JsonLayout(conversionPattern: '%m%n', singleLine: true) to get each message as a single line
+        // json the same way as ChildProcessAppender sends it.
+        appender new DailyRollingFileAppender(
+            name: 'fileAuditLogger',
+            datePattern: "'.'yyyy-MM-dd",
+            fileName: "${logDirectory}/audit.log",
+            layout: JsonLayout(conversionPattern:'%d %m%n')
+        )
+        // the default layout is a JsonLayout(conversionPattern: '%m%n, singleLine: true)
+        appender new ChildProcessAppender(
+                name: 'processAuditLogger',
+                command: ['your', 'command', 'here']
+        )
+    }
+    trace fileAuditLogger: 'org.transmart.audit'
+    trace processAuditLogger: 'org.transmart.audit'
+    trace stdout: 'org.transmart.audit'
+    */
+
     environments {
         test {
             warn 'org.codehaus.groovy.grails.commons.spring'

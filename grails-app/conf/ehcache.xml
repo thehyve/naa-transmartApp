@@ -143,4 +143,9 @@
         timeToIdleSeconds="300"
         />
 
+    <cache name="org.transmart.audit.StudyIdService"
+        maxElementsInMemory="10000"
+        timeToIdleSeconds="300"
+        />
+
 </ehcache>
