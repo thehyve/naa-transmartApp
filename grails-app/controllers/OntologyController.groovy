@@ -26,6 +26,7 @@ class OntologyController {
     ConceptsResource conceptsResourceService
     OntologyTermTagsResource ontologyTermTagsResourceService
     HighDimensionResource highDimensionResourceService
+    def exportMetadataService
 
     def showOntTagFilter = {
         def tagtypesc = []
@@ -104,6 +105,10 @@ class OntologyController {
         //ontology term tags
         def tagsMap = ontologyTermTagsResourceService.getTags([ term ] as Set, false)
         model.tags = tagsMap?.get(term)
+
+        //data type info of all descendants
+        def dataTypeInfo = exportMetadataService.getHighDimMetaData(term)
+        model.dataTypeInfo = dataTypeInfo.dataTypes
 
         render template: 'showDefinition', model: model
     }

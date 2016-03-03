@@ -25,8 +25,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.querytool.QueriesResource
+import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
+import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.export.HighDimExporter
 
+import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.HIGH_DIMENSIONAL
+
+//TODO Remove duplicated code for both subset. Make code more generic for any number of subsets
 class ExportMetadataService {
 
     static transactional = false
@@ -110,6 +115,27 @@ class ExportMetadataService {
         }
 
         hdMetaData
+    }
+
+    def getHighDimMetaData(OntologyTerm term) {
+
+        // Retrieve all descendant terms that have the HIGH_DIMENSIONAL attribute
+        def terms = term.getAllDescendants() + term
+        def highDimTerms = terms.findAll { it.visualAttributes.contains(HIGH_DIMENSIONAL) }
+
+        // Put all high dimensional term keys in a disjunction constraint
+        def constraint = highDimensionResourceService.createAssayConstraint(
+                AssayConstraint.DISJUNCTION_CONSTRAINT,
+                subconstraints: [
+                        (AssayConstraint.ONTOLOGY_TERM_CONSTRAINT):
+                                highDimTerms.collect({ [concept_key: it.key ] })
+                ]
+        )
+
+        def datatypes = highDimensionResourceService.getSubResourcesAssayMultiMap([constraint])
+        def dataTypeDescriptions = datatypes.keySet().collect({ it.dataTypeDescription })
+
+        [ dataTypes: dataTypeDescriptions ]
     }
 
     /**
