@@ -32,3 +32,7 @@
                         	</g:each>
                 </table>
                 </g:else>
+
+<g:if test="${dataTypeInfo}">
+  <g:render template="showDataTypes" model="dataTypeInfo"/>
+</g:if>
