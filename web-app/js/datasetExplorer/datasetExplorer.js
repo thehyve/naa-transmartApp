@@ -760,29 +760,6 @@ Ext.onReady(function () {
             });
         }
 
-        function loadPlugin(pluginName, scriptsUrl, bootstrap) {
-            var def = jQuery.Deferred();
-            jQuery.post(pageInfo.basePath + "/pluginDetector/checkPlugin", {pluginName: pluginName}, function(data) {
-                if (data === 'true') {
-                    loadResourcesByUrl(pageInfo.basePath + scriptsUrl, function() {
-                        bootstrap();
-                        def.resolve();
-                    }).fail(def.reject);
-                } else {
-                    def.reject();
-                }
-            }).fail(def.reject);
-            return def;
-        }
-
-
-        // To have both eae and heim smartR
-        // TODO : Fix this, should be in one menu
-
-        //loadPlugin('smartR', "/EtriksEngines/loadScripts", function () {
-        //    resultsTabPanel.add(etriksPanel);
-        //});
-
     var pluginPromises = []; // contain { promise: , bootstrap: }
     function loadPlugin(pluginName, scriptsUrl, bootstrap, legacy) {
         var def = jQuery.Deferred();
@@ -894,11 +871,12 @@ Ext.onReady(function () {
                                    text : 'Compare',
                         handler: function () {
                                    var subsets = exportPanel.body.dom.childNodes;
-                            if (subsets.length != 2) {
+                                   if (subsets.length !== 2) {
                                        alert("Must have two subsets!");
+                                   } else {
+                                        showCompareStepPathwaySelection();
                                    }
-                                   else showCompareStepPathwaySelection();
-                                   }
+                                }
                                }
                                ,
                                {
@@ -922,8 +900,10 @@ Ext.onReady(function () {
         );
 
         var treetitle = "Previous Queries";
-        if(GLOBAL.Config == 'jj')
+
+    if (GLOBAL.Config === 'jj') {
             treetitle = "Subsets";
+    }
 
         var Tree = Ext.tree;
         prevTree = new Tree.TreePanel(
@@ -1039,7 +1019,6 @@ Ext.onReady(function () {
                         {
                             text : 'Show Histogram',
                             handler: function () {
-                                showConceptDistributionHistogramComplete(null)
                                 showConceptDistributionHistogram();
                             }
                         }
@@ -1048,18 +1027,18 @@ Ext.onReady(function () {
                             text : 'Show Histogram for subset',
                             handler: function () {
 						        	   var subset;
-                                if (selectedConcept.parentNode.id == "hiddenDragDiv") {
+                                if (selectedConcept.parentNode.id === "hiddenDragDiv") {
 						        		   subset = getSubsetFromPanel(STATE.Target);
 						        	   }
                                 else {
-						        		   subset = getSubsetFromPanel(selectedConcept.parentNode)
+                                            subset = getSubsetFromPanel(selectedConcept.parentNode);
 						        	   }
 
                                 if (!isSubsetEmpty(subset)) {
-                                    showConceptDistributionHistogramForSubsetComplete(null)
                                     runQuery(subset, showConceptDistributionHistogramForSubset);
+                        } else {
+                            alert('Subset is empty!');
                                 }
-                                else alert('Subset is empty!');
                             }
                         }
                         ,
@@ -1074,9 +1053,9 @@ Ext.onReady(function () {
 						        	   var highlowselect = document.getElementById("setValueHighLowSelect").value;
 
 						        	   // make sure that there is a value set
-						        	   if (mode=="numeric" && operator == "BETWEEN" && (highvalue == "" || lowvalue== "")){
+                       if (mode === "numeric" && operator === "BETWEEN" && (highvalue === "" || lowvalue === "")) {
 						        		   alert('You must specify a low and a high value.');
-						        	   } else if (mode=="numeric" && lowvalue == "") {
+                       } else if (mode === "numeric" && lowvalue === "") {
 						        		   alert('You must specify a value.');
 						        	   } else {
 						        		   setvaluewin.hide();
@@ -1102,9 +1081,8 @@ Ext.onReady(function () {
                             }
                         }
                     ]
+        });
 
-                }
-            );
             setvaluewin.show();
             setvaluewin.hide();
 			
@@ -1127,22 +1105,19 @@ function onWindowResize() {
     jQuery('#centerMainPanel').css('top', jQuery('#header-div').height());
 
     var boxHeight = jQuery('#box-search').height();
-    jQuery('#navigateTermsPanel .x-panel-body').height(windowHeight - boxHeight - 110);
+    jQuery('#navigateTermsPanel .x-panel-body').height(windowHeight - boxHeight - 90);
 
     jQuery('#analysisPanel .x-panel-body').height(jQuery(window).height() - 65);
 
-    if (jQuery('#dataAssociationPanel .x-panel-body').size() > 0) {
-        var panelTop = jQuery('#dataAssociationPanel .x-panel-body').offset()['top'];
-        jQuery('#dataAssociationPanel .x-panel-body').height(jQuery(window).height() - panelTop);
+    if (jQuery('#dataTypesGridPanel .x-panel-body').size() > 0) {
+        var exportPanelTop = jQuery('#dataTypesGridPanel .x-panel-body').offset().top;
+        jQuery('#dataTypesGridPanel .x-panel-body').height(jQuery(window).height() - exportPanelTop - 40);
     }
     if (jQuery('#resultsTabPanel .x-tab-panel-body').size() > 0) {
-        var panelTop = jQuery('#resultsTabPanel .x-tab-panel-body').offset()['top'];
+        var panelTop = jQuery('#resultsTabPanel .x-tab-panel-body').offset().top;
         jQuery('#resultsTabPanel .x-tab-panel-body').height(jQuery(window).height() - panelTop);
     }
-//    if (jQuery('#dataAssociationBody').size() > 0) {
-//        var panelTop = jQuery('#dataAssociationBody').offset()['top'];
-//        jQuery('#dataAssociationBody').height(jQuery(window).height() - 50);
-//    }
+
     jQuery('#subsets_wrapper').find('div.dataTables_scrollBody').css("height", calcWorkspaceDataTableHeight() + "px");
     jQuery('#reports_wrapper').find('div.dataTables_scrollBody').css("height", calcWorkspaceDataTableHeight() + "px");
 
@@ -1209,9 +1184,9 @@ function createOntPanel() {
 
 
     // make the ontSearchByNamePanel
-    shtml='<table style="font:10pt arial;"><tr><td><select id="searchByNameSelect"><option value="left">Starting with</option><option value="right">Ending with</option>\
-        <option value="contains" selected>Containing</option><option value="exact">Exact</option></select>&nbsp;&nbsp;</td><td><input id="searchByNameInput" onkeypress="if(enterWasPressed(event)){searchByName();}" type="text" size="15">&nbsp;</td>\
-        <td><button onclick="searchByName()">Find</button></td></tr><tr><td colspan="2">Select Ontology:<select id="searchByNameSelectOntology"></select></td></tr></table>';
+    shtml = '<table style="font:10pt arial;"><tr><td><select id="searchByNameSelect"><option value="left">Starting with</option><option value="right">Ending with</option>' +
+        '<option value="contains" selected>Containing</option><option value="exact">Exact</option></select>&nbsp;&nbsp;</td><td><input id="searchByNameInput" onkeypress="if(enterWasPressed(event)){searchByName();}" type="text" size="15">&nbsp;</td>' +
+        '<td><button onclick="searchByName()">Find</button></td></tr><tr><td colspan="2">Select Ontology:<select id="searchByNameSelectOntology"></select></td></tr></table>';
 
         searchByNameForm = new Ext.Panel(
                 {
@@ -1274,10 +1249,10 @@ function createOntPanel() {
 //        ******************************************************************************
         var showFn = function(node, e){
             Ext.tree.TreePanel.superclass.onShow.call(this);
-                }
+    };
 
         // shorthand
-        var Tree = Ext.tree;
+    Tree = Ext.tree;
 
         ontFilterTree = new Tree.TreePanel(
                 {
