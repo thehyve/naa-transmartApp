@@ -7,6 +7,7 @@ bin/
 .classpath
 .project
 .idea/
+.slcache/
 *.iml
 *.ipr
 *.iws

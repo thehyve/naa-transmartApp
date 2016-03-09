@@ -4,12 +4,11 @@ String.prototype.trim = function() {
 }
 
 Ext.layout.BorderLayout.Region.prototype.getCollapsedEl = Ext.layout.BorderLayout.Region.prototype.getCollapsedEl.createSequence(function () {
-        if ((this.position == 'north' || this.position == 'south') && !this.collapsedEl.titleEl) {
-        this.collapsedEl.titleEl = this.collapsedEl.createChild(
-                {
-                    style : 'color:#15428b;font:11px/15px tahoma,arial,verdana,sans-serif;padding:2px 5px;', cn : this.panel.title
-                }
-        );
+    if ((this.position === 'north' || this.position === 'south') && !this.collapsedEl.titleEl) {
+        this.collapsedEl.titleEl = this.collapsedEl.createChild({
+            style: 'color:#15428b;font:11px/15px tahoma,arial,verdana,sans-serif;padding:2px 5px;', 
+            cn: this.panel.title
+        });
     }
         }
 );
@@ -780,32 +779,91 @@ Ext.onReady(function () {
         // To have both eae and heim smartR
         // TODO : Fix this, should be in one menu
 
-        loadPlugin('smartR', "/EtriksEngines/loadScripts", function () {
-            resultsTabPanel.add(etriksPanel);
-        });
+        //loadPlugin('smartR', "/EtriksEngines/loadScripts", function () {
+        //    resultsTabPanel.add(etriksPanel);
+        //});
 
-        loadPlugin('smartR', "/SmartR/loadScripts", function () {
-            resultsTabPanel.add(smartRPanel);
-        });
+    var pluginPromises = []; // contain { promise: , bootstrap: }
+    function loadPlugin(pluginName, scriptsUrl, bootstrap, legacy) {
+        var def = jQuery.Deferred();
+        function loadResources() {
+            loadResourcesByUrl(
+                pageInfo.basePath + scriptsUrl,
+                function() {
+                    def.resolve.apply(def, arguments);
+                })
+                .fail(function() { def.reject.apply(def, arguments); });
+        }
 
-        // ----
-
-        if(!Math.log10){ Math.log10 = function (x) { return Math.log(x) / Math.log(10); }}
-
-        // DALLIANCE
-        // =======
-        loadPlugin('dalliance-plugin', "/Dalliance/loadScripts", function () {
-            loadDalliance(resultsTabPanel);
-        }).always(function () {
-            // Keep loading order to prevent tabs shuffling
-            if (GLOBAL.metacoreAnalyticsEnabled) {
-                loadPlugin('transmart-metacore-plugin', "/MetacoreEnrichment/loadScripts", function () {
-                    loadMetaCoreEnrichment(resultsTabPanel);
+        // if it's a legacy call (hardcoded in datasetExplorer.js),
+        // we need to check whether the plugin is present
+        if (legacy) {
+            jQuery.post(pageInfo.basePath + '/pluginDetector/checkPlugin',
+                {pluginName: pluginName })
+                .done(function(data) {
+                if (data === 'true') {
+                        loadResources()
+                } else {
+                        console.log("Plugin " + pluginName + " not active");
+                        def.reject('not active');
+                }
+                })
+                .fail(function() {
+                    console.log('Could not determine whether plugin ' + pluginName +
+                            ' is active');
+                    def.reject.apply(def, arguments);
                 });
-            }
-            loadPlugin('gex', "/gexAnalysis/loadScripts", function () {
-	        });
+        } else {
+            loadResources();
+        }
+
+        pluginPromises.push({
+            promise: def.promise(),
+            bootstrap: bootstrap,
         });
+    }
+
+    /* load the leegacy hardcoded tabs */
+    loadPlugin('dalliance-plugin', '/Dalliance/loadScripts', function () {
+        loadDalliance(resultsTabPanel);
+    }, true);
+    loadPlugin('transmart-metacore-plugin', '/MetacoreEnrichment/loadScripts', function () {
+        loadMetaCoreEnrichment(resultsTabPanel);
+    }, true);
+
+    /* load the tabs registered with the extension mechanism */
+    (function loadAnalysisTabExtensions() {
+        GLOBAL.analysisTabExtensions.forEach(function(tabExtension) {
+        loadPlugin(null, tabExtension.resourcesUrl, function () {
+            (window[tabExtension.bootstrapFunction])(resultsTabPanel, tabExtension.config);
+            });
+        });
+    })();
+
+    // wait for all the tab scripts to be loaded, and only then run their bootstrap code
+    // this ensures that they are added in a predictable order
+    (function runTabBootstrapCode() {
+        var def = jQuery.Deferred();
+        var n = pluginPromises.length;
+        // cannot use .when() because we don't want to fail when
+        // one of the plugins fails to load
+        pluginPromises.forEach(function(promiseAndBootstrap) {
+            promiseAndBootstrap.promise.always(function() {
+                if (--n == 0) {
+                    def.resolve();
+    }
+            });
+        });
+
+        def.done(function() {
+            pluginPromises.forEach(function(promiseAndBootstrap) {
+                if (promiseAndBootstrap.promise.state() == 'resolved') {
+                    promiseAndBootstrap.bootstrap();
+                }
+            });
+    });
+    })();
+
 
        
         if (GLOBAL.galaxyEnabled == 'true') {
@@ -1722,7 +1780,7 @@ function createTree(ontresponse) {
                 cls: tcls
                 }
         );
-        
+
         if (lockedNode) {
             ontRoot.attributes.access = 'locked';
             ontRoot.on('beforeload', function (node) {
@@ -2062,15 +2120,15 @@ function showConceptInfoDialog(conceptKey, conceptid, conceptcomment) {
     conceptinfowin.header.update("Show Concept Definition-" + conceptid);
     Ext.get(conceptinfowin.body.id).update(conceptcomment);
 
-        conceptinfowin.load({
-            url: pageInfo.basePath+"/ontology/showConceptDefinition",
-            params: {conceptKey:conceptKey}, // or a URL encoded string        
-            discardUrl: true,
-            nocache: true,
-            text: "Loading...",
-            timeout: 30000,
-            scripts: false
-        });
+    conceptinfowin.load({
+        url: pageInfo.basePath+"/ontology/showConceptDefinition",
+        params: {conceptKey: conceptKey}, // or a URL encoded string     
+        discardUrl: true,
+        nocache: true,
+        text: "Loading...",
+        timeout: 30000,
+        scripts: false
+    });
 
 
 }
@@ -2828,8 +2886,8 @@ function showSurvivalAnalysis() {
         runAllQueries(showSurvivalAnalysis);
         return;
     }
-    
-    Ext.Ajax.request({                        
+
+    Ext.Ajax.request({
         url: pageInfo.basePath+"/asyncJob/createnewjob",
         method: 'POST',
         success: function(result, request){
@@ -2872,7 +2930,7 @@ function RunSurvivalAnalysis(result, result_instance_id1, result_instance_id2, q
 }
 
 function showSNPViewerSelection() {
-    
+
     if((!isSubsetEmpty(1) && GLOBAL.CurrentSubsetIDs[1] == null) ||
         (!isSubsetEmpty(2) && GLOBAL.CurrentSubsetIDs[2] == null)) {
         runAllQueries(showSNPViewerSelection);
@@ -2989,7 +3047,7 @@ function getSNPViewer() {
 }
 
 function showIgvSelection() {
-    
+
     if((!isSubsetEmpty(1) && GLOBAL.CurrentSubsetIDs[1] == null) ||
         (!isSubsetEmpty(2) && GLOBAL.CurrentSubsetIDs[2] == null)) {
         runAllQueries(showIgvSelection);
@@ -3082,7 +3140,7 @@ function getIgv() {
     if (selectedSNPsElt && selectedSNPsEltValue.length != 0) {
         selectedSNPsStr = selectedSNPsEltValue;
     }
-    
+
     Ext.Ajax.request(
     {
         url: pageInfo.basePath+"/analysis/showIgv",
@@ -3182,7 +3240,7 @@ function getPlink() {
 }
 
 function showGwasSelection() {
-    
+
     if((!isSubsetEmpty(1) && GLOBAL.CurrentSubsetIDs[1] == null) ||
         (!isSubsetEmpty(2) && GLOBAL.CurrentSubsetIDs[2] == null)) {
         runAllQueries(showGwasSelection);
@@ -3428,9 +3486,9 @@ function RunHeatMap(result, setid1, setid2, pathway, datatype, analysis, resultt
 //END: Advanced Heatmap Workflow methods
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// This is the new popup window for Survival Analysis. 
+// This is the new popup window for Survival Analysis.
 function showSurvivalAnalysisWindow(results)    {
-    var resultWin = window.open('', 'Survival_Analysis_View_' + (new Date()).getTime(), 
+    var resultWin = window.open('', 'Survival_Analysis_View_' + (new Date()).getTime(),
         'width=600,height=800,scrollbars=yes,resizable=yes,location=no,toolbar=no,status=no,menubar=no,directories=no');
     resultWin.document.write(results);
 }
@@ -3457,7 +3515,7 @@ function showHaploViewWindow(results)    {
         resizable: true,
         html: results
     });
-    win.show(viewport);                        
+    win.show(viewport);
 }
 
 function clearExportPanel() {
@@ -3757,7 +3815,7 @@ function watchForSymbol(options) {
 
 //Called to run the Haploviewer
 function getHaploview() {
-    Ext.Ajax.request({                        
+    Ext.Ajax.request({                      
         url: pageInfo.basePath+"/asyncJob/createnewjob",
         method: 'POST',
         success: function(result, request){
@@ -3768,7 +3826,7 @@ function getHaploview() {
         },
         timeout: '1800000',
         params: {jobType:  "Haplo"}
-    });    
+    }); 
 }
 
 function RunHaploViewer(result, result_instance_id1, result_instance_id2, genes) {
@@ -3974,7 +4032,7 @@ function showWorkflowStatusWindow() {
     });
     //  }
     wfsWindow.show(viewport);
-    
+
     var updateStatus = function(){
         Ext.Ajax.request(
                 {
@@ -4015,7 +4073,7 @@ function terminateWorkflow(){
     );
 }
 function workflowStatusUpdate(result){
-    var response=eval("(" + result.responseText + ")");    
+    var response=eval("(" + result.responseText + ")");
     var inserthtml = response.statusHTML;
     var divele = Ext.fly("divwfstatus");
     if(divele!=null){
@@ -4030,7 +4088,7 @@ function workflowStatusUpdate(result){
         if(wfsWindow!=null){
             wfsWindow.close();
             wfsWindow =null;
-        }        
+        }       
         showWorkflowResult(result);
     } 
 }
@@ -4093,7 +4151,7 @@ function saveComparisonComplete(result) {
     
     //If the window is already open, close it.
     if(this.saveComparisonWindow) saveComparisonWindow.close();
-    
+
     //Draw the window with the link to the comparison.
     saveComparisonWindow = new Ext.Window
     ({
@@ -4115,7 +4173,7 @@ function saveComparisonComplete(result) {
         width: 200,
         html: mobj.link
     });    
-    
+
     //Show the window we just created.
     saveComparisonWindow.show(viewport);    
 }
@@ -4159,3 +4217,5 @@ function contains(a, obj) {
     }
     return false;
 }
+
+

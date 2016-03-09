@@ -1,5 +1,6 @@
 <%@ page language="java" import="java.util.*" %>
-<!DOCTYPE html>
+<%@ page language="java" import="grails.converters.JSON" %>
+<!DOCTYPE HTML>
 <html>
 <head>
     <!-- Force Internet Explorer 8 to override compatibility mode -->
@@ -163,7 +164,8 @@
             currentSubsetsStudy: '',
             isGridViewLoaded: false,
             galaxyEnabled: '${grailsApplication.config.com.galaxy.blend4j.galaxyEnabled}',
-            galaxyUrl: "${grailsApplication.config.com.galaxy.blend4j.galaxyURL}"
+            galaxyUrl: "${grailsApplication.config.com.galaxy.blend4j.galaxyURL}",
+            analysisTabExtensions: ${grailsApplication.mainContext.getBean('transmartExtensionsRegistry').analysisTabExtensions as JSON}
         };
         // initialize browser version variables; see http://www.quirksmode.org/js/detect.html
         BrowserDetect.init();
