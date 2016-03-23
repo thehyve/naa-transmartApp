@@ -36,3 +36,11 @@
 <g:if test="${dataTypeInfo}">
   <g:render template="showDataTypes" model="dataTypeInfo"/>
 </g:if>
+<g:if test="${grailsApplication.config.requestStudyAccessUrl}">
+    <br/>
+    <h2>Access:</h2>
+    <a href="${ grailsApplication.config.requestStudyAccessUrl
+                    .replaceAll("\\{studyId\\}", studyId)
+                    .replaceAll("\\{userId\\}", userId.toString()) }"
+       target="_blank">Request access</a>
+</g:if>

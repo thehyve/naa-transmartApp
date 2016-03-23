@@ -93,8 +93,13 @@ class OntologyController {
         //data type info of all descendants
         def dataTypeInfo = exportMetadataService.getHighDimMetaData(term)
 
+        //study info
+        def studyId = term.study.id;
 
-            //Check for study by visual attributes
+        //user
+        def userId = springSecurityService.principal.id;
+
+        //Check for study by visual attributes
             if (node.visualattributes.contains("S")) {
                 def accession = node.sourcesystemcd
                 def study = Experiment.findByAccession(accession?.toUpperCase())
@@ -109,9 +114,17 @@ class OntologyController {
                 def amTagTemplate = amTagTemplateService.getTemplate(folder.getUniqueId())
                 List<AmTagItem> metaDataTagItems = amTagItemService.getDisplayItems(amTagTemplate.id)
 
-                render(template: 'showStudy', model: [folder: folder, bioDataObject: study, metaDataTagItems: metaDataTagItems, dataTypeInfo: dataTypeInfo.dataTypes])
+                render(template: 'showStudy', model: [folder: folder,
+                                                      bioDataObject: study,
+                                                      metaDataTagItems: metaDataTagItems,
+                                                      dataTypeInfo: dataTypeInfo.dataTypes,
+                                                      studyId: studyId,
+                                                      userId: userId])
             } else {
-                render(template: 'showDefinition', model: [tags: node.tags, dataTypeInfo: dataTypeInfo.dataTypes])
+                render(template: 'showDefinition', model: [tags: node.tags,
+                                                           dataTypeInfo: dataTypeInfo.dataTypes,
+                                                           studyId: studyId,
+                                                           userId: userId])
 		}
 	}
 	
