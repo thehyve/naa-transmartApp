@@ -110,6 +110,12 @@ class OntologyController {
         def dataTypeInfo = exportMetadataService.getHighDimMetaData(term)
         model.dataTypeInfo = dataTypeInfo.dataTypes
 
+        //study info
+        model.studyId = term.study.id;
+
+        //user
+        model.userId = springSecurityService.principal.id;
+
         render template: 'showDefinition', model: model
     }
 
