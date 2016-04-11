@@ -112,9 +112,11 @@ class OntologyController {
 
         //study info
         model.studyId = term.study.id;
+        model.studyName = term.name;
 
         //user
         model.userId = springSecurityService.principal.id;
+        model.userName = springSecurityService.principal.username;
 
         render template: 'showDefinition', model: model
     }

@@ -25,6 +25,8 @@
     <h2>Access:</h2>
     <a href="${ grailsApplication.config.requestStudyAccessUrl
                     .replaceAll("\\{studyId\\}", studyId)
-                    .replaceAll("\\{userId\\}", userId.toString()) }"
+                    .replaceAll("\\{studyName\\}", studyName)
+                    .replaceAll("\\{userId\\}", userId.toString())
+                    .replaceAll("\\{userName\\}", userName)}"
        target="_blank">Request access</a>
 </g:if>
