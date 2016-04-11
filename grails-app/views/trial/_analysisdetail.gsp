@@ -21,11 +21,21 @@
 	<tbody>
 		<tr class="prop">
 			<td valign="top" class="name" style="text-align: right">Title:</td>
-			<td valign="top" class="value">${fieldValue(bean:analysis, field:'shortDescription')}</td>
+			<!-- <td valign="top" class="value">${fieldValue(bean:analysis, field:'shortDescription')}</td>-->
+			<td valign="top" class="value">${raw(analysis?.shortDescription)}</td>
+			
+		</tr>
+		<tr class="prop">
+			<td valign="top" class="name" style="text-align: right">Data Loaded:</td>
+			<td valign="top" class="value">${fieldValue(bean:analysis, field:'createDate')}</td>
 		</tr>
 		<tr class="prop">
 			<td valign="top" class="name" style="text-align: right">Analysis Description:</td>
-			<td valign="top" class="value">${fieldValue(bean:analysis, field:'longDescription')}</td>
+			<td valign="top" class="value">${raw(analysis?.longDescription)}</td>
+		</tr>
+		<tr class="prop">
+			<td valign="top" class="name" style="text-align: right">Diseases:</td>
+			<td valign="top" class="value"><g:each in="${analysis.diseases}" var="disease"><li><g:meshLineage disease="${disease}"/></li></g:each></td>
 		</tr>
 		<g:if test='${"comparison".equals(analysis.analysisMethodCode)}'>
 			<tr class="prop">
@@ -52,6 +62,68 @@
 		<tr class="prop">
 			<td valign="top" class="name" style="text-align: right">Data type:</td>
 			<td valign="top" class="value">${fieldValue(bean:analysis, field:'assayDataType')}</td>
+		</tr>
+		<!--  GWAS new analysis fields for Q4 2015 Pfizer release -->
+		<tr class="prop">
+			<td valign="top" class="name" style="text-align: right">Update Of:</td>
+			<td valign="top" class="value">${analysis?.updateOf?.shortDescription}</td>
+		</tr>
+		<!-- <tr class="prop">
+			<td valign="top" class="name" style="text-align: right">Effect Type:</td>
+			<td valign="top" class="value">${fieldValue(bean:analysisExt, field:'effectType')}</td>
+		</tr> -->
+		<tr class="prop">
+			<td valign="top" class="name" style="text-align: right">Effect Units:</td>
+			<td valign="top" class="value">${fieldValue(bean:analysisExt, field:'effectUnits')}</td>
+		</tr>
+		<!-- <tr class="prop">
+			<td valign="top" class="name" style="text-align: right">Effect Error 1 Type:</td>
+			<td valign="top" class="value">${fieldValue(bean:analysisExt, field:'effectError1Type')}</td>
+		</tr>
+		<tr class="prop">
+			<td valign="top" class="name" style="text-align: right">Effect Error 2 Type:</td>
+			<td valign="top" class="value">${fieldValue(bean:analysisExt, field:'effectError2Type')}</td>
+		</tr> -->
+		<tr class="prop">
+			<td valign="top" class="name" style="text-align: right">Effect Error Description:</td>
+			<td valign="top" class="value">${fieldValue(bean:analysisExt, field:'effectErrorDesc')}</td>
+		</tr>
+		<tr class="prop">
+			<td valign="top" class="name" style="text-align: right">Trait Description:</td>
+			<td valign="top" class="value">${fieldValue(bean:analysisExt, field:'traits')}</td>
+		</tr>
+		<tr class="prop">
+			<td valign="top" class="name" style="text-align: right">Standardized trait:</td>
+			<td valign="top" class="value"></td>
+		</tr>
+		<tr class="prop">
+			<td valign="top" class="name" style="text-align: right">Scientific contact:</td>
+			<td valign="top" class="value">${fieldValue(bean:analysisExt, field:'dataOwner')}</td>
+		</tr>
+		<tr class="prop">
+			<td valign="top" class="name" style="text-align: right">Percent male:</td>
+			<td valign="top" class="value">${fieldValue(bean:analysisExt, field:'percentMale')}</td>
+		</tr>
+		<!-- new fields 01/27/12 -->
+		<tr class="prop">
+			<td valign="top" class="name" style="text-align: right">Population:</td>
+			<td valign="top" class="value">${fieldValue(bean:analysisExt, field:'population')}</td>
+		</tr>
+		<tr class="prop">
+			<td valign="top" class="name" style="text-align: right">Sample Size:</td>
+			<td valign="top" class="value">${fieldValue(bean:analysisExt, field:'sampleSize')}</td>
+		</tr>
+		<tr class="prop">
+			<td valign="top" class="name" style="text-align: right">Tissue:</td>
+			<td valign="top" class="value">${fieldValue(bean:analysisExt, field:'tissue')}</td>
+		</tr>
+		<tr class="prop">
+			<td valign="top" class="name" style="text-align: right">Model Name:</td>
+			<td valign="top" class="value">${fieldValue(bean:analysisExt, field:'modelName')}</td>
+		</tr>
+		<tr class="prop">
+			<td valign="top" class="name" style="text-align: right">Model Description:</td>
+			<td valign="top" class="value">${fieldValue(bean:analysisExt, field:'modelDescription')}</td>
 		</tr>
 	</tbody>
 </table>

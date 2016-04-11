@@ -32,6 +32,7 @@ import fm.FmFolder
 import org.transmart.SearchResult
 import org.transmart.biomart.BioAssayAnalysis
 import org.transmart.biomart.Experiment
+import org.transmart.biomart.Content
 
 class ExperimentAnalysisController {
 
@@ -247,7 +248,8 @@ class ExperimentAnalysisController {
         request.getSession().setAttribute("gridtable", table);
 
         log.info "formLayout = " + formLayout
-        render(template: '/experiment/expDetail', model: [layout: formLayout, experimentInstance: exp, expPlatforms: platforms, expOrganisms: organisms, search: 1, jSONForGrid: jSONToReturn2, jSONForGrid1: jSONToReturn1])
+		Content pubContent = Content.findByEtlIdC(exp.etlId);
+        render(template: '/experiment/expDetail', model: [layout: formLayout, experimentInstance: exp, expPlatforms: platforms, expOrganisms: organisms, search: 1, jSONForGrid: jSONToReturn2, jSONForGrid1: jSONToReturn1, pub: pubContent])
     }
 
     def getAnalysis = {
@@ -329,7 +331,7 @@ class ExperimentAnalysisController {
 	 * This will render a UI where the user can pick an experiment from a list of all the experiments in the system. Selection of multiple studies is allowed.
 	 */
 	def browseAnalysisMultiSelect = {
-			def analyses = org.transmart.biomart.BioAssayAnalysis.executeQuery("select id, name, etlId from BioAssayAnalysis b order by b.name");
+			def analyses = org.transmart.biomart.BioAssayAnalysis.executeQuery("select id, name, etlId from BioAssayAnalysis b where assayDataType in ('GWAS', 'EQTL', 'Metabolic GWAS', 'GWAS Fail') order by b.name");//"select id, name, etlId from BioAssayAnalysis b order by b.name");
 	 		render(template:'browseMulti',model:[analyses:analyses])
 	}
    

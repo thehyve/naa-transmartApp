@@ -42,14 +42,14 @@
 			&nbsp;
 		</th>
 		<th class="menuBar" style="width: 150px"><g:if test="${'rwg' == app || 'datasetExplorer' == app}"><select id="search-categories"></select></g:if></th>
-		<th class="menuBar" style="width: 160px"><g:if test="${'rwg' == app || 'datasetExplorer' == app}"><input id="search-ac"/></input></g:if></th>
+		<th class="menuBar" style="width: 160px"><g:if test="${'rwg' == app || 'datasetExplorer' == app}"><input id="search-ac" placeholder="type search here"/></input></g:if></th>
 		<th class="menuBar" style="width: 110px">
 			<g:if test="${'rwg' == app}">
 				<div id="cartbutton" class="greybutton">
 		   			<%-- <g:remoteLink controller="export" action="selection" update="${overlayExportDiv}" 
 		                            params="[eleId:overlayExportDiv]" 
 		                            before="initLoadingDialog('${overlayExportDiv}')" onComplete="centerDialog('${overlayExportDiv}')">--%>
-					<img src="${resource(dir:'images', file:'cart.png')}"/> Export Cart
+					<img src="${resource(dir:'images', file:'cart.png')}"/> Export Files Cart
 					<%-- </g:remoteLink>--%>
 					<div id="cartcount">${exportCount ?: 0}</div>
 				</div>

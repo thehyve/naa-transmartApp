@@ -6,8 +6,8 @@ import groovy.util.logging.Slf4j
 
 import javax.annotation.PostConstruct
 
-import org.transmartproject.db.dataquery.highdim.snp_lz.DeRcSnpInfo
-import org.transmartproject.db.dataquery.highdim.snp_lz.DeSnpInfo
+import org.transmartproject.db.dataquery.highdim.snp_lz.GenotypeProbeAnnotation;
+import org.transmartproject.db.dataquery.highdim.snp_lz.DeSnpGeneMap;
 
 @Slf4j
 @Cacheable('org.transmartproject.FilterAutocompleteService')
@@ -20,20 +20,20 @@ class FilterAutocompleteService {
 	/**
 	 * Returns a sorted list of maximum {@link #max_results} 
 	 * gene names, starting with <code>search</code>.
-	 * Gene names are fetched from the {@link DeRcSnpInfo} data type.
+	 * Gene names are fetched from the {@link DeSnpGeneMap} data type.
 	 * 
 	 * @param search The start segment used in the query.
 	 * @return a list of gene names, starting with <code>search</code>.
 	 */
     private List<String> autoCompleteGene(String search) {
-        DetachedCriteria query = DeRcSnpInfo
+        DetachedCriteria query = DeSnpGeneMap
             .where { geneName ==~ "${search}%" }
 		query
 			.max(max_results)
 			.order('geneName')
             .list {
                 projections {
-                  distinct('geneName')  
+                  distinct('geneName')
                 }
             }
     }
@@ -41,26 +41,26 @@ class FilterAutocompleteService {
 	/**
 	 * Returns a sorted list of maximum {@link #max_results}
 	 * Single Nucleotide Polymorphism (SNP) names, starting with <code>search</code>.
-	 * SNP names are fetched from the {@link DeSnpInfo} data type.
+	 * SNP names are fetched from the {@link GenotypeProbeAnnotation} data type.
 	 *  
 	 * @param search The start segment used in the query.
 	 * @return a list of gene names, starting with <code>search</code>.
 	 */
     private List<String> autoCompleteSnp(String search) {
-        DetachedCriteria query = DeSnpInfo
-            .where { name ==~ "${search}%" }
+        DetachedCriteria query = GenotypeProbeAnnotation
+            .where { snpName ==~ "${search}%" }
 		query
 			.max(max_results)
-			.order('name')
+			.order('snpName')
             .list {
                 projections {
-                  distinct('name')
+                  distinct('snpName')
                 }
             }
     }
 
     void register(String type, Closure<List<String>> f) {
-        log.info "Registring autocompleter for type ${type}..."
+        log.info "Registering autocompleter for type ${type}..."
         registry[type] = f
     }
 
@@ -87,7 +87,7 @@ class FilterAutocompleteService {
 	 * @return a list with strings, starting with <code>search</code>.
 	 */
     public List<String> autocomplete(String type, String search) {
-        log.info "Autocomplete for type $type: '$search'"
+        log.debug "Autocomplete for type $type: '$search'"
         registry[type] ? registry[type](search) : []
     }
 
