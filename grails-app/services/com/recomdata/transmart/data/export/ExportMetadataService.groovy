@@ -122,19 +122,29 @@ class ExportMetadataService {
         def terms = term.getAllDescendants() + term
         def highDimTerms = terms.findAll { it.visualAttributes.contains(HIGH_DIMENSIONAL) }
 
-        // Put all high dimensional term keys in a disjunction constraint
-        def constraint = highDimensionResourceService.createAssayConstraint(
-                AssayConstraint.DISJUNCTION_CONSTRAINT,
-                subconstraints: [
-                        (AssayConstraint.ONTOLOGY_TERM_CONSTRAINT):
-                                highDimTerms.collect({ [concept_key: it.key ] })
-                ]
-        )
+        if (highDimTerms) {
+            // Put all high dimensional term keys in a disjunction constraint
+            def constraint = highDimensionResourceService.createAssayConstraint(
+                    AssayConstraint.DISJUNCTION_CONSTRAINT,
+                    subconstraints: [
+                            (AssayConstraint.ONTOLOGY_TERM_CONSTRAINT):
+                                    highDimTerms.collect({
+                                        [concept_key: it.key]
+                                    })
+                    ]
+            )
 
-        def datatypes = highDimensionResourceService.getSubResourcesAssayMultiMap([constraint])
-        def dataTypeDescriptions = datatypes.keySet().collect({ it.dataTypeDescription })
+            def datatypes = highDimensionResourceService.getSubResourcesAssayMultiMap([constraint])
+            def dataTypeDescriptions = datatypes.keySet().collect({
+                it.dataTypeDescription
+            })
 
-        [ dataTypes: dataTypeDescriptions ]
+            [ dataTypes: dataTypeDescriptions ]
+        }
+        else {
+            // No high dimensional data found for this term
+            [ dataTypes: ["No high dimensional data found"] ]
+        }
     }
 
     /**
