@@ -87,7 +87,7 @@ class FilterAutocompleteService {
 	 * @return a list with strings, starting with <code>search</code>.
 	 */
     public List<String> autocomplete(String type, String search) {
-        log.info "Autocomplete for type $type: '$search'"
+        log.debug "Autocomplete for type $type: '$search'"
         registry[type] ? registry[type](search) : []
     }
 

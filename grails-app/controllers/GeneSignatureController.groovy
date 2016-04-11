@@ -21,6 +21,7 @@
 import com.recomdata.genesignature.FileSchemaException
 import com.recomdata.genesignature.WizardModelDetails
 import com.recomdata.util.DomainObjectExcelHelper
+
 import org.transmart.biomart.BioAssayPlatform
 import org.transmart.biomart.CellLine
 import org.transmart.biomart.Compound
@@ -31,6 +32,7 @@ import org.transmart.searchapp.GeneSignature
 import org.transmart.searchapp.GeneSignatureFileSchema
 import org.transmart.searchapp.SearchKeyword
 import org.transmart.searchapp.SearchKeywordTerm
+import org.transmartproject.core.users.User
 
 import javax.servlet.ServletOutputStream
 
@@ -44,6 +46,8 @@ class GeneSignatureController {
     // service injections
     def geneSignatureService
     def springSecurityService
+    def auditLogService
+    User currentUserBean
 
     // concept code categories
     static def SOURCE_CATEGORY = "GENE_SIG_SOURCE"
@@ -436,6 +440,21 @@ class GeneSignatureController {
         try {
             gs = geneSignatureService.saveWizard(gs, file)
 
+            GeneSignature sig = gs
+            auditLogService.report("New Gene Signature", request,
+                action: actionName,
+                user: currentUserBean,
+                filename: file?.originalFilename,
+                size: gs
+            )
+
+            auditLogService.report("New Gene Signature", request,
+                action: actionName,
+                user: currentUserBean,
+                filename: file?.originalFilename,
+                size: gs.geneSigItems.size()
+            )
+
             // clean up session
             wizard = null
             session.setAttribute(WIZ_DETAILS_ATTRIBUTE, wizard)
@@ -546,6 +565,13 @@ class GeneSignatureController {
 		// good to go, call save service
 		try {
 			gs = geneSignatureService.saveWizard(gs, file)
+
+                        auditLogService.report("New Gene_RSID List", request,
+                            action: actionName,
+                            user: currentUserBean,
+                            filename: file?.originalFilename,
+                            size: gs.geneSigItems.size()
+                        )
 
 			// clean up session
 			wizard = null
