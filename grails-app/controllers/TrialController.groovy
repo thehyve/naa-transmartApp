@@ -29,6 +29,7 @@ import grails.converters.JSON
 import org.transmart.SearchResult
 import org.transmart.biomart.BioAssayAnalysis
 import org.transmart.biomart.BioAssayAnalysisExt;
+import org.transmart.biomart.Content;
 import org.transmart.biomart.ClinicalTrial
 import org.transmart.biomart.Experiment
 import org.transmart.searchapp.SearchKeyword
@@ -155,8 +156,8 @@ class TrialController {
                 }
 
             } else {
-
-                render(template: '/experiment/expDetail', model: [experimentInstance: exp, searchId: skid])
+				Content pubContent = Content.findByEtlIdC(exp.etlId);
+                render(template: '/experiment/expDetail', model: [experimentInstance: exp, searchId: skid, pub: pubContent])
             }
 
 

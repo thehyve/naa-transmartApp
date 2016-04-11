@@ -165,6 +165,13 @@
                        <g:elseif test="${experimentInstance?.description != null}">
                        ${experimentInstance?.description}
                        </g:elseif></div>
+
+ <g:if test="${pub?.getAbsolutePath() != null}">
+<br><div style="line-height:14px;font-family:arial,​tahoma,​helvetica,​sans-serif; font-color:#515BA2; font-size: 12px;">Publications:&nbsp; 					
+                       <a href="${pub?.getAbsolutePath()}" target="_BLANK" >${pub?.getAbsolutePath()}</a>
+</div>                     
+</g:if>
+                  
 <div style="height:20px;"></div>
 
 <div style="width:800px; border:2px solid #DDD; border-radius:8px;-moz-border-radius: 8px;">
