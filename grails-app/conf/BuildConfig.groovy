@@ -18,6 +18,16 @@ grails.project.fork = [
         console: forkSettingsOther]
 
 grails.project.war.file = "target/${appName}.war"
+// comment below if not needed
+grails.plugin.location.'rdc-rmodules' = '../Rmodules'
+grails.plugin.location.'gex'='../tranSMART-Analyst-Module'
+grails.plugin.location.'transmart-rest-api'='../transmart-rest-api'
+grails.plugin.location.'search-domain' = '../transmart-extensions/search-domain'
+grails.plugin.location.'biomart-domain' = '../transmart-extensions/biomart-domain'
+grails.plugin.location.'transmart-core' = '../transmart-core-db'
+grails.plugin.location.'transmart-gwas' = '../transmart-gwas'
+grails.plugin.location.'folder-management' = '../folder-management'
+// comment above if not needed
 
 /* we need at least servlet-api 2.4 because of HttpServletResponse::setCharacterEncoding */
 grails.servlet.version = "2.5"
