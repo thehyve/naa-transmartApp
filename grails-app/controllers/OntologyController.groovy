@@ -95,9 +95,11 @@ class OntologyController {
 
         //study info
         def studyId = term.study.id;
+        def studyName = term.name;
 
         //user
         def userId = springSecurityService.principal.id;
+        def userName = springSecurityService.principal.username;
 
         //Check for study by visual attributes
             if (node.visualattributes.contains("S")) {
@@ -119,12 +121,16 @@ class OntologyController {
                                                       metaDataTagItems: metaDataTagItems,
                                                       dataTypeInfo: dataTypeInfo.dataTypes,
                                                       studyId: studyId,
-                                                      userId: userId])
+                                                      studyName: studyName,
+                                                      userId: userId,
+                                                      userName: userName])
             } else {
                 render(template: 'showDefinition', model: [tags: node.tags,
                                                            dataTypeInfo: dataTypeInfo.dataTypes,
                                                            studyId: studyId,
-                                                           userId: userId])
+                                                           studyName: studyName,
+                                                           userId: userId,
+                                                           userName: userName])
 		}
 	}
 	

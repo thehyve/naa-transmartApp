@@ -286,4 +286,4 @@ grails.plugin.springsecurity.oauthProvider.accessTokenLookup.className = 'org.tr
 grails.plugin.springsecurity.oauthProvider.refreshTokenLookup.className = 'org.transmart.oauth2.RefreshToken'
 
 // Url to request access to a study
-// requestStudyAccessUrl = 'mailto:support@thehyve.nl?subject=Request for access to study&body=Please give me, user {userId}, access to study {studyId}.'
+// requestStudyAccessUrl = 'mailto:support@thehyve.nl?subject=Request for access to study&body=Please give me, user {userName} ({userId}), access to study {studyName} ({studyId}).'
