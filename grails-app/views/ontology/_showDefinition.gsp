@@ -33,8 +33,8 @@
                 </table>
                 </g:else>
 
-<g:if test="${dataTypeInfo}">
-  <g:render template="showDataTypes" model="dataTypeInfo"/>
+<g:if test="${dataTypes}">
+  <g:render template="showDataTypes" model="dataTypes"/>
 </g:if>
 <g:if test="${grailsApplication.config.requestStudyAccessUrl}">
     <br/>

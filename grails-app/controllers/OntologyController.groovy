@@ -119,14 +119,14 @@ class OntologyController {
                 render(template: 'showStudy', model: [folder: folder,
                                                       bioDataObject: study,
                                                       metaDataTagItems: metaDataTagItems,
-                                                      dataTypeInfo: dataTypeInfo.dataTypes,
+                                                      dataTypes: dataTypeInfo.dataTypes,
                                                       studyId: studyId,
                                                       studyName: studyName,
                                                       userId: userId,
                                                       userName: userName])
             } else {
                 render(template: 'showDefinition', model: [tags: node.tags,
-                                                           dataTypeInfo: dataTypeInfo.dataTypes,
+                                                           dataTypes: dataTypeInfo.dataTypes,
                                                            studyId: studyId,
                                                            studyName: studyName,
                                                            userId: userId,
