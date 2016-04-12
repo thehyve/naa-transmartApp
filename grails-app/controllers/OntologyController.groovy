@@ -5,6 +5,9 @@ import org.transmart.biomart.Experiment
 import org.transmart.searchapp.AuthUser
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.OntologyTerm
+import org.transmartproject.core.users.User
+import javax.annotation.Resource
+import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.BUILD_COHORT
 
 class OntologyController {
 
@@ -16,6 +19,9 @@ class OntologyController {
     def amTagItemService
     ConceptsResource conceptsResourceService
     def exportMetadataService
+
+    @Resource
+    User currentUserBean
 
     def showOntTagFilter= {
     		def tagtypesc=[]
@@ -101,6 +107,9 @@ class OntologyController {
         def userId = springSecurityService.principal.id;
         def userName = springSecurityService.principal.username;
 
+        //access
+        def hasAccess = currentUserBean.canPerform(BUILD_COHORT, term.study)
+
         //Check for study by visual attributes
             if (node.visualattributes.contains("S")) {
                 def accession = node.sourcesystemcd
@@ -123,14 +132,16 @@ class OntologyController {
                                                       studyId: studyId,
                                                       studyName: studyName,
                                                       userId: userId,
-                                                      userName: userName])
+                                                      userName: userName,
+                                                      hasAccess: hasAccess])
             } else {
                 render(template: 'showDefinition', model: [tags: node.tags,
                                                            dataTypes: dataTypeInfo.dataTypes,
                                                            studyId: studyId,
                                                            studyName: studyName,
                                                            userId: userId,
-                                                           userName: userName])
+                                                           userName: userName,
+                                                           hasAccess: hasAccess])
 		}
 	}
 	
