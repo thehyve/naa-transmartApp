@@ -108,7 +108,7 @@ class OntologyController {
 
         //data type info of all descendants
         def dataTypeInfo = exportMetadataService.getHighDimMetaData(term)
-        model.dataTypeInfo = dataTypeInfo.dataTypes
+        model.dataTypes = dataTypeInfo.dataTypes
 
         //study info
         model.studyId = term.study.id;

@@ -1,4 +1,4 @@
-<g:if test="${!subResourcesAssayMultiMap && !tags && !browseStudyInfo && !dataTypeInfo}">
+<g:if test="${!subResourcesAssayMultiMap && !tags && !browseStudyInfo && !dataTypes}">
     <g:message code="show.definition.noInfo" default="No Information Found"/>
 </g:if>
 <g:else>
@@ -16,8 +16,8 @@
     <g:if test="${browseStudyInfo}">
         <g:render template="showBrowseStudyInfo" model="browseStudyInfo"/>
     </g:if>
-    <g:if test="${dataTypeInfo}">
-        <g:render template="showDataTypes" model="dataTypeInfo"/>
+    <g:if test="${dataTypes}">
+        <g:render template="showDataTypes" model="dataTypes"/>
     </g:if>
 </g:else>
 <g:if test="${grailsApplication.config.requestStudyAccessUrl}">
