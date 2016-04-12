@@ -20,7 +20,7 @@
         <g:render template="showDataTypes" model="dataTypes"/>
     </g:if>
 </g:else>
-<g:if test="${grailsApplication.config.requestStudyAccessUrl}">
+<g:if test="${grailsApplication.config.requestStudyAccessUrl && !hasAccess}">
     <br/>
     <h2>Access:</h2>
     <a href="${ grailsApplication.config.requestStudyAccessUrl
