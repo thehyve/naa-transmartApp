@@ -126,7 +126,10 @@ class OntologyController {
         model.userName = springSecurityService.principal.username;
 
         //access
-        model.hasAccess = currentUserBean.canPerform(READ, term.study)
+        def user = AuthUser.findByUsername(springSecurityService.principal.username)
+        def parentKey = term.key.split("\\\\")[0..-2].join("\\")
+        def access = i2b2HelperService.getChildrenWithAccessForUserNew(parentKey, user)
+        model.hasAccess = access[term.fullName] != 'Locked'
 
         render template: 'showDefinition', model: model
     }
