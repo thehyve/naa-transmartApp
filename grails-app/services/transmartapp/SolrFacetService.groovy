@@ -20,8 +20,6 @@
 
 package transmartapp
 
-import fm.FmFolder
-import fm.FmFolderAssociation
 import grails.util.Holders
 import groovy.util.slurpersupport.NoChildren
 import groovy.util.slurpersupport.NodeChild
@@ -29,6 +27,8 @@ import groovy.xml.StreamingMarkupBuilder
 import org.json.JSONObject
 import org.transmart.biomart.BioMarker
 import org.transmart.biomart.BioMarkerExpAnalysisMV
+import org.transmartproject.browse.fm.FmFolder
+import org.transmartproject.browse.fm.FmFolderAssociation
 
 class SolrFacetService {
 

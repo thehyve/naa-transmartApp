@@ -1,5 +1,3 @@
-import fm.FmFile
-import fm.FmFolder
 import grails.converters.JSON
 import groovy.time.TimeCategory
 import groovy.xml.StreamingMarkupBuilder
@@ -10,6 +8,8 @@ import org.transmart.searchapp.AccessLog
 import org.transmart.searchapp.AuthUser
 import org.transmart.searchapp.SearchKeyword
 import org.transmart.searchapp.SearchTaxonomy
+import org.transmartproject.browse.fm.FmFile
+import org.transmartproject.browse.fm.FmFolder
 
 //import bio.BioAnalysisAttribute
 //import RWGVisualizationDAO
