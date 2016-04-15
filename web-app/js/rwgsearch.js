@@ -1,8 +1,565 @@
-////////////////////////////////////////////////////////////////////
-// Globals
-// Store the current search terms in an array in format ("category display|category:term") where category display is the display term i.e. Gene, Disease, etc.
+//# sourceURL=rwgsearch.js
+
+window.rwgModel = {
+    jquery: jQuery({}),
+
+    on: function rwgModel_on(eventName, func) {
+        this.jquery.on(eventName, function() {
+            /* don't call callback with event object as first argument */
+            Array.prototype.shift.apply(arguments);
+            func.apply(this, arguments);
+        });
+        return this;
+    },
+    onWithEvent: function rwgModel_on() {
+        debugger;
+        this.jquery.on.apply(this.jquery, arguments);
+        return this;
+    },
+    trigger: function rwgModel_trigger() {
+        if (arguments.length == 2 && arguments[1] instanceof Array) {
+            arguments = [arguments[0], [arguments[1]]];
+        }
+        this.jquery.trigger.apply(this.jquery, arguments);
+        return this;
+    },
+
+    /**
+     * {
+     *   operator: 'AND' | 'OR',
+     *   fieldTerms: {
+     *     <field name>: {
+     *       operator: 'AND' | 'OR'
+     *       searchTerms: [
+     *         {
+     *           literalTerm: <>,
+     *           luceneTerm: <>,
+     *         }
+     *       ]
+     *     }
+     *   }
+     */
+    searchSpecification: {
+        operator: 'AND',
+        fieldTerms: {},
+    },
+    addSearchTerm: function rwgModel_addSearchTerm(fieldName, value, literal) {
+        literal = literal || false;
+        var fieldTerm = this.searchSpecification.fieldTerms[fieldName];
+        var searchTerm;
+
+        if (!fieldTerm) {
+            fieldTerm = this.searchSpecification.fieldTerms[fieldName] = {
+                operator: 'OR',
+                searchTerms: [],
+            };
+        }
+        if (literal) {
+            searchTerm = { literalTerm: value };
+        } else {
+            searchTerm = { luceneTerm: value };
+        }
+
+        // don't do nothing if the term is already there
+        var prev = fieldTerm.searchTerms.find(function(el) {
+            return el.literalTerm == searchTerm.value &&
+            el.luceneTerm == searchTerm.luceneTerm;
+        });
+        if (prev) {
+            return;
+        }
+
+        fieldTerm.searchTerms.push(searchTerm);
+
+        this.trigger('search_specification', this.searchSpecification);
+    },
+    removeSearchTerm: function rwgModel_removeSearchTerm(fieldName, value, literal) {
+        var searchTerm;
+        var fieldSpec = this.searchSpecification.fieldTerms[fieldName];
+        if (!fieldSpec) {
+            console.error('Cannot remove term for field, no such field with terms: ' + fieldName);
+            return;
+        }
+
+        if (literal) {
+            searchTerm = { literalTerm: value };
+        } else {
+            searchTerm = { luceneTerm: value };
+        }
+
+
+        fieldSpec.searchTerms = fieldSpec.searchTerms.filter(function(el) {
+            return searchTerm.literalTerm != el.literalTerm ||
+                searchTerm.luceneTerm != el.luceneTerm;
+        });
+        if (fieldSpec.searchTerms.length == 0) {
+        	delete this.searchSpecification.fieldTerms[fieldName];
+        }
+
+        this.trigger('search_specification', this.searchSpecification);
+    },
+    alterSearchSpecification: function rwgModel_alterSearchSpecification(func) {
+        // generic function for changes in searchSpecification,
+        // with notification at the end
+        func(this.searchSpecification);
+        this.trigger('search_specification', this.searchSpecification);
+    },
+    clearSearchTerms: function rwgSearch_clearSearchTerms() {
+        this.searchSpecification.fieldTerms = {};
+        this.trigger('search_specification', this.searchSpecification);
+
+        this.currentFilterResults = undefined;
+        this.returnedConcepts = undefined;
+        this.returnedFolders = undefined;
+    },
+    _returnedFolders: undefined, // ids only
+    get returnedFolders() { return this._returnedFolders; },
+    set returnedFolders(v) {
+        this._returnedFolders = v;
+        this.trigger('folder_list', v);
+    },
+    _returnedConcepts: undefined, // concept paths
+    get returnedConcepts() { return this._returnedConcepts; },
+    set returnedConcepts(v) {
+        this._returnedConcepts = v;
+        this.trigger('concepts_list', v);
+    },
+
+    _searchCategories: undefined, /* as gotten from service, map from field name to display name */
+    get searchCategories() { return this._searchCategories; },
+    set searchCategories(v) {
+        this._searchCategories = v;
+        this.trigger('search_categories', v);
+    },
+    _currentCategory: undefined, /* field name */
+    get currentCategory() { return this._currentCategory; },
+    set currentCategory(v) {
+        this._currentCategory = v;
+        this.trigger('current_category', v);
+    },
+
+    _startingFilterResults: undefined, /* as returned by getTopTerms */
+    get startingFilterResults() { return this._startingFilterResults; },
+    set startingFilterResults(v) {
+        this._startingFilterResults = v;
+        if (!this.currentFilterResults) {
+            this.trigger('current_filters', v);
+        }
+    },
+    _currentFilterResults: undefined,  /* same format; null to use startingFilterResults  */
+    get currentFilterResults() { return this._currentFilterResults; },
+    set currentFilterResults(v) {
+    	var prevValue = this._currentFilterResults;
+        this._currentFilterResults = v;
+        if (v) { /* new current value */
+            this.trigger('current_filters', v);
+        } else if (prevValue) {
+        	this.trigger('current_filters', this.startingFilterResults);
+        }
+    },
+
+    serialize: function rwgModel_serialize() {
+        var keys = ['searchCategories',
+                    'currentCategory',
+                    'startingFilterResults',
+                    'searchSpecification'];
+        var res = {};
+        keys.forEach(function(k) { res[k] = this[k]; }.bind(this));
+        return JSON.stringify(res);
+    },
+    unserialize: function rwgModel_unserialize(str) {
+        try {
+            var obj = JSON.parse(str);
+        } catch (e) {
+            console.error('Error reading rwgModel saved data', e);
+            return;
+        }
+        Object.keys(obj).forEach(function(k) { this[k] = obj[k]; }.bind(this));
+        this.trigger('search_specification', this.searchSpecification);
+    },
+};
+
+window.rwgView = {
+    searchCategoriesEl: /* #search-categories */ undefined,
+    searchInputEl:      /* #search-ac */         undefined,
+    filterBrowserEl:    /* #filter-browser */    undefined,
+    boxSearchEl:        /* #box-search */        undefined,
+    activeSearchEl:     /* #active-search-div */ undefined, // child of box-search
+    globalOperatorEl:   /* #globaloperator */    undefined,
+    clearFiltersEl:     /* #clearbutton */       undefined,
+
+    init: function rwgView_init() {
+        // find elements
+        this.searchCategoriesEl = jQuery('#search-categories');
+        this.searchInputEl      = jQuery('#search-ac');
+        this.filterBrowserEl    = jQuery('#filter-browser');
+        this.boxSearchEl        = jQuery('#box-search');
+        this.activeSearchEl     = jQuery('#active-search-div');
+        this.globalOperatorEl   = jQuery('#globaloperator');
+        this.clearFiltersEl     = jQuery('#clearbutton');
+
+        this.bindToModel();
+        this.bindUIEvents();
+        var loadedFromStorage = false;
+        if (sessionStorage.getItem('rwgModel')) {
+            storedRwgModel = sessionStorage.getItem('rwgModel');
+            rwgModel.unserialize(storedRwgModel);
+            loadedFromStorage = true;
+        }
+        jQuery(window).unload(function() {
+            sessionStorage.setItem('rwgModel', rwgModel.serialize());
+        });
+
+        if (rwgModel.searchCategories === undefined) {
+            rwgController.fetchCategories();
+        }
+        if (rwgModel.startingFilterResults === undefined) {
+            rwgController.fetchStartingFilterResults();
+        }
+    },
+
+    bindToModel: function rwgView_bindToModel() {
+        rwgModel.on('current_category',     this.currentCategoryChanges.bind(this));
+        rwgModel.on('search_categories',    this.searchCategoriesChange.bind(this));
+        rwgModel.on('current_filters',      this.currentFilterResultsChange.bind(this));
+        rwgModel.on('search_specification', this.searchSpecificationChanges.bind(this));
+        rwgModel.on('search_specification', this.selectedFiltersChange.bind(this));
+        rwgModel.on('search_specification', function(data) { rwgController.performSearch(data); });
+    },
+    bindUIEvents: function rwgView_bindUIEvents() {
+        this.activeSearchBindEvents();
+        this.filterItemsBindEvents();
+    },
+
+    searchCategoriesChange: function rwgView_searchCategoriesChange(searchCategories) {
+        var addCategory = function addCategory(field, text) {
+            var el = jQuery('<option></option>')
+                .attr('value', field)
+                .text(text);
+
+            this.searchCategoriesEl.append(el)
+        }.bind(this);
+
+        for (var category in searchCategories) {
+            addCategory(category, searchCategories[category]);
+        }
+
+        // bind events
+        this.searchCategoriesEl.unbind('change');
+        this.searchCategoriesEl.change(function() {
+            rwgController.changeCurrentCategory(this.searchCategoriesEl.val());
+        }.bind(this));
+
+        (function rwgView_setupAutocomplete() {
+            this.searchInputEl.autocomplete({
+                position: { my: 'left top', at: 'left bottom', collision: 'none' },
+                // source set in currentCategoryChanges
+                minLength: 1,
+                select: function (event, ui) {
+                    rwgController.addSearchTerm(ui.item.category, ui.item.value, true);
+                    this.searchInputEl.val('');
+                    return false;
+                }.bind(this),
+            }).data("uiAutocomplete")._renderItem = function(ul, item) {
+                var a = jQuery('<a>');
+                var span = jQuery('<span>')
+                    .text(searchCategories[item.category] + '>');
+                var b = jQuery('<b>').text(item.value);
+                a.append(span).append(document.createTextNode(' ')).append(b);
+
+                return jQuery('<li>')
+                    .data("item.autocomplete", item)
+                    .append(a)
+                    .appendTo(ul);
+            };
+
+            // Capture the enter key on the slider and fire off the search event on the autocomplete
+            this.searchCategoriesEl.unbind('keypress');
+            this.searchCategoriesEl.keypress(function(event) {
+                if (event.which == 13) {
+                    this.searchInputEl.autocomplete('search');
+                }
+            });
+
+            this.searchInputEl.unbind('keypress');
+            this.searchInputEl.keypress(function(event) {
+                if (event.which != 13) {
+                    return true;
+                }
+
+                rwgController.addSearchTerm(rwgModel.currentCategory, this.searchInputEl.val(), false);
+                this.searchInputEl.val('');
+                return false;
+            }.bind(this));
+        }.bind(this))();
+    },
+    currentCategoryChanges: function rwgView_currentCategoryChanges(currentCategory) {
+        this.searchCategoriesEl.val(currentCategory);
+        this.searchInputEl.autocomplete('option',
+            'source', rwgURLs.rwgAutoComplete + "?category=" + encodeURIComponent(currentCategory));
+    },
+    currentFilterResultsChange: function rwgView_currentFilterResultsChange(currentResults) {
+        function addField(fieldData) {
+            var category = fieldData.category;
+            var choices = fieldData.choices;
+            var choices = fieldData.choices;
+            var titleDiv = jQuery('<div>')
+                .addClass('filtertitle')
+                .attr('name', category.field)
+                .text(category.displayName);
+
+            var contentDiv = jQuery('<div>')
+                .addClass('filtercontent')
+                .data('fieldName', category.field)
+                .hide();
+
+            choices.forEach(function(ch) {
+                var newItem = jQuery('<div></div>')
+                    .addClass('filteritem')
+                    .data('fieldName', category.field)
+                    .data('value', ch.value)
+                    .text(ch.value + ' (' + ch.count + ')');
+                contentDiv.append(newItem);
+            });
+
+            this.filterBrowserEl.append(titleDiv);
+            this.filterBrowserEl.append(contentDiv);
+        }
+
+		this.filterBrowserEl.find('.filtertitle, .filtercontent').remove();
+        currentResults.forEach(addField.bind(this));
+        this.selectedFiltersChange(rwgModel.searchSpecification);
+        this.filterBrowserEl.removeClass('ajaxloading');
+    },
+    selectedFiltersChange: function rwgView_selectedFiltersChange(searchSpecification) {
+        // clear current selected classes
+        this.filterBrowserEl.find('.selected').each(function() {
+            jQuery(this).removeClass('selected');
+        });
+        var filterTitles = this.filterBrowserEl.find('.filtertitle');
+
+        Object.keys(searchSpecification.fieldTerms).forEach(function(fieldName) {
+            var searchTerms = searchSpecification.fieldTerms[fieldName].searchTerms || [];
+            var titleElement = filterTitles.filter(function() {
+                return jQuery(this).attr('name') == fieldName;
+            });
+            if (titleElement.size() == 0) {
+                return;
+            }
+
+            searchTerms.forEach(function(searchTerm) {
+                titleElement
+                    .next('.filtercontent')
+                    .children('.filteritem')
+                    .filter(function() {
+                        var jq = jQuery(this);
+                        return jq.data('value') == searchTerm.literalTerm;
+                    })
+                    .addClass('selected')
+                    .parent() // also make sure the filter content is being show
+                    .show();
+            });
+        });
+    },
+    filterItemsBindEvents: function rwgView_filterItemsBindEvents() {
+        this.filterBrowserEl.on('click', '.filteritem', function () {
+            var jq = jQuery(this);
+            var selecting = !jq.hasClass('selected');
+            if (selecting) {
+                rwgController.addSearchTerm(jq.data('fieldName'), jq.data('value'), true);
+            } else {
+                rwgController.removeSearchTerm(jq.data('fieldName'), jq.data('value'), true);
+            }
+        });
+        this.filterBrowserEl.on('click', '.filtertitle', function () {
+            jQuery(this).next('.filtercontent').toggle('fast');
+        });
+
+    },
+
+    searchSpecificationChanges: function rwgView_searchSpecificationChanges(searchSpecification) {
+        if (searchSpecification.operator == 'AND') {
+            this.globalOperatorEl.attr('class', 'andor and');
+        } else {
+            this.globalOperatorEl.attr('class', 'andor or');
+        }
+
+        var elements = [];
+        function createSpacer(operator) {
+            return jQuery('<span>')
+                .addClass('spacer')
+                .text(operator == 'AND' ? 'and ' : 'or ')
+        }
+        function addCategory(fieldName, specs) {
+            if (elements.length > 0) { // not the first category
+                var separator = jQuery('<span>')
+                    .addClass('category_join')
+                    .append(document.createTextNode(searchSpecification.operator))
+                    .append(jQuery('<span class="h_line"></span>'))
+                elements.push(separator);
+            }
+
+            var title = jQuery('<span>')
+                .addClass('category_label')
+                .text(rwgModel.searchCategories[fieldName] + '\u00A0>');
+            elements.push(title, document.createTextNode('\u00A0'));
+
+            specs.searchTerms.forEach(function(term, i) {
+                if (i > 0) {
+                    elements.push(createSpacer(specs.operator));
+                }
+
+                var value = term.literalTerm ? term.literalTerm : term.luceneTerm;
+                var term = jQuery('<span>')
+                    .addClass('term')
+                    .addClass(term.literalTerm ? 'literal-term' : 'lucene-term')
+                    .text((term.literalTerm ? term.literalTerm : term.luceneTerm) + '\u00A0')
+                    .append(
+                        jQuery('<a href="#">')
+                            .addClass('term-remove')
+                            .data('termValue', value)
+                            .data('termLiteral', term.literalTerm ? true : false)
+                            .data('fieldName', fieldName)
+                            .append(jQuery('<img alt="remove">')
+                                .attr('src', window.rwgURLs.crossImage)
+                                .data('fieldName', fieldName)))
+                    .append(document.createTextNode('\u00A0'))
+                elements.push(term);
+            });
+            if (specs.searchTerms.length > 1) {
+                elements.push(
+                    jQuery('<div>')
+                        .addClass('andor')
+                        .addClass(specs.operator == 'AND' ? 'and' : 'or')
+                        .data('fieldName', fieldName)
+                        .text('\u00A0'));
+            }
+        }
+
+        Object.keys(searchSpecification.fieldTerms).forEach(function(fieldName) {
+            addCategory.call(this, fieldName, searchSpecification.fieldTerms[fieldName]);
+        }.bind(this));
+
+        this.activeSearchEl.empty();
+        this.activeSearchEl.append(elements);
+    },
+    
+    activeSearchBindEvents: function rwgView_activeSearchBindEvents() {
+        this.boxSearchEl.on('click', '.andor', function() {
+            var jq = jQuery(this);
+            if (jq.attr('id') == 'globaloperator') {
+                rwgController.switchGlobalOperator();
+            } else {
+                rwgController.switchFieldOperator(jq.data('fieldName'));
+            }
+        });
+
+        this.boxSearchEl.on('click', '.term-remove', function() {
+            var jq = jQuery(this);
+            rwgController.removeSearchTerm(jq.data('fieldName'), jq.data('termValue'), jq.data('termLiteral'));
+        });
+
+        this.clearFiltersEl.click(rwgController.clearSearchTerms.bind(rwgController));
+    },
+};
+
+window.rwgController = {
+    flyingSearch: undefined,
+
+    fetchCategories: function rwgController_fetchCategories() {
+        jQuery.ajax({
+            url: window.rwgURLs.getSearchCategories,
+            dataType: 'json',
+        }).then(function(json) {
+            var data = { 'ALL': 'All' };
+            jQuery.extend(data, json);
+            rwgModel.searchCategories = data;
+            rwgModel.currentCategory = 'ALL'; /* reset field after fetching categories */
+        }).fail(function(jqhr) { console.error('Failed getting search categories', jqhr); });
+    },
+    fetchStartingFilterResults: function rwgController_fetchStartingFilterResults() {
+        jQuery.ajax({
+            url: window.rwgURLs.getFilterCategories,
+            dataType: 'json',
+        }).then(function(json) {
+            rwgModel.startingFilterResults = json;
+        }).fail(function(jqhr) { console.error('Failed getting filter categories', jqhr); })
+    },
+    changeCurrentCategory: function rwgController_changeCurrentCategory(fieldName) {
+        rwgModel.currentCategory = fieldName;
+    },
+    addSearchTerm: function rwgController_addSearchterm(fieldName, value, literal) {
+        rwgModel.addSearchTerm(fieldName, value, literal);
+    },
+    removeSearchTerm: function rwgController_removeSearchTerm(fieldName, value, literal) {
+        rwgModel.removeSearchTerm(fieldName, value, literal);
+    },
+    clearSearchTerms: function rwgController_clearSearchTerms() {
+        rwgModel.clearSearchTerms();
+    },
+    switchGlobalOperator: function rwgController_switchGlobalOperator() {
+        rwgModel.alterSearchSpecification(function(spec) {
+            spec.operator = spec.operator === 'AND' ? 'OR' : 'AND';
+        });
+    },
+    switchFieldOperator: function rwgController_switchFieldOperator(fieldName) {
+        rwgModel.alterSearchSpecification(function(spec) {
+            var fieldSpec = spec.fieldTerms[fieldName];
+            if (fieldSpec === undefined) {
+                console.error('Try to swap field operator for field with no search terms: ' + fieldName);
+                return;
+            }
+            fieldSpec.operator = fieldSpec.operator === 'AND' ? 'OR' : 'AND';
+        });
+    },
+    performSearch: function rwgController_performSearch(searchSpecification) {
+        if (this.flyingSearch) {
+            this.flyingSearch.abort();
+        }
+
+        if (Object.keys(searchSpecification.fieldTerms).length == 0) {
+        	// nothing to search
+        	rwgModel.returnedFolders = undefined;
+        	rwgModel.returnedConcepts = undefined;
+        	rwgModel.currentFilterResults = undefined;
+
+            window.GLOBAL.PathToExpand = '';
+            getCategories();
+        	return;
+        }
+
+        this.flyingSearch = jQuery.ajax({
+            method: 'POST',
+            url: window.rwgURLs.getFacetResults,
+            dataType: 'json',
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify(searchSpecification),
+        }).then(function getFacetResults_success(json) {
+            rwgModel.returnedFolders = json['folderIds'];
+            rwgModel.returnedConcepts = json['conceptKeys'];
+            rwgModel.currentFilterResults = json['facets'];
+            // create new list with concepts that are a prefix of some other
+            // this is called 'unique leaves' in the codebase, even though
+            // they are not necessarily leaves
+            var uniqueLeaves = json['conceptKeys'].filter(function(el) {
+                // keep only if there's no other element for which this is a prefix
+                return !json['conceptKeys'].find(function(it) { return el != it && it.startsWith(el); });
+            });
+            if (window.searchByTagComplete) {
+                // dataset explorer
+                searchByTagComplete({
+                    searchResults: json['conceptKeys'],
+                    uniqueLeaves: uniqueLeaves,
+                });
+            }
+        }).fail(function(jqhr) {
+            console.error('Failed getting search categories', jqhr); }
+        ).always(function() { this.flyingSearch = undefined;}.bind(this));
+    }
+};
+
 var currentCategories = new Array();
-var currentSearchOperators = new Array(); //AND or OR - keep in line with currentCategories
+var currentSearchOperators = new Array(); //AND or OR - keep, in line with currentCategories
 var currentSearchTerms = new Array(); 
 
 // Store the nodes that were selected before a new node was selected, so that we can compare to the nodes that are selected after.  Selecting
@@ -31,23 +588,17 @@ function addSelectCategories()	{
 	});
 	
 	jQuery.getJSON(getCategoriesURL, function(json) {
-		for (var i=0; i<json.length; i++)	{
-			var category = json[i].category;
-			var catText = convertCategory(category);
-			jQuery("#search-categories").append(jQuery("<option></option>").attr("value", category).text(catText));
+		for (category in json) {
+			jQuery("#search-categories")
+				.append(
+					jQuery("<option></option>")
+						.attr("value", category)
+						.text(json[category]));
 		}
-		
-		jQuery("#search-categories").html(jQuery("option", jQuery("#search-categories")).sort(function(a, b) { 
-	        return a.text == b.text ? 0 : a.text < b.text ? -1 : 1 
-	    }))
-		
-		jQuery("#allCategory").after(jQuery("<option></option>").attr("value", "text").text("Free Text"));
 		
 		jQuery("#search-categories").val(sessionSearchCategory);
 		jQuery('#search-ac').autocomplete('option', 'source', sourceURL + "?category=" + jQuery('#search-categories').val());
-
     });
-	
 }
 
 function addFilterCategories() {
@@ -55,15 +606,18 @@ function addFilterCategories() {
 		for (var i=0; i<json.length; i++)	{
 			var category = json[i].category;
 			var choices = json[i].choices;
-			var titleDiv = jQuery("<div></div>").addClass("filtertitle").attr("name", category.category).text(category.displayName);
-			var contentDiv = jQuery("<div></div>").addClass("filtercontent").attr("name", category.category).attr("style", "display: none");
+			var titleDiv = jQuery("<div></div>").addClass("filtertitle").attr("name", category.field).text(category.displayName);
+			var contentDiv = jQuery("<div></div>").addClass("filtercontent").attr("name", category.field).attr("style", "display: none");
 			for (var j=0; j < choices.length; j++) {
 				var choice = choices[j];
 				
-				var newItem = jQuery("<div></div>").addClass("filteritem").attr("name", category.category).attr("id", choice.uid).text(choice.name);
+				var newItem = jQuery("<div></div>")
+					.addClass("filteritem")
+					.attr("name", category.field)
+					.text(choice.value + ' (' + choice.count + ')');
 				
 				//If this has been selected, highlight it
-				var idString = '[id="' + category.displayName + "|" + category.category + ";" + choice.name + ";" + choice.uid + '"]';
+				var idString = '[id="' + category.displayName + "|" + category.field + ";" + choice.value + '"]';
 				idString = idString.replace(/,/g, "%44").replace(/&/g, "%26"); //Replace commas and ampersands
 				var element = jQuery(idString);
 				if (element.size() > 0) {
@@ -125,24 +679,10 @@ function addSearchAutoComplete()	{
 			searchParam={id:val,display:categoryText,keyword:val,category:category};
 			addSearchTerm(searchParam);
 			return false;
-			jQuery('#search-ac').empty();
+            jQuery('#search-ac').empty();
 		}
 	});
 	return false;
-}
-
-//Helper method to only capitalize the first letter of each word
-function convertCategory(valueToConvert)	{
-	var convertedValue = valueToConvert.toLowerCase();
-	if (convertedValue == "genesig") {
-		return "Gene Signature";
-	}if (convertedValue == "genelist") {
-		return "Gene List";
-	}
-	if (convertedValue == "species") {
-		return "Organism";
-	}
-	return convertedValue.slice(0,1).toUpperCase() + convertedValue.slice(1);
 }
 
 //Add the search term to the array and show it in the panel.
@@ -316,8 +856,8 @@ function showSearchResults(openInAnalyze, datasetExplorerPath)	{
 
 //Method to load the facet results in the search tree and populate search results panel
 function showFacetResults(openInAnalyze, datasetExplorerPath)	{
-	if(openInAnalyze==undefined){
-		openInAnalyze=false;
+	if(openInAnalyze == undefined){
+		openInAnalyze = false;
 	}
 	var globalLogicOperator = "AND";
 	if (jQuery('#globaloperator').hasClass("or")) { globalLogicOperator = "OR" }
@@ -583,43 +1123,43 @@ function unselectFilterItem(id) {
 // ---
 
 jQuery(document).ready(function() {
-	
+
 	jQuery('#sidebartoggle').click(function() {
 		toggleSidebar();
     });
 	
 	
 	
-	jQuery('#filter-browser').on('click', '.filtertitle', function () {
-		jQuery('.filtercontent[name="' + jQuery(this).attr('name') + '"]').toggle('fast');
-	});
+	//jQuery('#filter-browser').on('click', '.filtertitle', function () {
+	//	jQuery('.filtercontent[name="' + jQuery(this).attr('name') + '"]').toggle('fast');
+	//});
+	//
 	
-	
-	jQuery('#filter-browser').on('click', '.filteritem', function () {
-		var selecting = !jQuery(this).hasClass('selected');
-		jQuery(this).toggleClass('selected');
-		
-		var name = jQuery(this).attr('name');
-		var id = jQuery(this).attr('id');
-		var category = jQuery('.filtertitle[name="' + name + '"]').text();
-		var value = jQuery(this).text();
-		
-		//If selecting this filter, add it to the list of current filters
-		if (selecting) {
-			var searchParam={id:id,
-			        display:category,
-			        keyword:value,
-			        category:name};
-			
-			addSearchTerm(searchParam);
-		}
-		else {
-			var idString = '[id="' + category + "|" + name + ";" + value + ";" + id + '"]';
-			idString = idString.replace(/,/g, "%44").replace(/&/g, "%26"); //Replace special characters!
-			var element = jQuery(idString);
-			removeSearchTerm(element[0]);
-		}
-	});
+	//jQuery('#filter-browser').on('click', '.filteritem', function () {
+	//	var selecting = !jQuery(this).hasClass('selected');
+	//	jQuery(this).toggleClass('selected');
+	//
+	//	var name = jQuery(this).attr('name');
+	//	var id = jQuery(this).attr('id');
+	//	var category = jQuery('.filtertitle[name="' + name + '"]').text();
+	//	var value = jQuery(this).text();
+	//
+	//	//If selecting this filter, add it to the list of current filters
+	//	if (selecting) {
+	//		var searchParam={id:id,
+	//		        display:category,
+	//		        keyword:value,
+	//		        category:name};
+	//
+	//		addSearchTerm(searchParam);
+	//	}
+	//	else {
+	//		var idString = '[id="' + category + "|" + name + ";" + value + ";" + id + '"]';
+	//		idString = idString.replace(/,/g, "%44").replace(/&/g, "%26"); //Replace special characters!
+	//		var element = jQuery(idString);
+	//		removeSearchTerm(element[0]);
+	//	}
+	//});
 	
     jQuery('body').on('mouseenter', '.folderheader', function() {
 		jQuery(this).find('.foldericonwrapper').fadeIn(150);
@@ -717,32 +1257,32 @@ jQuery(document).ready(function() {
 		});
 	});
 	
-    jQuery('#box-search').on('click', '.andor', function() {
+    //jQuery('#box-search').on('click', '.andor', function() {
+    	//
+    	//if (jQuery(this).attr('id') == 'globaloperator') {
+    	//	//For global switch, just alter the class - this is picked up later
+    	//    if (jQuery(this).hasClass("or")) {
+    	//    	jQuery(this).removeClass("or").addClass("and");
+    	//    }
+    	//    else {
+    	//    	jQuery(this).removeClass("and").addClass("or");
+    	//    }
+    	//    showSearchTemplate();
+    	//    showSearchResults();
+    	//}
+    	//else {
+    	//	//For individual categories, alter this index of the current search operators, then redisplay
+	//	    if (jQuery(this).hasClass("or")) {
+	//	    	currentSearchOperators[jQuery(this).attr('name')] = 'and';
+	//	    }
+	//	    else {
+	//	    	currentSearchOperators[jQuery(this).attr('name')] = 'or';
+	//	    }
+	//	    showSearchTemplate();
+	//	    showSearchResults();
+    	//}
+	//});
     	
-    	if (jQuery(this).attr('id') == 'globaloperator') {
-    		//For global switch, just alter the class - this is picked up later
-    	    if (jQuery(this).hasClass("or")) {
-    	    	jQuery(this).removeClass("or").addClass("and");
-    	    }
-    	    else {
-    	    	jQuery(this).removeClass("and").addClass("or");
-    	    }
-    	    showSearchTemplate();
-    	    showSearchResults();
-    	}
-    	else {
-    		//For individual categories, alter this index of the current search operators, then redisplay
-		    if (jQuery(this).hasClass("or")) {
-		    	currentSearchOperators[jQuery(this).attr('name')] = 'and'
-		    }
-		    else {
-		    	currentSearchOperators[jQuery(this).attr('name')] = 'or'
-		    }
-		    showSearchTemplate();
-		    showSearchResults();
-    	}
-	});
-
 
 	jQuery('#metadata-viewer').on('click', '.addassay', function() {
 
@@ -1007,15 +1547,17 @@ jQuery(document).ready(function() {
 		jQuery('#filter-browser').fadeToggle();
 	});
 	
-    addSelectCategories();
-    addFilterCategories();
-    addSearchAutoComplete();
+    //addSelectCategories();
+    //addFilterCategories();
+    //addSearchAutoComplete();
+    jQuery(document).ready(window.rwgView.init.bind(window.rwgView));
+
     
     //Trigger a search immediately if RWG. Dataset Explorer does this on Ext load
-    loadSearchFromSession();
-    if (searchPage == 'RWG') {
-		showSearchResults();
-	}
+    //loadSearchFromSession();
+    //if (searchPage == 'RWG') {
+		//showSearchResults();
+    //}
 });
 
 function loadSearchFromSession() {

@@ -1,3 +1,5 @@
+//# sourceURL=rwg.js
+
 // store probe Ids for each analysis that has been loaded
 var analysisProbeIds = new Array();
 

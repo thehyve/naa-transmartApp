@@ -235,6 +235,9 @@ table.menuDetail th.menuVisited {
 	line-height: 1.4em;
 }
 
+.literal-term {
+    font-style: italic;
+}
 
 .term-remove img a:hover {
 	text-decoration:none;

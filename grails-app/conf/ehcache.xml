@@ -3,7 +3,7 @@
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="ehcache.xsd">
 
-    <diskStore path="java.io.tmpdir"/>
+<diskStore path="java.io.tmpdir"/>
 
     <cacheManagerEventListenerFactory class="" properties=""/>
 
@@ -148,4 +148,7 @@
         timeToIdleSeconds="300"
         />
 
+    <cache name="misc_cache"
+           maxElementsInMemory="10000"
+           timeToIdleSeconds="300" />
 </ehcache>

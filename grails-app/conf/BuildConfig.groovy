@@ -34,6 +34,8 @@ if (dmClass) {
 }
 
 grails.project.dependency.resolution = {
+    legacyResolve true
+
     // inherit Grails' default dependencies
     inherits("global") {}
     log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
@@ -172,6 +174,8 @@ dm?.with {
 }
 
 dm?.inlineInternalDependencies grails, grailsSettings
+
+grails.plugin.location.'transmart-solr-indexing' = "./transmart-solr-indexing"
 
 grails.war.resources = { stagingDir ->
     delete(file: "${stagingDir}/WEB-INF/lib/servlet-api-${grails.servlet.version}.jar")
