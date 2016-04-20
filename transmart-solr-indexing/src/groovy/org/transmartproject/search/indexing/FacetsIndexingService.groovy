@@ -15,6 +15,7 @@ import org.springframework.beans.factory.InitializingBean
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.Ordered
 import org.springframework.stereotype.Component
+import org.transmartproject.core.concept.ConceptFullName
 
 import static org.transmartproject.search.indexing.FacetsFieldImpl.create
 import static org.transmartproject.search.indexing.FacetsFieldImpl.create
@@ -28,13 +29,14 @@ class FacetsIndexingService implements InitializingBean {
     public static final String FIELD_NAME_FILE_PATH = 'FILE_PATH'
     public static final String FIELD_NAME_FOLDER_ID = 'FOLDER_ID'
     public static final String FIELD_NAME_SUBTYPE = 'SUBTYPE'
+    public static final String FIELD_NAME_TEXT = 'TEXT'
     public static final String FIELD_NAME_CONCEPT_PATH = 'CONCEPT_PATH'
     public static final String FIELD_NAME__VERSION_ = '_version_'
 
     public static final int CONCEPT_PATH_FIELD_PRECEDENCE = -1
 
     public static final FacetsFieldImpl FIELD_TEXT = create(
-            'TEXT', false, 'Full Text', Ordered.HIGHEST_PRECEDENCE, FacetsFieldType.TEXT)
+            FIELD_NAME_TEXT, false, 'Full Text', Ordered.HIGHEST_PRECEDENCE, FacetsFieldType.TEXT)
     public static final FacetsFieldImpl FIELD_FOLDER_ID = create(
             FIELD_NAME_FOLDER_ID, true, 'Folder id', Ordered.LOWEST_PRECEDENCE, FacetsFieldType.INTEGER)
     public static final FacetsFieldImpl FIELD_CONCEPT_PATH = create(
@@ -274,6 +276,11 @@ class FacetsIndexingService implements InitializingBean {
             }
 
             inputDoc.addField fs.fieldName, obj
+
+            // also copy final component of concept path to TEXT
+            if (fs.fieldName == FIELD_NAME_CONCEPT_PATH && entry.value) {
+                inputDoc.addField(FIELD_NAME_TEXT, new ConceptFullName(entry.value)[-1])
+            }
         }
         inputDoc.addField(FIELD_NAME_ID, doc.facetsDocId.toString())
         inputDoc.addField(FIELD_NAME_TYPE, doc.facetsDocId.type)

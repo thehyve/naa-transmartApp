@@ -29,7 +29,7 @@ class FacetsQueryingServiceTests {
     void testGetAllDisplaySettings() {
         def allSettings = facetsQueryingService.allDisplaySettings
 
-        assert allSettings.size() == 33
+        assert allSettings.size() == 34
 
         def firstEntry = allSettings.entrySet()[0]
 

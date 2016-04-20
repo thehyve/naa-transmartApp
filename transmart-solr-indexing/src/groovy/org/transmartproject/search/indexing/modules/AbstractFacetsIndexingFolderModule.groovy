@@ -125,7 +125,7 @@ abstract class AbstractFacetsIndexingFolderModule<T> implements FacetsIndexingMo
     Set<FacetsDocument> collectDocumentsWithIds(Set<FacetsDocId> docIds) {
         def tableIds = docIds
                 .findAll { it.type == docType }
-                .collect { "FOL:${it.id}" }
+                .collect { "FOL:${it.id}".toString() }
 
         if (!tableIds) {
             return [] as Set

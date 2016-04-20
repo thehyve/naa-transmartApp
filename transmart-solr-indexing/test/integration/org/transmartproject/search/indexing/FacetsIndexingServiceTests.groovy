@@ -111,13 +111,34 @@ class FacetsIndexingServiceTests {
     }
 
     @Test
-    void testManagedTagsAreIndexed() {
+    void testManagedTagsAreIndexedWithFolder() {
         indexingService.indexByIds([
                 new FacetsDocId('FOLDER:1992448'),
                 new FacetsDocId('FOLDER:1992451')] as Set)
 
         assert countDocuments('test_analyzed_tag_t:Option') == 1
         assert countDocuments('programming_language_s:*') == 2
+    }
+
+    @Test
+    void testManagedTagsAreIndexedWithoutFolderLink() {
+        indexingService.indexByIds([
+                new FacetsDocId('CONCEPT:\\Public Studies\\GSE13732\\'),] as Set)
+        assert countDocuments('programming_language_s:Python AND id:CONCEPT\\:*') == 1
+    }
+
+    @Test
+    void testDataTypesAreIndexedWithFolder() {
+        indexingService.indexByIds([
+                new FacetsDocId('FOLDER:1992448'),] as Set)
+        assert countDocuments('data_type_s:"Messenger RNA data (Microarray)" AND id:FOLDER\\:1992448') == 1
+    }
+
+    @Test
+    void testDataTypesAreIndexedWithoutFolderLink() {
+        indexingService.indexByIds([
+                new FacetsDocId('CONCEPT:\\Public Studies\\GSE13732\\'),] as Set)
+        assert countDocuments('data_type_s:"Messenger RNA data (Microarray)" AND id:CONCEPT\\:*') == 1
     }
 
     @Test

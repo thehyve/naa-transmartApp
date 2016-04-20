@@ -18,11 +18,11 @@ import static org.transmartproject.search.indexing.FacetsIndexingService.*
 @Component
 class ConceptNamesIndexingModule implements FacetsIndexingModule {
 
-    public static final String CONCEPT_DOCUMENT_TYPE = 'CONCEPT'
+    public static final String CONCEPT_DOC_TYPE = 'CONCEPT'
 
     final String name = 'concept_names'
 
-    final Set<String> supportedDocumentTypes = ImmutableSet.of(CONCEPT_DOCUMENT_TYPE)
+    final Set<String> supportedDocumentTypes = ImmutableSet.of(CONCEPT_DOC_TYPE)
 
     private static final String FOLDER_CONCEPT_MAPPINGS_CACHE = 'FacetsIndexCache'
     private static final String UNMANAGED_TAGS_CACHE_KEY_PREFIX = 'unamanaged_tags_'
@@ -46,7 +46,7 @@ class ConceptNamesIndexingModule implements FacetsIndexingModule {
 
     @Override
     Iterator<FacetsDocId> fetchAllIds(String type) {
-        if (type != CONCEPT_DOCUMENT_TYPE) {
+        if (type != CONCEPT_DOC_TYPE) {
             return [] as Set
         }
 
@@ -61,14 +61,14 @@ class ConceptNamesIndexingModule implements FacetsIndexingModule {
                 }
                 def el = toProcess.pop()
                 toProcess += el.children
-                new FacetsDocId(CONCEPT_DOCUMENT_TYPE, el.fullName)
+                new FacetsDocId(CONCEPT_DOC_TYPE, el.fullName)
             }
         }
     }
 
     @Override
     Set<FacetsDocument> collectDocumentsWithIds(Set<FacetsDocId> docIds) {
-        docIds.findAll { it.type == CONCEPT_DOCUMENT_TYPE }. collect { docId ->
+        docIds.findAll { it.type == CONCEPT_DOC_TYPE }. collect { docId ->
             ConceptFullName fullName = new ConceptFullName(docId.id)
             def builder = FacetsDocument.newFieldValuesBuilder()
 
