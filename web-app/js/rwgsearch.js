@@ -140,11 +140,12 @@ window.rwgModel = {
         this.trigger('current_category', v);
     },
 
-    _startingFilterResults: undefined, /* as returned by getTopTerms */
-    get startingFilterResults() { return this._startingFilterResults; },
+    requiredField: null,
+    _startingFilterResults: {}, /* map required field -> data returned by getTopTerms */
+    get startingFilterResults() { return this._startingFilterResults[this.requiredField]; },
     set startingFilterResults(v) {
-        this._startingFilterResults = v;
-        if (!this.currentFilterResults) {
+        this._startingFilterResults[this.requiredField] = v;
+        if (!this.currentFilterResults && v !== undefined) {
             this.trigger('current_filters', v);
         }
     },
@@ -163,7 +164,7 @@ window.rwgModel = {
     serialize: function rwgModel_serialize() {
         var keys = ['searchCategories',
                     'currentCategory',
-                    'startingFilterResults',
+                    '_startingFilterResults',
                     'searchSpecification'];
         var res = {};
         keys.forEach(function(k) { res[k] = this[k]; }.bind(this));
@@ -177,6 +178,7 @@ window.rwgModel = {
             return;
         }
         Object.keys(obj).forEach(function(k) { this[k] = obj[k]; }.bind(this));
+        this.startingFilterResults = this.startingFilterResults; /* maybe trigger event */
         this.trigger('search_specification', this.searchSpecification);
     },
 };
@@ -192,12 +194,14 @@ window.rwgView = {
     noResultsEl:        /* #noAnalyzeResults */  undefined,
 
     config: {
+        requiredField: undefined,
         onConceptsListChanges: function() {},
         onFoldersListChanges: function() {},
     },
 
     init: function rwgView_init(config) {
         this.config = jQuery.extend(this.config, config);
+        window.rwgModel.requiredField = this.config.requiredField;
 
         // find elements
         this.searchCategoriesEl = jQuery('#search-categories');
@@ -225,7 +229,7 @@ window.rwgView = {
             rwgController.fetchCategories();
         }
         if (rwgModel.startingFilterResults === undefined) {
-            rwgController.fetchStartingFilterResults();
+            rwgController.fetchStartingFilterResults(rwgModel.requiredField);
         }
 
         if (!loadedFromStorage) {
@@ -239,7 +243,7 @@ window.rwgView = {
         rwgModel.on('current_filters',      this.currentFilterResultsChange.bind(this));
         rwgModel.on('search_specification', this.searchSpecificationChanges.bind(this));
         rwgModel.on('search_specification', this.selectedFiltersChange.bind(this));
-        rwgModel.on('search_specification', function(data) { rwgController.performSearch(data); });
+        rwgModel.on('search_specification', function(data) { rwgController.performSearch(data, rwgModel.requiredField); });
         rwgModel.on('concepts_list',        this.config.onConceptsListChanges.bind(this));
         rwgModel.on('folders_list',         this.config.onFoldersListChanges.bind(this));
         rwgModel.on('search_error',         this.searchError.bind(this));
@@ -504,9 +508,10 @@ window.rwgController = {
             rwgModel.currentCategory = '*'; /* reset field after fetching categories */
         }).fail(function(jqhr) { console.error('Failed getting search categories', jqhr); });
     },
-    fetchStartingFilterResults: function rwgController_fetchStartingFilterResults() {
+    fetchStartingFilterResults: function rwgController_fetchStartingFilterResults(requiredField) {
         jQuery.ajax({
             url: window.searchURLs.getFilterCategories,
+            data: { requiredField: requiredField },
             dataType: 'json',
         }).then(function(json) {
             rwgModel.startingFilterResults = json;
@@ -539,10 +544,11 @@ window.rwgController = {
             fieldSpec.operator = fieldSpec.operator === 'AND' ? 'OR' : 'AND';
         });
     },
-    performSearch: function rwgController_performSearch(searchSpecification) {
+    performSearch: function rwgController_performSearch(searchSpecification, requiredField) {
         if (this.flyingSearch) {
             this.flyingSearch.abort();
         }
+        var data = jQuery.extend({ requiredField: requiredField }, searchSpecification);
 
         if (Object.keys(searchSpecification.fieldTerms).length == 0) {
         	// nothing to search
@@ -562,7 +568,7 @@ window.rwgController = {
             url: window.searchURLs.getFacetResults,
             dataType: 'json',
             contentType: 'application/json; charset=utf-8',
-            data: JSON.stringify(searchSpecification),
+            data: JSON.stringify(data),
         }).then(function getFacetResults_success(json) {
             rwgModel.returnedFolders = json['folderIds'];
             rwgModel.returnedConcepts = json['conceptKeys'];

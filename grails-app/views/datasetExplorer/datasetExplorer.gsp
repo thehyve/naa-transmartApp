@@ -121,9 +121,10 @@
     var $j = jQuery.noConflict();
     Ext.BLANK_IMAGE_URL = "${resource(dir:'js', file:'ext/resources/images/default/s.gif')}";
 
-    window.rwgSearchConfig = {
-        onConceptsListChanges: function() { window.datasetExplorer_conceptsListChanges.apply(this, arguments); },
-    };
+        window.rwgSearchConfig = {
+            requiredField: 'CONCEPT_PATH',
+            onConceptsListChanges: function() { window.datasetExplorer_conceptsListChanges.apply(this, arguments); },
+        };
         var dseOpenedNodes = "${dseOpenedNodes}";
         var dseClosedNodes = "${dseClosedNodes}";
 

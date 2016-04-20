@@ -21,6 +21,7 @@
     var sessionOperators = "${rwgSearchOperators}";
     var sessionSearchCategory = "${rwgSearchCategory}";
     window.rwgSearchConfig = {
+        requiredField: 'FOLDER_ID',
         onFoldersListChanges: function() { window.rwg_onFoldersListChanges.apply(this, arguments); },
     };
 

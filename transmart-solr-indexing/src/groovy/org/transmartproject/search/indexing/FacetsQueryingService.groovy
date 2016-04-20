@@ -4,11 +4,9 @@ import com.google.common.collect.ImmutableSet
 import com.google.common.collect.Sets
 import grails.plugin.cache.ehcache.GrailsEhcacheCacheManager
 import groovy.util.logging.Log4j
-import net.sf.ehcache.Cache
 import net.sf.ehcache.CacheException
 import net.sf.ehcache.Ehcache
 import net.sf.ehcache.Status
-import net.sf.ehcache.config.CacheConfiguration
 import net.sf.ehcache.loader.CacheLoader
 import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.request.LukeRequest
@@ -16,12 +14,11 @@ import org.apache.solr.client.solrj.response.LukeResponse
 import org.apache.solr.client.solrj.response.QueryResponse
 import org.apache.solr.common.luke.FieldFlag
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation.DependsOn
 import org.springframework.core.Ordered
 import org.springframework.stereotype.Component
+import org.transmartproject.core.concept.ConceptFullName
+import org.transmartproject.search.browse.FolderStudyMappingView
 import org.transmartproject.search.indexing.modules.AbstractFacetsIndexingFolderModule
-
-import javax.annotation.PostConstruct
 
 import static org.apache.solr.client.solrj.response.LukeResponse.FieldInfo.parseFlags
 import static org.transmartproject.search.indexing.FacetsFieldImpl.getDefaultDisplayName
@@ -31,7 +28,7 @@ import static org.transmartproject.search.indexing.FacetsFieldImpl.getDefaultDis
 class FacetsQueryingService {
 
     private static final String ALL_DISPLAY_SETTINGS_CACHE_KEY = 'allDisplaySettings'
-    private static final String TOP_TERMS_CACHE_KEY = 'topTerms'
+    private static final String TOP_TERMS_CACHE_KEY_PREFIX = 'topTerms'
 
     private static final String FACETS_QUERYING_SERVICE_CACHE = 'FacetsIndexCache'
 
@@ -43,9 +40,6 @@ class FacetsQueryingService {
 
     @Autowired
     private GrailsEhcacheCacheManager grailsCacheManager
-
-
-    private CacheLoader cacheLoader = new FacetsQueryingCacheLoader()
 
     private static final Set<String> BLACKLISTED_FIELD_NAMES =
             ImmutableSet.of(
@@ -61,12 +55,18 @@ class FacetsQueryingService {
         ehcache.removeAll()
     }
 
-    LinkedHashMap<String, SortedSet<TermCount>> getTopTerms() {
-        ehcache.getWithLoader(TOP_TERMS_CACHE_KEY, cacheLoader, null).objectValue
+    LinkedHashMap<String, SortedSet<TermCount>> getTopTerms(String requiredField) {
+        ehcache.getWithLoader(TOP_TERMS_CACHE_KEY_PREFIX + '_' + requiredField, [
+                load: { key ->
+                    fetchTopTerms(requiredField)
+                }] as CacheLoader, null).objectValue
     }
 
     LinkedHashMap<String, FacetsFieldDisplaySettings> getAllDisplaySettings() {
-        ehcache.getWithLoader(ALL_DISPLAY_SETTINGS_CACHE_KEY, cacheLoader, null).objectValue
+        ehcache.getWithLoader(ALL_DISPLAY_SETTINGS_CACHE_KEY, [
+                load: { key ->
+                    fetchAllDisplaySettings()
+                }] as CacheLoader, null).objectValue
     }
 
     List<String> getAllFacetFields() {
@@ -92,10 +92,10 @@ class FacetsQueryingService {
         }
     }
 
-    private LinkedHashMap<String, SortedSet<TermCount>> fetchTopTerms() {
+    private LinkedHashMap<String, SortedSet<TermCount>> fetchTopTerms(String requiredField) {
         log.info('Going to calculate top terms')
 
-        def q = new SolrQuery('*:*')
+        def q = new SolrQuery("${requiredField ?: '*'}:*")
         q.addFacetField(*allFacetFields)
         q.rows = 0
         parseFacetCounts(server.query(q))
@@ -143,55 +143,5 @@ class FacetsQueryingService {
 
     private Ehcache getEhcache() {
         grailsCacheManager.getCache(FACETS_QUERYING_SERVICE_CACHE).nativeCache
-    }
-
-    class FacetsQueryingCacheLoader implements CacheLoader {
-
-        @Override
-        Object load(Object key) throws CacheException {
-            if (key == ALL_DISPLAY_SETTINGS_CACHE_KEY) {
-                fetchAllDisplaySettings()
-            } else if (key == TOP_TERMS_CACHE_KEY) {
-                fetchTopTerms()
-            }
-        }
-
-        @Override
-        Map loadAll(Collection keys) {
-            keys.collectEntries {
-                [it, load(it)]
-            }
-        }
-
-        @Override
-        Object load(Object key, Object argument) {
-            load key
-        }
-
-        @Override
-        Map loadAll(Collection keys, Object argument) {
-            loadAll keys
-        }
-
-        @Override
-        String getName() {
-            'FacetsQueryingCacheLoader'
-        }
-
-        @Override
-        CacheLoader clone(Ehcache cache) throws CloneNotSupportedException {
-            throw new CloneNotSupportedException()
-        }
-
-        @Override
-        void init() {}
-
-        @Override
-        void dispose() throws CacheException {}
-
-        @Override
-        Status getStatus() {
-            Status.STATUS_ALIVE
-        }
     }
 }

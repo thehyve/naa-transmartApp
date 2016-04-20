@@ -52,7 +52,7 @@ class RWGNewController {
 
     // for faceting
     def getFilterCategories() {
-        render facetCountsToOutputMap(facetsQueryingService.topTerms) as JSON
+        render facetCountsToOutputMap(facetsQueryingService.getTopTerms(params.get('requiredField'))) as JSON
     }
 
     // Return search categories for the drop down
@@ -230,7 +230,7 @@ class RWGNewController {
     }
 
     private String commandToQueryString(GetFacetsCommand command, Collection<String> allFields) {
-        command.fieldTerms.collect { String fieldName, FieldTerms fieldTerms ->
+        def userString = command.fieldTerms.collect { String fieldName, FieldTerms fieldTerms ->
             if (!(fieldName in allFields) && fieldName != PSEUDO_FIELD_ALL && fieldName != FIELD_NAME_ID) {
                 throw new InvalidArgumentsException("No such field: $fieldName")
             }
@@ -258,6 +258,12 @@ class RWGNewController {
                 "($s)"
             }
         }.join(" ${command.operator} ")
+
+        if (command.requiredField) {
+            "${command.requiredField}:* AND ($userString)"
+        } else {
+            userString
+        }
     }
 
     private List facetCountsToOutputMap(LinkedHashMap<String, SortedSet<TermCount>> originalMap) {
@@ -302,6 +308,7 @@ class FieldTerms {
 
 @Validateable
 class GetFacetsCommand {
+    String requiredField
     String operator
     @BindUsing({ obj, source ->
         source['fieldTerms'].collectEntries { k, v ->
