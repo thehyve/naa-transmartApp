@@ -37,6 +37,7 @@ grails.project.dependency.resolution = {
 
         if (!dm) {
             compile ':folder-management:1.2.2-SNAPSHOT'
+            compile ':biomart-domain:1.2.2-SNAPSHOT'
             runtime ':transmart-core:1.2.2-SNAPSHOT'
             test ':transmart-core-db-tests:1.2.2-SNAPSHOT'
         } else {
@@ -47,6 +48,7 @@ grails.project.dependency.resolution = {
 
 dm?.with {
     configureInternalPlugin 'compile', 'folder-management'
+    configureInternalPlugin 'compile', 'biomart-domain'
     configureInternalPlugin 'runtime', 'transmart-core'
     configureInternalPlugin 'test', 'transmart-core-db-tests'
 }

@@ -1,3 +1,5 @@
+package org.transmartproject.search
+
 import grails.converters.JSON
 import grails.validation.Validateable
 import org.apache.solr.client.solrj.SolrQuery
@@ -9,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cache.annotation.Cacheable
 import org.transmart.biomart.BioMarker
 import org.transmartproject.core.concept.ConceptFullName
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.ontology.ConceptsResource
@@ -21,6 +24,8 @@ import org.transmartproject.search.indexing.TermCount
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
+import static org.transmartproject.search.indexing.FacetsIndexingService.*
+
 class RWGNewController {
 
     static scope = 'singleton'
@@ -28,28 +33,22 @@ class RWGNewController {
     private static final Pattern KEY_CODE_PATTERN = Pattern.compile('(?<=\\A\\\\\\\\)[^\\\\]+')
 
     FacetsQueryingService facetsQueryingService
-    FacetsIndexingService facetsIndexingService
 
     @Autowired
     ConceptsResource conceptsResource
 
-    private static final String GENE_LIST_PSEUDO_FIELD = '__gene_list'
-    private static final String GENE_SIGNATURE_PSEUDO_FIELD = '__gene_signature'
-    private static final String PATHWAY_PSEUDO_FIELD = '__pathway'
-    private static final PSEUDO_FIELDS = [GENE_LIST_PSEUDO_FIELD,
-                                          GENE_SIGNATURE_PSEUDO_FIELD,
-                                          PATHWAY_PSEUDO_FIELD]
+    private static final String PSEUDO_FIELD_GENE_LIST = '__gene_list'
+    private static final String PSEUDO_FIELD_GENE_SIGNATURE = '__gene_signature'
+    private static final String PSEUDO_FIELD_PATHWAY = '__pathway'
+    private static final String PSEUDO_FIELD_ALL = '*'
+
+    private static final PSEUDO_FIELDS = [PSEUDO_FIELD_GENE_LIST,
+                                          PSEUDO_FIELD_GENE_SIGNATURE,
+                                          PSEUDO_FIELD_PATHWAY,
+                                          PSEUDO_FIELD_ALL,]
 
     private static final Pattern LUCENE_SPECIAL_CHARACTER = ~/[\Q+-&|!(){}[]^"~*?:\\E]/
     private static final int MAX_RESULTS = 100
-    public static final String GET_FACETS_RESULT_COMMAND_SESSION_KEY = 'getFacetsResultCommand'
-
-    //Just clear the search filter and render non-null back
-    def clearSearchFilter() {
-        //session['solrSearchFilter'] = []
-        session[GET_FACETS_RESULT_COMMAND_SESSION_KEY] = null
-        render(text: "OK")
-    }
 
     // for faceting
     def getFilterCategories() {
@@ -65,23 +64,39 @@ class RWGNewController {
         } as JSON
     }
 
-    def autocomplete() {
-        def field = params.category
-        def value = params.term
+    def autocomplete(AutoCompleteCommand autoCompleteCommand) {
+        if (autoCompleteCommand.hasErrors()) {
+            throw new InvalidRequestException("bad parameters: $autoCompleteCommand.errors")
+        }
 
-        if (field == 'ALL') {
-            // not supported :(
+        if (!(autoCompleteCommand.category in facetsQueryingService.allFacetFields)) {
+            /* ALL (*) not supported :( */
             render([] as JSON)
             return
         }
 
-        // NOT IMPLEMENTED
-        def result = [
-                [
-                    category: field,
-                    value: 'not-implemented'
-                ]
-        ]
+        def q = new SolrQuery()
+        q.addFacetField(autoCompleteCommand.category)
+        q.rows = 0
+        q.facetLimit = 10
+        q.facetMinCount = 1
+        q.query = "${autoCompleteCommand.category}:${escapeSolrLiteral(autoCompleteCommand.term)}*"
+
+        // execute query
+        QueryResponse resp
+        try {
+            resp = facetsQueryingService.query(q)
+        } catch (SolrException soe) {
+            throw new UnexpectedResultException(soe);
+        }
+
+        def result = facetsQueryingService.parseFacetCounts(resp).collect { String field, SortedSet<TermCount> terms ->
+            terms.collect {
+                [category: autoCompleteCommand.category,
+                 value: it.term,
+                 count: it.count]
+            }
+        }.flatten()
 
         render result as JSON
     }
@@ -93,8 +108,8 @@ class RWGNewController {
 
         // expand __gene_list, __gene_signature and __pathway
         command.fieldTerms.findAll { e ->
-            e.key == GENE_LIST_PSEUDO_FIELD || e.key == GENE_SIGNATURE_PSEUDO_FIELD
-        }.each { e->
+            e.key == PSEUDO_FIELD_GENE_LIST || e.key == PSEUDO_FIELD_GENE_SIGNATURE
+        }.each { e ->
             e.value.searchTerms = e.value.searchTerms.collect { SearchTerm term ->
                 term.literalTerm.collect {
                     val -> expandGeneSignature(val)
@@ -102,8 +117,8 @@ class RWGNewController {
             }.flatten()
         }
         command.fieldTerms.findAll { e ->
-            e.key == PATHWAY_PSEUDO_FIELD
-        }.each { e->
+            e.key == PSEUDO_FIELD_PATHWAY
+        }.each { e ->
             e.value.searchTerms = e.value.searchTerms.collect { SearchTerm term ->
                 term.literalTerm.collect {
                     val -> expandPathway(val)
@@ -112,43 +127,28 @@ class RWGNewController {
         }
 
         // build query
+        def allFields = facetsQueryingService.allDisplaySettings.keySet()
         def q = new SolrQuery()
         q.addFacetField(*facetsQueryingService.allFacetFields)
         q.rows = MAX_RESULTS
-        q.query = commandToQueryString command
+        q.query = commandToQueryString command, allFields
 
         // execute query
         QueryResponse resp
         try {
             resp = facetsQueryingService.query(q)
         } catch (SolrException soe) {
-            throw new UnexpectedResultException(soe);
+            throw new UnexpectedResultException(soe)
         }
-
-
 
         // format output
         render([
-                numFound: resp.results.numFound,
-                docs: resp.results,
+                numFound   : resp.results.numFound,
+                docs       : resp.results,
                 conceptKeys: extractConceptKeys(resp.results),
-                folderIds: extractFolderIds(resp.results),
-                facets: facetCountsToOutputMap(facetsQueryingService.parseFacetCounts(resp))
+                folderIds  : extractFolderIds(resp.results),
+                facets     : facetCountsToOutputMap(facetsQueryingService.parseFacetCounts(resp))
         ] as JSON)
-    }
-
-    def fullReindex() {
-        facetsIndexingService.clearIndex()
-        facetsIndexingService.fullIndex()
-        facetsQueryingService.clearCaches()
-
-        render 'OK'
-    }
-
-    def clearQueryingCaches() {
-        facetsQueryingService.clearCaches()
-
-        render 'OK'
     }
 
     @Cacheable('misc_cache')
@@ -160,7 +160,7 @@ class RWGNewController {
 
     private List extractFolderIds(SolrDocumentList documentList) {
         documentList.collect {
-            it.getFieldValue(FacetsIndexingService.FIELD_NAME_FOLDER_ID)
+            it.getFieldValue(FIELD_NAME_FOLDER_ID)
         }.findAll().unique()
     }
 
@@ -169,17 +169,17 @@ class RWGNewController {
         def catsFullNameMap = categoriesFullNameMap
         documentList
                 .collect {
-                    it.getFieldValue(FacetsIndexingService.FIELD_NAME_CONCEPT_PATH)
-                }
-                .findAll()
+            it.getFieldValue(FacetsIndexingService.FIELD_NAME_CONCEPT_PATH)
+        }
+        .findAll()
                 .unique()
                 .collect {
-                    def conceptKey = guessConceptKey(it, catsFullNameMap)
-                    if (!conceptKey) {
-                        log.info("Could not determine concept key for $it")
-                    }
-                    conceptKey
-                }.findAll()
+            def conceptKey = guessConceptKey(it, catsFullNameMap)
+            if (!conceptKey) {
+                log.info("Could not determine concept key for $it")
+            }
+            conceptKey
+        }.findAll()
     }
 
     private String guessConceptKey(String conceptPath, Map<ConceptFullName, Study> catsFullNameMap) {
@@ -229,12 +229,34 @@ class RWGNewController {
         ''', [uniqueId: pathway])
     }
 
-    private String commandToQueryString(GetFacetsCommand command) {
+    private String commandToQueryString(GetFacetsCommand command, Collection<String> allFields) {
         command.fieldTerms.collect { String fieldName, FieldTerms fieldTerms ->
-            def s = fieldTerms.searchTerms.collect { SearchTerm searchTerm ->
-                searchTerm.luceneTerm ?: "\"${escapeSolrLiteral(searchTerm.literalTerm)}\""
-            }.join(" ${fieldTerms.operator} ")
-            "$fieldName:(" + s + ')'
+            if (!(fieldName in allFields) && fieldName != PSEUDO_FIELD_ALL && fieldName != FIELD_NAME_ID) {
+                throw new InvalidArgumentsException("No such field: $fieldName")
+            }
+
+            if (fieldName != PSEUDO_FIELD_ALL) {
+                def s = fieldTerms.searchTerms.collect { SearchTerm searchTerm ->
+                    searchTerm.luceneTerm ?: "\"${escapeSolrLiteral(searchTerm.literalTerm)}\""
+                }.join(" ${fieldTerms.operator} ")
+                "$fieldName:(" + s + ')'
+            } else {
+                def numberFields = allFields.findAll { it =~ /_[if]\z/ } + FIELD_NAME_FOLDER_ID
+                def textFields = allFields.findAll({ it =~ /_[st]\z/ }) +
+                        [FIELD_NAME_ID, FIELD_NAME_CONCEPT_PATH, FIELD_NAME_TEXT]
+
+                def s = fieldTerms.searchTerms.collect { SearchTerm searchTerm ->
+                    def right = searchTerm.luceneTerm ?: "\"${escapeSolrLiteral(searchTerm.literalTerm)}\""
+
+                    def isSearchForNumber = (searchTerm.luceneTerm ?: searchTerm.literalTerm)?.isDouble() ||
+                            right.find() /* 1st char */ == '['
+
+                    (isSearchForNumber ? numberFields : textFields)
+                            .collect { "$it:(" + right + ')' }.join(' OR ')
+                }.join(" ${fieldTerms.operator} ")
+
+                "($s)"
+            }
         }.join(" ${command.operator} ")
     }
 
@@ -258,6 +280,27 @@ class RWGNewController {
 }
 
 @Validateable
+class AutoCompleteCommand {
+    String category
+    String term
+
+    static constraints = {
+        category blank: false
+        term blank: false
+    }
+}
+
+@Validateable
+class FieldTerms {
+    String operator
+    List<SearchTerm> searchTerms = []
+
+    static constraints = {
+        operator inList: ['OR', 'AND']
+    }
+}
+
+@Validateable
 class GetFacetsCommand {
     String operator
     @BindUsing({ obj, source ->
@@ -277,16 +320,6 @@ class GetFacetsCommand {
         fieldTerms validator: { val, obj ->
             val.values().every { it.validate() }
         }
-    }
-}
-
-@Validateable
-class FieldTerms {
-    String operator
-    List<SearchTerm> searchTerms = []
-
-    static constraints = {
-        operator inList: ['OR', 'AND']
     }
 }
 
