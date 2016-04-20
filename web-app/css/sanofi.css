@@ -162,6 +162,10 @@ table.menuDetail th.menuVisited {
     background: #FFFFFF;
 }
 
+.search-error {
+	background-color: rgb(255,200,200) !important;
+}
+
 .boxcontent {
 	position: relative;
 	border-bottom-left-radius: 8px;

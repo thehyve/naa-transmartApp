@@ -1,7 +1,7 @@
 <%-- Set up URLs for AJAX --%>
 <script type="text/javascript" charset="utf-8">
     var searchResultsURL = "${createLink([controller:'RWG', action:'loadSearchResults'])}";
-    var facetResultsURL = "${createLink([controller:'RWG', action:'getFacetResults'])}";
+    var renderRootURL = "${createLink([controller:'RWG', action:'renderRoot'])}";
     var clearSearchFilterURL = "${createLink([controller:'RWG', action:'clearSearchFilter'])}";
     var newSearchURL = "${createLink([controller:'RWG', action:'newSearch'])}";
     var visualizationURL = "${createLink([controller:'RWG', action:'newVisualization'])}";
@@ -59,7 +59,6 @@
     var saveProgramURL = "${createLink([controller:'fmFolder',action:'saveProgram'])}";
 
     var welcomeURL = "${createLink([controller:'RWG', action:'ajaxWelcome'])}";
-    var searchLogURL = "${createLink([controller:'RWG', action:'searchLog'])}";
 
     var deleteFileURL = "${createLink([controller:'fmFolder',action:'deleteFile'])}";
     var deleteFolderURL = "${createLink([controller:'fmFolder',action:'deleteFolder'])}";
@@ -70,15 +69,8 @@
 
     var ajaxPlatformsURL = '${createLink([action:'ajaxPlatforms',controller:'fmFolder'])}';
 
-    var addNodeRwgURL = "${createLink([controller:'RWG', action:'addOpenedNodeRWG'])}";
-    var removeNodeRwgURL = "${createLink([controller:'RWG', action:'removeOpenedNodeRWG'])}";
-    var resetNodesRwgURL = "${createLink([controller:'RWG', action:'resetOpenedNodes'])}";
-
-    var addNodeDseURL = "${createLink([controller:'RWG', action:'addOpenedNodeDSE'])}";
-    var removeNodeDseURL = "${createLink([controller:'RWG', action:'removeOpenedNodeDSE'])}";
-
     //
-    window.rwgURLs = {
+    window.searchURLs = {
         rwgAutoComplete: "${createLink([controller:'RWGNew', action:'autocomplete'])}",
         getSearchCategories: "${createLink([controller: 'RWGNew', action: 'getSearchCategories'])}",
         getFilterCategories: "${createLink([controller: 'RWGNew', action: 'getFilterCategories'])}",

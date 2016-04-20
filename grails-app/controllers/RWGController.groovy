@@ -1,28 +1,38 @@
-import grails.converters.JSON
+import com.google.common.collect.ImmutableMap
+import grails.validation.Validateable
+import org.grails.databinding.BindUsing
+import org.transmartproject.browse.fm.FmFile
+import org.transmartproject.browse.fm.FmFolder
 import groovy.time.TimeCategory
-import groovy.xml.StreamingMarkupBuilder
 import org.json.JSONArray
 import org.json.JSONObject
 import org.transmart.biomart.Experiment
 import org.transmart.searchapp.AccessLog
 import org.transmart.searchapp.AuthUser
-import org.transmart.searchapp.SearchKeyword
 import org.transmart.searchapp.SearchTaxonomy
-import org.transmartproject.browse.fm.FmFile
-import org.transmartproject.browse.fm.FmFolder
+import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.exceptions.InvalidRequestException
 
 //import bio.BioAnalysisAttribute
 //import RWGVisualizationDAO
 // so we can render as JSON
 class RWGController {
     def trialQueryService
-    def searchKeywordService
+//    def searchKeywordService
     def springSecurityService
     def formLayoutService
     def fmFolderService
-    def ontologyService
-    def solrFacetService
-    def geneSignatureService
+//    def ontologyService
+//    def solrFacetService
+//    def geneSignatureService
+
+    private static final Map<String, Integer> FOLDER_TYPE_COUNTS_EMPTY_TEMPLATE = ImmutableMap.of(
+            'PROGRAM',  0,
+            'STUDY',    0,
+            'ASSAY',    0,
+            'ANALYSIS', 0,
+            'FOLDER',   0,)
+
 
     def index = {
 
@@ -50,30 +60,9 @@ class RWGController {
 
     def ajaxWelcome = {
         //add a unused model to be able to use the template
-        render (template: 'welcome', model: [page: "RWG"]);
+        render(template: 'welcome', model: [page: "RWG"]);
     }
 
-    def searchLog = {
-        render([log: session['searchLog']] as JSON)
-    }
-
-    def updateSearchCategory = {
-        session['searchCategory'] = params.id
-        render(status: 200, text: "OK")
-    }
-
-    /**
-     * START: Methods for the faceted search filter
-     */
-
-    /*
-    * Retrieve the SOLR field name equivalent for a term name
-    */
-
-    private String getSOLRCategoryName(String field) {
-        // set to uppercase and replace spaces with underscores
-        return field.toUpperCase().replace(' ', '_')
-    }
 
     /**
      * Add a new node to the taxonomy Dynatree (and recursively add children if any exist).
@@ -184,359 +173,58 @@ class RWGController {
         json.put(parent)
     }
 
-    /*
-    * Create the JSON string used as the "children" of the taxonomy DynaTree
-    */
-    def getDynatree = {
-
-        render("Not implemented");
-
+    def renderRoot(RenderRootCommand command) {
+        if (!command.validate()) {
+            throw new InvalidRequestException('bad parameters: ' + command.errors)
     }
 
-    /**
-     * Replace any gene lists or signatures in the query parameters with a list of individual genes
-     * @param params list of query params
-     * @param genesField SOLR search field that gene searches are executed against (i.e. ALLGENE or SIGGENE)
-     * @return string containing the new query parameters
-     */
-    def replaceGeneLists = { params, genesField ->
-        def newParams = []
-        def genesList = []
-
-        // loop through each regular query parameter
-        for (p in params) {
-
-            // each queryParam is in form cat1:term1|term2|term3
-            String category = p.split(";")[0]
-            String termList = p.split(";")[1]
-
-            // add all the genes from a gene list/sig to the List of genes
-            if (category == 'GENELIST' || category == 'GENESIG') {
-                for (t in termList.tokenize("|")) {
-
-                    // create the paramter list for the hibernate query (need to convert the id explicitly to long)
-                    def queryParams = [:]
-                    Long l = t.toLong()
-                    queryParams["tid"] = l
-
-                    def geneKeywords = SearchKeyword.executeQuery("select k_gsi.id " +
-                            " from org.transmart.searchapp.SearchKeyword k_gs, org.transmart.searchapp.GeneSignature gs," +
-                            " org.transmart.searchapp.GeneSignatureItem gsi, org.transmart.searchapp.SearchKeyword k_gsi " +
-                            " where k_gs.bioDataId = gs.id " +
-                            " and gs.id = gsi.geneSignature " +
-                            " and gsi.bioMarker = k_gsi.bioDataId" +
-                            " and k_gs.id = :tid ", queryParams)
-
-                    // loop through each keyword for the gene list items and add to list
-                    geneKeywords.each {
-                        // don't add duplicates
-                        if (genesList.indexOf(it) < 0) {
-                            genesList.add it
-                        }
-                    }
-
-                }
-            }
-            // add all the genes from a pathway to the List of genes
-            else if (category == 'PATHWAY') {
-                for (t in termList.tokenize("|")) {
-
-                    // create the parameter list for the hibernate query (need to convert the id explicitly to long)
-                    def queryParams = [:]
-                    Long l = t.toLong()
-                    queryParams["tid"] = l
-                    def geneKeywords = SearchKeyword.executeQuery("select k_gene.id " +
-                            " from org.transmart.searchapp.SearchKeyword k_pathway, org.transmart.biomart.BioMarkerCorrelationMV b," +
-                            " org.transmart.searchapp.SearchKeyword k_gene " +
-                            " where b.correlType = 'PATHWAY GENE' " +
-                            " and b.bioMarkerId = k_pathway.bioDataId " +
-                            " and k_pathway.dataCategory = 'PATHWAY' " +
-                            " and b.assoBioMarkerId = k_gene.bioDataId " +
-                            " and k_gene.dataCategory = 'GENE' " +
-                            " and k_pathway.id = :tid ", queryParams)
-
-                    // loop through each keyword for the gene list items and add to list
-                    geneKeywords.each {
-                        // don't add duplicates
-                        if (genesList.indexOf(it) < 0) {
-                            genesList.add it
-                        }
-                    }
-
-                }
-            }
-            // add all the individual genes to the List of genes
-            else if (category == 'PROTEIN') {
-                for (t in termList.tokenize("|")) {
-                    genesList.add t
-                }
-            }
-            // add all the individual genes to the List of genes
-            else if (category == 'GENE') {
-                for (t in termList.tokenize("|")) {
-                    genesList.add t
-                }
-            } else {
-                // create the new params with everything that is not a gene or list
-                newParams.add p
-            }
-        }
-
-        // create the new string to be used for genes and lists/sigs and add back to params
-        def newGeneString = ""
-
-        if (genesList.size > 0) {
-            newGeneString = /${genesField}:${genesList.join('|')}/
-            //Commenting this out, we don't have to worry about signifigance just yet.
-            //newParams.add newGeneString
-        }
-
-        log.info("Gene parameter: ${newParams}")
-        return newParams
-    }
-
-    //Just clear the search filter and render non-null back
-    def clearSearchFilter = {
-        session['rwgSearchFilter'] = [:];
-        session['rwgSearchOperators'] = [:];
-        render(text: "OK")
-    }
-
-    /**
-     *
-     */
-    def getFacetResults() {
-
-        session['folderSearchList'] = [[], []]; //Clear the folder search list
-        def user = AuthUser.findByUsername(springSecurityService.getPrincipal().username)
-
-        /*
-         * Record this as the latest search and store it in the session
-         */
-        def paramMap = params
-        //Search string is saved in session (for passing between RWG and Dataset Explorer pages)
-        def searchString = params.searchTerms
-        def searchOperatorsString = params.searchOperators
-        def globalOperator = params.globaloperator
-
-        def searchTerms = searchString?.split(",,,")
-        if (searchTerms != null && searchTerms[0] == "") {
-            searchTerms = null;
-        }
-
-        def searchOperators = searchOperatorsString?.split(";")
-        if (searchOperators != null && searchOperators[0] == "") {
-            searchOperators = null;
-        }
-
-        session['rwgSearchFilter'] = searchTerms
-        session['rwgSearchOperators'] = searchOperators
-        session['globalOperator'] = globalOperator
-        session['geneFilter'] = []
-        def searchLog = ["Starting a new search"]
-
-        /*
-         * Pre-processing
-         */
-
-        //Convert gene categories into unified category. Our operator will be the last one processed.
-        def geneGroups = []
-        def categorizedSearchTerms = request.getParameterValues('q') as List
-        def processedSearchTerms = []
-
-        // Store search terms for use in folder details
-        session['rwgCategorizedSearchTerms'] = categorizedSearchTerms
-
-        //Separate gene-related search terms into gene groups.
-        //Always set geneOperator if this is a gene search term - the last one is the one we want to use.
-        def geneOperator = "or"
-        for (categoryLine in categorizedSearchTerms) {
-            def operator = ((String) categoryLine).split("::")[1].toUpperCase()
-            def category = ((String) categoryLine).split("::")[0]
-
-            def categoryName = ((String) category).split(":", 2)[0]
-            def termList = ((String) category).split(":", 2)[1].split("\\|")
-
-            if (categoryName.equals("GENE")) {
-                //Easy - get each term and add them as gene groups of 1
-                for (term in termList) {
-                    geneGroups.add([term])
-                }
-                geneOperator = operator
-            } else if (categoryName.equals("GENELIST") || categoryName.equals("GENESIG")) {
-                for (t in termList) {
-                    def expandedList = geneSignatureService.expandGeneList(t)
-                    if (expandedList) {
-                        geneGroups += [expandedList]
-                    }
-                }
-                geneOperator = operator
-            } else if (categoryName.equals("PATHWAY")) {
-                for (t in termList) {
-                    def expandedList = geneSignatureService.expandPathway(t)
-                    if (expandedList) {
-                        geneGroups += [expandedList + t] //Retain pathways
-                    }
-                }
-                geneOperator = operator
-
-            } else {
-                processedSearchTerms.add(categoryLine)
-            }
-        }
-
-        //Now create a new GENE category with the computed groups and the latest operator.
-        if (geneGroups) {
-            def geneGroupStrings = []
-            for (group in geneGroups) {
-                geneGroupStrings += group.join("/")
-            }
-            def newGeneCategory = "GENE:" + geneGroupStrings.join("|") + "::" + geneOperator
-            processedSearchTerms.add(newGeneCategory)
-            session['geneFilter'] = newGeneCategory
-        }
-
-        //If we have no search terms and this is for RWG, just return the top level
-        if ((processedSearchTerms == null || processedSearchTerms.size() == 0) && params.page.equals('RWG')) {
-            searchLog += "No search terms found - returning all programs"
-            session['searchLog'] = searchLog
-            //retrieve folders id to expand as opened nodes
-            def nodesToExpand = session['rwgOpenedNodes']
-            render(template: '/fmFolder/folders', model: [folderContentsAccessLevelMap: fmFolderService.getFolderContentsWithAccessLevelInfo(user, null), nodesToExpand: nodesToExpand])
-            return
-        }
-        def al = new AccessLog(username: springSecurityService.getPrincipal().username, event: "Browse-Search", eventmessage: "", accesstime: new java.util.Date())
-        al.save()
-
-        /*
-         * Run the search!
-         */
-        def combinedResult = solrFacetService.getCombinedResults(processedSearchTerms, params.page, globalOperator, searchLog)
-        session['searchLog'] = combinedResult.searchLog
-
-        /**
-         * Organize and display
-         */
-        if (params.page.equals('RWG')) {
-            def numbers = new HashMap();
-            numbers.put("PROGRAM", 0)
-            numbers.put("STUDY", 0)
-            numbers.put("ASSAY", 0)
-            numbers.put("ANALYSIS", 0)
-            numbers.put("FOLDER", 0)
-
-            if (combinedResult.paths) {
-                def pathLists = finalizePathLists(combinedResult.paths)
-                session['folderSearchList'] = pathLists
-                def folderSearchString = pathLists[0].join(",") + "," //Extra , - used to identify search results
-                def uniqueLeavesString = pathLists[1].join(",") + ","
-                session['searchLog'] += "Final folder string: " + folderSearchString
-
-                //if no accession in search list, calculate number of each folder type:
-                def numbersJSON
-                if (!searchString.contains("|ACCESSION;")) {
-                    for (folderName in pathLists[0]) {
-                        def folder = FmFolder.findByFolderFullName folderName
-                        if (!folder) {
-                            log.info "No folder with full name $folderName"
-                            continue
-                        }
-                        def c = numbers[folder.folderType] ?: 0
-                        numbers[folder.folderType] = c + 1
-                    }
-                    numbersJSON = new JSONObject(numbers)
-                }
-
-
-                //retrieve folders id to expand as opened nodes
-                def nodesToExpand = session['rwgOpenedNodes']
-                def nodesToClose = session['rwgClosedNodes']
-
+        def user = AuthUser.findByUsername(springSecurityService.principal.username)
                 def folderContentsAccessLevelMap = fmFolderService.getFolderContentsWithAccessLevelInfo(user, null)
-                render(template: '/fmFolder/folders', model: [folderContentsAccessLevelMap: folderContentsAccessLevelMap, folderSearchString: folderSearchString, uniqueLeavesString: uniqueLeavesString, auto: true, resultNumber: numbersJSON, nodesToExpand: nodesToExpand, nodesToClose: nodesToClose])
-            } else {
-                session['folderSearchList'] = [[], []]
-                def numbersJSON = new JSONObject(numbers)
-                render(template: '/fmFolder/noResults', model: [resultNumber: numbersJSON])
-            }
-        } else {
-            def pathLists = finalizePathLists(combinedResult.paths)
-            def jsonArrays = [:]
-            jsonArrays.put("searchResults", pathLists[0])
-            jsonArrays.put("uniqueLeaves", pathLists[1])
-            render jsonArrays as JSON
-        }
-    }
 
-    def finalizePathLists(pathList) {
-        def uniquePaths = []
-        def uniqueLeaves = []
-        for (path in pathList) {
-            if (!uniquePaths.contains(path)) {
-                uniquePaths.push(path)
+        if (command.search && !command.folderIds) {
+            render template: '/fmFolder/noResults',
+                    plugin: 'folderManagement',
+                    model: [resultNumber: new JSONObject(FOLDER_TYPE_COUNTS_EMPTY_TEMPLATE)]
             }
 
-            if (!uniqueLeaves.contains(path)) {
-                //If no other path in the path list starts with this path, it's uniquely a leaf
-                def childPathFound = false
-                for (otherPath in pathList) {
-                    if (otherPath.startsWith(path) && !otherPath.equals(path)) {
-                        childPathFound = true
-                        break
-                    }
-                }
-                if (!childPathFound) {
-                    uniqueLeaves.push(path)
-                }
-            }
-        }
+        String folderSearchString
+        String uniqueLeavesString
+        def counts = [*: FOLDER_TYPE_COUNTS_EMPTY_TEMPLATE,]
 
-        return [uniquePaths, uniqueLeaves]
+        if (command.folderIds) {
+            List<FmFolder> folders = FmFolder.findAllByIdInList(command.folderIds)
+            folderSearchString = FmFolder
+                    .findAllById(command.folderIds)*.folderFullName.join(',') + ','
+            // inefficent quadratic algorithm, but it shouldn't matter
+            uniqueLeavesString = folders.findAll { folderUnderConsideration ->
+                // false that it has a parent in the list
+                !folders.any {
+                    !it.is(folderUnderConsideration) &&
+                            folderUnderConsideration.folderFullName.startsWith(it.folderFullName)
     }
+            }*.folderFullName.join(',') + ','
 
-    /**
-     * Determine field to be used for genes within the SOLR queries and set session parameter
-     * @param showSigGenesOnly boolean indicating whether analysis for all genes or only significant genes (default) will be shown
-     * @return SOLR field to be used for gene searches
-     */
-    def setSOLRGenesField = {
-        showSigGenesOnly = true ->
-
-            def solrGenesField = ""  // name of SOLR search field to be used for gene queries (SIGGENE or ALLGENE)
-            if (showSigGenesOnly) {
-                solrGenesField = 'SIGGENE'
-            } else {
-                solrGenesField = 'ALLGENE'
+            counts = [
+                    *: counts,
+                    *: folders.inject([:], { cur, el ->
+                        cur[el.folderType] = (cur[el.folderType] ?: 0) + 1
+                        cur
+                    })]
             }
 
-            session['solrGenesField'] = solrGenesField
-
-            return solrGenesField
-    }
-
-    /**
-     * START: Methods for the keyword search
-     */
-    // Sets the search filter for the new search.
-    def newSearch = {
-        session['solrSearchFilter'] = []
-        render(status: 200)
-    }
-
-    // Return search categories for the drop down
-    def getSearchCategories = {
-        render searchKeywordService.findSearchCategories() as JSON
-    }
-
-    def getFilterCategories = {
-        render searchKeywordService.findFilterCategories() as JSON
-    }
-
-    // Return search keywords
-    def searchAutoComplete = {
-        def category = params.category == null ? "ALL" : params.category
-        def max = params.long('max') ?: 15
-        render searchKeywordService.findSearchKeywords(category, params.term, max) as JSON
+        render(
+                template: '/fmFolder/folders',
+                plugin: 'folderManagement',
+                model: [
+                        folderContentsAccessLevelMap: folderContentsAccessLevelMap,
+                        folderSearchString: folderSearchString,
+                        uniqueLeavesString: uniqueLeavesString,
+                        auto: true,
+                        resultNumber: new JSONObject(counts),
+                        // not used anymore, but I'd rather not touch the gsp
+//                        nodesToExpand: nodesToExpand,
+//                        nodesToClose: nodesToClose,
+                ])
     }
 
     // Load the search results for the given search terms using the new annotation tables
@@ -591,161 +279,33 @@ class RWGController {
         def layout = formLayoutService.getLayout('file')
         render(template: '/fmFolder/fileMetadata', model: [layout: layout, file: FmFile.get(params.id)])
     }
-
-    def solrQuery = {
-
     }
 
-    //Execute arbitrary SOLR query, because SOLR's web interface doesn't work
-    def executeSolrQuery = {
-        // submit request
-        def solrRequestUrl = createSOLRQueryPath()
-        def solrConnection = new URL(solrRequestUrl).openConnection()
-        solrConnection.requestMethod = "POST"
-        solrConnection.doOutput = true
-
-        // add params to request
-        def dataWriter = new OutputStreamWriter(solrConnection.outputStream)
-        dataWriter.write(params.q)
-        dataWriter.flush()
-        dataWriter.close()
-
-        def slurper = new XmlSlurper()
-
-        // process response
-        if (solrConnection.responseCode == solrConnection.HTTP_OK) {
-            def xml
-
-            solrConnection.inputStream.withStream {
-                xml = slurper.parse(it)
+@Validateable
+class RenderRootCommand {
+    boolean search
+    @BindUsing({ obj, source ->
+        def folderIds = source['folderIds']
+        if (!(folderIds instanceof List)) {
+            folderIds = [folderIds]
             }
-
-            def result = new StreamingMarkupBuilder().bind {
-                mkp.yield xml
-            }
-
-            render(contentType: "application/xml", text: result);
-        } else {
-            render(contentType: "text/plain", text: "SOLR Request failed! Request url:" + solrRequestUrl + "  Response code:" + solrConnection.responseCode + "  Response message:" + solrConnection.responseMessage)
-        }
-
-        solrConnection.disconnect()
-    }
-
-    def saveFacetedSearch = {
-        session['folderSearchList'] = [[], []]; //Clear the folder search list
-
-        /*
-         * Record this as the latest search and store it in the session
-         */
-        def paramMap = params
-        //Search string is saved in session (for passing between RWG and Dataset Explorer pages)
-        def searchString = params.searchTerms
-        def searchOperatorsString = params.searchOperators
-        def globalOperator = params.globaloperator
-
-        def searchTerms = searchString?.split(",,,")
-        if (searchTerms != null && searchTerms[0] == "") {
-            searchTerms = null;
-        }
-
-        def searchOperators = searchOperatorsString?.split(";")
-        if (searchOperators != null && searchOperators[0] == "") {
-            searchOperators = null;
-        }
-
-        session['rwgSearchFilter'] = searchTerms
-        session['rwgSearchOperators'] = searchOperators
-        session['globalOperator'] = globalOperator
-        session['geneFilter'] = []
-        render(text: "OK")
-    }
-
-    def addOpenedNodeRWG = {
-        if (session['rwgOpenedNodes'] == null) {
-            session['rwgOpenedNodes'] = []
-        }
-        if (session['rwgClosedNodes'] == null) {
-            session['rwgClosedNodes'] = []
-        }
-        def openedNodes = session['rwgOpenedNodes']
-        def closedNodes = session['rwgClosedNodes']
-        def paramMap = params
-        if (closedNodes.grep(params.node)) {
-            closedNodes -= params.node
-        } else if (!openedNodes.grep(params.node)) {
-            openedNodes += params.node
-        }
-        session['rwgOpenedNodes'] = openedNodes
-        session['rwgClosedNodes'] = closedNodes
-        render(text: "OK")
-    }
-    def removeOpenedNodeRWG = {
-        if (session['rwgOpenedNodes'] == null) {
-            session['rwgOpenedNodes'] = []
-        }
-        if (session['rwgClosedNodes'] == null) {
-            session['rwgClosedNodes'] = []
-        }
-        def openedNodes = session['rwgOpenedNodes']
-        def closedNodes = session['rwgClosedNodes']
-        if (openedNodes.grep(params.node)) {
-            openedNodes -= params.node
-        } else {
-            if (!closedNodes.grep(params.node)) {
-                closedNodes += params.node
+        folderIds.collect {
+            if (it.isLong()) {
+                it as Long
             }
         }
-        session['rwgOpenedNodes'] = openedNodes
-        session['rwgClosedNodes'] = closedNodes
-        render(text: "OK")
-    }
-    def resetOpenedNodes = {//used for RWG and DSE
-        session['rwgOpenedNodes'] = []
-        session['dseOpenedNodes'] = []
-        session['rwgClosedNodes'] = []
-        session['dseClosedNodes'] = []
-        render(text: "OK")
-    }
+    })
+    List<Long> folderIds
 
-    def addOpenedNodeDSE = {
-        if (session['dseOpenedNodes'] == null) {
-            session['dseOpenedNodes'] = []
-        }
-        if (session['dseClosedNodes'] == null) {
-            session['dseClosedNodes'] = []
-        }
-        def openedNodes = session['dseOpenedNodes']
-        def closedNodes = session['dseClosedNodes']
-        def paramMap = params
-        if (closedNodes.grep(params.node.replace("\\", "\\\\"))) {
-            closedNodes -= params.node.replace("\\", "\\\\")
-        } else if (!openedNodes.grep(params.node.replace("\\", "\\\\")) && params.node != "treeRoot") {
-            openedNodes += params.node.replace("\\", "\\\\")
-        }
-        session['dseOpenedNodes'] = openedNodes
-        session['dseClosedNodes'] = closedNodes
-        render(text: "OK")
+    static constraints = {
+        folderIds validator: { val, obj ->
+            if (!obj.search && val) {
+                return false
     }
-    def removeOpenedNodeDSE = {
-        if (session['dseOpenedNodes'] == null) {
-            session['dseOpenedNodes'] = []
+            if (obj.search && val == null /* but can be [] */) {
+                return false
         }
-        if (session['dseClosedNodes'] == null) {
-            session['dseClosedNodes'] = []
+            val.every { it instanceof Long }
         }
-        def openedNodes = session['dseOpenedNodes']
-        def closedNodes = session['dseClosedNodes']
-        if (openedNodes.grep(params.node.replace("\\", "\\\\"))) {
-            openedNodes -= params.node.replace("\\", "\\\\")
-        } else {
-            if (!closedNodes.grep(params.node.replace("\\", "\\\\"))) {
-                closedNodes += params.node.replace("\\", "\\\\")
-            }
         }
-        session['dseOpenedNodes'] = openedNodes
-        session['dseClosedNodes'] = closedNodes
-        render(text: "OK")
-    }
-
 }

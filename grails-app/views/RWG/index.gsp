@@ -20,7 +20,9 @@
     var sessionSearch = "${rwgSearchFilter}";
     var sessionOperators = "${rwgSearchOperators}";
     var sessionSearchCategory = "${rwgSearchCategory}";
-    var searchPage = "RWG";
+    window.rwgSearchConfig = {
+        onFoldersListChanges: function() { window.rwg_onFoldersListChanges.apply(this, arguments); },
+    };
 
     jQuery(document).ready(function () {
 
