@@ -227,6 +227,10 @@ window.rwgView = {
         if (rwgModel.startingFilterResults === undefined) {
             rwgController.fetchStartingFilterResults();
         }
+
+        if (!loadedFromStorage) {
+            rwgModel.clearSearchTerms(); // to trigger loading of root elements
+        }
     },
 
     bindToModel: function rwgView_bindToModel() {

@@ -1,16 +1,15 @@
 import com.google.common.collect.ImmutableMap
 import grails.validation.Validateable
-import org.grails.databinding.BindUsing
-import org.transmartproject.browse.fm.FmFile
-import org.transmartproject.browse.fm.FmFolder
 import groovy.time.TimeCategory
+import org.grails.databinding.BindUsing
 import org.json.JSONArray
 import org.json.JSONObject
 import org.transmart.biomart.Experiment
 import org.transmart.searchapp.AccessLog
 import org.transmart.searchapp.AuthUser
 import org.transmart.searchapp.SearchTaxonomy
-import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.browse.fm.FmFile
+import org.transmartproject.browse.fm.FmFolder
 import org.transmartproject.core.exceptions.InvalidRequestException
 
 //import bio.BioAnalysisAttribute
@@ -176,16 +175,17 @@ class RWGController {
     def renderRoot(RenderRootCommand command) {
         if (!command.validate()) {
             throw new InvalidRequestException('bad parameters: ' + command.errors)
-    }
+        }
 
         def user = AuthUser.findByUsername(springSecurityService.principal.username)
-                def folderContentsAccessLevelMap = fmFolderService.getFolderContentsWithAccessLevelInfo(user, null)
+        def folderContentsAccessLevelMap = fmFolderService.getFolderContentsWithAccessLevelInfo(user, null)
 
         if (command.search && !command.folderIds) {
             render template: '/fmFolder/noResults',
                     plugin: 'folderManagement',
                     model: [resultNumber: new JSONObject(FOLDER_TYPE_COUNTS_EMPTY_TEMPLATE)]
-            }
+            return
+        }
 
         String folderSearchString
         String uniqueLeavesString
@@ -193,15 +193,14 @@ class RWGController {
 
         if (command.folderIds) {
             List<FmFolder> folders = FmFolder.findAllByIdInList(command.folderIds)
-            folderSearchString = FmFolder
-                    .findAllById(command.folderIds)*.folderFullName.join(',') + ','
-            // inefficent quadratic algorithm, but it shouldn't matter
+            folderSearchString = folders*.folderFullName.join(',') + ','
+            // inefficient quadratic algorithm, but it shouldn't matter
             uniqueLeavesString = folders.findAll { folderUnderConsideration ->
                 // false that it has a parent in the list
                 !folders.any {
                     !it.is(folderUnderConsideration) &&
                             folderUnderConsideration.folderFullName.startsWith(it.folderFullName)
-    }
+                }
             }*.folderFullName.join(',') + ','
 
             counts = [
@@ -210,7 +209,7 @@ class RWGController {
                         cur[el.folderType] = (cur[el.folderType] ?: 0) + 1
                         cur
                     })]
-            }
+        }
 
         render(
                 template: '/fmFolder/folders',
@@ -221,7 +220,7 @@ class RWGController {
                         uniqueLeavesString: uniqueLeavesString,
                         auto: true,
                         resultNumber: new JSONObject(counts),
-                        // not used anymore, but I'd rather not touch the gsp
+                        // not used anymore, but I'd rather not touch the gsp too much
 //                        nodesToExpand: nodesToExpand,
 //                        nodesToClose: nodesToClose,
                 ])
@@ -279,16 +278,19 @@ class RWGController {
         def layout = formLayoutService.getLayout('file')
         render(template: '/fmFolder/fileMetadata', model: [layout: layout, file: FmFile.get(params.id)])
     }
-    }
+}
 
 @Validateable
 class RenderRootCommand {
     boolean search
     @BindUsing({ obj, source ->
         def folderIds = source['folderIds']
-        if (!(folderIds instanceof List)) {
+        if (!folderIds) {
+            return []
+        }
+        if (!(folderIds instanceof List ) && !folderIds.getClass().array) {
             folderIds = [folderIds]
-            }
+        }
         folderIds.collect {
             if (it.isLong()) {
                 it as Long
@@ -301,11 +303,8 @@ class RenderRootCommand {
         folderIds validator: { val, obj ->
             if (!obj.search && val) {
                 return false
-    }
-            if (obj.search && val == null /* but can be [] */) {
-                return false
-        }
+            }
             val.every { it instanceof Long }
         }
-        }
+    }
 }
