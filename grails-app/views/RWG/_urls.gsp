@@ -71,10 +71,10 @@
 
     //
     window.searchURLs = {
-        rwgAutoComplete: "${createLink([controller:'RWGNew', action:'autocomplete'])}",
-        getSearchCategories: "${createLink([controller: 'RWGNew', action: 'getSearchCategories'])}",
-        getFilterCategories: "${createLink([controller: 'RWGNew', action: 'getFilterCategories'])}",
-        getFacetResults: "${createLink([controller: 'RWGNew', action: 'getFacetResults'])}",
+        autoComplete: "${createLink([controller:'facetsSearch', action:'autocomplete'])}",
+        getSearchCategories: "${createLink([controller: 'facetsSearch', action: 'getSearchCategories'])}",
+        getFilterCategories: "${createLink([controller: 'facetsSearch', action: 'getFilterCategories'])}",
+        getFacetResults: "${createLink([controller: 'facetsSearch', action: 'getFacetResults'])}",
 
         crossImage: "${resource([dir:'images', file:'small_cross.png'])}",
     };

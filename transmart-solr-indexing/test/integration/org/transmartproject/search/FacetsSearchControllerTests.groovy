@@ -8,9 +8,9 @@ import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 import org.transmartproject.search.indexing.FacetsIndexingService
 
 @TestMixin(RuleBasedIntegrationTestMixin)
-class RWGNewControllerTests {
+class FacetsSearchControllerTests {
 
-    RWGNewController rwgNewController
+    FacetsSearchController facetsSearchController
 
     @BeforeClass
     static void beforeClass() {
@@ -20,14 +20,14 @@ class RWGNewControllerTests {
 
     @Before
     void before() {
-        rwgNewController = new RWGNewController()
+        facetsSearchController = new FacetsSearchController()
     }
 
     void testAutocompleteOneField() {
         def command = new AutoCompleteCommand(category: 'therapeutic_domain_s', term: 'b')
-        rwgNewController.autocomplete(command)
+        facetsSearchController.autocomplete(command)
 
-        def resp = rwgNewController.response.json
+        def resp = facetsSearchController.response.json
         assert resp[0].category == 'therapeutic_domain_s'
         assert resp[0].value    == 'Behaviors and Mental Disorders'
         assert resp[0].count    == 1
@@ -35,9 +35,9 @@ class RWGNewControllerTests {
 
     void testAutoCompleteAll() {
         def command = new AutoCompleteCommand(category: '*', term: 'e', requiredField: 'CONCEPT_PATH')
-        rwgNewController.autocomplete(command)
+        facetsSearchController.autocomplete(command)
 
-        def resp = rwgNewController.response.json
+        def resp = facetsSearchController.response.json
 
         assert resp.size() == 3
         assert resp[0].category == 'biomarker_type_s'
@@ -53,9 +53,9 @@ class RWGNewControllerTests {
                                 new SearchTerm(literalTerm: 'FOLDER:1992455'),
                         ])])
 
-        rwgNewController.getFacetResults(command)
+        facetsSearchController.getFacetResults(command)
 
-        assert rwgNewController.response.json.numFound == 4
+        assert facetsSearchController.response.json.numFound == 4
     }
 
     void testSearchAllFieldsNumber() {
@@ -72,8 +72,8 @@ class RWGNewControllerTests {
                                 ]),
                 ])
 
-        rwgNewController.getFacetResults(command)
+        facetsSearchController.getFacetResults(command)
 
-        assert rwgNewController.response.json.numFound == 2
+        assert facetsSearchController.response.json.numFound == 2
     }
 }

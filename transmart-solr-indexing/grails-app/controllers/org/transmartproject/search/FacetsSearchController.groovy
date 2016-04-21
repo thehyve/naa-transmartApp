@@ -26,7 +26,7 @@ import java.util.regex.Pattern
 
 import static org.transmartproject.search.indexing.FacetsIndexingService.*
 
-class RWGNewController {
+class FacetsSearchController {
 
     static scope = 'singleton'
 
