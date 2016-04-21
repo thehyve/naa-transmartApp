@@ -17,9 +17,6 @@
 
 <script type="text/javascript" charset="utf-8">
     var mouse_inside_options_div = false;
-    var sessionSearch = "${rwgSearchFilter}";
-    var sessionOperators = "${rwgSearchOperators}";
-    var sessionSearchCategory = "${rwgSearchCategory}";
     window.rwgSearchConfig = {
         requiredField: 'FOLDER_ID',
         onFoldersListChanges: function() { window.rwg_onFoldersListChanges.apply(this, arguments); },
