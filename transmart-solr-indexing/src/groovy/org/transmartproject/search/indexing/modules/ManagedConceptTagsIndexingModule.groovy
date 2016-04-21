@@ -157,6 +157,7 @@ class ManagedConceptTagsIndexingModule implements FacetsIndexingModule {
         if (!fieldType) {
             log.warn("Could not determine field type for field with name $fieldName")
         }
+        assert fieldType != FacetsFieldType.STRING_LOWERCASE
 
         query.setParameter 'solr_field_name', fieldName[0..-3]
         query.setParameter 'value_type', DB_FIELD_TYPE_MAPPING.inverse().get(fieldType)

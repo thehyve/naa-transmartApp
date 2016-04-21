@@ -69,18 +69,36 @@ class RWGNewController {
             throw new InvalidRequestException("bad parameters: $autoCompleteCommand.errors")
         }
 
-        if (!(autoCompleteCommand.category in facetsQueryingService.allFacetFields)) {
-            /* ALL (*) not supported :( */
+        def allFacetFields = facetsQueryingService.allFacetFields
+        if (!(autoCompleteCommand.category in allFacetFields)
+                && autoCompleteCommand.category != PSEUDO_FIELD_ALL) {
             render([] as JSON)
             return
         }
 
         def q = new SolrQuery()
-        q.addFacetField(autoCompleteCommand.category)
+        if (autoCompleteCommand.category != PSEUDO_FIELD_ALL) {
+            q.addFacetField(autoCompleteCommand.category)
+        } else {
+            q.addFacetField(*allFacetFields)
+        }
         q.rows = 0
         q.facetLimit = 10
         q.facetMinCount = 1
-        q.query = "${autoCompleteCommand.category}:${escapeSolrLiteral(autoCompleteCommand.term)}*"
+        // we have to filter the results ourselves, as facetPrefix is case-sensitive
+        //q.facetPrefix = autoCompleteCommand.term
+        def replaceWithLowercaseField = { it.replaceFirst(/_s\z/, '_l') }
+        def facetsCommand = new GetFacetsCommand(
+                requiredField: autoCompleteCommand.requiredField,
+                operator: 'OR',
+                fieldTerms: [
+                        (replaceWithLowercaseField(autoCompleteCommand.category)): new FieldTerms(
+                                operator: 'OR',
+                                searchTerms: [
+                                        new SearchTerm(luceneTerm: escapeSolrLiteral(autoCompleteCommand.term) + '*')]
+                        )])
+        q.query = commandToQueryString(facetsCommand,
+                allFacetFields.collect { replaceWithLowercaseField it }, true)
 
         // execute query
         QueryResponse resp
@@ -91,11 +109,15 @@ class RWGNewController {
         }
 
         def result = facetsQueryingService.parseFacetCounts(resp).collect { String field, SortedSet<TermCount> terms ->
-            terms.collect {
-                [category: autoCompleteCommand.category,
-                 value: it.term,
-                 count: it.count]
-            }
+            terms
+                    .findAll {
+                        it.term.toLowerCase(Locale.ENGLISH)
+                                .startsWith(autoCompleteCommand.term.toLowerCase(Locale.ENGLISH))
+                    }.collect {
+                        [category: field,
+                        value: it.term,
+                        count: it.count]
+                    }
         }.flatten()
 
         render result as JSON
@@ -229,7 +251,13 @@ class RWGNewController {
         ''', [uniqueId: pathway])
     }
 
-    private String commandToQueryString(GetFacetsCommand command, Collection<String> allFields) {
+    /*
+     * The alternativeAllMode (used for autocomplete assumes all queries are string queries)
+     * and expands * exactly to allFields, without any extra logic
+     */
+    private String commandToQueryString(GetFacetsCommand command,
+                                        Collection<String> allFields,
+                                        alternativeAllMode = false) {
         def userString = command.fieldTerms.collect { String fieldName, FieldTerms fieldTerms ->
             if (!(fieldName in allFields) && fieldName != PSEUDO_FIELD_ALL && fieldName != FIELD_NAME_ID) {
                 throw new InvalidArgumentsException("No such field: $fieldName")
@@ -240,7 +268,16 @@ class RWGNewController {
                     searchTerm.luceneTerm ?: "\"${escapeSolrLiteral(searchTerm.literalTerm)}\""
                 }.join(" ${fieldTerms.operator} ")
                 "$fieldName:(" + s + ')'
-            } else {
+            } else if (alternativeAllMode) {
+                def s = fieldTerms.searchTerms.collect { SearchTerm searchTerm ->
+                    def right = searchTerm.luceneTerm ?: "\"${escapeSolrLiteral(searchTerm.literalTerm)}\""
+
+                    allFields
+                            .collect { "$it:(" + right + ')' }.join(' OR ')
+                }.join(" ${fieldTerms.operator} ")
+
+                "($s)"
+            } else { /* field ALL, not alternative all mode */
                 def numberFields = allFields.findAll { it =~ /_[if]\z/ } + FIELD_NAME_FOLDER_ID
                 def textFields = allFields.findAll({ it =~ /_[st]\z/ }) +
                         [FIELD_NAME_ID, FIELD_NAME_CONCEPT_PATH, FIELD_NAME_TEXT]
@@ -287,10 +324,12 @@ class RWGNewController {
 
 @Validateable
 class AutoCompleteCommand {
+    String requiredField
     String category
     String term
 
     static constraints = {
+        requiredField blank: false
         category blank: false
         term blank: false
     }

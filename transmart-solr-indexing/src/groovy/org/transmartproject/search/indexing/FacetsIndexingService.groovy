@@ -49,7 +49,6 @@ class FacetsIndexingService implements InitializingBean {
     public static final String FIELD_NAME_CONTENT_TYPE = 'content_type_s'
     public static final String FIELD_NAME_LAST_MODIFIED = 'last_modified_d'
     public static final String FIELD_NAME_TIMESTAMP = 'timestamp_d'
-    public static final String FIELD_NAME_IGNORED_META = 'ignored_meta_s'
 
     int commitChunkSize = 500
     int queryChunkSize = 500

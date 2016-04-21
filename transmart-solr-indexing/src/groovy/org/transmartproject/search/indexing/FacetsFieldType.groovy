@@ -4,6 +4,7 @@ enum FacetsFieldType {
 
     DATE('d', Date),
     STRING('s', String) /* NOT ANALYZED */,
+    STRING_LOWERCASE('l', String) /* internal type */,
     TEXT('t', String)   /* ANALYZED */,
     INTEGER('i', Long),
     FLOAT('f', Double);

@@ -24,13 +24,25 @@ class RWGNewControllerTests {
     }
 
     void testAutocompleteOneField() {
-        def command = new AutoCompleteCommand(category: 'therapeutic_domain_s', term: 'B')
+        def command = new AutoCompleteCommand(category: 'therapeutic_domain_s', term: 'b')
         rwgNewController.autocomplete(command)
 
         def resp = rwgNewController.response.json
         assert resp[0].category == 'therapeutic_domain_s'
         assert resp[0].value    == 'Behaviors and Mental Disorders'
         assert resp[0].count    == 1
+    }
+
+    void testAutoCompleteAll() {
+        def command = new AutoCompleteCommand(category: '*', term: 'e', requiredField: 'CONCEPT_PATH')
+        rwgNewController.autocomplete(command)
+
+        def resp = rwgNewController.response.json
+
+        assert resp.size() == 3
+        assert resp[0].category == 'biomarker_type_s'
+        assert resp[0].value    == 'Efficacy biomarker'
+        assert resp[0].count    == 4
     }
 
     void testSearchAllFields() {

@@ -110,12 +110,13 @@ class FacetsQueryingService {
         lukeResponse.fieldInfo
                 .entrySet()
                 .findAll {
-            !(it.key in BLACKLISTED_FIELD_NAMES)
-        }
-        .findAll { Map.Entry<String, LukeResponse.FieldInfo> e ->
-            parseFlags(e.value.schema).contains(FieldFlag.INDEXED)
-        }
-        .collect { [it.key, getDisplaySettingsForField(it.key)] }
+                    !(it.key in BLACKLISTED_FIELD_NAMES) &&
+                            !(it.key =~ /_${FacetsFieldType.STRING_LOWERCASE.suffix}\z/) /* only used for searching */
+                }
+                .findAll { Map.Entry<String, LukeResponse.FieldInfo> e ->
+                    parseFlags(e.value.schema).contains(FieldFlag.INDEXED)
+                }
+                .collect { [it.key, getDisplaySettingsForField(it.key)] }
                 .sort { a, b -> a[1] <=> b[1] }
                 .collectEntries()
     }

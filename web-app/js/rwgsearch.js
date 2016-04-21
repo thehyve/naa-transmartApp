@@ -321,7 +321,9 @@ window.rwgView = {
     currentCategoryChanges: function rwgView_currentCategoryChanges(currentCategory) {
         this.searchCategoriesEl.val(currentCategory);
         this.searchInputEl.autocomplete('option',
-            'source', window.searchURLs.rwgAutoComplete + "?category=" + encodeURIComponent(currentCategory));
+            'source', window.searchURLs.rwgAutoComplete
+                    + '?category=' + encodeURIComponent(currentCategory)
+                    + '&requiredField=' + encodeURIComponent(rwgModel.requiredField));
     },
     currentFilterResultsChange: function rwgView_currentFilterResultsChange(currentResults) {
         function addField(fieldData) {
