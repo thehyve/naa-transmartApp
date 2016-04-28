@@ -89,7 +89,7 @@
 			<td valign="top" class="value">${fieldValue(bean:analysisExt, field:'effectErrorDesc')}</td>
 		</tr>
 		<tr class="prop">
-			<td valign="top" class="name" style="text-align: right">Trait Description:</td>
+			<td valign="top" class="name" style="text-align: right">Trait:</td>
 			<td valign="top" class="value">${fieldValue(bean:analysisExt, field:'traits')}</td>
 		</tr>
 		<tr class="prop">

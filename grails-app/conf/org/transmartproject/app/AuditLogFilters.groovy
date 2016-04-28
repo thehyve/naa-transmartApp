@@ -72,6 +72,9 @@ class AuditLogFilters {
                 if (actionName == "childConceptPatientCounts") {
                     task = "Clinical Data Access"
                 }
+				else if (actionName == "analysisGrid") {
+                    task = "Grid View"
+                }
                 auditLogService.report(task, request,
                         study: studies,
                         user: currentUserBean,

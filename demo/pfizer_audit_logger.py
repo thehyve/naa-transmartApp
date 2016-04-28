@@ -63,6 +63,8 @@ def send_auditlog_record(line):
         browser = httpagentparser.detect(msg['userAgent']).get('browser')
         if browser:
             args['browser'] = browser['name'] + ' ' + browser['version']
+    else:
+        args['browser'] = "NA"
     fullurl = URL + '?' + urllib.parse.urlencode(args)
     #print(fullurl)
     try:
