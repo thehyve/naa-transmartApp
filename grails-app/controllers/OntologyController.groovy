@@ -3,6 +3,11 @@ import fm.FmFolderAssociation
 import grails.converters.JSON
 import org.transmart.biomart.Experiment
 import org.transmart.searchapp.AuthUser
+import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.core.ontology.OntologyTerm
+import org.transmartproject.core.users.User
+import javax.annotation.Resource
+import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.BUILD_COHORT
 
 class OntologyController {
 
@@ -12,7 +17,12 @@ class OntologyController {
     def ontologyService
     def amTagTemplateService
     def amTagItemService
-    
+    ConceptsResource conceptsResourceService
+    def exportMetadataService
+
+    @Resource
+    User currentUserBean
+
     def showOntTagFilter= {
     		def tagtypesc=[]
     		tagtypesc.add("ALL")
@@ -73,6 +83,8 @@ class OntologyController {
 		def conceptPath=i2b2HelperService.keyToPath(params.conceptKey);
 		def node=i2b2.OntNode.get(conceptPath);
 
+        OntologyTerm term = conceptsResourceService.getByKey(conceptPath)
+
             //Disabled check for trial - show all study metadata in the same way as the Browse view
 		//def testtag=new i2b2.OntNodeTag(tag:'test', tagtype:'testtype');
 		//node.addToTags(testtag);
@@ -83,7 +95,22 @@ class OntologyController {
 //			def trialid=trial.tag;
 //			chain(controller:'trial', action:'trialDetailByTrialNumber', id:trialid)
 //		}
-            //Check for study by visual attributes
+
+        //data type info of all descendants
+        def dataTypeInfo = exportMetadataService.getHighDimMetaData(term)
+
+        //study info
+        def studyId = term.study.id;
+        def studyName = term.name;
+
+        //user
+        def userId = springSecurityService.principal.id;
+        def userName = springSecurityService.principal.username;
+
+        //access
+        def hasAccess = currentUserBean.canPerform(BUILD_COHORT, term.study)
+
+        //Check for study by visual attributes
             if (node.visualattributes.contains("S")) {
                 def accession = node.sourcesystemcd
                 def study = Experiment.findByAccession(accession?.toUpperCase())
@@ -98,9 +125,23 @@ class OntologyController {
                 def amTagTemplate = amTagTemplateService.getTemplate(folder.getUniqueId())
                 List<AmTagItem> metaDataTagItems = amTagItemService.getDisplayItems(amTagTemplate.id)
 
-                render(template: 'showStudy', model: [folder: folder, bioDataObject: study, metaDataTagItems: metaDataTagItems])
+                render(template: 'showStudy', model: [folder: folder,
+                                                      bioDataObject: study,
+                                                      metaDataTagItems: metaDataTagItems,
+                                                      dataTypes: dataTypeInfo.dataTypes,
+                                                      studyId: studyId,
+                                                      studyName: studyName,
+                                                      userId: userId,
+                                                      userName: userName,
+                                                      hasAccess: hasAccess])
             } else {
-                render(template: 'showDefinition', model: [tags: node.tags])
+                render(template: 'showDefinition', model: [tags: node.tags,
+                                                           dataTypes: dataTypeInfo.dataTypes,
+                                                           studyId: studyId,
+                                                           studyName: studyName,
+                                                           userId: userId,
+                                                           userName: userName,
+                                                           hasAccess: hasAccess])
 		}
 	}
 	

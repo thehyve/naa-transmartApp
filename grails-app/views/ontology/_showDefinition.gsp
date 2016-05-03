@@ -32,3 +32,17 @@
                         	</g:each>
                 </table>
                 </g:else>
+
+<g:if test="${dataTypes}">
+  <g:render template="showDataTypes" model="dataTypes"/>
+</g:if>
+<g:if test="${grailsApplication.config.requestStudyAccessUrl && !hasAccess}">
+    <br/>
+    <h2>Access:</h2>
+    <a href="${ grailsApplication.config.requestStudyAccessUrl
+                    .replaceAll("\\{studyId\\}", studyId)
+                    .replaceAll("\\{studyName\\}", studyName)
+                    .replaceAll("\\{userId\\}", userId.toString())
+                    .replaceAll("\\{userName\\}", userName)}"
+       target="_blank">Request access</a>
+</g:if>
