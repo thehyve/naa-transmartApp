@@ -2,6 +2,10 @@ language: groovy
 
 sudo: false
 
+cache:
+    directories:
+        - $HOME/.m2
+
 jdk:
     - oraclejdk7
 
