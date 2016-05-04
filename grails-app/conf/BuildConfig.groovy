@@ -133,7 +133,8 @@ grails.project.dependency.resolution = {
         compile ':spring-security-oauth2-provider:2.0-RC4'
 
         runtime ':prototype:1.0'
-        runtime ':jquery:1.7.1'
+        runtime ':jquery:1.11.1'
+        runtime ':jquery-ui:1.10.4'
 
         runtime ':resources:1.2.7'
 

@@ -33,10 +33,6 @@
 
         GLOBAL = {
             Version: '1.0',
-            Domain: '${i2b2Domain}',
-            ProjectID: '${i2b2ProjectID}',
-            Username: '${i2b2Username}',
-            Password: '${i2b2Password}',
             AutoLogin: true,
             Debug: false,
             NumOfSubsets: 2,
@@ -111,22 +107,23 @@
     </script>
 </head>
 
-        var sessionSearch = "${rwgSearchFilter}";
-        var sessionOperators = "${rwgSearchOperators}";
-        var sessionSearchCategory = "${rwgSearchCategory}";
-        var searchPage = "datasetExplorer";
 <body>
 
 <script type="text/javascript">
+    var sessionSearch = "${rwgSearchFilter}";
+    var sessionOperators = "${rwgSearchOperators}";
+    var sessionSearchCategory = "${rwgSearchCategory}";
+    var searchPage = "datasetExplorer";
+
     var $j = jQuery.noConflict();
     Ext.BLANK_IMAGE_URL = "${resource(dir:'js', file:'ext/resources/images/default/s.gif')}";
 
-        window.rwgSearchConfig = {
-            requiredField: 'CONCEPT_PATH',
-            onConceptsListChanges: function() { window.datasetExplorer_conceptsListChanges.apply(this, arguments); },
-        };
-        var dseOpenedNodes = "${dseOpenedNodes}";
-        var dseClosedNodes = "${dseClosedNodes}";
+    window.rwgSearchConfig = {
+        requiredField: 'CONCEPT_PATH',
+        onConceptsListChanges: function() { window.datasetExplorer_conceptsListChanges.apply(this, arguments); },
+    };
+    var dseOpenedNodes = "${dseOpenedNodes}";
+    var dseClosedNodes = "${dseClosedNodes}";
 
     //set ajax to 600*1000 milliseconds
         Ext.Ajax.timeout = 1800000;

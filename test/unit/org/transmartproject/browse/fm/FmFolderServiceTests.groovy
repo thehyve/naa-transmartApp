@@ -19,9 +19,6 @@
 
 package org.transmartproject.browse.fm
 
-import fm.FmFolder
-import fm.FmFolderAssociation
-import fm.FmFolderService
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
 import grails.test.mixin.TestMixin

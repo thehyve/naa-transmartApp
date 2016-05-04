@@ -39,7 +39,7 @@ function setDataAssociationAvailableFlag(el, success, response, options) {
             timeout: '600000',
             params: Ext.urlEncode({}),
             success: function (result, request) {
-					var exp = result.responseText.evalJSON();
+                var exp = JSON.parse(result.responseText);
                 if (exp.success && exp.files.length > 0) {
                     loadScripts(exp.files);
                 }
@@ -1618,12 +1618,14 @@ function setupOntTree(id_in, title_in) {
     var firstExpandProgram = [];
 
     ontTree.on('beforeexpandnode', function (node, deep, anim) {
-            if (GLOBAL.PathToExpand != undefined && GLOBAL.PathToExpand.indexOf(node.id) > -1 && node.parentNode.id == "treeRoot" && !contains(dseClosedNodes, node.id)) {
-                if (firstExpandProgram.indexOf(node.id) == -1) {
+        if (GLOBAL.PathToExpand != undefined &&
+            GLOBAL.PathToExpand.indexOf(node.id) > -1 &&
+            node.parentNode.id == "treeRoot" && !contains(dseClosedNodes, node.id)) {
+            if (firstExpandProgram.indexOf(node.id) == -1) {
                 firstExpandProgram.push(node.id);
             }
         }
-    );
+    });
 
     var treeRoot = new Tree.TreeNode(
         {

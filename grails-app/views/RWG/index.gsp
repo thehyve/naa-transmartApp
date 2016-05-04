@@ -13,9 +13,8 @@
 <g:javascript library="jquery" />
 <r:require module="browseTab" />
 <tmpl:/RWG/urls/>
-<r:layoutResources/>
 
-<script type="text/javascript" charset="utf-8">
+<r:script type="text/javascript" charset="utf-8">
     var mouse_inside_options_div = false;
     window.rwgSearchConfig = {
         requiredField: 'FOLDER_ID',
@@ -401,17 +400,17 @@
     //		var panel = createOntPanel()
     //		jQuery('#metadata-viewer').empty()
     //           jQuery('#metadata-viewer').add(panel);
-</script>
+</r:script>
 
-<script type="text/javascript">
+<r:script type="text/javascript">
     jQuery(function ($) {
         // Load dialog on click of Save link
         $('#save-modal .basic').click(openSaveSearchDialog);
     });
-</script>
+</r:script>
 
 
-        <r:layoutResources /><%-- XXX: Use template --%>
+<r:layoutResources /><%-- XXX: Use template --%>
 </head>
 <body>
 
