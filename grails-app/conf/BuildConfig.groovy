@@ -147,7 +147,7 @@ grails.project.dependency.resolution = {
             runtime ':transmart-core:1.2.2'
 			runtime ':transmart-rest-api:1.2.2'
             compile ':transmart-gwas:1.2.2'
-            //test ':transmart-core-db-tests:1.2.2'
+            test ':transmart-core-db-tests:1.2.2'
 
         } else {
             dm.internalDependencies delegate
@@ -163,7 +163,7 @@ grails.project.dependency.resolution = {
 dm?.with {
     configureInternalPlugin 'compile', 'rdc-rmodules'
     configureInternalPlugin 'runtime', 'transmart-core'
-    //configureInternalPlugin 'test', 'transmart-core-db-tests'
+    configureInternalPlugin 'test', 'transmart-core-db-tests'
     configureInternalPlugin 'compile', 'transmart-gwas'
     configureInternalPlugin 'compile', 'transmart-java'
     configureInternalPlugin 'compile', 'biomart-domain'

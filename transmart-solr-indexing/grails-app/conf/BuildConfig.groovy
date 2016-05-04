@@ -48,7 +48,9 @@ grails.project.dependency.resolution = {
 
 dm?.with {
     configureInternalPlugin 'compile', 'folder-management'
+    configureInternalPlugin 'compile', 'search-domain'
     configureInternalPlugin 'compile', 'biomart-domain'
+    configureInternalPlugin 'compile', 'transmart-legacy-db'
     configureInternalPlugin 'runtime', 'transmart-core'
     configureInternalPlugin 'test', 'transmart-core-db-tests'
 }
