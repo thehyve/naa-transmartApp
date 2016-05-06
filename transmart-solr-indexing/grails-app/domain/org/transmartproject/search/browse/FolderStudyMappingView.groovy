@@ -1,5 +1,7 @@
 package org.transmartproject.search.browse
 
+import grails.util.Holders
+
 class FolderStudyMappingView implements Serializable {
 
     Long folderId
@@ -12,6 +14,9 @@ class FolderStudyMappingView implements Serializable {
         id composite: ['folderId']
 
         conceptPath column: 'c_fullname'
+        if (Holders.grailsApplication.config.dataSource.dialect.contains('Oracle')) {
+            root type: 'yes_no'
+        }
         version false
     }
 

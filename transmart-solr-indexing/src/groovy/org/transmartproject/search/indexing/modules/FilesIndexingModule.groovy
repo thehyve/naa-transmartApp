@@ -59,19 +59,27 @@ class FilesIndexingModule implements FacetsIndexingModule {
     private FacetsDocument convert(FmFile fmFile) {
         def builder = FacetsDocument.newFieldValuesBuilder()
         builder[FIELD_FILENAME] = fmFile.originalName
-        String folderUniqueId = fmFile.folder.uniqueId /* typically FOL:<folder id> */
-        if (folderUniqueId =~ /\AFOL:/) {
+        String folderUniqueId = fmFile.folder?.uniqueId /* typically FOL:<folder id> */
+        if (!folderUniqueId) {
+            log.warn "No folder found for file $fmFile"
+        } else if (folderUniqueId =~ /\AFOL:/) {
             Long folderId = folderUniqueId.replaceFirst(/\AFOL:/, '') as Long
             builder[FIELD_FOLDER_ID] = folderId
         } else {
             log.warn("Unexpected unique id: $folderUniqueId")
         }
 
+        def file = new File(filestoreDirectory + File.separator +
+                fmFile.filestoreLocation + File.separator + fmFile.filestoreName)
+        if (!file.exists()) {
+            log.warn "File $file not found (backing FmFile $fmFile)"
+            file = null
+        }
+
         new FacetsDocument(
                 facetsDocId: new FacetsDocId(FILE_DOC_TYPE, fmFile.id.toString() /* not fmFile.uniqueId! */),
                 fieldValues: builder.build(),
-                file: new File(filestoreDirectory + File.separator +
-                        fmFile.filestoreLocation + File.separator + fmFile.filestoreName))
+                file: file)
     }
 
     @Override

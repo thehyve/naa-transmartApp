@@ -3,6 +3,7 @@ package org.transmartproject.search.indexing.modules
 import com.google.common.collect.AbstractIterator
 import com.google.common.collect.HashMultimap
 import com.google.common.collect.ImmutableSet
+import com.google.common.collect.Iterators
 import com.google.common.collect.Multimap
 import grails.plugin.cache.ehcache.GrailsEhcacheCacheManager
 import net.sf.ehcache.Ehcache
@@ -47,21 +48,26 @@ class ConceptNamesIndexingModule implements FacetsIndexingModule {
     @Override
     Iterator<FacetsDocId> fetchAllIds(String type) {
         if (type != CONCEPT_DOC_TYPE) {
-            return [] as Set
+            return Iterators.emptyIterator()
         }
 
         List<OntologyTerm> toProcess = []
         toProcess += allCategories.values()
 
         new AbstractIterator<FacetsDocId>() {
+            private List<String> lastQueryNames
+
             @Override
             protected FacetsDocId computeNext() {
+                if (lastQueryNames) {
+                    return new FacetsDocId(CONCEPT_DOC_TYPE, lastQueryNames.pop())
+                }
                 if (toProcess.empty) {
                     return endOfData()
                 }
                 def el = toProcess.pop()
-                toProcess += el.children
-                new FacetsDocId(CONCEPT_DOC_TYPE, el.fullName)
+                lastQueryNames = el.getAllDescendants()*.fullName
+                computeNext()
             }
         }
     }

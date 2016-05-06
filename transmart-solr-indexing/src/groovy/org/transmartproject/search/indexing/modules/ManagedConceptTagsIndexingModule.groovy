@@ -48,8 +48,8 @@ class ManagedConceptTagsIndexingModule implements FacetsIndexingModule {
         SQLQuery query
         def q = '''
             SELECT P.path, folder_id FROM
-            (SELECT DISTINCT path FROM i2b2metadata.i2b2_tags WHERE tag_option_id IS NOT NULL) AS P
-            LEFT JOIN biomart_user.folder_study_mapping FSM ON (FSM.root IS TRUE AND P.path = FSM.c_fullname)
+            (SELECT DISTINCT path FROM i2b2metadata.i2b2_tags WHERE tag_option_id IS NOT NULL) P
+            LEFT JOIN biomart_user.folder_study_mapping FSM ON (FSM.root = 'Y' AND P.path = FSM.c_fullname)
             WHERE P.path IN (SELECT c_fullname FROM i2b2metadata.i2b2_trial_nodes)
         '''
 
@@ -74,7 +74,7 @@ class ManagedConceptTagsIndexingModule implements FacetsIndexingModule {
         def q = '''
             select folder_id, O.value, solr_field_name, TT.value_type, path
             from i2b2metadata.i2b2_tags T
-            left join biomart_user.folder_study_mapping FSM ON (T.path = FSM.c_fullname AND FSM.root IS TRUE)
+            left join biomart_user.folder_study_mapping FSM ON (T.path = FSM.c_fullname AND FSM.root = 'Y')
             inner join i2b2metadata.i2b2_tag_options O ON (T.tag_option_id = O.tag_option_id)
             natural inner join i2b2metadata.i2b2_tag_types TT
         '''
@@ -147,7 +147,7 @@ class ManagedConceptTagsIndexingModule implements FacetsIndexingModule {
 
         // XXX: temporary until core-api is extended to properly support controlled tags
         SQLQuery query = sessionFactory.currentSession.createSQLQuery '''
-            SELECT tag_type, index
+            SELECT tag_type, "index"
             FROM i2b2metadata.i2b2_tag_types
             WHERE solr_field_name = :solr_field_name
                 AND value_type = :value_type

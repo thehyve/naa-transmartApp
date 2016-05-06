@@ -3,6 +3,7 @@ package org.transmartproject.search.indexing.modules
 import annotation.AmTagAssociation
 import annotation.AmTagItem
 import com.google.common.collect.ImmutableSet
+import com.google.common.collect.Iterators
 import org.hibernate.SQLQuery
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -46,7 +47,7 @@ class BrowseTagsIndexingModule implements FacetsIndexingModule {
     '''
 
     private static final String QUERY_SPECIFIC = """
-        SELECT * FROM ($QUERY_ALL) AS A WHERE unique_id IN (:unique_ids)
+        SELECT * FROM ($QUERY_ALL) A WHERE unique_id IN (:unique_ids)
     """
 
     final String name = 'browse_tags'
@@ -56,7 +57,7 @@ class BrowseTagsIndexingModule implements FacetsIndexingModule {
     @Override
     Iterator<FacetsDocId> fetchAllIds(String type) {
         if (type !=  FOLDER_DOC_TYPE) {
-            return [] as Set
+            return Iterators.emptyIterator()
         }
 
         AmTagAssociation.createCriteria().list {
@@ -106,7 +107,7 @@ class BrowseTagsIndexingModule implements FacetsIndexingModule {
                 TAG_FIELDS_PRECEDENCE + (item.displayOrder ?: NO_DISPLAY_ORDER_PENALTY))
     }
 
-    private createField(String tagTypeName, String tagItemDescription, Integer displayOrder) {
+    private createField(String tagTypeName, String tagItemDescription, Number displayOrder) {
         def tagTypeNameForIndex = tagTypeName
                 .toLowerCase(Locale.ENGLISH)
 
@@ -115,7 +116,7 @@ class BrowseTagsIndexingModule implements FacetsIndexingModule {
                 FIELD_NAME_PREFIX + tagTypeNameForIndex + fieldSuffix,
                 HIDE_FROM_LISTINGS,
                 tagItemDescription,
-                TAG_FIELDS_PRECEDENCE  + (displayOrder ?: NO_DISPLAY_ORDER_PENALTY))
+                (TAG_FIELDS_PRECEDENCE  + (displayOrder ?: NO_DISPLAY_ORDER_PENALTY)) as int)
     }
 
     private convert(String folderUniqueId, List<Object[]> rows) {
