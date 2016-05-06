@@ -1,11 +1,15 @@
 import annotation.AmTagItem
+import annotation.AmTagTemplate
 import grails.converters.JSON
 import org.transmart.biomart.Experiment
 import org.transmart.searchapp.AuthUser
 import org.transmartproject.browse.fm.FmFolderAssociation
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.OntologyTerm
+import org.transmartproject.core.ontology.OntologyTermTagsResource
 import org.transmartproject.core.users.User
+import org.transmartproject.browse.fm.FmFolder
+import org.transmartproject.core.ontology.Study
 
 import javax.annotation.Resource
 
@@ -21,6 +25,7 @@ class OntologyController {
     def amTagItemService
     ConceptsResource conceptsResourceService
     def exportMetadataService
+    OntologyTermTagsResource ontologyTermTagsResourceService
 
     @Resource
     User currentUserBean
@@ -80,71 +85,71 @@ class OntologyController {
                 log.trace(access as JSON)
             }
 
-	def showConceptDefinition =
-	{
-		def conceptPath=i2b2HelperService.keyToPath(params.conceptKey);
-		def node=i2b2.OntNode.get(conceptPath);
+    def showConceptDefinition = {
+        def model = [:]
 
-        OntologyTerm term = conceptsResourceService.getByKey(conceptPath)
+        OntologyTerm term = conceptsResourceService.getByKey(params.conceptKey)
 
-            //Disabled check for trial - show all study metadata in the same way as the Browse view
-		//def testtag=new i2b2.OntNodeTag(tag:'test', tagtype:'testtype');
-		//node.addToTags(testtag);
-		//node.save();
-//		def trial=node.tags.find{ w -> w.tagtype =="Trial" }
-//		if(trial!=null)
-//		{
-//			def trialid=trial.tag;
-//			chain(controller:'trial', action:'trialDetailByTrialNumber', id:trialid)
-//		}
+        //high dimensional information
+        if (term.visualAttributes.contains(OntologyTerm.VisualAttributes.HIGH_DIMENSIONAL)) {
+            def dataTypeConstraint = highDimensionResourceService.createAssayConstraint(
+                    AssayConstraint.ONTOLOGY_TERM_CONSTRAINT,
+                    concept_key: term.key)
+
+            model.subResourcesAssayMultiMap = highDimensionResourceService
+                    .getSubResourcesAssayMultiMap([dataTypeConstraint])
+        }
+
+        //browse tab tags
+        model.browseStudyInfo = getBrowseStudyInfo(term)
+
+        //ontology term tags
+        def tagsMap = ontologyTermTagsResourceService.getTags([ term ] as Set, false)
+        model.tags = tagsMap?.get(term)
 
         //data type info of all descendants
         def dataTypeInfo = exportMetadataService.getHighDimMetaData(term)
+        model.dataTypes = dataTypeInfo.dataTypes
 
         //study info
-        def studyId = term.study.id;
-        def studyName = term.name;
+        model.studyId = term.study.id;
+        model.studyName = term.name;
 
         //user
-        def userId = springSecurityService.principal.id;
-        def userName = springSecurityService.principal.username;
+        model.userId = springSecurityService.principal.id;
+        model.userName = springSecurityService.principal.username;
 
         //access
-        def hasAccess = currentUserBean.canPerform(BUILD_COHORT, term.study)
+        model.hasAccess = currentUserBean.canPerform(BUILD_COHORT, term.study)
 
-        //Check for study by visual attributes
-            if (node.visualattributes.contains("S")) {
-                def accession = node.sourcesystemcd
-                def study = Experiment.findByAccession(accession?.toUpperCase())
-                def folder
-                if (study) {
-                    folder = FmFolderAssociation.findByObjectUid(study.getUniqueId().uniqueId)?.fmFolder
-                } else {
-                    render(status: 200, text: "No study definition found for accession: " + accession)
-            return
+        render template: 'showDefinition', model: model
     }
 
-                def amTagTemplate = amTagTemplateService.getTemplate(folder.getUniqueId())
-                List<AmTagItem> metaDataTagItems = amTagItemService.getDisplayItems(amTagTemplate.id)
-
-                render(template: 'showStudy', model: [folder: folder,
-                                                      bioDataObject: study,
-                                                      metaDataTagItems: metaDataTagItems,
-                                                      dataTypes: dataTypeInfo.dataTypes,
-                                                      studyId: studyId,
-                                                      studyName: studyName,
-                                                      userId: userId,
-                                                      userName: userName,
-                                                      hasAccess: hasAccess])
-            } else {
-                render(template: 'showDefinition', model: [tags: node.tags,
-                                                           dataTypes: dataTypeInfo.dataTypes,
-                                                           studyId: studyId,
-                                                           studyName: studyName,
-                                                           userId: userId,
-                                                           userName: userName,
-                                                           hasAccess: hasAccess])
+    private def getBrowseStudyInfo = { OntologyTerm term ->
+        Study study = term.study
+        if (study?.ontologyTerm != term) {
+            return [:]
         }
+
+        Experiment experiment = Experiment.findByAccession(study.id.toUpperCase())
+        if (!experiment) {
+            log.debug("No experiment entry found for ${study.id} study.")
+            return [:]
+        }
+
+        FmFolder folder = FmFolderAssociation.findByObjectUid(experiment.uniqueId?.uniqueId)?.fmFolder
+        if (!folder) {
+            log.debug("No fm folder found for ${study.id} study.")
+            return [:]
+        }
+
+        AmTagTemplate amTagTemplate = amTagTemplateService.getTemplate(folder.uniqueId)
+        List<AmTagItem> metaDataTagItems = amTagItemService.getDisplayItems(amTagTemplate?.id)
+        [
+                folder          : folder,
+                bioDataObject   : experiment,
+                metaDataTagItems: metaDataTagItems
+        ]
     }
 
 }
