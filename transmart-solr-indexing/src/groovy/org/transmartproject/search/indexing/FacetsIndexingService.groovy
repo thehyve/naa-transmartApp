@@ -3,7 +3,6 @@ package org.transmartproject.search.indexing
 import com.google.common.collect.HashMultimap
 import com.google.common.collect.Lists
 import com.google.common.collect.Multimap
-import com.google.common.collect.Sets
 import grails.util.Holders
 import groovy.util.logging.Log4j
 import org.apache.solr.client.solrj.request.AbstractUpdateRequest
@@ -17,7 +16,6 @@ import org.springframework.core.Ordered
 import org.springframework.stereotype.Component
 import org.transmartproject.core.concept.ConceptFullName
 
-import static org.transmartproject.search.indexing.FacetsFieldImpl.create
 import static org.transmartproject.search.indexing.FacetsFieldImpl.create
 
 @Component
@@ -168,7 +166,7 @@ class FacetsIndexingService implements InitializingBean {
 
     private void addDocumentInternal(SolrInputDocument doc) {
         assert doc != null
-        logException 'adding document', { solrFacetsCore.add doc }
+        withRetry 'adding document', { solrFacetsCore.add doc }
 
         uncommittedDocuments << doc
         if (doc.containsKey(FIELD_NAME_FILE_PATH)) {
@@ -222,11 +220,16 @@ class FacetsIndexingService implements InitializingBean {
         }
     }
 
-    private logException(String activity, Closure closure) {
+    private withRetry(String activity, Closure closure) {
         try {
             closure.call()
         } catch (SolrException | IOException e) {
-            log.error "Error $activity: $e.message", e
+            log.warn "Error $activity, will retry: $e.message", e
+            try {
+                closure.call()
+            } catch (SolrException | IOException e2) {
+                log.error "Error $activity: $e2.message", e2
+            }
         }
     }
 
@@ -252,7 +255,7 @@ class FacetsIndexingService implements InitializingBean {
                 true /* waitFlush */,
                 true /* waitSearcher */)
 
-        logException "Extracting data for document $doc", {
+        withRetry "Extracting data for document $doc", {
             solrFacetsCore.request req
         }
     }
