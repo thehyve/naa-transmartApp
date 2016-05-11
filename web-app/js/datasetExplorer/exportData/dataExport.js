@@ -283,7 +283,8 @@ DataExport.prototype.groupAndTranspose = function(files) {
             });
             skip[j] = true;
         }
-        groupedfiles.push.apply(groupedfiles, Object.values(group_platforms));
+        var group_platform_values = jQuery.map(group_platforms, function(val, key) { return val; });
+        groupedfiles.push.apply(groupedfiles, group_platform_values);
     }
 
     return groupedfiles;
@@ -362,7 +363,7 @@ DataExport.prototype.prepareNewStore = function (store, columns, selectedCohortD
     var _get_export_data_tip = function (files) {
         var _str_data_type = 'low dimensional';
 
-        files.each(function (file) {
+        jQuery(files).each(function (file) {
             if (file.platforms) {
 
                 file.platforms.each(function (platform) {

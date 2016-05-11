@@ -110,40 +110,6 @@ class SolrService {
     }
 
     /**
-     * This method takes a hashmap in an expected solr layout category:[item:count] and reorders it so that the item specified by the second parameter is on top of that categories list.
-     * @param mapToModify A hashmap in the expected solr format category:[item:count,item:count]
-     * @param termToFloat A string representing the name of the item that should be preserved on top.
-     * @return
-     */
-    def floatTopValue(mapToModify, termToFloat) {
-        //For each category in the hash, we attempt to remove a term, if succesful we put it back on top.
-        mapToModify.each
-                {
-                    termList ->
-
-                        //Attempt to remove a term. null is returned if the term was not found.
-                        def valueRemoved = termList.value.remove(termToFloat)
-
-                        //If a value is removed, the value returned is the value of the term.
-                        if (valueRemoved) {
-                            //The new map with the desired ordering.
-                            def newMap = [:]
-
-                            //Add our item first.
-                            newMap[termToFloat] = valueRemoved
-                            //Put the rest of the items back in the list.
-                            newMap.putAll(termList.value)
-
-                            //Assign the map back to the category list.
-                            termList.value = newMap
-                        }
-
-                }
-
-        return mapToModify
-    }
-
-    /**
      * This method will pull "documents" from solr based on the passed in JSON Criteria.
      * @param solrServer Base URL for the solr server.
      * @param JSONObject An object that looks like {"SearchJSON":{"Pathology":["Liver, Cancer of","Colorectal Cancer"]}}* @param resultColumns The list of columns we want returned.
@@ -265,50 +231,50 @@ class SolrService {
 
         def resultMapList = ['rows': []]
 
-        //Facet the search on the field specified in the parameter.
+            //Facet the search on the field specified in the parameter.
         def html = http.get(path: '/solr/terms', query: ['terms.regex': termPrefix.toString() + ".*", 'terms.fl': fieldList.tokenize(","), 'rows': numberOfSuggestions, 'terms.regex.flag': 'case_insensitive'])
-                {
-                    resp, xml ->
+                    {
+                        resp, xml ->
 
-                        //We should probably do something with the status.
-                        if (resp.status != "200") Log.error("Response status from solr web service call: ${resp.status}")
+                            //We should probably do something with the status.
+                            if (resp.status != "200") Log.error("Response status from solr web service call: ${resp.status}")
 
-                        //For each lst we look for the "terms" one.
-                        xml.lst.each
-                                {
-                                    outerlst ->
+                            //For each lst we look for the "terms" one.
+                            xml.lst.each
+                                    {
+                                        outerlst ->
 
-                                        //If we are on the terms one, we cycle through the children.
+                                            //If we are on the terms one, we cycle through the children.
                                         if (outerlst.@name == 'terms') {
-                                            //For each of these lst tags with int children we need to create an entry in the result hash.
+                                                //For each of these lst tags with int children we need to create an entry in the result hash.
                                             outerlst.lst.each
-                                                    {
-                                                        innerlst ->
+                                                        {
+                                                            innerlst ->
 
-                                                            //If this lst has children, add an entry to the result hash.
+                                                                //If this lst has children, add an entry to the result hash.
                                                             innerlst.int.each
-                                                                    {
-                                                                        termItem ->
+                                                                        {
+                                                                            termItem ->
 
-                                                                            //Create a temporary hash to hold the mapped results.
-                                                                            def tempMap = [:]
+                                                                                //Create a temporary hash to hold the mapped results.
+                                                                                def tempMap = [:]
 
-                                                                            //To the temp map add entries for the category and display.
+                                                                                //To the temp map add entries for the category and display.
                                                                             tempMap['id'] = innerlst.@name.toString() + "|" + termItem.@name.toString()
-                                                                            tempMap['source'] = ""
+                                                                                tempMap['source'] = ""
                                                                             tempMap['keyword'] = termItem.@name.toString() + " (" + termItem.toString() + ")"
-                                                                            tempMap['synonyms'] = ""
+                                                                                tempMap['synonyms'] = ""
                                                                             tempMap['category'] = innerlst.@name.toString()
                                                                             tempMap['display'] = innerlst.@name.toString().replace("_", " ")
 
-                                                                            //Add the mapping to our master map.
-                                                                            resultMapList['rows'].add(tempMap)
-                                                                    }
+                                                                                //Add the mapping to our master map.
+                                                                                resultMapList['rows'].add(tempMap)
+                                                                        }
 
-                                                    }
-                                        }
-                                }
-                }
+                                                        }
+                                            }
+                                    }
+                    }
 
         return resultMapList
 
@@ -374,51 +340,6 @@ class SolrService {
 
         //Return the list of ID's.
         return IdList;
-    }
-
-    /**
-     * Gets a list of all the available fields from Solr.
-     */
-    def getCategoryList(String fieldExclusionList) {
-        //Get the URL from the config file.
-        String solrServerUrl = grailsApplication.config.com.recomdata.solr.baseURL
-
-        //Create the http object we will use to retrieve the field list.
-        def http = new HTTPBuilder(solrServerUrl)
-
-        def resultList = []
-
-        System.out.println(solrServerUrl);
-        //System.err.println(solrServerUrl)
-        //The luke request handler returns schema data.
-        def html = http.get(path: 'admin/luke/')
-                {
-                    resp, xml ->
-
-                        //For each lst we look for the "fields" node.
-                        xml.lst.each
-                                {
-                                    outerlst ->
-
-                                        //If we are on the "fields" node, we cycle through the children.
-                                        if (outerlst.@name == 'fields') {
-                                            //For each of these lst tags we grab the name attribute which represents a field name.
-                                            outerlst.lst.each
-                                                    {
-                                                        innerlst ->
-
-                                                            //We don't want to return the fields in the exclusion list.
-                                                            if (!(fieldExclusionList.contains(innerlst.@name.toString() + "|"))) {
-                                                                //Add the mapping to our master map.
-                                                                resultList.add(innerlst.@name.toString())
-                                                            }
-                                                    }
-                                        }
-                                }
-
-                        return resultList
-                }
-
     }
 
     /**
@@ -521,11 +442,11 @@ class SolrService {
                                             //Now that we have one category in the set, we need to add an AND in the future.
                                             doWeNeedAnd = true
                                         }
-                                }
+                        }
                 }
 
         //Close the solrQuery.
-        solrQuery += ")"
+            solrQuery += ")"
 
         return solrQuery
 

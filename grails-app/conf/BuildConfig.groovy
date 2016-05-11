@@ -34,6 +34,8 @@ if (dmClass) {
 }
 
 grails.project.dependency.resolution = {
+    legacyResolve true
+
     // inherit Grails' default dependencies
     inherits("global") {}
     log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
@@ -131,7 +133,8 @@ grails.project.dependency.resolution = {
         compile ':spring-security-oauth2-provider:2.0-RC4'
 
         runtime ':prototype:1.0'
-        runtime ':jquery:1.7.1'
+        runtime ':jquery:1.11.1'
+        runtime ':jquery-ui:1.10.4'
 
         runtime ':resources:1.2.7'
 
@@ -173,6 +176,8 @@ dm?.with {
 
 dm?.inlineInternalDependencies grails, grailsSettings
 
+grails.plugin.location.'transmart-solr-indexing' = "./transmart-solr-indexing"
+
 grails.war.resources = { stagingDir ->
     delete(file: "${stagingDir}/WEB-INF/lib/servlet-api-${grails.servlet.version}.jar")
 }
@@ -191,6 +196,5 @@ codenarc.reports = {
     }
 }
 
-grails.plugin.location.smartR = '../smartR'
-
+//grails.plugin.location.smartR = '../smartR'
 // vim: set et ts=4 sw=4:
