@@ -19,9 +19,13 @@
 
 import grails.plugin.springsecurity.SecurityFilterPosition
 import grails.plugin.springsecurity.SpringSecurityUtils
+import grails.util.Holders
 import org.codehaus.groovy.grails.exceptions.GrailsConfigurationException
 import org.codehaus.groovy.grails.plugins.GrailsPluginUtils
+import org.hibernate.type.StandardBasicTypes
 import org.slf4j.LoggerFactory
+
+import java.sql.Types
 
 class BootStrap {
 
@@ -64,6 +68,13 @@ class BootStrap {
 
         // force marshaller registrar initialization
         grailsApplication.mainContext.getBean 'marshallerRegistrarService'
+
+        // work around "No Dialect mapping for JDBC type: -9" on Oracle (NVARCHAR not mapped)
+        if (grailsApplication.config.dataSource.dialect.contains('Oracle')) {
+            Holders.applicationContext.sessionFactory.
+                    dialect.registerHibernateType(
+                    Types.NVARCHAR, StandardBasicTypes.STRING.name)
+        }
 
         if ('clientCredentialsAuthenticationProvider' in
                 grailsApplication.config.grails.plugin.springsecurity.providerNames) {

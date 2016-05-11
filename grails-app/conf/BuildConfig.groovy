@@ -43,6 +43,8 @@ if (dmClass) {
 }
 
 grails.project.dependency.resolution = {
+    legacyResolve true
+
     // inherit Grails' default dependencies
     inherits("global") {}
     log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
@@ -140,7 +142,8 @@ grails.project.dependency.resolution = {
         compile ':spring-security-oauth2-provider:2.0-RC4'
 
         runtime ':prototype:1.0'
-        runtime ':jquery:1.7.1'
+        runtime ':jquery:1.11.1'
+        runtime ':jquery-ui:1.10.4'
 
         runtime ':resources:1.2.7'
 
@@ -162,9 +165,8 @@ grails.project.dependency.resolution = {
             runtime ':transmart-core:1.2.2'
 			runtime ':transmart-rest-api:1.2.2'
             compile ':transmart-gwas:1.2.2'
-			 */
-			
-            //test ':transmart-core-db-tests:1.2.2'
+
+            test ':transmart-core-db-tests:1.2.2'
 
         } else {
             dm.internalDependencies delegate
@@ -181,7 +183,7 @@ dm?.with {
 	configureInternalPlugin 'compile', 'biomart-domain'
     configureInternalPlugin 'runtime', 'rdc-rmodules'
     configureInternalPlugin 'runtime', 'transmart-core'
-    //configureInternalPlugin 'test', 'transmart-core-db-tests'
+    configureInternalPlugin 'test', 'transmart-core-db-tests'
     configureInternalPlugin 'compile', 'transmart-gwas'
     configureInternalPlugin 'compile', 'transmart-java'
     
@@ -192,6 +194,8 @@ dm?.with {
 }
 
 dm?.inlineInternalDependencies grails, grailsSettings
+
+grails.plugin.location.'transmart-solr-indexing' = "./transmart-solr-indexing"
 
 grails.war.resources = { stagingDir ->
     delete(file: "${stagingDir}/WEB-INF/lib/servlet-api-${grails.servlet.version}.jar")
@@ -212,5 +216,4 @@ codenarc.reports = {
 }
 
 //grails.plugin.location.smartR = '../smartR'
-
 // vim: set et ts=4 sw=4:

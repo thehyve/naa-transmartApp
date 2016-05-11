@@ -19,6 +19,7 @@
 
 
 import com.google.common.collect.ImmutableMap
+import com.recomdata.extensions.ExtensionsRegistry
 import org.apache.log4j.Logger
 import org.codehaus.groovy.grails.commons.spring.DefaultBeanConfiguration
 import org.springframework.beans.factory.config.CustomScopeConfigurer
@@ -131,5 +132,7 @@ beans = {
             logger.info "Skipped Oauth2 Grails plugin initialization (doWithApplicationContext)"
             return {}
         }
+    }
+    transmartExtensionsRegistry(ExtensionsRegistry) {
     }
 }

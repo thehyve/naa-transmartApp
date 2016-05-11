@@ -92,7 +92,7 @@ Ext.ux.OntologyTreeLoader = Ext.extend(Ext.tree.TreeLoader, {
             if(c.attributes.level <= '1' && GLOBAL.PathToExpand != '' && GLOBAL.PathToExpand.indexOf(c.attributes.id) == -1) {
                 //However, don't filter studies/top folders out if a higher-level match exists
                 var highLevelMatchFound = false;
-                for (var j = 0; j < matchList.size()-1; j++) { //-1 here - leave out last result (trailing comma)	
+                for (var j = 0; j < matchList.length-1; j++) { //-1 here - leave out last result (trailing comma)
                     if (c.id.startsWith(matchList[j]) && c.id != matchList[j]) {
                         highLevelMatchFound = true;
                         break;
@@ -214,7 +214,7 @@ var mobj=result;
     var blah = node;
     node.beginUpdate();
     var children = node.childNodes;
-    var size2 = children.size()
+    var size2 = children.length;
     for (var i = 0; i < size2; i++) {
         var key = children[i].attributes.id;
         var fullname = key.substr(key.indexOf("\\", 2), key.length);

@@ -27,7 +27,6 @@
 		<link rel="stylesheet" href="${resource(dir:'js', file:'ext/resources/css/ext-all.css')}"></link>
 		<link rel="stylesheet" href="${resource(dir:'js', file:'ext/resources/css/xtheme-gray.css')}"></link>
 		<link rel="stylesheet" href="${resource(dir:'css', file:'main.css')}"></link>
-		<link rel="stylesheet" href="${resource(dir:'css',file:'/jquery/cupertino/jquery-ui-1.8.18.custom.css')}"></link>   
         <link rel="stylesheet" href="${resource(dir:'css/jquery/skin', file:'ui.dynatree.css')}"></link>
         <link rel="stylesheet" href="${resource(dir:'css', file:'rwg.css')}"></link>
         <link rel="stylesheet" href="${resource(dir:'css', file:'uploadData.css')}"></link>
@@ -40,9 +39,17 @@
 		</style>
 	<![endif]-->
 		
-		<g:javascript library="prototype" />
-<script type="text/javascript" src="${resource(dir:'js/jQuery', file:'jquery-1.8.3.min.js')}"></script>
-<script type="text/javascript" src="${resource(dir:'js/jQuery', file:'jquery-ui.min.js')}"></script>
+<title>${grailsApplication.config.com.recomdata.dataUpload.appTitle}</title>
+<!-- ************************************** -->
+<!-- This implements the Help functionality -->
+<script language="javascript">
+    helpURL = '${grailsApplication.config.com.recomdata.adminHelpURL}';
+</script>
+<!-- ************************************** -->
+<g:javascript library="prototype" />
+<g:javascript libary="jquery" />
+<r:require module="uploadDataTab" />
+<r:layoutResources/>
 <script type="text/javascript">$j = jQuery.noConflict();</script>
 <script type="text/javascript" src="${resource(dir:'js', file:'uploadData.js')}"></script>
 <script type="text/javascript" charset="utf-8">
@@ -59,7 +66,7 @@ jQuery("#sensitiveDesc").hide();
 jQuery("#sensitiveFlag").val('1');
 });
 
-var helpURL = '${grailsApplication.config.com.recomdata.searchtool.adminHelpURL}';
+var helpURL = '${grailsApplication.config.com.recomdata.adminHelpURL}';
 var contact = '${grailsApplication.config.com.recomdata.searchtool.contactUs}';
 var appTitle = '${grailsApplication.config.com.recomdata.searchtool.appTitle}';
 var buildVer = 'Build Version: <g:meta name="environment.BUILD_NUMBER"/> - <g:meta name="environment.BUILD_ID"/>';
@@ -68,15 +75,6 @@ var buildVer = 'Build Version: <g:meta name="environment.BUILD_NUMBER"/> - <g:me
     updateStudyTable('${study.accession}');
 </g:if>
 </script>
-<title>${grailsApplication.config.com.recomdata.dataUpload.appTitle}</title>
-<!-- ************************************** -->
-<!-- This implements the Help functionality -->
-<script type="text/javascript" src="${resource(dir:'js', file:'help/D2H_ctxt.js')}"></script>
-<script language="javascript">
-    helpURL = '${grailsApplication.config.com.recomdata.searchtool.adminHelpURL}';
-</script>
-<!-- ************************************** -->
-<r:layoutResources/>
 </head>
 <body>
 <div id="header-div">

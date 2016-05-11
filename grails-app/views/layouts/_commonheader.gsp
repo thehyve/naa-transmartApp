@@ -97,12 +97,6 @@
 	</tr>
 </table>
 
-<link rel="stylesheet" type="text/css" href="${resource(dir:'css', file:'sanofi.css')}">
-
-<script type="text/javascript" src="${resource(dir:'js/jQuery', file:'jquery.idletimeout.js')}"></script>
-<script type="text/javascript" src="${resource(dir:'js/jQuery', file:'jquery.idletimer.js')}"></script>
-<script type="text/javascript" src="${resource(dir:'js', file:'sessiontimeout.js')}"></script>
-
 <!-- Session timeout dialog -->
 <div id="timeout-div" title="Your session is about to expire!">
     <p>You will be logged off in <span id="timeout-countdown"></span> seconds.</p>

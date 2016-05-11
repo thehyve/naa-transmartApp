@@ -1,5 +1,6 @@
 <%@ page language="java" import="java.util.*" %>
-<!DOCTYPE html>
+<%@ page language="java" import="grails.converters.JSON" %>
+<!DOCTYPE HTML>
 <html>
 <head>
     <!-- Force Internet Explorer 8 to override compatibility mode -->
@@ -8,89 +9,23 @@
 
     <title>Dataset Explorer</title>
 
-    <link href="${resource(dir: 'images', file: 'i2b2_hive.ico')}" rel="shortcut icon">
-    <link href="${resource(dir: 'images', file: 'i2b2_hive.ico')}" rel="icon">
+    <link href="${resource(dir: 'images', file: 'searchtool.ico')}" rel="shortcut icon" />
+    <link href="${resource(dir: 'images', file: 'searchtool.ico')}" rel="icon" />
 
     <%-- We do not have a central template, so this only works in the database explorer for now --%>
     <g:if test="${['true', true]*.equals(grailsApplication.config.com.recomdata.debug.jsCallbacks).any()}">
         <g:javascript src="long-stack-traces.js"/>
     </g:if>
 
-    <!-- Include Ext and app-specific scripts: -->
-    <script type="text/javascript" src="${resource(dir:'js/sarissa', file:'sarissa.js')}"></script>
-    <script type="text/javascript" src="${resource(dir:'js/sarissa', file: 'sarissa_ieemu_xpath.js')}"></script>
-    <script type="text/javascript" src="${resource(dir:'js/javeline', file: 'javeline_xpath.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'plugins/prototype-1.0/js/prototype', file: 'prototype.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'ext/adapter/ext/ext-base.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js/jQuery', file: 'jquery.min.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js/jQuery', file: 'jquery-ui-1.9.1.custom.min.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js/jQuery', file: 'jquery.tablesorter.min.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'jQuery/jquery.cookie.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'jQuery/jquery.dynatree.min.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'jQuery/jquery.paging.min.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'jQuery/jquery.loadmask.min.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'jQuery/jquery.ajaxmanager.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'jQuery/jquery.numeric.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'jQuery/jquery.colorbox-min.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'jQuery/jquery.simplemodal.min.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'jQuery/jquery.dataTables.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'facetedSearch/facetedSearchBrowse.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'jQuery/ui.multiselect.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'jQuery/jquery.validate.min.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'jQuery/additional-methods.min.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'ajax_queue.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'ext/ext-all.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js/ext-ux', file: 'miframe.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer', file: 'i2b2common.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer', file: 'requests.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer', file: 'ext-i2b2.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer', file: 'workflowStatus.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'myJobs.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer', file: 'reports.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer', file: 'workspace.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer', file:'autocompleteInput.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer', file:'highDimDialog.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer/exportData', file: 'dataExport.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer/exportData', file: 'exportDropTarget.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer/exportData', file: 'dataTab.js')}"></script>
-    <script type="text/javascript" src="${resource(dir:'js/datasetExplorer/exportData', file: 'exportJobsTab.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'fixconsole.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'browserDetect.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js/utils', file: 'json2.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js/utils', file: 'dynamicLoad.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer', file: 'highDimensionData.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'utilitiesMenu.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer', file: 'gridView.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js/datasetExplorer', file: 'datasetExplorer.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'rwgsearch.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'advancedWorkflowFunctions.js')}"></script>
-    <script type="text/javascript" src="${resource(dir:'js', file:'utilitiesMenu.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js/Galaxy', file: 'galaxyExport.js')}"></script>
-    %{--<script type="text/javascript" src="${resource(plugin: 'transmart-ewb', dir: 'js', file: 'ewb.js')}"></script>--}%
-    <script type="text/javascript" src="//yui.yahooapis.com/combo?2.9.0/build/yahoo/yahoo-min.js&2.9.0/build/get/get-min.js"></script>
-
+    <!-- Include jQuery, Ext and app-specific scripts: -->
+    <g:javascript library="jquery" />
+    <r:require module="analyseTab" />
     <tmpl:/RWG/urls/>
-
-    <!-- Include Ext stylesheets here: -->
-    <link rel="stylesheet" type="text/css" href="${resource(dir: 'js/ext/resources/css', file: 'ext-all.css')}">
-    <link rel="stylesheet" type="text/css" href="${resource(dir: 'js/ext/resources/css', file: 'xtheme-gray.css')}">
-    <link rel="stylesheet" type="text/css" href="${resource(dir: 'css/jquery/ui', file: 'jquery-ui-1.9.1.custom.css')}">
-    <link rel="stylesheet" type="text/css" href="${resource(dir: 'css/jquery/skin', file: 'ui.dynatree.css')}">
-    <link rel="stylesheet" type="text/css" href="${resource(dir: 'css', file: 'booktable.css')}">
-    <link rel="stylesheet" type="text/css" href="${resource(dir: 'css', file: 'plotgrid.css')}">
-    <link rel="stylesheet" type="text/css" href="${resource(dir: 'css', file: 'datasetExplorer.css')}">
+    <r:layoutResources/>
     <link rel="stylesheet" type="text/css" href="${resource(dir:'css', file:'folderManagement.css', plugin: 'folder-management')}">
     <script type="text/javascript" src="${resource(dir:'js', file:'folderManagementDE.js', plugin: 'folder-management')}"></script>
 
-    <!-- Adding these validation functions to get the Forest Plot to work. These might be able to be blended into the javascript object that controls the advanced workflow validation. -->
-    <script type="text/javascript" src="${resource(dir:'js/datasetExplorer', file:'workflowValidationFunctions.js')}"></script>
-
-    <r:layoutResources/>
-    <%-- XXX: Use template --%>
-
     <script type="text/javascript">
-        /******************************************************************************/
-        //Global Variables
 
         var pageInfo = {
             basePath: "${request.getContextPath()}"
@@ -98,10 +33,6 @@
 
         GLOBAL = {
             Version: '1.0',
-            Domain: '${i2b2Domain}',
-            ProjectID: '${i2b2ProjectID}',
-            Username: '${i2b2Username}',
-            Password: '${i2b2Password}',
             AutoLogin: true,
             Debug: false,
             NumOfSubsets: 2,
@@ -144,7 +75,7 @@
             Binning: false,
             ManualBinning: false,
             NumberOfBins: 4,
-            HelpURL: '${grailsApplication.config.com.recomdata.searchtool.adminHelpURL}',
+            HelpURL: '${grailsApplication.config.com.recomdata.adminHelpURL}',
             ContactUs: '${grailsApplication.config.com.recomdata.contactUs}',
             AppTitle: '${grailsApplication.config.com.recomdata.appTitle}',
             BuildVersion: 'Build Version: <g:meta name="environment.BUILD_NUMBER"/> - <g:meta name="environment.BUILD_ID"/>',
@@ -163,7 +94,8 @@
             currentSubsetsStudy: '',
             isGridViewLoaded: false,
             galaxyEnabled: '${grailsApplication.config.com.galaxy.blend4j.galaxyEnabled}',
-            galaxyUrl: "${grailsApplication.config.com.galaxy.blend4j.galaxyURL}"
+            galaxyUrl: "${grailsApplication.config.com.galaxy.blend4j.galaxyURL}",
+            analysisTabExtensions: ${grailsApplication.mainContext.getBean('transmartExtensionsRegistry').analysisTabExtensions as JSON}
         };
         // initialize browser version variables; see http://www.quirksmode.org/js/detect.html
         BrowserDetect.init();
@@ -182,19 +114,25 @@
     var sessionOperators = "${rwgSearchOperators}";
     var sessionSearchCategory = "${rwgSearchCategory}";
     var searchPage = "datasetExplorer";
+
     var $j = jQuery.noConflict();
     Ext.BLANK_IMAGE_URL = "${resource(dir:'js', file:'ext/resources/images/default/s.gif')}";
+
+    window.rwgSearchConfig = {
+        requiredField: 'CONCEPT_PATH',
+        onConceptsListChanges: function() { window.datasetExplorer_conceptsListChanges.apply(this, arguments); },
+    };
     var dseOpenedNodes = "${dseOpenedNodes}";
     var dseClosedNodes = "${dseClosedNodes}";
 
     //set ajax to 600*1000 milliseconds
-    Ext.Ajax.timeout = 1800000;
+        Ext.Ajax.timeout = 1800000;
 
     // this overrides the above
-    Ext.Updater.defaults.timeout = 1800000;
+        Ext.Updater.defaults.timeout = 1800000;
 
-    var helpURL = '${grailsApplication.config.com.recomdata.searchtool.adminHelpURL}';
-</script>
+    var helpURL = '${grailsApplication.config.com.recomdata.adminHelpURL}';
+    </script>
 
 <style>
     #dialog-form {
@@ -286,9 +224,8 @@
 <span id="visualizerSpan1"></span> <!-- place applet tag here -->
 <!-- ************************************** -->
 <!-- This implements the Help functionality -->
-<script type="text/javascript" src="${resource(dir: 'js', file: 'help/D2H_ctxt.js')}"></script>
 <script language="javascript">
-    helpURL = '${grailsApplication.config.com.recomdata.searchtool.adminHelpURL}';
+    helpURL = '${grailsApplication.config.com.recomdata.adminHelpURL}';
 </script>
 <!-- ************************************** -->
 <r:layoutResources/><%-- XXX: Use template --%>
