@@ -78,6 +78,7 @@ modules = {
 
         resource url: 'js/advancedWorkflowFunctions.js', disposition: 'head'
         resource url: 'js/ajax_queue.js', disposition: 'head'
+        resource url: 'js/datasetExplorer/autocompleteInput.js', disposition: 'head'
         resource url: 'js/fixconsole.js', disposition: 'head'
         resource url: 'js/myJobs.js', disposition: 'head'
         resource url: 'js/rwgsearch.js', disposition: 'head'
@@ -86,6 +87,7 @@ modules = {
         resource url: 'js/datasetExplorer/ext-i2b2.js', disposition: 'head'
         resource url: 'js/datasetExplorer/gridView.js', disposition: 'head'
         resource url: 'js/datasetExplorer/highDimensionData.js', disposition: 'head'
+        resource url: 'js/datasetExplorer/highDimDialog.js', disposition: 'head'
         resource url: 'js/datasetExplorer/i2b2common.js', disposition: 'head'
         resource url: 'js/datasetExplorer/reports.js', disposition: 'head'
         resource url: 'js/datasetExplorer/requests.js', disposition: 'head'
