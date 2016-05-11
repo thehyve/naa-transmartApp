@@ -20,13 +20,16 @@
 
 import command.SecureObjectAccessCommand
 import org.transmart.searchapp.*
+import org.transmartproject.core.users.User
+import org.transmartproject.core.log.AccessLogEntryResource
 
 class SecureObjectAccessController {
 
-    def accessLogService
-	def springSecurityService
-	
-	
+    AccessLogEntryResource accessLogService
+    def springSecurityService
+    User currentUserBean
+
+
     def index = {
         redirect(action: list, params: params)
 	}
@@ -168,7 +171,8 @@ class SecureObjectAccessController {
 					msg.append("<User:").append(r.name).append(", Permission:").append(access.accessLevelName).append(", Study:").append( secureObjInstance.bioDataUniqueId).append(">");
 				};
 			}
-            accessLogService.adminLog(user, msg.toString())
+            accessLogService?.report(currentUserBean, 'Manage Study Access',
+                eventMessage: msg.toString())
 			def secureObjectAccessList = getSecureObjAccessList(secureObjInstance, access);
 			def userwithoutaccess = getPrincipalsWithoutAccess(secureObjInstance, access, searchtext);
 
@@ -204,9 +208,10 @@ class SecureObjectAccessController {
 						
 				};
 			}
-			
-            accessLogService.adminLog(user, msg.toString())
-			
+
+        accessLogService?.report(currentUserBean, 'Manage Study Access',
+                eventMessage: msg.toString())
+
 		def 	secureObjectAccessList = getSecureObjAccessList(secureObjInstance, access);
 		def 	userwithoutaccess = getPrincipalsWithoutAccess(secureObjInstance, access, searchtext);
 
