@@ -97,12 +97,25 @@ modules = {
         resource url: 'js/datasetExplorer/exportData/exportJobsTab.js', disposition: 'head'
         resource url: 'js/facetedSearch/facetedSearchBrowse.js', disposition: 'head'
         resource url: 'js/utils/dynamicLoad.js', disposition: 'head'
+        resource url: 'js/help/D2H_ctxt.js', disposition: 'head'
 
         resource url: 'js/browserDetect.js', disposition: 'head'
 
         // Adding these validation functions to get the Forest Plot to work.
         // These might be able to be blended into the javascript object that controls the advanced workflow validation
         resource url: 'js/datasetExplorer/workflowValidationFunctions.js', disposition: 'head'
+
+        resource url: 'css/datasetExplorer.css'
+        resource url: 'css/sanofi.css'
+    }
+
+    uploadDataTab {
+        dependsOn 'jquery', 'jquery-ui', 'jquery-plugins', 'extjs', 'session_timeout'
+
+        resource url: 'js/utils/dynamicLoad.js', disposition: 'head'
+        resource url: 'js/help/D2H_ctxt.js', disposition: 'head'
+
+        resource url: 'js/browserDetect.js', disposition: 'head'
 
         resource url: 'css/datasetExplorer.css'
         resource url: 'css/sanofi.css'

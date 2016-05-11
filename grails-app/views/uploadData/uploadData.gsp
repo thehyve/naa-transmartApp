@@ -42,14 +42,13 @@
 <title>${grailsApplication.config.com.recomdata.dataUpload.appTitle}</title>
 <!-- ************************************** -->
 <!-- This implements the Help functionality -->
-<script type="text/javascript" src="${resource(dir:'js', file:'help/D2H_ctxt.js')}"></script>
 <script language="javascript">
     helpURL = '${grailsApplication.config.com.recomdata.adminHelpURL}';
 </script>
 <!-- ************************************** -->
 <g:javascript library="prototype" />
 <g:javascript libary="jquery" />
-<r:require module="analyseTab" />
+<r:require module="uploadDataTab" />
 <r:layoutResources/>
 <script type="text/javascript">$j = jQuery.noConflict();</script>
 <script type="text/javascript" src="${resource(dir:'js', file:'uploadData.js')}"></script>
@@ -67,7 +66,7 @@ jQuery("#sensitiveDesc").hide();
 jQuery("#sensitiveFlag").val('1');
 });
 
-var helpURL = '${grailsApplication.config.com.recomdata.searchtool.adminHelpURL}';
+var helpURL = '${grailsApplication.config.com.recomdata.adminHelpURL}';
 var contact = '${grailsApplication.config.com.recomdata.searchtool.contactUs}';
 var appTitle = '${grailsApplication.config.com.recomdata.searchtool.appTitle}';
 var buildVer = 'Build Version: <g:meta name="environment.BUILD_NUMBER"/> - <g:meta name="environment.BUILD_ID"/>';

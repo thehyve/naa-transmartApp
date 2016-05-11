@@ -75,7 +75,7 @@
             Binning: false,
             ManualBinning: false,
             NumberOfBins: 4,
-            HelpURL: '${grailsApplication.config.com.recomdata.searchtool.adminHelpURL}',
+            HelpURL: '${grailsApplication.config.com.recomdata.adminHelpURL}',
             ContactUs: '${grailsApplication.config.com.recomdata.contactUs}',
             AppTitle: '${grailsApplication.config.com.recomdata.appTitle}',
             BuildVersion: 'Build Version: <g:meta name="environment.BUILD_NUMBER"/> - <g:meta name="environment.BUILD_ID"/>',
@@ -131,7 +131,7 @@
     // this overrides the above
         Ext.Updater.defaults.timeout = 1800000;
 
-    var helpURL = '${grailsApplication.config.com.recomdata.searchtool.adminHelpURL}';
+    var helpURL = '${grailsApplication.config.com.recomdata.adminHelpURL}';
     </script>
 
 <style>
@@ -224,9 +224,8 @@
 <span id="visualizerSpan1"></span> <!-- place applet tag here -->
 <!-- ************************************** -->
 <!-- This implements the Help functionality -->
-<script type="text/javascript" src="${resource(dir: 'js', file: 'help/D2H_ctxt.js')}"></script>
 <script language="javascript">
-    helpURL = '${grailsApplication.config.com.recomdata.searchtool.adminHelpURL}';
+    helpURL = '${grailsApplication.config.com.recomdata.adminHelpURL}';
 </script>
 <!-- ************************************** -->
 <r:layoutResources/><%-- XXX: Use template --%>
