@@ -76,7 +76,7 @@ class ManagedConceptTagsIndexingModule implements FacetsIndexingModule {
             from i2b2metadata.i2b2_tags T
             left join biomart_user.folder_study_mapping FSM ON (T.path = FSM.c_fullname AND FSM.root = 'Y')
             inner join i2b2metadata.i2b2_tag_options O ON (T.tag_option_id = O.tag_option_id)
-            natural inner join i2b2metadata.i2b2_tag_types TT
+            inner join i2b2metadata.i2b2_tag_types TT ON (O.tag_type_id = TT.tag_type_id)
         '''
 
         def res = [] as Set
