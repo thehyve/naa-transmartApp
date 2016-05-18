@@ -28,10 +28,9 @@
 		<title>Gene List Create</title>
 	</g:else>
 
-    <script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery-1.8.3.min.js')}"></script>
-    <script>$j = jQuery.noConflict();</script>
+    <r:script disposition="head">$j = jQuery.noConflict();</r:script>
 
-	<script type="text/javascript">
+    <r:script disposition="head">
 
         jQuery(document).ready(function() {
             var pasteContent;
@@ -174,7 +173,7 @@
             }
 
         }
-	</script>
+	</r:script>
 </head>
 
 <body>

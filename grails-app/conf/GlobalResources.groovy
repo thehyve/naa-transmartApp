@@ -122,4 +122,17 @@ modules = {
         resource url: 'css/datasetExplorer.css'
         resource url: 'css/sanofi.css'
     }
+
+    geneListTab {
+        dependsOn 'jquery', 'jquery-ui', 'jquery-plugins', 'extjs', 'session_timeout'
+
+        resource url: 'js/maintabpanel.js', disposition: 'head'
+        resource url: 'js/toggle.js', disposition: 'head'
+        resource url: 'js/help/D2H_ctxt.js', disposition: 'head'
+
+        resource url: 'css/main.css'
+        resource url: 'css/genesignature.css'
+        resource url: 'css/sanofi.css'
+    }
+
 }
