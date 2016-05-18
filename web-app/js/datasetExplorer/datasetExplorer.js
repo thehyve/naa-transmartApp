@@ -1859,6 +1859,11 @@ function setupDragAndDrop() {
     }
 }
 
+function selectSingleNode(xmlDoc, path, element) {
+    var result = xmlDoc.evaluate(path, element,  null, XPathResult.ANY_TYPE, null);
+    return result.iterateNext();
+}
+
 function getPreviousQueryFromIDComplete(subset, result) {
     if (result.status != 200) {
         queryPanel.el.unmask();
@@ -1869,30 +1874,48 @@ function getPreviousQueryFromIDComplete(subset, result) {
 
     //resetQuery();  //if i do this now it wipes out the other subset i just loaded need to make it subset specific
 
-    var panels = doc.selectNodes("//panel");
+    // see http://www.w3schools.com/xsl/xpath_examples.asp
+    var panel_elements = doc.evaluate('//panel', doc,  null, XPathResult.ANY_TYPE, null);
+    var panels = [];
+    {
+        var i = panel_elements.iterateNext();
+        while (i) {
+            panels.push(i);
+            i = panel_elements.iterateNext();
+        }
+    }
 
     panel:
     for (var p = 0; p < panels.length; p++) {
-            var panelnumber = p + 1
+        var panelnumber = p + 1
 
         showCriteriaGroup(panelnumber); //in case its hidden;
         var panel = document.getElementById("queryCriteriaDiv" + subset + "_" + panelnumber);
-        var invert = panels[p].selectSingleNode("invert").firstChild.nodeValue;
+        var invert = selectSingleNode(doc, 'invert', panels[p]).firstChild.nodeValue;
         if (invert == "1") {
             excludeGroup(null, subset, panelnumber);
         } //set the invert for the panel
 
-        var items = panels[p].selectNodes("item")
+        var item_elements = doc.evaluate('.//item', panels[p], null, XPathResult.ANY_TYPE, null);
+        var items = [];
+        {
+            var i = item_elements.iterateNext();
+            while (i) {
+                items.push(i);
+                i = item_elements.iterateNext();
+            }
+        }
+
         for (var it = 0; it < items.length; it++) {
             var item = items[it];
 
-            var key = item.selectSingleNode("item_key").firstChild.nodeValue;
+            var key = selectSingleNode(doc, 'item_key', item).firstChild.nodeValue;
 
             if (key == "\\\\Public Studies\\Public Studies\\SECURITY\\")
                 continue panel;
 
             /*need all this information for reconstruction but not all is available*/
-            var valuetype = getValue(item.selectSingleNode("constrain_by_value/value_type"), "");
+            var valuetype = getValue(selectSingleNode(doc, "constrain_by_value/value_type", item), "");
             var mode;
 
             if (valuetype == "FLAG") {
@@ -1905,14 +1928,14 @@ function getPreviousQueryFromIDComplete(subset, result) {
                 mode == "novalue";
             }
 
-            var valuenode = item.selectSingleNode("contrain_by_value");
+            var valuenode = selectSingleNode(doc, "contrain_by_value", item);
             var oktousevalues;
             if (valuenode != null && typeof(valuenode) != undefined) {
                 oktousevalues = "Y";
             }
 
-            var operator = getValue(item.selectSingleNode("constrain_by_value/value_operator"), "");
-            var numvalue = getValue(item.selectSingleNode("constrain_by_value/value_constraint"), "");
+            var operator = getValue(selectSingleNode(doc, "constrain_by_value/value_operator", item), "");
+            var numvalue = getValue(selectSingleNode(doc, "constrain_by_value/value_constraint", item), "");
             var lowvalue;
             var highvalue;
             if (operator == "BETWEEN") {
