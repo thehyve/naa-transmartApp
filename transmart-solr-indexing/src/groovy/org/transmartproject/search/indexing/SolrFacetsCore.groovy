@@ -73,9 +73,10 @@ class SolrFacetsCore implements DisposableBean {
         // Provide eviction thread to clear out stale threads.
         evictionThread = Thread.startDaemon 'solrFacetsConnectionEviction', {
             try {
+                Thread thread = Thread.currentThread()
                 while (true) {
-                    synchronized (this) {
-                        wait 5000
+                    synchronized(thread) {
+                        thread.wait 5000
                         manager.closeExpiredConnections()
                         manager.closeIdleConnections(30, TimeUnit.SECONDS)
                     }
