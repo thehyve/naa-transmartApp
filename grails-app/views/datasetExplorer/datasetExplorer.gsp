@@ -120,7 +120,13 @@
 
     window.rwgSearchConfig = {
         requiredField: 'CONCEPT_PATH',
-        onConceptsListChanges: function() { window.datasetExplorer_conceptsListChanges.apply(this, arguments); },
+        onConceptsListChanges: function() {
+            var args = arguments;
+            var that = this;
+            Ext.onReady(function() {
+                window.datasetExplorer_conceptsListChanges.apply(that, args);
+            });
+        }
     };
     var dseOpenedNodes = "${dseOpenedNodes}";
     var dseClosedNodes = "${dseClosedNodes}";
