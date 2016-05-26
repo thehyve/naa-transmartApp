@@ -108,6 +108,7 @@ window.rwgModel = {
         this.searchSpecification.fieldTerms = {};
         this.trigger('search_specification', this.searchSpecification);
     },
+    numberOfResults: undefined,
     _returnedFolders: undefined, // ids only
     get returnedFolders() { return this._returnedFolders; },
     set returnedFolders(v) {
@@ -184,14 +185,14 @@ window.rwgModel = {
 };
 
 window.rwgView = {
-    searchCategoriesEl: /* #search-categories */ undefined,
-    searchInputEl:      /* #search-ac */         undefined,
-    filterBrowserEl:    /* #filter-browser */    undefined,
-    boxSearchEl:        /* #box-search */        undefined,
-    activeSearchEl:     /* #active-search-div */ undefined, // child of box-search
-    globalOperatorEl:   /* #globaloperator */    undefined,
-    clearFiltersEl:     /* #clearbutton */       undefined,
-    noResultsEl:        /* #noAnalyzeResults */  undefined,
+    searchCategoriesEl: /* #search-categories */   undefined,
+    searchInputEl:      /* #search-ac */           undefined,
+    filterBrowserEl:    /* #filter-browser */      undefined,
+    boxSearchEl:        /* #box-search */          undefined,
+    activeSearchEl:     /* #active-search-div */   undefined, // child of box-search
+    globalOperatorEl:   /* #globaloperator */      undefined,
+    clearFiltersEl:     /* #clearbutton */         undefined,
+    nodeSearchMsgEl:    /* #node-search-message */ undefined,
 
     config: {
         requiredField: undefined,
@@ -211,7 +212,7 @@ window.rwgView = {
         this.activeSearchEl     = jQuery('#active-search-div');
         this.globalOperatorEl   = jQuery('#globaloperator');
         this.clearFiltersEl     = jQuery('#clearbutton');
-        this.noResultsEl        = jQuery('#noAnalyzeResults');
+        this.nodeSearchMsgEl    = jQuery('#node-search-message');
 
         this.bindToModel();
         this.bindUIEvents();
@@ -244,7 +245,7 @@ window.rwgView = {
         rwgModel.on('search_specification', this.searchSpecificationChanges.bind(this));
         rwgModel.on('search_specification', this.selectedFiltersChange.bind(this));
         rwgModel.on('search_specification', function(data) { rwgController.performSearch(data, rwgModel.requiredField); });
-        rwgModel.on('concepts_list',        this.config.onConceptsListChanges.bind(this));
+        rwgModel.on('concepts_list',        function(data) { this.config.onConceptsListChanges.call(this, data, rwgModel.numberOfResults); }.bind(this));
         rwgModel.on('folders_list',         this.config.onFoldersListChanges.bind(this));
         rwgModel.on('search_error',         this.searchError.bind(this));
     },
@@ -353,7 +354,7 @@ window.rwgView = {
             this.filterBrowserEl.append(contentDiv);
         }
 
-		this.filterBrowserEl.find('.filtertitle, .filtercontent').remove();
+        this.filterBrowserEl.find('.filtertitle, .filtercontent').remove();
         currentResults.forEach(addField.bind(this));
         this.selectedFiltersChange(rwgModel.searchSpecification);
         this.filterBrowserEl.removeClass('ajaxloading');
@@ -553,16 +554,16 @@ window.rwgController = {
         var data = jQuery.extend({ requiredField: requiredField }, searchSpecification);
 
         if (Object.keys(searchSpecification.fieldTerms).length == 0) {
-        	// nothing to search
-        	rwgModel.returnedFolders = undefined;
-        	rwgModel.returnedConcepts = undefined;
-        	rwgModel.currentFilterResults = undefined;
+            // nothing to search
+            rwgModel.returnedFolders = undefined;
+            rwgModel.returnedConcepts = undefined;
+            rwgModel.currentFilterResults = undefined;
 
-			// TODO: datasetExplorer specific
-			if (window.GLOBAL !== undefined) {
-            window.GLOBAL.PathToExpand = '';
-			}
-        	return;
+            // TODO: datasetExplorer specific
+            if (window.GLOBAL !== undefined) {
+                window.GLOBAL.PathToExpand = '';
+            }
+            return;
         }
 
         this.flyingSearch = jQuery.ajax({
@@ -573,6 +574,7 @@ window.rwgController = {
             data: JSON.stringify(data),
         }).then(function getFacetResults_success(json) {
             rwgModel.returnedFolders = json['folderIds'];
+            rwgModel.numberOfResults = json['numFound'];
             rwgModel.returnedConcepts = json['conceptKeys'];
             rwgModel.currentFilterResults = json['facets'];
         }).fail(function(jqhr) {

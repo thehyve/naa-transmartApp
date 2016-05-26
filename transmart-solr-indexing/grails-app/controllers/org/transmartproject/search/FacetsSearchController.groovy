@@ -48,7 +48,7 @@ class FacetsSearchController {
                                           PSEUDO_FIELD_ALL,]
 
     private static final Pattern LUCENE_SPECIAL_CHARACTER = ~/[\Q+-&|!(){}[]^"~*?:\\E]/
-    private static final int MAX_RESULTS = 100
+    private static final int MAX_RESULTS = 20
 
     // for faceting
     def getFilterCategories() {

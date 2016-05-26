@@ -449,7 +449,7 @@ table.menuDetail th.menuVisited {
 	background: white url(../images/loader-small.gif) right center no-repeat;
 }
 
-#noAnalyzeResults {
+#node-search-message {
 	font-size: 8pt;
 	margin: 8px;
 }

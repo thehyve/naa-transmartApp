@@ -1,3 +1,4 @@
+//# sourceURL=datasetExplorer.js
 
 String.prototype.trim = function() {
     return this.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
@@ -1504,7 +1505,7 @@ function showProjectDialog(projects) {
 
 function projectDialogComplete() {
     jQuery('#box-search').prependTo(jQuery('#westPanel')).show();
-    jQuery('#noAnalyzeResults').prependTo(jQuery('#navigateTermsPanel .x-panel-body'));
+    jQuery('#node-search-message').prependTo(jQuery('#navigateTermsPanel .x-panel-body'));
 
 //    //Now that the ont tree has been set up, call the initial search
 //    showSearchResults();
@@ -1768,15 +1769,13 @@ function getSubCategories(ontresponse) {
         treeRoot.childNodes[c].remove();
     }
 
-    jQuery('#noAnalyzeResults').hide();
-
     for (var c = 0; c < ontRoots.length; c++) {
         var newnode = ontRoots[c];
         treeRoot.appendChild(newnode);
     }
 
     if (ontRoots.length == 0) { //This shouldn't happen!
-        jQuery('#noAnalyzeResults').show();
+        jQuery('#node-search-message').text('No tree root nodes!').show();
     }
 
     if (GLOBAL.Debug) {
@@ -3863,8 +3862,6 @@ function searchByTagComplete(response) {
         treeRoot.childNodes[c].remove();
     }
 
-    jQuery('#noAnalyzeResults').hide();
-
     //Clear path to expand and unique leaves
     GLOBAL.PathToExpand = '';
     GLOBAL.UniqueLeaves = '';
@@ -3889,7 +3886,6 @@ function searchByTagComplete(response) {
     }
 
         if (concepts.length == 0) {
-            jQuery('#noAnalyzeResults').show();
             Ext.getCmp('navigateTermsPanel').render();
             onWindowResize();
 }
@@ -4186,7 +4182,7 @@ function contains(a, obj) {
 }
 
 /* hook for rwgView */
-function datasetExplorer_conceptsListChanges(newList) {
+function datasetExplorer_conceptsListChanges(newList, numDocs) {
     // clear tree
     if (Ext.getCmp('navigateTermsPanel')) {
         var treeRoot = Ext.getCmp('navigateTermsPanel').getRootNode();
@@ -4196,10 +4192,16 @@ function datasetExplorer_conceptsListChanges(newList) {
     }
 
     if (newList === undefined) {
-        this.noResultsEl.hide();
+        this.nodeSearchMsgEl.hide();
         window.getCategories();
     } else if (newList.length > 0) {
-        this.noResultsEl.hide();
+        if (numDocs > 20) {
+            this.nodeSearchMsgEl
+                .text('The search yielded ' + numDocs + ' results. Some will not be shown.')
+                .show();
+        } else {
+            this.nodeSearchMsgEl.hide();
+        }
 
         // create new list with concepts that are a prefix of some other
         // this is called 'unique leaves' in the codebase, even though
@@ -4215,6 +4217,6 @@ function datasetExplorer_conceptsListChanges(newList) {
             });
         }
     } else { /* no results */
-        this.noResultsEl.show();
+        this.nodeSearchMsgEl.text('The search yielded no results.').show();
     }
 }
